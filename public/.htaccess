@@ -4,6 +4,8 @@
     </IfModule>
 
     RewriteEngine On
+    # LOCAL ONLY (XAMPP alias). Delete this line on the live host.
+    RewriteBase /infofluxes2/
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
