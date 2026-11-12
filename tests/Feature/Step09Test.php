@@ -71,6 +71,32 @@ class Step09Test extends TestCase
         $this->assertSame([$other->id => 'Other place ('.$other->code.')'], $select->getOptionLabels());
     }
 
+    public function test_long_names_in_the_admin_lists_scroll_inside_their_cell_so_every_column_stays_in_view(): void
+    {
+        $long = $this->cat('A very long category name that would push every other column of the list far to the right of the screen');
+        $child = $this->cat('Child of the long one', $long);
+        Article::create(['title' => ['en' => 'A very long article title that goes on and on and on'], 'slug' => 'long-title', 'category_id' => $child->id]);
+
+        $page = $this->get('/admin/categories')->assertOk();
+        $page->assertSee('.if-scroll{overflow-x:auto', false);
+        $page->assertSee('class="if-scroll if-scroll--name"', false);
+        $page->assertSee('class="if-scroll if-scroll--path"', false);
+        $page->assertSee('title="A very long category name that would push every other column of the list far to the right of the screen"', false);
+
+        $this->get('/admin/articles')->assertOk()->assertSee('class="if-scroll if-scroll--name"', false)->assertSee('A very long article title that goes on and on and on');
+    }
+
+    public function test_a_scrolling_cell_is_safe_to_show(): void
+    {
+        $this->assertNull(\App\Filament\Support\Cells::scroll(null));
+        $this->assertNull(\App\Filament\Support\Cells::scroll(''));
+        $html = \App\Filament\Support\Cells::scroll('<script>alert(1)</script> "quoted"', 'x');
+
+        $this->assertStringNotContainsString('<script>', $html);
+        $this->assertStringContainsString('&lt;script&gt;', $html);
+        $this->assertStringContainsString('title="&lt;script&gt;', $html);
+    }
+
     public function test_choosing_other_categories_is_saved(): void
     {
         $main = $this->cat('Main place');

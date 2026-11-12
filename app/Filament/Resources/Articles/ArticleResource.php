@@ -221,8 +221,9 @@ class ArticleResource extends Resource
                 TextColumn::make('code')->label('ID')->state(fn (Article $record) => $record->code)->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('id', $dir))->weight('bold'),
                 TextColumn::make('title')->label('Title')
                     ->state(fn (Article $record) => $record->mainTitle())
+                    ->formatStateUsing(fn ($state) => \App\Filament\Support\Cells::scroll($state, 'if-scroll--name'))
+                    ->html()
                     ->description(fn (Article $record) => $record->working_name)
-                    ->wrap()
                     ->searchable(query: fn (Builder $query, string $search) => $query->where(fn ($q) => $q
                         ->where('title', 'like', "%{$search}%")
                         ->orWhere('working_name', 'like', "%{$search}%")
@@ -230,7 +231,7 @@ class ArticleResource extends Resource
                         ->orWhere('id', ltrim(strtoupper($search), 'A-') ?: 0))),
                 TextColumn::make('categories_shown')->label('Categories')
                     ->state(fn (Article $record) => $record->allCategories()->map(fn ($c) => $c->mainName().' ('.$c->code.')')->all())
-                    ->badge()->color('gray'),
+                    ->badge()->color('gray')->limitList(2)->expandableLimitedList(),
                 TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => Article::STATUSES[$state] ?? $state)
                     ->color(fn ($state) => ['published' => 'success', 'in_review' => 'warning', 'draft' => 'gray', 'archived' => 'danger'][$state] ?? 'gray'),

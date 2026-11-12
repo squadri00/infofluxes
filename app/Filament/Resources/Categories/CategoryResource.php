@@ -112,18 +112,25 @@ class CategoryResource extends Resource
 
     public static function table(Table $table): Table
     {
+        // One list of all categories for the rows of this one drawing of the table (not kept between requests).
+        $everyCategory = new \ArrayObject;
+
         return $table
             ->defaultSort('tree_path')
             ->columns([
                 TextInputColumn::make('sort_order')->label('Order')->type('number')->rules(['integer', 'min:0'])->width('6rem'),
                 TextColumn::make('tree_path')
                     ->label('Category path')
-                    ->state(fn (Category $record) => static::parentPath($record))
+                    ->state(fn (Category $record) => static::parentPath($record, $everyCategory))
+                    ->formatStateUsing(fn ($state) => \App\Filament\Support\Cells::scroll($state, 'if-scroll--path'))
+                    ->html()
                     ->color('gray')
                     ->size('xs'),
                 TextColumn::make('name')
                     ->label('Category name')
                     ->state(fn (Category $record) => str_repeat('— ', $record->depth).$record->mainName().' ('.$record->code.')')
+                    ->formatStateUsing(fn ($state) => \App\Filament\Support\Cells::scroll($state, 'if-scroll--name'))
+                    ->html()
                     ->description(fn (Category $record) => $record->working_name)
                     ->weight(fn (Category $record) => $record->depth === 0 ? 'bold' : null)
                     ->searchable(query: fn (Builder $query, string $search) => $query
@@ -169,16 +176,15 @@ class CategoryResource extends Resource
     }
 
     /** The names above a category, small and grey, as in the ECT list. */
-    private static function parentPath(Category $record): ?string
+    private static function parentPath(Category $record, \ArrayObject $cache): ?string
     {
         if (! $record->parent_id) {
             return null;
         }
-        static $all = null;
-        $all ??= Category::withTrashed()->get()->keyBy('id');
-        $parent = $all->get($record->parent_id);
+        $cache['all'] ??= Category::withTrashed()->get()->keyBy('id');
+        $parent = $cache['all']->get($record->parent_id);
 
-        return $parent ? Category::pathFor($parent, $all) : null;
+        return $parent ? Category::pathFor($parent, $cache['all']) : null;
     }
 
     public static function getPages(): array
