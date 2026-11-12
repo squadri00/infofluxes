@@ -65,6 +65,19 @@ class Category extends Model
         return Article::query()->where('category_id', $this->id)->orWhereHas('extraCategories', fn ($q) => $q->where('categories.id', $this->id))->count();
     }
 
+    /** A web address made from a name: letters, numbers and dashes, never a reserved word, never one already used. */
+    public static function uniqueSlug(string $name, string $fallback = 'category'): string
+    {
+        $base = \Illuminate\Support\Str::slug($name) ?: $fallback;
+        $slug = $base;
+        $n = 2;
+        while (static::withTrashed()->where('slug', $slug)->exists() || in_array($slug, static::RESERVED_SLUGS, true)) {
+            $slug = $base.'-'.$n++;
+        }
+
+        return $slug;
+    }
+
     /** The permanent reference shown beside the name, for example C-12. */
     public function getCodeAttribute(): string
     {

@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Categories\Pages;
 
 use App\Filament\Resources\Categories\CategoryResource;
+use App\Models\Category;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Str;
 
 class CreateCategory extends CreateRecord
 {
@@ -14,13 +14,7 @@ class CreateCategory extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         if (blank($data['slug'] ?? null)) {
-            $base = Str::slug((string) ($data['name'][config('infofluxes.default_locale')] ?? '')) ?: 'category';
-            $slug = $base;
-            $n = 2;
-            while (\App\Models\Category::withTrashed()->where('slug', $slug)->exists() || in_array($slug, \App\Models\Category::RESERVED_SLUGS, true)) {
-                $slug = $base.'-'.$n++;
-            }
-            $data['slug'] = $slug;
+            $data['slug'] = Category::uniqueSlug((string) ($data['name'][config('infofluxes.default_locale')] ?? ''));
         }
 
         return $data;

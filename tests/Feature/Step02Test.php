@@ -143,6 +143,18 @@ class Step02Test extends TestCase
         $this->assertNotNull(Category::withTrashed()->find($parent->id), 'it is in the Trash, not gone');
     }
 
+    public function test_clearing_the_web_address_on_edit_keeps_the_old_one(): void
+    {
+        $c = $this->cat('Keep my address');
+
+        Livewire::test(EditCategory::class, ['record' => $c->getRouteKey()])
+            ->fillForm(['slug' => ''])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame('keep-my-address', $c->fresh()->slug);
+    }
+
     public function test_the_edit_page_opens_and_saves_a_new_parent(): void
     {
         $a = $this->cat('Aaa');

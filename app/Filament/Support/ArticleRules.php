@@ -13,7 +13,7 @@ class ArticleRules
      * @param  array<string, mixed>  $data  the form data
      * @param  ?string  $previousStatus  the status before this save (null for a new article)
      */
-    public static function apply(array $data, ?string $previousStatus = null): array
+    public static function apply(array $data, ?string $previousStatus = null, ?string $currentSlug = null): array
     {
         $role = auth()->user()?->role;
         $canPublish = in_array($role, ['superuser', 'moderator'], true);
@@ -31,13 +31,18 @@ class ArticleRules
         }
 
         if (blank($data['slug'] ?? null)) {
-            $base = Str::slug((string) ($data['title'][config('infofluxes.default_locale')] ?? '')) ?: 'article';
-            $slug = $base;
-            $n = 2;
-            while (Article::withTrashed()->where('slug', $slug)->exists() || in_array($slug, Category::RESERVED_SLUGS, true)) {
-                $slug = $base.'-'.$n++;
+            // On Edit an empty address keeps the one the article has. Only a new article gets one made from its title.
+            if ($currentSlug) {
+                $data['slug'] = $currentSlug;
+            } else {
+                $base = Str::slug((string) ($data['title'][config('infofluxes.default_locale')] ?? '')) ?: 'article';
+                $slug = $base;
+                $n = 2;
+                while (Article::withTrashed()->where('slug', $slug)->exists() || in_array($slug, Category::RESERVED_SLUGS, true)) {
+                    $slug = $base.'-'.$n++;
+                }
+                $data['slug'] = $slug;
             }
-            $data['slug'] = $slug;
         }
 
         return $data;

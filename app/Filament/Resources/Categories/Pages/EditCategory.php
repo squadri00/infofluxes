@@ -10,6 +10,16 @@ class EditCategory extends EditRecord
 {
     protected static string $resource = CategoryResource::class;
 
+    /** An empty web address on Edit keeps the address the category already has (an address is never lost). */
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (blank($data['slug'] ?? null)) {
+            $data['slug'] = $this->record->slug;
+        }
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
         return [CategoryResource::deleteAction(), RestoreAction::make()];

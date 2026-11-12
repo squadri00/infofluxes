@@ -123,6 +123,16 @@ class Step03Test extends TestCase
         $this->assertSame('dQw4w9WgXcQ', $a->videos->first()->youtube_id);
     }
 
+    public function test_clearing_the_web_address_on_edit_keeps_the_old_one(): void
+    {
+        $this->as('superuser');
+        $a = $this->article('Keep this address', $this->cat('Shows'));
+
+        Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])->fillForm(['slug' => ''])->call('save')->assertHasNoFormErrors();
+
+        $this->assertSame('keep-this-address', $a->fresh()->slug);
+    }
+
     public function test_a_title_and_a_main_category_are_required(): void
     {
         $this->as('superuser');
