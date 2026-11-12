@@ -58,6 +58,19 @@ class Step04Test extends TestCase
         $this->get('/')->assertSee('Popular Shows')->assertDontSee('Secret');
     }
 
+    public function test_the_search_box_in_the_header_lists_only_the_top_two_levels(): void
+    {
+        $top = $this->cat('Top Heading');
+        $mid = $this->cat('Middle Level', $top);
+        $deep = $this->cat('Deep Level', $mid);
+
+        $this->assertSame(['Top Heading', 'Top Heading > Middle Level'], array_values(Category::publicChoices(1)));
+        $this->assertCount(3, Category::publicChoices());
+        $html = $this->get('/')->getContent();
+        $this->assertStringContainsString('Top Heading &gt; Middle Level', $html);
+        $this->assertStringNotContainsString('Deep Level</option>', $html);
+    }
+
     public function test_the_category_page_shows_sub_categories_articles_and_its_code(): void
     {
         $shows = $this->cat('Shows', null, ['description' => ['en' => 'All the shows.']]);

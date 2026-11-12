@@ -3,7 +3,7 @@
     $logo = \App\Models\Setting::get('logo');
     $headerName = \App\Models\Setting::get('site_name', config('app.name'));
     $menu = \App\Support\SiteMenu::header();
-    $searchCategories = \App\Models\Category::publicChoices();
+    $searchCategories = \App\Models\Category::publicChoices(1);
     $chosenCategory = request()->routeIs('search') ? (int) request('category') : 0;
     $staff = auth()->check() && auth()->user()->canAccessPanel(\Filament\Facades\Filament::getPanel('admin'));
     $locales = config('infofluxes.locales');

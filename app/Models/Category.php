@@ -148,7 +148,7 @@ class Category extends Model
     }
 
     /** [id => "Shows > Popular Shows"] for the visitors' search box: only categories that are visible and sit inside visible ones. */
-    public static function publicChoices(): array
+    public static function publicChoices(?int $maxDepth = null): array
     {
         $all = static::query()->orderBy('tree_path')->get()->keyBy('id');
         $visible = function (Category $c) use (&$visible, $all): bool {
@@ -156,7 +156,7 @@ class Category extends Model
         };
         $out = [];
         foreach ($all as $category) {
-            if ($visible($category)) {
+            if (($maxDepth === null || $category->depth <= $maxDepth) && $visible($category)) {
                 $out[$category->id] = static::pathFor($category, $all);
             }
         }
