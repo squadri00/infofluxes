@@ -52,4 +52,40 @@
             @endif
         </x-filament::section>
     @endif
+    @if (\App\Filament\Pages\MoveFromOldSite::storiesAvailable())
+        <x-filament::section>
+            <x-slot name="heading">The old slide stories</x-slot>
+            <p style="max-width:52rem">
+                The old "Stories in pictures" that have chapters and slides become <strong>articles with story slides</strong>, with their pictures.
+                The cards (claims with sources) and the fact files stay in the old site. A story whose title is already an article here is left alone.
+                A story that was published and read by a person is published; any other is a draft.
+            </p>
+            <label style="display:block;margin:.8rem 0;max-width:52rem">
+                <strong>Put the stories in this category</strong><br>
+                <select wire:model="storyCategory" style="width:100%;padding:.5rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent">
+                    <option value="">Choose a category</option>
+                    @foreach ($this->categoryChoices() as $id => $name)
+                        <option value="{{ $id }}">{{ $name }}</option>
+                    @endforeach
+                </select>
+            </label>
+            <x-filament::button wire:click="checkStories" color="gray">Check the stories</x-filament::button>
+            @if ($storyResult && ! $storyDone && $storyResult['total']['stories_new'] > 0)
+                <x-filament::button wire:click="moveStories" wire:confirm="Move {{ $storyResult['total']['stories_new'] }} stories now?">Move the stories now</x-filament::button>
+            @endif
+
+            @if ($storyResult)
+                @php $t = $storyResult['total']; @endphp
+                <ul style="margin:.8rem 0 0 1.2rem;list-style:disc">
+                    <li><strong>{{ $storyDone ? 'Moved' : 'Would move' }}:</strong> {{ $t['stories_new'] }} stories, {{ $t['chapters'] }} chapters, {{ $t['slides'] }} slides</li>
+                    <li>Pictures {{ $storyDone ? 'copied' : 'to copy' }}: {{ $t['images_copied'] }}@if ($t['images_missing'] > 0), <strong>missing in the old site: {{ $t['images_missing'] }}</strong>@endif</li>
+                    <li>Published: {{ $t['published'] }}. Drafts: {{ $t['drafts'] }}</li>
+                    <li>Already moved before: {{ $t['stories_existing'] }}</li>
+                    @if ($t['stories_same_title'] > 0)
+                        <li>Left alone because an article with the same title is already here ({{ $t['stories_same_title'] }}): {{ implode('; ', $storyResult['same_title']) }}</li>
+                    @endif
+                </ul>
+            @endif
+        </x-filament::section>
+    @endif
 </x-filament-panels::page>

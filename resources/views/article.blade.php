@@ -39,7 +39,16 @@
         </ol>
     </nav>
 
-    <h1 class="topic__title">{{ $title }} @include('partials.id-tag', ['code' => $article->code])</h1>
+    {{-- An article with story slides: the slide viewer comes first, above the text. Its cover shows the title and the main picture. --}}
+    @if (! empty($storyItems))
+        <div class="story {{ \App\Support\ViewerStyle::widthClass(true) }}" style="--v-box: {{ \App\Support\ViewerStyle::boxWidth() }}px" data-story data-total="{{ count($storyItems) }}">
+            @include('partials.story-viewer', ['article' => $article, 'items' => $storyItems])
+        </div>
+        <script>window.STORY_LABELS = {!! json_encode(['goto' => __('site.story_goto')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) !!};</script>
+        <script src="{{ asset('js/story.js') }}?v={{ @filemtime(public_path('js/story.js')) ?: 1 }}" defer></script>
+    @endif
+
+    <h1 class="{{ empty($storyItems) ? 'topic__title' : 'visually-hidden' }}">{{ $title }} @include('partials.id-tag', ['code' => $article->code])</h1>
 
     <p class="article__byline">
         @if ($article->author)<span>{{ __('site.by') }} <strong>{{ $article->author->name }}</strong></span>@endif
@@ -47,8 +56,13 @@
         @if (filled($article->reviewer_name))<span>{{ __('site.reviewed_by') }} <strong>{{ $article->reviewer_name }}</strong></span>@endif
     </p>
 
-    @if ($article->main_image)
-        <figure class="topic__master"><img src="{{ asset('storage/'.$article->main_image) }}" alt="{{ $article->main_image_alt }}"></figure>
+    @if ($article->main_image && empty($storyItems))
+        <figure class="topic__master">
+            <img src="{{ asset('storage/'.$article->main_image) }}" alt="{{ $article->main_image_alt }}">
+            @if (filled($article->main_image_credit) || filled($article->main_image_licence))
+                <figcaption class="topic__master-credit">{{ __('site.story_picture_credit') }} {{ collect([$article->main_image_credit, $article->main_image_licence])->filter()->implode(' · ') }}</figcaption>
+            @endif
+        </figure>
     @endif
 
     @if ($summary !== '')

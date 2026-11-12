@@ -71,6 +71,22 @@ class Article extends Model
         return $slug;
     }
 
+    public function chapters(): HasMany
+    {
+        return $this->hasMany(ArticleChapter::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function slides(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(ArticleSlide::class, ArticleChapter::class);
+    }
+
+    /** Does the article have any slides? (Then its page shows the slide viewer above the text.) */
+    public function hasSlides(): bool
+    {
+        return isset($this->attributes['slides_count']) ? (int) $this->attributes['slides_count'] > 0 : $this->slides()->exists();
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);

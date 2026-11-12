@@ -1545,3 +1545,5 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 .qi__item .qi__code { min-width: 4.8rem; }
 
 .qi__also { margin-left: .5rem; font-size: .8rem; opacity: .65; font-style: italic; }
+
+.topic__master-credit { color: var(--muted); font-size: .85rem; margin-top: 4px; }

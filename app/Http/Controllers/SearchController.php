@@ -18,7 +18,7 @@ class SearchController extends Controller
         if ($q !== '') {
             // Every word must be found somewhere in the title, the short detail, the search words or the long text.
             $words = array_filter(preg_split('/\s+/u', $q));
-            $query = Article::published()->with('category');
+            $query = Article::published()->with('category')->withCount('slides');
             foreach ($words as $word) {
                 $like = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $word).'%';
                 $query->where(fn ($w) => $w->where('title', 'like', $like)->orWhere('short_detail', 'like', $like)->orWhere('search_words', 'like', $like)->orWhere('long_detail', 'like', $like));

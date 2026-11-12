@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Support\OldSiteImport;
+use App\Support\OldStoryImport;
 use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -30,6 +31,14 @@ class MoveFromOldSite extends Page
 
     public bool $done = false;
 
+    /** The category the moved stories are put in. */
+    public ?int $storyCategory = null;
+
+    /** @var array<string, mixed>|null */
+    public ?array $storyResult = null;
+
+    public bool $storyDone = false;
+
     public static function canAccess(): bool
     {
         return (bool) auth()->user()?->isSuperuser() && OldSiteImport::available();
@@ -38,6 +47,41 @@ class MoveFromOldSite extends Page
     public static function shouldRegisterNavigation(): bool
     {
         return static::canAccess();
+    }
+
+    public static function storiesAvailable(): bool
+    {
+        return OldStoryImport::available();
+    }
+
+    public function categoryChoices(): array
+    {
+        return \App\Models\Category::choices();
+    }
+
+    public function mount(): void
+    {
+        $this->storyCategory = \App\Models\Category::whereNull('parent_id')->get()->first(fn ($c) => $c->mainName() === 'About Islam')?->id;
+    }
+
+    public function checkStories(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->storyResult = (new OldStoryImport($this->storyCategory))->check();
+        $this->storyDone = false;
+    }
+
+    public function moveStories(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        if (! $this->storyCategory || ! \App\Models\Category::find($this->storyCategory)) {
+            Notification::make()->danger()->title('Choose the category for the stories first.')->send();
+
+            return;
+        }
+        $this->storyResult = (new OldStoryImport($this->storyCategory))->move(auth()->user());
+        $this->storyDone = true;
+        Notification::make()->success()->title('Done.')->body($this->storyResult['total']['stories_new'].' stories and '.$this->storyResult['total']['slides'].' slides were moved.')->send();
     }
 
     public function check(): void
