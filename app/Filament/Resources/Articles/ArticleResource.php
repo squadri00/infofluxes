@@ -221,23 +221,26 @@ class ArticleResource extends Resource
                 TextColumn::make('code')->label('ID')->state(fn (Article $record) => $record->code)->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('id', $dir))->weight('bold'),
                 TextColumn::make('title')->label('Title')
                     ->state(fn (Article $record) => $record->mainTitle())
-                    ->formatStateUsing(fn ($state) => \App\Filament\Support\Cells::scroll($state, 'if-scroll--name'))
+                    ->formatStateUsing(fn ($state) => \App\Filament\Support\Cells::scroll($state, 'if-scroll--title'))
                     ->html()
-                    ->description(fn (Article $record) => $record->working_name)
+                    ->description(fn (Article $record) => trim((($record->ai_assisted ? '✨ AI · ' : '').$record->working_name)))
                     ->searchable(query: fn (Builder $query, string $search) => $query->where(fn ($q) => $q
                         ->where('title', 'like', "%{$search}%")
                         ->orWhere('working_name', 'like', "%{$search}%")
                         ->orWhere('search_words', 'like', "%{$search}%")
                         ->orWhere('id', ltrim(strtoupper($search), 'A-') ?: 0))),
                 TextColumn::make('categories_shown')->label('Categories')
-                    ->state(fn (Article $record) => $record->allCategories()->map(fn ($c) => $c->mainName().' ('.$c->code.')')->all())
-                    ->badge()->color('gray')->limitList(2)->expandableLimitedList(),
+                    ->state(fn (Article $record) => $record->allCategories()->map(fn ($c) => $c->mainName().' ('.$c->code.')')->implode('  ·  '))
+                    ->formatStateUsing(fn ($state) => \App\Filament\Support\Cells::scroll($state, 'if-scroll--cats'))
+                    ->html()
+                    ->color('gray')
+                    ->size('xs'),
                 TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => Article::STATUSES[$state] ?? $state)
                     ->color(fn ($state) => ['published' => 'success', 'in_review' => 'warning', 'draft' => 'gray', 'archived' => 'danger'][$state] ?? 'gray'),
-                \Filament\Tables\Columns\IconColumn::make('ai_assisted')->label('AI')->boolean()->trueIcon('heroicon-o-sparkles')->falseIcon('')->trueColor('warning')->toggleable(),
-                TextColumn::make('author.name')->label('Author')->toggleable(),
-                TextColumn::make('publish_date')->label('Publish date')->date()->sortable()->toggleable(),
+                \Filament\Tables\Columns\IconColumn::make('ai_assisted')->label('AI')->boolean()->trueIcon('heroicon-o-sparkles')->falseIcon('')->trueColor('warning')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('author.name')->label('Author')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('publish_date')->label('Publish date')->date('j M Y')->sortable()->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('status')->options(Article::STATUSES),

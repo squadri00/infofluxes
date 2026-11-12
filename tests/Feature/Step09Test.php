@@ -85,7 +85,10 @@ class Step09Test extends TestCase
         $page->assertSee('class="if-scroll if-scroll--path"', false);
         $page->assertSee('title="A very long category name that would push every other column of the list far to the right of the screen"', false);
 
-        $this->get('/admin/articles')->assertOk()->assertSee('class="if-scroll if-scroll--name"', false)->assertSee('A very long article title that goes on and on and on');
+        $articles = $this->get('/admin/articles')->assertOk();
+        $articles->assertSee('class="if-scroll if-scroll--title"', false)->assertSee('A very long article title that goes on and on and on');
+        $articles->assertSee('class="if-scroll if-scroll--cats"', false);
+        $articles->assertSee('Child of the long one (C-'.$child->id.')', false);
     }
 
     public function test_a_scrolling_cell_is_safe_to_show(): void
