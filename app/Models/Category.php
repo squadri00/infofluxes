@@ -29,9 +29,16 @@ class Category extends Model
         return ['is_visible' => 'boolean', 'custom_data' => 'array'];
     }
 
+    /** While true, saving a category does not re-order the tree. A big import turns it on, then rebuilds once at the end. */
+    public static bool $pauseRebuild = false;
+
     protected static function booted(): void
     {
-        $rebuild = fn () => static::rebuildPaths();
+        $rebuild = function () {
+            if (! static::$pauseRebuild) {
+                static::rebuildPaths();
+            }
+        };
         static::saved($rebuild);
         static::deleted($rebuild);
         static::restored($rebuild);
