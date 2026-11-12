@@ -140,6 +140,23 @@ class Category extends Model
         return implode(' > ', $names);
     }
 
+    /** [id => "Shows > Popular Shows"] for the visitors' search box: only categories that are visible and sit inside visible ones. */
+    public static function publicChoices(): array
+    {
+        $all = static::query()->orderBy('tree_path')->get()->keyBy('id');
+        $visible = function (Category $c) use (&$visible, $all): bool {
+            return $c->is_visible && (! $c->parent_id || (isset($all[$c->parent_id]) && $visible($all[$c->parent_id])));
+        };
+        $out = [];
+        foreach ($all as $category) {
+            if ($visible($category)) {
+                $out[$category->id] = static::pathFor($category, $all);
+            }
+        }
+
+        return $out;
+    }
+
     /** [id => "Shows > Popular Shows (C-2)"] for drop-down boxes, in tree order, optionally leaving out one branch. */
     public static function choices(?int $exceptBranchOf = null): array
     {
