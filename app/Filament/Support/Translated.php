@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support;
 
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 
@@ -22,6 +23,12 @@ class Translated
     public static function textarea(string $field, string $label, bool $required = false, int $rows = 4, ?string $help = null): array
     {
         return static::boxes($field, $label, $required, fn (string $name, string $text, bool $must) => Textarea::make($name)->label($text)->required($must)->rows($rows)->helperText($help)->columnSpanFull());
+    }
+
+    /** @return array<int, RichEditor> a text editor (bold, lists, links, headings) for each language */
+    public static function rich(string $field, string $label, bool $required = false, ?string $help = null): array
+    {
+        return static::boxes($field, $label, $required, fn (string $name, string $text, bool $must) => RichEditor::make($name)->label($text)->required($must)->helperText($help)->columnSpanFull());
     }
 
     private static function boxes(string $field, string $label, bool $required, \Closure $make): array

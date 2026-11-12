@@ -118,6 +118,7 @@ class CategoryResource extends Resource
                         ->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
                             ->orWhere('working_name', 'like', "%{$search}%")
                             ->orWhere('id', ltrim(strtoupper($search), 'C-') ?: 0))),
+                TextColumn::make('articles_total')->label('Articles')->state(fn (Category $record) => $record->articleCount() ?: '-')->alignCenter(),
                 IconColumn::make('is_visible')->label('Shown')->boolean(),
             ])
             ->filters([
@@ -140,16 +141,16 @@ class CategoryResource extends Resource
             ]);
     }
 
-    /** Delete: a category that still holds sub-categories must be emptied first, so nothing is lost by accident. */
+    /** Delete: a category that still holds sub-categories or articles must be emptied first, so nothing is lost by accident. */
     public static function deleteAction(): DeleteAction
     {
         return DeleteAction::make()
             ->label('Delete')
             ->modalDescription('The category goes to the Trash. You can bring it back from there.')
             ->before(function (DeleteAction $action, Category $record) {
-                if ($record->children()->exists()) {
-                    Notification::make()->danger()->title('This category still has sub-categories')
-                        ->body('Move or delete the sub-categories first.')->persistent()->send();
+                if ($record->children()->exists() || $record->articleCount() > 0) {
+                    Notification::make()->danger()->title('This category is not empty')
+                        ->body('It still has sub-categories or articles. Move or delete them first, so nothing is lost.')->persistent()->send();
                     $action->cancel();
                 }
             });

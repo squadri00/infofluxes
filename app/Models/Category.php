@@ -47,6 +47,24 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id')->orderBy('sort_order')->orderBy('id');
     }
 
+    /** Articles whose main category this is. */
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class);
+    }
+
+    /** Articles that also sit in this category. */
+    public function extraArticles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'article_category');
+    }
+
+    /** How many articles are in this category (main or additional). */
+    public function articleCount(): int
+    {
+        return Article::query()->where('category_id', $this->id)->orWhereHas('extraCategories', fn ($q) => $q->where('categories.id', $this->id))->count();
+    }
+
     /** The permanent reference shown beside the name, for example C-12. */
     public function getCodeAttribute(): string
     {
