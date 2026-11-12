@@ -79,6 +79,8 @@ class Step09Test extends TestCase
 
         $page = $this->get('/admin/categories')->assertOk();
         $page->assertSee('.if-scroll{overflow-x:auto', false);
+        $page->assertSee('if-order', false);
+        $page->assertSee('.fi-ta-actions{flex-wrap:nowrap', false);
         $page->assertSee('class="if-scroll if-scroll--name"', false);
         $page->assertSee('class="if-scroll if-scroll--path"', false);
         $page->assertSee('title="A very long category name that would push every other column of the list far to the right of the screen"', false);

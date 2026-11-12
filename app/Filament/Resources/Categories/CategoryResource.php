@@ -118,7 +118,8 @@ class CategoryResource extends Resource
         return $table
             ->defaultSort('tree_path')
             ->columns([
-                TextInputColumn::make('sort_order')->label('Order')->type('number')->rules(['integer', 'min:0'])->width('6rem'),
+                TextInputColumn::make('sort_order')->label('Order')->type('number')->rules(['integer', 'min:0'])->width('4.5rem')
+                    ->extraInputAttributes(['class' => 'if-order', 'style' => 'width:3.8rem;min-width:0;text-align:center;padding-inline:.25rem']),
                 TextColumn::make('tree_path')
                     ->label('Category path')
                     ->state(fn (Category $record) => static::parentPath($record, $everyCategory))
