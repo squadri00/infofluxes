@@ -1,0 +1,184 @@
+<?php
+
+namespace App\Filament\Resources\Categories;
+
+use App\Filament\Resources\Categories\Pages\CreateCategory;
+use App\Filament\Resources\Categories\Pages\EditCategory;
+use App\Filament\Resources\Categories\Pages\ListCategories;
+use App\Filament\Support\Translated;
+use App\Models\Category;
+use BackedEnum;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
+use UnitEnum;
+
+/** Categories: one list in tree order, like the ECT list. The code (C-12) shows beside every name. */
+class CategoryResource extends Resource
+{
+    protected static ?string $model = Category::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Content';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $recordTitleAttribute = 'working_name';
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->columns(1)
+            ->components([
+                TextInput::make('code_shown')
+                    ->label('Code')
+                    ->helperText('Made by the system. It never changes.')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->afterStateHydrated(fn (TextInput $component, ?Category $record) => $component->state($record?->code))
+                    ->visible(fn (?Category $record) => $record !== null),
+                ...Translated::text('name', 'Category name', required: true),
+                TextInput::make('working_name')
+                    ->label('Working name')
+                    ->helperText('Only for you. Use it to tell two similar names apart. Visitors never see it.')
+                    ->maxLength(255),
+                Select::make('parent_id')
+                    ->label('Sits inside')
+                    ->placeholder('Top level (a main menu heading)')
+                    ->options(fn (?Category $record) => Category::choices($record?->id))
+                    ->searchable(),
+                TextInput::make('slug')
+                    ->label('Web address (short name)')
+                    ->helperText('Letters, numbers and dashes. Left empty, it is made from the name.')
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true)
+                    ->rules([fn () => function (string $attribute, $value, \Closure $fail) {
+                        if (in_array(strtolower((string) $value), Category::RESERVED_SLUGS, true)) {
+                            $fail('This word is already used by the site. Please choose another.');
+                        }
+                    }]),
+                FileUpload::make('image')
+                    ->label('Picture')
+                    ->image()
+                    ->disk('public')
+                    ->directory('categories')
+                    ->imageEditor(),
+                ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)'),
+                ...Translated::textarea('description', 'Description', rows: 4),
+                ...Translated::textarea('header_text', 'Header text', rows: 3, help: 'Shown above the list on the category page.'),
+                TextInput::make('sort_order')->label('Order')->numeric()->minValue(0)->default(0),
+                Toggle::make('is_visible')->label('Show on the site')->default(true),
+                Section::make('Search engines (optional)')
+                    ->collapsed()
+                    ->description('Leave empty and the name and description are used.')
+                    ->schema([
+                        ...Translated::text('page_title', 'Page title'),
+                        ...Translated::textarea('meta_description', 'Meta description', rows: 2),
+                    ]),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->defaultSort('tree_path')
+            ->columns([
+                TextInputColumn::make('sort_order')->label('Order')->type('number')->rules(['integer', 'min:0'])->width('6rem'),
+                TextColumn::make('tree_path')
+                    ->label('Category path')
+                    ->state(fn (Category $record) => static::parentPath($record))
+                    ->color('gray')
+                    ->size('xs'),
+                TextColumn::make('name')
+                    ->label('Category name')
+                    ->state(fn (Category $record) => str_repeat('— ', $record->depth).$record->mainName().' ('.$record->code.')')
+                    ->description(fn (Category $record) => $record->working_name)
+                    ->weight(fn (Category $record) => $record->depth === 0 ? 'bold' : null)
+                    ->searchable(query: fn (Builder $query, string $search) => $query
+                        ->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('working_name', 'like', "%{$search}%")
+                            ->orWhere('id', ltrim(strtoupper($search), 'C-') ?: 0))),
+                IconColumn::make('is_visible')->label('Shown')->boolean(),
+            ])
+            ->filters([
+                SelectFilter::make('parent_id')->label('In category')->options(fn () => Category::choices())->searchable(),
+                TernaryFilter::make('is_visible')->label('Shown on the site'),
+                TrashedFilter::make(),
+            ])
+            ->recordActions([
+                EditAction::make()->label('Modify'),
+                ReplicateAction::make()
+                    ->label('Clone')
+                    ->excludeAttributes(['slug', 'tree_path', 'depth'])
+                    ->beforeReplicaSaved(function (Category $replica, Category $record) {
+                        $names = $record->getTranslations('name');
+                        $replica->setTranslations('name', array_map(fn ($n) => $n.' (copy)', $names));
+                        $replica->slug = Str::slug($record->mainName()).'-copy-'.Str::lower(Str::random(4));
+                        $replica->is_visible = false;
+                    }),
+                static::deleteAction(),
+            ]);
+    }
+
+    /** Delete: a category that still holds sub-categories must be emptied first, so nothing is lost by accident. */
+    public static function deleteAction(): DeleteAction
+    {
+        return DeleteAction::make()
+            ->label('Delete')
+            ->modalDescription('The category goes to the Trash. You can bring it back from there.')
+            ->before(function (DeleteAction $action, Category $record) {
+                if ($record->children()->exists()) {
+                    Notification::make()->danger()->title('This category still has sub-categories')
+                        ->body('Move or delete the sub-categories first.')->persistent()->send();
+                    $action->cancel();
+                }
+            });
+    }
+
+    /** The names above a category, small and grey, as in the ECT list. */
+    private static function parentPath(Category $record): ?string
+    {
+        if (! $record->parent_id) {
+            return null;
+        }
+        static $all = null;
+        $all ??= Category::withTrashed()->get()->keyBy('id');
+        $parent = $all->get($record->parent_id);
+
+        return $parent ? Category::pathFor($parent, $all) : null;
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListCategories::route('/'),
+            'create' => CreateCategory::route('/create'),
+            'edit' => EditCategory::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
+    }
+}
