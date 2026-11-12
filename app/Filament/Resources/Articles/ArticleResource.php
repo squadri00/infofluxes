@@ -170,7 +170,8 @@ class ArticleResource extends Resource
                         Select::make('status')->options(fn () => static::statusOptions())->default('draft')->required(),
                         DateTimePicker::make('publish_date')->label('Publish date')->helperText('Left empty, it is the moment you publish. A date in the future keeps the article hidden until then.'),
                         Select::make('author_id')->label('Author')->relationship('author', 'name')->default(fn () => auth()->id())->searchable()->preload()->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
-                        TextInput::make('reviewer_name')->label('Reviewer name')->helperText('The person who checked it.')->maxLength(255),
+                        TextInput::make('reviewer_name')->label('Reviewer name')->helperText('The person who checked it. Needed before an article written with AI help can be published.')->maxLength(255),
+                        \Filament\Forms\Components\Toggle::make('ai_assisted')->label('Written with AI help')->helperText('Made by the AI import. Leave it on until a person has read and checked the article.')->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('slug')->label('Web address (short name)')->helperText('Left empty, it is made from the title.')->maxLength(255)
                             ->unique(ignoreRecord: true)
                             ->rules([fn () => function (string $attribute, $value, \Closure $fail) {
@@ -213,6 +214,7 @@ class ArticleResource extends Resource
                 TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => Article::STATUSES[$state] ?? $state)
                     ->color(fn ($state) => ['published' => 'success', 'in_review' => 'warning', 'draft' => 'gray', 'archived' => 'danger'][$state] ?? 'gray'),
+                \Filament\Tables\Columns\IconColumn::make('ai_assisted')->label('AI')->boolean()->trueIcon('heroicon-o-sparkles')->falseIcon('')->trueColor('warning')->toggleable(),
                 TextColumn::make('author.name')->label('Author')->toggleable(),
                 TextColumn::make('publish_date')->label('Publish date')->date()->sortable()->toggleable(),
             ])

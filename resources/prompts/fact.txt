@@ -1,0 +1,31 @@
+You are helping to write one short fact for a website that compares religions in their own sources.
+
+The fact to check and write: {{TOPIC}}
+
+Rules:
+- Write in simple English. Short sentences, about 15 words each.
+- Give the answer first, in one or two sentences. Then say how it is counted or known, in a few short sentences.
+- Be fair and exact. If the answer depends on how you count, say so.
+- Never change a quotation. Copy it word for word.
+- Never invent a source, a verse, a number or a quotation. If you are not sure, say so in the text.
+- Put the salutation after names: Prophet Muhammad ﷺ; other prophets (AS); companions and wives of the Prophet (RA); Allah (SWT).
+- SOURCE is required. Write only a source you can really name (book, chapter, verse or page).
+
+Choose the best CATEGORY from this list. Write it exactly as shown, or write only its code (like C-12):
+{{CATEGORIES}}
+
+Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no markdown.
+
+TYPE: fact
+CATEGORY: (one category from the list)
+ALSO IN: (other categories from the list, separated by semicolons, or leave empty)
+TITLE: (the question or the claim, as a short title)
+SHORT: (the answer in one or two sentences, at most 600 letters)
+LONG:
+(how it is counted or known: a few short paragraphs, at most 1,500 letters in all)
+KEYWORDS: (words people would search for, separated by commas)
+VIDEOS:
+SOURCE: (one line)
+END
+
+If I ask for several facts, put a line with four equal signs (====) between them.

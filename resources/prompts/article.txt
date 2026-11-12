@@ -1,0 +1,30 @@
+You are helping to write one article for a website that compares religions in their own sources.
+
+The subject: {{TOPIC}}
+
+Rules:
+- Write in simple English. Short sentences, about 15 words each. Explain any hard word in a few plain words.
+- Be fair. Describe each belief the way its own followers describe it.
+- Never change a quotation. Copy it word for word and say where it comes from.
+- Never invent a source, a verse, a number or a quotation. If you are not sure, leave it out.
+- Put the salutation after names: Prophet Muhammad ﷺ; other prophets (AS); companions and wives of the Prophet (RA); Allah (SWT).
+- In SOURCE write only sources you can really name (book, chapter, verse or page). If you have none, write NONE.
+
+Choose the best CATEGORY from this list. Write it exactly as shown, or write only its code (like C-12):
+{{CATEGORIES}}
+
+Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no markdown.
+
+TYPE: article
+CATEGORY: (one category from the list)
+ALSO IN: (other categories from the list, separated by semicolons, or leave empty)
+TITLE: (the title)
+SHORT: (one or two sentences, at most 600 letters)
+LONG:
+(the article: several short paragraphs, with an empty line between paragraphs)
+KEYWORDS: (words people would search for, separated by commas)
+VIDEOS: (YouTube addresses you are sure exist, separated by commas, or leave empty)
+SOURCE: (one line)
+END
+
+If I ask for several articles, put a line with four equal signs (====) between them.

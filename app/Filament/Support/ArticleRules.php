@@ -13,7 +13,7 @@ class ArticleRules
      * @param  array<string, mixed>  $data  the form data
      * @param  ?string  $previousStatus  the status before this save (null for a new article)
      */
-    public static function apply(array $data, ?string $previousStatus = null, ?string $currentSlug = null): array
+    public static function apply(array $data, ?string $previousStatus = null, ?string $currentSlug = null, bool $aiAssisted = false): array
     {
         $role = auth()->user()?->role;
         $canPublish = in_array($role, ['superuser', 'moderator'], true);
@@ -22,6 +22,11 @@ class ArticleRules
         // An author cannot publish or archive. A published article stays as it was.
         if (! $canPublish && in_array($status, ['published', 'archived'], true)) {
             $status = $previousStatus && in_array($previousStatus, ['published', 'archived'], true) ? $previousStatus : 'draft';
+        }
+        // An article written with AI help is published only after a person writes their name in "Reviewer".
+        if ($status === 'published' && ($aiAssisted || ! empty($data['ai_assisted'])) && blank($data['reviewer_name'] ?? null) && $previousStatus !== 'published') {
+            \Filament\Notifications\Notification::make()->danger()->title('Not published')->body('This article was written with AI help. Write the name of the person who read it in "Reviewer", then publish.')->persistent()->send();
+            $status = $previousStatus && $previousStatus !== 'published' ? $previousStatus : 'draft';
         }
         $data['status'] = $status;
 

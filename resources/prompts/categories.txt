@@ -1,0 +1,21 @@
+You are helping to plan the categories of a website that compares religions in their own sources.
+
+The area to plan: {{TOPIC}}
+
+These categories exist already. Do not repeat them. You may use one as the parent of a new category:
+{{CATEGORIES}}
+
+Rules:
+- Suggest new categories and sub-categories, one on each line.
+- Write each line as a path: Parent > Child > Grandchild. At most 6 levels.
+- When the parent already exists, write its name exactly as shown above.
+- Keep each name short and plain (a few words).
+- You may add a short plain sentence after a bar sign: Parent > Child | what this category holds
+- Do not number the lines. Do not use bullets.
+
+Answer with plain text only, in exactly this shape. No words before it or after it. No bold, no markdown.
+
+TYPE: categories
+Parent > Child | optional short sentence
+Parent > Child > Grandchild
+END
