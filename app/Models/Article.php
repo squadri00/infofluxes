@@ -28,7 +28,7 @@ class Article extends Model
 
     protected function casts(): array
     {
-        return ['search_words' => 'array', 'custom_data' => 'array', 'publish_date' => 'datetime', 'ai_assisted' => 'boolean', 'is_index_line' => 'boolean'];
+        return ['search_words' => 'array', 'custom_data' => 'array', 'publish_date' => 'datetime', 'ai_assisted' => 'boolean', 'is_index_line' => 'boolean', 'is_featured' => 'boolean'];
     }
 
     /** The main category. */
@@ -91,6 +91,12 @@ class Article extends Model
     public function allCategories()
     {
         return collect([$this->category])->filter()->concat($this->extraCategories)->unique('id')->values();
+    }
+
+    /** Featured articles that visitors may see, in the order set on the articles (1 first), then the newest. */
+    public function scopeFeaturedOnHome(Builder $query): Builder
+    {
+        return $query->published()->where('is_featured', true)->orderByRaw('CASE WHEN featured_order = 0 THEN 1 ELSE 0 END')->orderBy('featured_order')->orderByDesc('publish_date')->orderByDesc('id');
     }
 
     /** What visitors may see: published, and its publish date (if any) has come. */

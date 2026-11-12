@@ -126,6 +126,7 @@ return [
     'not_found' => 'Page not found',
     'not_found_text' => 'We could not find that page. It may have moved.',
     'go_home' => 'Go to the home page',
+    'featured' => 'Featured',
     'latest' => 'Latest articles',
     'browse_topics' => 'Browse by category',
 ];

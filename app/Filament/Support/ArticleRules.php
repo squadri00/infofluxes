@@ -30,6 +30,16 @@ class ArticleRules
         }
         $data['status'] = $status;
 
+        // Only a moderator or the super user features an article. Anyone else changes nothing there (and a new article is not featured).
+        if (! $canPublish) {
+            unset($data['featured_order']);
+            if ($currentSlug) {
+                unset($data['is_featured']);
+            } else {
+                $data['is_featured'] = false;
+            }
+        }
+
         // An author's article is always the author's own: the author cannot be changed or set to someone else.
         if (! $canPublish) {
             if ($currentSlug) {

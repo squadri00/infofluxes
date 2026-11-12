@@ -62,7 +62,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'social_facebook', 'social_instagram', 'social_x', 'social_youtube', 'social_tiktok'];
+        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'social_facebook', 'social_instagram', 'social_x', 'social_youtube', 'social_tiktok'];
     }
 
     public function form(Schema $schema): Schema
@@ -79,6 +79,12 @@ class SiteSettings extends Page
                         ...Translated::text('copyright', 'Copyright line', help: 'You can use :year and :site.'),
                         FileUpload::make('logo')->label('Logo')->image()->disk('public')->directory('site'),
                     ]),
+                Section::make('Home page')
+                    ->description('How many articles each part of the home page shows. A part set to 0 is not shown. Featured articles are chosen on the article itself.')
+                    ->schema([
+                        TextInput::make('home_featured_count')->label('Featured: how many')->numeric()->minValue(0)->maxValue(24)->placeholder('6'),
+                        TextInput::make('home_latest_count')->label('Latest: how many')->numeric()->minValue(0)->maxValue(24)->placeholder('8'),
+                    ])->columns(2),
                 Section::make('People and discussion')
                     ->schema([
                         Toggle::make('signups_open')->label('New people can sign up')->helperText('Off: the Sign up page is closed. People who already have an account can still log in.'),
@@ -115,6 +121,10 @@ class SiteSettings extends Page
             $value = $data[$key] ?? null;
             if (is_array($value)) {
                 $value = array_filter($value, fn ($v) => filled($v));
+            }
+            // The two counts are whole numbers (an empty box means the usual number).
+            if (in_array($key, ['home_featured_count', 'home_latest_count'], true)) {
+                $value = is_numeric($value) ? max(0, min(24, (int) $value)) : null;
             }
             Setting::put($key, $value === [] ? null : $value);
         }

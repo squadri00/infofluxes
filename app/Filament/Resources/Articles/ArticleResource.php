@@ -190,6 +190,13 @@ class ArticleResource extends Resource
                         Select::make('status')->options(fn () => static::statusOptions())->default('draft')->required(),
                         DateTimePicker::make('publish_date')->label('Publish date')->helperText('Left empty, it is the moment you publish. A date in the future keeps the article hidden until then.'),
                         Select::make('author_id')->label('Author')->relationship('author', 'name')->default(fn () => auth()->id())->searchable()->preload()->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                        \Filament\Forms\Components\Toggle::make('is_featured')->label('Featured on the home page')->live()
+                            ->helperText('A featured article shows in the Featured part of the home page (when it is published).')
+                            ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                        TextInput::make('featured_order')->label('Featured order')->numeric()->minValue(0)->default(0)
+                            ->helperText('1 comes first, then 2, and so on. 0 means after the numbered ones.')
+                            ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => (bool) $get('is_featured'))
+                            ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('reviewer_name')->label('Reviewer name')->helperText('The person who checked it. Needed before an article written with AI help can be published.')->maxLength(255),
                         \Filament\Forms\Components\Toggle::make('ai_assisted')->label('Written with AI help')->helperText('Made by the AI import. Leave it on until a person has read and checked the article.')->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('slug')->label('Web address (short name)')->helperText('Left empty, it is made from the title.')->maxLength(255)
@@ -235,6 +242,8 @@ class ArticleResource extends Resource
                     ->html()
                     ->color('gray')
                     ->size('xs'),
+                \Filament\Tables\Columns\ToggleColumn::make('is_featured')->label('Featured')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('warning')
+                    ->disabled(fn () => ! auth()->user()?->canPublish()),
                 TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => Article::STATUSES[$state] ?? $state)
                     ->color(fn ($state) => ['published' => 'success', 'in_review' => 'warning', 'draft' => 'gray', 'archived' => 'danger'][$state] ?? 'gray'),
@@ -244,6 +253,7 @@ class ArticleResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')->options(Article::STATUSES),
+                \Filament\Tables\Filters\TernaryFilter::make('is_featured')->label('Featured on the home page'),
                 SelectFilter::make('category')->label('In category')->options(fn () => Category::choices())->searchable()
                     ->query(fn (Builder $query, array $data) => filled($data['value'] ?? null)
                         ? $query->where(fn ($q) => $q->where('category_id', $data['value'])->orWhereHas('extraCategories', fn ($c) => $c->where('categories.id', $data['value'])))
@@ -255,7 +265,7 @@ class ArticleResource extends Resource
                 EditAction::make()->label('Modify'),
                 ReplicateAction::make()
                     ->label('Clone')
-                    ->excludeAttributes(['slug'])
+                    ->excludeAttributes(['slug', 'is_featured', 'featured_order'])
                     ->beforeReplicaSaved(function (Article $replica, Article $record) {
                         $replica->setTranslations('title', array_map(fn ($t) => $t.' (copy)', $record->getTranslations('title')));
                         $replica->slug = Str::slug($record->mainTitle()).'-copy-'.Str::lower(Str::random(4));
