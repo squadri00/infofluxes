@@ -8,6 +8,7 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -48,6 +49,10 @@ class SiteSettings extends Page
         $out = [];
         foreach (static::keys() as $key) {
             $value = Setting::all_()[$key] ?? null;
+            // The two switches are on until the super user turns them off.
+            if (in_array($key, ['signups_open', 'comments_open'], true)) {
+                $value = $value === null ? true : (bool) $value;
+            }
             $out[$key] = $value;
         }
 
@@ -57,7 +62,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'social_facebook', 'social_instagram', 'social_x', 'social_youtube', 'social_tiktok'];
+        return ['signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'social_facebook', 'social_instagram', 'social_x', 'social_youtube', 'social_tiktok'];
     }
 
     public function form(Schema $schema): Schema
@@ -74,6 +79,11 @@ class SiteSettings extends Page
                         ...Translated::text('copyright', 'Copyright line', help: 'You can use :year and :site.'),
                         FileUpload::make('logo')->label('Logo')->image()->disk('public')->directory('site'),
                     ]),
+                Section::make('People and discussion')
+                    ->schema([
+                        Toggle::make('signups_open')->label('New people can sign up')->helperText('Off: the Sign up page is closed. People who already have an account can still log in.'),
+                        Toggle::make('comments_open')->label('Comments are open')->helperText('Off: nobody can post a new comment. The ones already shown stay.'),
+                    ])->columns(2),
                 Section::make('Social networks')
                     ->description('A web address that starts with https://. A network with no address shows nothing.')
                     ->schema([

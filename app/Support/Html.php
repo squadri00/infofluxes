@@ -37,6 +37,18 @@ class Html
         return $out;
     }
 
+    /** Plain text from a form box becomes safe paragraphs: a blank line starts a new paragraph, a line break stays a line break. */
+    public static function fromPlain(?string $text): string
+    {
+        $text = trim(str_replace(["\r\n", "\r"], "\n", (string) $text));
+        if ($text === '') {
+            return '';
+        }
+        $paragraphs = preg_split("/\n{2,}/", $text);
+
+        return implode('', array_map(fn ($p) => '<p>'.nl2br(e(trim($p))).'</p>', $paragraphs));
+    }
+
     private static function walk(\DOMNode $node): void
     {
         foreach (iterator_to_array($node->childNodes) as $child) {

@@ -58,6 +58,24 @@ class Article extends Model
         return $this->hasMany(ArticleVideo::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    /** A web address made from a title: never a reserved word, never one already used. */
+    public static function uniqueSlug(string $title): string
+    {
+        $base = \Illuminate\Support\Str::slug($title) ?: 'article';
+        $slug = $base;
+        $n = 2;
+        while (static::withTrashed()->where('slug', $slug)->exists() || in_array($slug, Category::RESERVED_SLUGS, true)) {
+            $slug = $base.'-'.$n++;
+        }
+
+        return $slug;
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     public function getCodeAttribute(): string
     {
         return 'A-'.$this->id;

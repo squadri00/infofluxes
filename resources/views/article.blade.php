@@ -112,6 +112,8 @@
         </nav>
     @endif
 
+    @include('partials.comments', ['article' => $article, 'comments' => $comments])
+
     @if ($related->isNotEmpty())
         <section class="block">
             <h2 class="block__title">{{ __('site.related') }}</h2>

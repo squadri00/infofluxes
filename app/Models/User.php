@@ -52,6 +52,53 @@ class User extends Authenticatable implements FilamentUser
         return $this->isActive() && $this->role === 'superuser';
     }
 
+    /** The admin screens the super user can tick for a person. (Users and Site settings are only ever for the super user.) */
+    public const SCREENS = [
+        'articles' => 'Articles',
+        'categories' => 'Categories',
+        'comments' => 'Comments',
+    ];
+
+    /** The screens a role has when no screens are ticked for the person. */
+    public const ROLE_SCREENS = [
+        'moderator' => ['articles', 'categories', 'comments'],
+        'author' => ['articles'],
+    ];
+
+    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->isActive() && in_array($this->role, ['superuser', 'moderator', 'author'], true);
+    }
+
+    /** May the person open this admin screen? Ticks replace the role's usual screens; an empty tick list means the usual ones. */
+    public function canUseScreen(string $screen): bool
+    {
+        if (! $this->isStaff()) {
+            return false;
+        }
+        if ($this->role === 'superuser') {
+            return true;
+        }
+        if (in_array($screen, ['users', 'settings'], true)) {
+            return false;
+        }
+        $ticked = is_array($this->admin_screens) ? array_values(array_intersect($this->admin_screens, array_keys(self::SCREENS))) : [];
+        $allowed = $ticked !== [] ? $ticked : (self::ROLE_SCREENS[$this->role] ?? []);
+
+        return in_array($screen, $allowed, true);
+    }
+
+    /** Can this person publish and archive articles? (A moderator or the super user.) */
+    public function canPublish(): bool
+    {
+        return $this->isStaff() && in_array($this->role, ['superuser', 'moderator'], true);
+    }
+
     /** Only active staff (super user, moderator, author) may enter the admin area. Members use the public site. */
     public function canAccessPanel(Panel $panel): bool
     {

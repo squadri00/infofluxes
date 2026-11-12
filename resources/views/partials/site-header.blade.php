@@ -32,11 +32,20 @@
                         <svg class="theme-toggle__sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
                     </button>
                 </li>
-                @if ($staff)
-                    <li class="menu__item"><a href="{{ url('/admin') }}">{{ __('site.admin') }}</a></li>
+                @auth
+                    <li class="menu__item"><a href="{{ route('account') }}">{{ auth()->user()->name }}</a></li>
+                    @if ($staff)
+                        <li class="menu__item"><a href="{{ url('/admin') }}">{{ __('site.admin') }}</a></li>
+                    @endif
+                    <li class="menu__item">
+                        <form method="post" action="{{ route('logout') }}">@csrf<button type="submit" class="linklike">{{ __('site.logout') }}</button></form>
+                    </li>
                 @else
-                    <li class="menu__item"><a href="{{ url('/admin/login') }}">{{ __('site.login') }}</a></li>
-                @endif
+                    <li class="menu__item"><a href="{{ route('login') }}">{{ __('site.login') }}</a></li>
+                    @if ((bool) \App\Models\Setting::get('signups_open', true))
+                        <li class="menu__item"><a class="signup-link" href="{{ route('register') }}">{{ __('site.signup') }}</a></li>
+                    @endif
+                @endauth
             </ul>
         </div>
     </div>

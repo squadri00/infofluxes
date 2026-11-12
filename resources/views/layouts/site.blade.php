@@ -41,6 +41,9 @@
     @include('partials.site-header')
 
     <main id="content">
+        @if (session('status'))
+            <div class="flash" role="status"><div class="wrap wrap--wide">{{ session('status') }}</div></div>
+        @endif
         @yield('content')
     </main>
 

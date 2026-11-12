@@ -45,6 +45,18 @@ class CategoryResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'working_name';
 
+    private static function allowed(): bool
+    {
+        return auth()->user()?->canUseScreen('categories') ?? false;
+    }
+
+    public static function canViewAny(): bool { return static::allowed(); }
+    public static function canCreate(): bool { return static::allowed(); }
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool { return static::allowed(); }
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool { return static::allowed(); }
+    public static function canRestore(\Illuminate\Database\Eloquent\Model $record): bool { return static::allowed(); }
+    public static function canReplicate(\Illuminate\Database\Eloquent\Model $record): bool { return static::allowed(); }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

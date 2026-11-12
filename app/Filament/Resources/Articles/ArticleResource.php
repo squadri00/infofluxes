@@ -49,6 +49,40 @@ class ArticleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'working_name';
 
+    private static function screen(): bool
+    {
+        return auth()->user()?->canUseScreen('articles') ?? false;
+    }
+
+    /** A moderator or the super user works on every article; an author only on their own. */
+    private static function mine(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        $user = auth()->user();
+
+        return static::screen() && ($user->canPublish() || (int) $record->author_id === $user->id);
+    }
+
+    public static function canViewAny(): bool { return static::screen(); }
+    public static function canCreate(): bool { return static::screen(); }
+    public static function canReplicate(\Illuminate\Database\Eloquent\Model $record): bool { return static::mine($record); }
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool { return static::mine($record); }
+    public static function canRestore(\Illuminate\Database\Eloquent\Model $record): bool { return static::mine($record); }
+    public static function canDeleteAny(): bool { return static::screen(); }
+
+    /** An author may delete only their own articles that are not published yet. */
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return static::mine($record) && (auth()->user()->canPublish() || in_array($record->status, ['draft', 'in_review'], true));
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        return $user && ! $user->canPublish() ? $query->where('author_id', $user->id) : $query;
+    }
+
     /** The statuses this person may choose. An author can only keep a draft or send it for review. */
     public static function statusOptions(): array
     {
@@ -135,7 +169,7 @@ class ArticleResource extends Resource
                     ->schema([
                         Select::make('status')->options(fn () => static::statusOptions())->default('draft')->required(),
                         DateTimePicker::make('publish_date')->label('Publish date')->helperText('Left empty, it is the moment you publish. A date in the future keeps the article hidden until then.'),
-                        Select::make('author_id')->label('Author')->relationship('author', 'name')->default(fn () => auth()->id())->searchable()->preload(),
+                        Select::make('author_id')->label('Author')->relationship('author', 'name')->default(fn () => auth()->id())->searchable()->preload()->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('reviewer_name')->label('Reviewer name')->helperText('The person who checked it.')->maxLength(255),
                         TextInput::make('slug')->label('Web address (short name)')->helperText('Left empty, it is made from the title.')->maxLength(255)
                             ->unique(ignoreRecord: true)
@@ -217,6 +251,7 @@ class ArticleResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('assign')
+                        ->visible(fn () => (bool) auth()->user()?->canPublish())
                         ->label('Assign to a category')
                         ->icon('heroicon-o-folder-plus')
                         ->schema([Select::make('category_id')->label('Add these articles also to')->options(fn () => Category::choices())->searchable()->required()])

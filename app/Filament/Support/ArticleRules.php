@@ -25,6 +25,15 @@ class ArticleRules
         }
         $data['status'] = $status;
 
+        // An author's article is always the author's own: the author cannot be changed or set to someone else.
+        if (! $canPublish) {
+            if ($currentSlug) {
+                unset($data['author_id']);
+            } else {
+                $data['author_id'] = auth()->id();
+            }
+        }
+
         // Publishing without a date means: now.
         if ($status === 'published' && blank($data['publish_date'] ?? null)) {
             $data['publish_date'] = now();

@@ -25,7 +25,17 @@ class ArticleController extends Controller
         $next = $same ? (clone $same)->where('id', '>', $article->id)->orderBy('id')->first() : null;
         $related = $same ? (clone $same)->where('id', '!=', $article->id)->with('category')->orderByDesc('publish_date')->limit(4)->get() : collect();
 
+        // Approved comments for everyone, plus the visitor's own comments that still wait.
+        $me = auth()->id();
+        $visible = fn ($q) => $q->where(fn ($w) => $w->where('status', 'approved')->when($me, fn ($o) => $o->orWhere(fn ($x) => $x->where('status', 'pending')->where('user_id', $me))));
+        $comments = \App\Models\Comment::query()
+            ->where('article_id', $article->id)->whereNull('parent_id')
+            ->tap($visible)
+            ->with(['user', 'replies' => fn ($q) => $visible($q)->with('user')])
+            ->orderBy('id')->get();
+
         return view('article', [
+            'comments' => $comments,
             'article' => $article,
             'trail' => $trail,
             'previous' => $previous,

@@ -1512,3 +1512,29 @@ html[data-view="list"] .story-card__media { width: 220px; flex: none; }
 .pager__page { color: var(--muted); }
 .empty { color: var(--muted); }
 .preview-banner { background: #fff4d6; color: #5a4300; text-align: center; padding: 8px 0; font-weight: 600; }
+
+/* ===== InfoFluxes 2: log in, sign up, account, discussion ===== */
+.flash { background: var(--accent-soft); color: var(--text); padding: 10px 0; font-weight: 600; text-align: center; }
+.auth-form { display: grid; gap: 14px; max-width: 28rem; margin: 18px 0; }
+.auth-form--wide { max-width: 46rem; }
+.field { display: grid; gap: 4px; }
+.field > span { font-weight: 600; }
+.field input[type="text"], .field input[type="email"], .field input[type="password"], .field select, .field textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; }
+.field--check { display: flex; align-items: center; gap: 8px; }
+.field--check > span { font-weight: 400; }
+.field__error { color: #b42318; margin: 0; }
+.field--trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.auth-form__other { color: var(--muted); }
+.linklike { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline; }
+.account-list { list-style: none; padding: 0; display: grid; gap: 10px; }
+.account-list li { padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.account-list__status { color: var(--muted); }
+.comments { margin: 36px 0; }
+.comment { padding: 12px 0; border-top: 1px solid var(--line); }
+.comment--reply { margin-left: 24px; padding-left: 14px; border-left: 3px solid var(--line); border-top: 0; }
+.comment__head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; color: var(--muted); font-size: .92rem; }
+.comment__head strong { color: var(--text); }
+.comment__badge { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 1px 8px; font-size: .78rem; font-weight: 700; }
+.comment__wait { color: #8a5a00; font-weight: 600; }
+.comment__body { margin: 6px 0; line-height: 1.65; overflow-wrap: anywhere; }
+.comment__reply > summary { cursor: pointer; color: var(--accent); }
