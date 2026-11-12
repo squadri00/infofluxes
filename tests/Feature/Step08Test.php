@@ -98,6 +98,72 @@ class Step08Test extends TestCase
         $this->assertSame(4, substr_count($html, 'data-qi-item'));
     }
 
+    public function test_an_article_in_two_categories_is_listed_under_both_and_counted_once(): void
+    {
+        [$allah, , , $sub] = $this->tree();
+        $quran = $this->cat('Quran Index');
+        $heavens = $this->cat('Creation of the Heavens', $quran, ['working_name' => 'QR-1.2']);
+        $article = $this->published('Allah (SWT) as the Creator', $sub, ['working_name' => 'AL-1.1.003']);
+        $article->extraCategories()->attach($heavens->id);
+
+        // Under its main category: no note.
+        $a = $this->get('/category/'.$allah->slug.'?view=index')->getContent();
+        $this->assertStringContainsString('Allah (SWT) as the Creator', $a);
+        $this->assertStringNotContainsString('qi__also', $a);
+        $this->assertStringContainsString('1 subjects', $a);
+
+        // Under the other category: listed, with a small note that names the main category, and it opens the same article.
+        $q = $this->get('/category/'.$quran->slug.'?view=index')->getContent();
+        $this->assertStringContainsString('<a href="'.route('article.show', $article->slug).'">Allah (SWT) as the Creator</a>', $q);
+        $this->assertStringContainsString('<span class="qi__also">(main place: Existence of Allah (SWT))</span>', $q);
+        $this->assertStringContainsString('1 subjects', $q);
+        $this->assertStringContainsString('AL-1.1.003', $q, 'the same code in both places');
+    }
+
+    public function test_an_article_in_two_places_of_one_branch_is_shown_twice_but_counted_once(): void
+    {
+        [$index, $part, $main, $sub] = $this->tree();
+        $article = $this->published('In two rows', $sub);
+        $article->extraCategories()->attach($main->id);
+
+        $html = $this->get('/category/'.$index->slug.'?view=index')->getContent();
+
+        $this->assertSame(2, substr_count($html, 'In two rows</a>'), 'shown under both');
+        $this->assertStringContainsString('1 subjects', $html, 'counted once');
+        $ids = [];
+        preg_match_all('/data-qi-item id="([^"]+)"/', $html, $m);
+        $this->assertSame(count($m[1]), count(array_unique($m[1])), 'every id on the page is its own');
+    }
+
+    public function test_the_note_never_names_a_hidden_category_and_private_articles_are_not_copied(): void
+    {
+        [$index] = $this->tree();
+        $secret = $this->cat('Secret home', null, ['is_visible' => false]);
+        $shown = $this->cat('Public place');
+        $ok = $this->published('Published with a hidden main place', $secret);
+        $ok->extraCategories()->attach($shown->id);
+        $draft = $this->line('A private draft', $secret, ['is_index_line' => false]);
+        $draft->extraCategories()->attach($shown->id);
+
+        $html = $this->get('/category/'.$shown->slug.'?view=index')->getContent();
+
+        $this->assertStringContainsString('Published with a hidden main place', $html);
+        $this->assertStringNotContainsString('Secret home', $html);
+        $this->assertStringNotContainsString('qi__also', $html);
+        $this->assertStringNotContainsString('A private draft', $html);
+    }
+
+    public function test_an_article_that_lists_its_own_main_category_as_also_in_is_not_doubled(): void
+    {
+        [$index, , , $sub] = $this->tree();
+        $article = $this->published('Own place twice', $sub);
+        $article->extraCategories()->attach($sub->id);
+
+        $html = $this->get('/category/'.$index->slug.'?view=index')->getContent();
+
+        $this->assertSame(1, substr_count($html, 'Own place twice</a>'));
+    }
+
     public function test_a_written_subject_is_a_link_and_a_planned_one_says_details_coming(): void
     {
         [$index, , , $sub] = $this->tree();
@@ -238,7 +304,7 @@ class Step08Test extends TestCase
 
         CategoryIndex::build($index, false);
 
-        $this->assertLessThanOrEqual(4, count(DB::getQueryLog()), 'one query for the headings and one for the subjects');
+        $this->assertLessThanOrEqual(7, count(DB::getQueryLog()), 'a few queries for the whole page, however many subjects');
     }
 
     public function test_an_empty_branch_says_so_and_a_hidden_category_has_no_index(): void

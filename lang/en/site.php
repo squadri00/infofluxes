@@ -93,6 +93,7 @@ return [
     'index_none' => 'Nothing was found.',
     'index_read' => 'Read',
     'index_soon' => 'details coming',
+    'index_also_in' => '(main place: :name)',
     'articles' => 'Articles',
     'no_articles' => 'No articles here yet.',
     'one_article' => '1 article',

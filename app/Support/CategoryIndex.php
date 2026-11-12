@@ -4,11 +4,15 @@ namespace App\Support;
 
 use App\Models\Article;
 use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 
 /**
  * The Index view of a category page: the whole branch below a category as a quick list of links, like the old index pages.
  * Headings (the categories) open and close, and the subjects (articles) are the lines. A subject that is not published yet but
  * is an index line shows as "details coming". Everything that is hidden stays hidden.
+ *
+ * An article that sits in more than one category is listed under each of them. The copy under an "also in" category carries a
+ * small note with its main category, and the totals count every article once.
  *
  * A big branch is not drawn in one piece: after $budget lines, the remaining categories are shown as one link line each
  * that opens their own Index. So every page stays light.
@@ -17,6 +21,8 @@ class CategoryIndex
 {
     /** The most lines (categories and subjects) drawn on one page. */
     public static int $budget = 1500;
+
+    private const COLUMNS = ['id', 'slug', 'title', 'status', 'publish_date', 'category_id', 'working_name', 'is_index_line', 'sort_order'];
 
     /**
      * @return array{root: array<string, mixed>, subjects: int}
@@ -34,22 +40,46 @@ class CategoryIndex
         $tree = static::node($root, $kids);
         $ids = static::ids($tree);
 
-        $articles = Article::query()
-            ->select(['id', 'slug', 'title', 'status', 'publish_date', 'category_id', 'working_name', 'is_index_line', 'sort_order'])
-            ->whereIn('category_id', $ids)
-            ->where(fn ($q) => $q
-                ->where(fn ($p) => $p->where('status', 'published')->where(fn ($d) => $d->whereNull('publish_date')->orWhere('publish_date', '<=', now())))
-                ->orWhere(fn ($i) => $i->where('is_index_line', true)->where('status', '!=', 'archived')))
-            ->orderBy('sort_order')->orderBy('id')
-            ->get()
-            ->groupBy('category_id');
+        // The articles whose main category is in this branch, and those that are also in a category of it.
+        $main = static::visible(Article::query()->select(self::COLUMNS)->whereIn('category_id', $ids))->get();
+        $extraRows = DB::table('article_category')->whereIn('category_id', $ids)->get(['article_id', 'category_id']);
+        $missing = $extraRows->pluck('article_id')->unique()->diff($main->pluck('id'))->all();
+        $others = $missing ? static::visible(Article::query()->select(self::COLUMNS)->whereIn('id', $missing))->get() : collect();
+        $all = $main->concat($others)->keyBy('id');
 
-        $tree = static::fill($tree, $articles, $preview);
-        $subjects = $tree['subjects'];
+        // The name of the main category, for the note on a copy (only when a visitor may see that category).
+        $mainIds = $all->pluck('category_id')->filter()->unique()->all();
+        $mainNames = Category::query()->whereIn('id', $mainIds)->get()->keyBy('id');
+        $open = $preview ? null : array_flip(array_keys(Category::publicChoices()));
+
+        $lines = [];   // category id => list of [article, also]
+        foreach ($main as $a) {
+            $lines[$a->category_id][] = [$a, null];
+        }
+        foreach ($extraRows as $row) {
+            $a = $all->get($row->article_id);
+            if (! $a || (int) $a->category_id === (int) $row->category_id) {
+                continue;
+            }
+            $home = $mainNames->get($a->category_id);
+            $also = $home && ($open === null || isset($open[$home->id])) ? $home->mainName() : null;
+            $lines[$row->category_id][] = [$a, $also ?? ''];
+        }
+
+        $tree = static::fill($tree, $lines, $preview);
+        $subjects = count($tree['ids']);
         $remaining = static::$budget;
         $tree = static::fit($tree, $remaining, true);
 
         return ['root' => $tree, 'subjects' => $subjects];
+    }
+
+    /** What a visitor may see: published articles whose date has come, and index lines (planned subjects) that are not archived. */
+    private static function visible($query)
+    {
+        return $query->where(fn ($q) => $q
+            ->where(fn ($p) => $p->where('status', 'published')->where(fn ($d) => $d->whereNull('publish_date')->orWhere('publish_date', '<=', now())))
+            ->orWhere(fn ($i) => $i->where('is_index_line', true)->where('status', '!=', 'archived')));
     }
 
     /** The code shown beside a heading or a subject: the old index ID (QR-1.1.001) when it has one, else the new code (C-12, A-42). */
@@ -67,6 +97,7 @@ class CategoryIndex
             'category' => $category,
             'children' => ($kids->get($category->id) ?? collect())->map(fn ($c) => static::node($c, $kids))->all(),
             'articles' => [],
+            'ids' => [],
             'size' => 0,
             'subjects' => 0,
             'truncated' => false,
@@ -84,18 +115,33 @@ class CategoryIndex
         return $ids;
     }
 
-    /** Put the subjects into their category and work out how big each branch is. */
-    private static function fill(array $node, $articles, bool $preview): array
+    /**
+     * Put the subjects into their category and work out how big each branch is.
+     * 'ids' are the different articles in a branch, so an article that is in two places counts once.
+     */
+    private static function fill(array $node, array $lines, bool $preview): array
     {
-        $lines = [];
-        foreach ($articles->get($node['category']->id) ?? [] as $a) {
+        $mine = $lines[$node['category']->id] ?? [];
+        usort($mine, fn ($x, $y) => [$x[0]->sort_order, $x[0]->id] <=> [$y[0]->sort_order, $y[0]->id]);
+
+        $out = [];
+        $ids = [];
+        foreach ($mine as [$a, $also]) {
             $live = $a->status === 'published' && (! $a->publish_date || $a->publish_date->lte(now()));
-            $lines[] = ['article' => $a, 'code' => static::codeOf($a), 'title' => $a->title, 'link' => $live || $preview];
+            $out[] = [
+                'article' => $a, 'code' => static::codeOf($a), 'title' => $a->title, 'link' => $live || $preview,
+                'also' => $also !== null && $also !== '' ? $also : null, 'copy' => $also !== null, 'category_id' => $node['category']->id,
+            ];
+            $ids[$a->id] = true;
         }
-        $node['articles'] = $lines;
-        $node['children'] = array_map(fn ($c) => static::fill($c, $articles, $preview), $node['children']);
-        $node['subjects'] = count($lines) + array_sum(array_column($node['children'], 'subjects'));
-        $node['size'] = 1 + count($lines) + array_sum(array_column($node['children'], 'size'));
+        $node['articles'] = $out;
+        $node['children'] = array_map(fn ($c) => static::fill($c, $lines, $preview), $node['children']);
+        foreach ($node['children'] as $child) {
+            $ids += array_flip($child['ids']);
+        }
+        $node['ids'] = array_keys($ids);
+        $node['subjects'] = count($node['ids']);
+        $node['size'] = 1 + count($out) + array_sum(array_column($node['children'], 'size'));
 
         return $node;
     }
