@@ -93,6 +93,24 @@ class ArticleResource extends Resource
             : array_intersect_key(Article::STATUSES, array_flip(['draft', 'in_review']));
     }
 
+    /** The categories whose path or code contains the typed words (at most 50). Done in memory, with no database search. */
+    public static function searchCategories(string $search): array
+    {
+        $words = array_filter(preg_split('/\s+/u', mb_strtolower(trim($search))));
+        $found = [];
+        foreach (Category::choices() as $id => $label) {
+            $text = mb_strtolower($label);
+            if (collect($words)->every(fn ($w) => str_contains($text, $w))) {
+                $found[$id] = $label;
+                if (count($found) >= 50) {
+                    break;
+                }
+            }
+        }
+
+        return $found;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -116,10 +134,12 @@ class ArticleResource extends Resource
                             ->required(),
                         Select::make('extraCategories')
                             ->label('Also in these categories (optional)')
-                            ->relationship('extraCategories', 'id')
-                            ->options(fn () => Category::choices())
+                            ->relationship('extraCategories', 'id')   // this saves the choice; the search below does not ask the database
                             ->multiple()
-                            ->searchable(),
+                            ->searchable()
+                            ->getSearchResultsUsing(fn (string $search): array => static::searchCategories($search))
+                            ->getOptionLabelsUsing(fn (array $values): array => array_intersect_key(Category::choices(), array_flip($values)))
+                            ->helperText('Type part of a name, or a code such as C-12, to find a category.'),
                         ...Translated::textarea('short_detail', 'Short detail', rows: 3, help: 'One or two sentences. Shown in lists and when the article is shared.'),
                         ...Translated::rich('long_detail', 'Long detail'),
                         TagsInput::make('search_words')->label('Search words')->helperText('Type a word or phrase and press Enter. Add as many as you like.')->columnSpanFull(),
