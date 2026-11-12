@@ -9,7 +9,7 @@ class CategoryController extends Controller
 {
     public const PER_PAGE = 24;
 
-    public function __invoke(string $slug)
+    public function __invoke(\Illuminate\Http\Request $request, string $slug)
     {
         // Staff may look at a hidden category; visitors only see visible ones (and only when every parent above is visible).
         $preview = auth()->check() && auth()->user()->canAccessPanel(\Filament\Facades\Filament::getPanel('admin'));
@@ -19,6 +19,10 @@ class CategoryController extends Controller
         if (! $preview && $trail->contains(fn ($c) => ! $c->is_visible)) {
             abort(404);
         }
+
+        // The Index view: the whole branch as a quick list. It is chosen with ?view=index.
+        $mode = $request->query('view') === 'index' ? 'index' : null;
+        $index = $mode === 'index' ? \App\Support\CategoryIndex::build($category, $preview) : null;
 
         $articles = Article::published()
             ->with('category')
@@ -32,6 +36,8 @@ class CategoryController extends Controller
             'children' => $category->children()->when(! $preview, fn ($q) => $q->where('is_visible', true))->get(),
             'articles' => $articles,
             'preview' => $preview && ! $category->is_visible,
+            'mode' => $mode,
+            'index' => $index,
         ]);
     }
 

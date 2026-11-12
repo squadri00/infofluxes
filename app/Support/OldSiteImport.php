@@ -248,6 +248,7 @@ class OldSiteImport
             'category_id' => $categoryId,
             'working_name' => $topic->public_id,
             'status' => 'draft',
+            'is_index_line' => true,
             'author_id' => $this->authorId,
             'sort_order' => max(0, (int) $topic->sort_order) * 10,
         ];

@@ -48,7 +48,7 @@
         <div class="topic__context">{!! nl2br(e((string) $category->header_text)) !!}</div>
     @endif
 
-    @if ($children->isNotEmpty())
+    @if ($children->isNotEmpty() && $mode !== 'index')
         <nav class="category-menu" aria-label="{{ __('site.sub_categories') }}">
             @foreach ($children as $child)
                 <a class="btn btn--small category-menu__btn" href="{{ route('category.show', $child->slug) }}">{{ $child->name }}</a>
@@ -56,8 +56,11 @@
         </nav>
     @endif
 
-    <div class="view-bar">@include('partials.view-toggle')</div>
+    <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>
 
+    @if ($mode === 'index')
+        @include('partials.category-index', ['category' => $category, 'index' => $index])
+    @else
     @if ($children->isNotEmpty())
         <section class="block">
             <h2 class="block__title">{{ __('site.sub_categories') }}</h2>
@@ -78,5 +81,9 @@
             @include('partials.pager', ['paginator' => $articles])
         @endif
     </section>
+    @endif
 </div>
+@if ($mode === 'index')
+    <script src="{{ asset('js/subject-index.js') }}?v={{ @filemtime(public_path('js/subject-index.js')) ?: 1 }}" defer></script>
+@endif
 @endsection

@@ -28,7 +28,7 @@ class Article extends Model
 
     protected function casts(): array
     {
-        return ['search_words' => 'array', 'custom_data' => 'array', 'publish_date' => 'datetime', 'ai_assisted' => 'boolean'];
+        return ['search_words' => 'array', 'custom_data' => 'array', 'publish_date' => 'datetime', 'ai_assisted' => 'boolean', 'is_index_line' => 'boolean'];
     }
 
     /** The main category. */
