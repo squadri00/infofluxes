@@ -90,8 +90,8 @@ class DidYouKnowResource extends Resource
                 ->getSearchResultsUsing(fn (string $search) => Article::query()->published()->where('title->'.config('infofluxes.default_locale'), 'like', '%'.$search.'%')->limit(30)->get()->mapWithKeys(fn (Article $a) => [$a->id => $a->mainTitle().' ('.$a->code.')'])->all())
                 ->getOptionLabelUsing(fn ($value) => ($a = Article::find($value)) ? $a->mainTitle().' ('.$a->code.')' : null)
                 ->helperText('A long list or a long story belongs in an article. The card then shows the short answer and a "Read the full article" button.'),
-            FileUpload::make('image')->label('Picture for its card (optional)')->image()->disk('public')->directory('facts')->maxSize(3072)
-                ->helperText('Shown on the card in the category page. A card without a picture is a text card, like an article without one.'),
+            \App\Filament\Support\ImageUpload::make('image', 'facts')->label('Picture for its card (optional)')
+                ->helperText(fn () => 'Shown on the card in the category page. A card without a picture is a text card, like an article without one. Up to '.(\App\Support\ImageStore::maxKb() / 1024).' MB; it is saved lighter.'),
             TextInput::make('image_alt')->label('Describe the picture (for people who cannot see it)')->maxLength(255),
             Select::make('category_id')->label('Show it in this category (optional)')->options(fn () => Category::choices())->searchable()->placeholder('Only on the Did You Know? page'),
             Select::make('status')->label('Status')->options(DidYouKnow::STATUSES)->default('draft')->required()->live()->native(true),

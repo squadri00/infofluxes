@@ -62,7 +62,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes', 'newsletter_per_run'];
+        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_width', 'image_quality'];
     }
 
     public function form(Schema $schema): Schema
@@ -77,7 +77,7 @@ class SiteSettings extends Page
                         ...Translated::text('tagline', 'Tagline (the line in the top bar)'),
                         ...Translated::textarea('footer_about', 'About text in the footer', rows: 3),
                         ...Translated::text('copyright', 'Copyright line', help: 'You can use :year and :site.'),
-                        FileUpload::make('logo')->label('Logo')->image()->disk('public')->directory('site'),
+                        \App\Filament\Support\ImageUpload::make('logo', 'site')->label('Logo'),
                     ]),
                 Section::make('Home page')
                     ->description('How many articles each part of the home page shows. A part set to 0 is not shown. Featured articles are chosen on the article itself.')
@@ -90,6 +90,13 @@ class SiteSettings extends Page
                         Toggle::make('signups_open')->label('New people can sign up')->helperText('Off: the Sign up page is closed. People who already have an account can still log in.'),
                         Toggle::make('comments_open')->label('Comments are open')->helperText('Off: nobody can post a new comment. The ones already shown stay.'),
                     ])->columns(2),
+                Section::make('Pictures')
+                    ->description('Every picture you upload is saved lighter (as a WebP) and no wider than the width below, so the site stays fast. Story pictures have their own settings in Sliders.')
+                    ->schema([
+                        TextInput::make('upload_max_mb')->label('Biggest picture you may upload (MB)')->helperText('Up to 12.')->numeric()->minValue(1)->maxValue(12)->placeholder('12'),
+                        TextInput::make('image_max_width')->label('Widest saved picture (pixels)')->helperText('A wider picture is made narrower. A narrower one is never made bigger.')->numeric()->minValue(400)->maxValue(6000)->placeholder('2400'),
+                        TextInput::make('image_quality')->label('Quality of the saved picture (40 to 95)')->helperText('85 is a good balance. Higher is sharper and heavier.')->numeric()->minValue(40)->maxValue(95)->placeholder('85'),
+                    ])->columns(3),
                 Section::make('Newsletter')
                     ->description('People type their email, get a 6-digit code by email, and type it back. Only then are they on the list (Content > Newsletter).')
                     ->schema([
@@ -130,6 +137,16 @@ class SiteSettings extends Page
             }
             if ($key === 'newsletter_per_run') {
                 $value = is_numeric($value) ? max(1, min(500, (int) $value)) : null;
+            }
+            // Pictures: the biggest upload (MB), the widest saved picture (pixels) and the WebP quality. An empty box means the usual number.
+            if ($key === 'upload_max_mb') {
+                $value = is_numeric($value) ? max(1, min(12, (int) $value)) : null;
+            }
+            if ($key === 'image_max_width') {
+                $value = is_numeric($value) ? max(400, min(6000, (int) $value)) : null;
+            }
+            if ($key === 'image_quality') {
+                $value = is_numeric($value) ? max(40, min(95, (int) $value)) : null;
             }
             Setting::put($key, $value === [] ? null : $value);
         }

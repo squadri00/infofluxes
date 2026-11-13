@@ -89,11 +89,8 @@ class CategoryResource extends Resource
                             $fail('This word is already used by the site. Please choose another.');
                         }
                     }]),
-                FileUpload::make('image')
+                \App\Filament\Support\ImageUpload::make('image', 'categories')
                     ->label('Picture')
-                    ->image()
-                    ->disk('public')
-                    ->directory('categories')
                     ->imageEditor(),
                 ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)'),
                 ...Translated::textarea('description', 'Description', rows: 4),

@@ -154,8 +154,8 @@ class SlideViewerSettings extends Page
                         ->itemLabel(fn (array $state) => ($state['heading'][$main] ?? null) ?: (($state['image_alt'][$main] ?? null) ?: 'Picture'))
                         ->schema([
                             Hidden::make('id'),
-                            FileUpload::make('image')->label('Picture')->image()->disk('public')->directory('hero')->maxSize(5120)->required()
-                                ->helperText('Any picture works: the site cuts it to the gallery shape (2000 x 920) by itself and keeps it sharp. Use a picture at least 2000 pixels wide for the best result.'),
+                            \App\Filament\Support\ImageUpload::make('image', 'hero')->label('Picture')->required()
+                                ->helperText(fn () => 'Any picture works, up to '.(\App\Support\ImageStore::maxKb() / 1024).' MB: it is saved lighter, and the site cuts it to the gallery shape (2000 x 920) by itself and keeps it sharp. Use a picture at least 2000 pixels wide for the best result.'),
                             Select::make('focus')->label('If the picture is cut, keep the')->options(['top' => 'Top part', 'middle' => 'Middle part', 'bottom' => 'Bottom part'])->default('middle')->native(true),
                             ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)', required: true),
                             ...Translated::text('heading', 'Words over the picture: heading'),

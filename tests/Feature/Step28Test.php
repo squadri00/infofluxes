@@ -192,7 +192,7 @@ class Step28Test extends TestCase
     {
         $source = (string) file_get_contents(app_path('Filament/Resources/DidYouKnow/DidYouKnowResource.php'));
 
-        $this->assertStringContainsString("FileUpload::make('image')", $source);
+        $this->assertStringContainsString("ImageUpload::make('image', 'facts')", $source);
         $this->assertStringContainsString("TextInput::make('image_alt')", $source);
     }
 

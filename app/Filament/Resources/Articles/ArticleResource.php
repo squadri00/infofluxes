@@ -154,7 +154,7 @@ class ArticleResource extends Resource
                         FileUpload::make('main_image')->label('Main picture')->image()
                             ->acceptedFileTypes(\App\Support\StoryImage::TYPES)->disk(\App\Support\StoryImage::DISK)->directory(\App\Support\StoryImage::DIRECTORY)
                             ->imageEditor()->imageCropAspectRatio(fn () => \App\Support\StoryImage::ratioText())->imageEditorAspectRatioOptions(fn () => [\App\Support\StoryImage::ratioText()])
-                            ->maxSize(10240)
+                            ->maxSize(fn () => \App\Support\ImageStore::maxKb())
                             ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => \App\Support\StoryImage::store($file))
                             ->helperText('It is cut to the shape set for the site (16:9) and saved as a small WebP. It is also the cover of the story slides.'),
                         ...Translated::text('main_image_alt', 'Describe the main picture (for people who cannot see it)'),
@@ -169,7 +169,7 @@ class ArticleResource extends Resource
                             ->itemLabel(fn (array $state) => $state['alt']['en'] ?? 'Picture')
                             ->defaultItems(0)
                             ->schema([
-                                FileUpload::make('image')->label('Picture')->image()->disk('public')->directory('articles')->required(),
+                                \App\Filament\Support\ImageUpload::make('image', 'articles')->label('Picture')->required(),
                                 ...Translated::text('alt', 'Describe the picture'),
                                 ...Translated::text('caption', 'Caption (optional)'),
                             ]),
@@ -202,7 +202,7 @@ class ArticleResource extends Resource
                                         FileUpload::make('image')->label('Picture (you can leave it out)')->image()
                                             ->acceptedFileTypes(\App\Support\StoryImage::TYPES)->disk(\App\Support\StoryImage::DISK)->directory(\App\Support\StoryImage::DIRECTORY)
                                             ->imageEditor()->imageCropAspectRatio(fn () => \App\Support\StoryImage::ratioText())->imageEditorAspectRatioOptions(fn () => [\App\Support\StoryImage::ratioText()])
-                                            ->maxSize(10240)
+                                            ->maxSize(fn () => \App\Support\ImageStore::maxKb())
                                             ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => \App\Support\StoryImage::store($file)),
                                         ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)'),
                                         TextInput::make('image_credit')->label('Picture credit')->helperText('Left empty, the viewer shows "AI Generated".')->maxLength(255),

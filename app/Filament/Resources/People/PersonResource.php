@@ -85,7 +85,7 @@ class PersonResource extends Resource
             TextInput::make('tradition')->label('Tradition or background')->maxLength(255),
             Textarea::make('bio')->label('Short bio')->helperText('Two or three lines.')->rows(3)->maxLength(2000),
             Textarea::make('qualification_note')->label('What qualifies them')->rows(2)->maxLength(2000),
-            FileUpload::make('photo')->label('Photo')->image()->disk('public')->directory('people')->maxSize(3072),
+            \App\Filament\Support\ImageUpload::make('photo', 'people')->label('Photo'),
             TextInput::make('photo_alt')->label('Describe the photo (for people who cannot see it)')->maxLength(255),
             TextInput::make('link')->label('Their own website (optional)')->maxLength(2048)
                 ->rules([fn () => function (string $attribute, $value, \Closure $fail) {
