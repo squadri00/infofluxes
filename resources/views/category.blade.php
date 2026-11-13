@@ -68,7 +68,8 @@
         </section>
     @endif
 
-    @php $hideArticles = (bool) ($category->custom_data['hide_articles'] ?? false); @endphp
+    {{-- The articles list is left out when the category asks for that, or when it has no articles at all and shows facts instead (an empty list would only say "nothing here"). --}}
+    @php $hideArticles = (bool) ($category->custom_data['hide_articles'] ?? false) || ($articles->total() === 0 && $facts->isNotEmpty()); @endphp
 
     @if (! $hideArticles)
     <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>

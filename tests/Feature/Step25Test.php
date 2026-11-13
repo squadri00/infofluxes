@@ -129,6 +129,34 @@ class Step25Test extends TestCase
         $this->get(route('search', ['q' => 'article in it']))->assertSee('An article in it');
     }
 
+    public function test_a_category_with_facts_but_no_articles_does_not_show_an_empty_articles_block(): void
+    {
+        $cat = Category::create(['name' => ['en' => 'Did You Know?'], 'slug' => 'did-you-know']);
+        $this->fact('A fact for the page', ['category_id' => $cat->id]);
+
+        $html = $this->get(route('category.show', 'did-you-know'))->assertOk()->assertSee('A fact for the page')->getContent();
+
+        $this->assertStringNotContainsString('No articles here yet', $html);
+        $this->assertStringNotContainsString('class="view-bar"', $html);
+    }
+
+    public function test_the_same_category_with_articles_works_like_every_other_category(): void
+    {
+        $cat = Category::create(['name' => ['en' => 'Did You Know?'], 'slug' => 'did-you-know']);
+        Article::create(['title' => ['en' => 'An article in it'], 'slug' => 'an-article-in-it', 'category_id' => $cat->id, 'status' => 'published', 'publish_date' => now()->subDay()]);
+        $this->fact('A fact for the page', ['category_id' => $cat->id]);
+
+        $this->get(route('category.show', 'did-you-know'))->assertOk()
+            ->assertSee('An article in it')->assertSee('view-bar', false)->assertSee('A fact for the page');
+    }
+
+    public function test_an_empty_category_without_facts_still_says_there_are_no_articles(): void
+    {
+        Category::create(['name' => ['en' => 'Empty one'], 'slug' => 'empty-one']);
+
+        $this->get(route('category.show', 'empty-one'))->assertOk()->assertSee('No articles here yet');
+    }
+
     public function test_a_normal_category_still_lists_its_articles(): void
     {
         $cat = Category::create(['name' => ['en' => 'History'], 'slug' => 'history']);
