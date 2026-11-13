@@ -48,6 +48,7 @@ class Step15Test extends TestCase
 
     public function test_the_main_row_has_the_menu_and_only_a_hidden_copy_of_the_logo(): void
     {
+        \App\Models\Category::create(['name' => ['en' => 'Shows'], 'slug' => 'shows']);
         $main = $this->parts()['main'];
 
         $this->assertStringContainsString('data-site-nav', $main);
