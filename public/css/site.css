@@ -755,7 +755,7 @@ html[data-view="list"] .pcard__meta { margin-top: 2px !important; }
 .hero__title { margin: 0 0 14px; font-size: clamp(1.9rem, 3.3vw, 3rem); line-height: 1.08; font-weight: 800; letter-spacing: -.02em; color: var(--text); }
 .hero__subtitle { margin: 0 0 16px; font-size: 1.15rem; line-height: 1.4; font-weight: 600; color: var(--accent); padding-left: 14px; border-left: 4px solid var(--accent); }
 .hero__description { margin: 0; font-size: 1.02rem; line-height: 1.7; color: var(--muted); max-width: 62ch; }
-.hero__media { position: relative; border-radius: 20px; overflow: hidden; min-height: 400px; background: var(--gray-soft); box-shadow: 0 14px 36px rgba(0, 0, 0, .18); isolation: isolate; }
+.hero__media { position: relative; border-radius: 20px; overflow: hidden; min-height: 480px; background: var(--gray-soft); box-shadow: 0 14px 36px rgba(0, 0, 0, .18); isolation: isolate; }
 .hero--media-only .hero__media { min-height: 360px; }
 .hero__slides { position: absolute; inset: 0; }
 .hero__slide { position: absolute; inset: 0; margin: 0; opacity: 0; visibility: hidden; transition: opacity .9s ease, visibility 0s linear .9s; }
@@ -1571,11 +1571,11 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 
 /* Full-size gallery: the banner is as wide as the search bar, tall, with round corners, and the words sit on top of the pictures. */
 .hero--full { position: relative; display: block; margin: 22px 0 18px; }
-.hero--full .hero__media { border-radius: 20px; min-height: 0; height: clamp(420px, 78vh, 820px); }
+.hero--full .hero__media { border-radius: 20px; min-height: 0; height: clamp(504px, 94vh, 984px); }
 .hero--full .hero__text { position: absolute; z-index: 4; left: 0; right: 0; top: 0; padding: clamp(22px, 4vw, 48px) clamp(20px, 4vw, 48px) 0; max-width: 760px; pointer-events: none; }
 .hero--full .hero__title, .hero--full .hero__description { color: #fff; text-shadow: 0 2px 14px rgba(0, 0, 0, .55); }
 .hero--full .hero__subtitle { color: #fff; border-left-color: #fff; text-shadow: 0 1px 10px rgba(0, 0, 0, .5); }
 .hero--full .hero__slide::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(8, 12, 20, .6) 0%, rgba(8, 12, 20, 0) 55%); pointer-events: none; }
 .hero--full .hero__caption { padding: 28px clamp(20px, 4vw, 48px) 32px; }
 .hero--full .hero__controls { right: 20px; bottom: 20px; }
-@media (max-width: 700px) { .hero--full .hero__media { height: 70vh; } .hero--full .hero__caption { max-width: 100%; padding-bottom: 80px; } }
+@media (max-width: 700px) { .hero--full .hero__media { height: 84vh; } .hero--full .hero__caption { max-width: 100%; padding-bottom: 80px; } }
