@@ -76,6 +76,7 @@ class SlideViewerSettings extends Page
         // the home page slider
         $out['hero_on'] = Hero::enabled();
         $out['hero_slide_seconds'] = (string) Hero::seconds();
+        $out['hero_layout'] = Hero::layout();
         foreach (['home_headline', 'home_intro', 'home_message'] as $key) {
             $out[$key] = Setting::all_()[$key] ?? [];
         }
@@ -116,6 +117,7 @@ class SlideViewerSettings extends Page
                 ->description('The big banner at the top of the home page: words on one side, and a slider of pictures on the other.')
                 ->schema([
                     Toggle::make('hero_on')->label('Show the home page banner'),
+                    Select::make('hero_layout')->label('Banner style')->options(['split' => 'Words on the left, slider on the right', 'full' => 'Full-size gallery (the words sit on top of the pictures)'])->required()->native(true),
                     TextInput::make('hero_slide_seconds')->label('Seconds before the next picture (0 = it never moves by itself)')->numeric()->required()->minValue(0)->maxValue(60)->placeholder('6'),
                 ])->columns(2),
 
@@ -220,6 +222,7 @@ class SlideViewerSettings extends Page
 
         // the home page slider
         $this->keep('hero_on', ($data['hero_on'] ?? false) ? '1' : '0', '1');
+        $this->keep('hero_layout', (($data['hero_layout'] ?? 'split') === 'full') ? 'full' : 'split', 'split');
         $this->keep('hero_slide_seconds', (string) max(0, min(60, (int) ($data['hero_slide_seconds'] ?? 6))), '6');
         foreach (['home_headline', 'home_intro', 'home_message'] as $key) {
             $words = array_filter((array) ($data[$key] ?? []), fn ($v) => filled($v));

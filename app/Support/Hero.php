@@ -15,6 +15,12 @@ class Hero
         return (string) Setting::get('hero_on', '1') === '1';
     }
 
+    /** 'split' = words beside the slider (usual); 'full' = a full-size gallery with the words on top of it. */
+    public static function layout(): string
+    {
+        return Setting::get('hero_layout', 'split') === 'full' ? 'full' : 'split';
+    }
+
     /** Seconds before the next picture. 0 means it never moves by itself. */
     public static function seconds(): int
     {
@@ -43,7 +49,7 @@ class Hero
         $message = static::message();
         $slides = static::slides();
 
-        return ($message || $slides->isNotEmpty()) ? ['message' => $message, 'slides' => $slides, 'seconds' => static::seconds()] : null;
+        return ($message || $slides->isNotEmpty()) ? ['message' => $message, 'slides' => $slides, 'seconds' => static::seconds(), 'layout' => static::layout()] : null;
     }
 
     /** Only ordinary web, mail and phone links, or a path on this site. Never "javascript:" and the like. */

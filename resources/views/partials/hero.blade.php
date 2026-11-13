@@ -4,7 +4,7 @@
     $slides = $hero['slides'];
     $total = $slides->count();
 @endphp
-<section class="{{ implode(' ', array_filter(['hero', ! $message ? 'hero--media-only' : null, $slides->isEmpty() ? 'hero--text-only' : null])) }}" aria-label="{{ \App\Models\Setting::get('site_name', config('app.name')) }}">
+<section class="{{ implode(' ', array_filter(['hero', ! $message ? 'hero--media-only' : null, ($hero['layout'] ?? 'split') === 'full' && $slides->isNotEmpty() ? 'hero--full' : null, $slides->isEmpty() ? 'hero--text-only' : null])) }}" aria-label="{{ \App\Models\Setting::get('site_name', config('app.name')) }}">
     @if ($message)
         <div class="hero__text">
             <h1 class="hero__title">{{ $message->title }}</h1>
