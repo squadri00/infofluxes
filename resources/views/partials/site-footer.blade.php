@@ -16,6 +16,14 @@
                 <p class="site-footer__tagline">{{ \App\Models\Setting::get('tagline', __('site.tagline')) }}</p>
                 @if (filled(\App\Models\Setting::get('footer_about')))<p class="site-footer__about">{{ \App\Models\Setting::get('footer_about') }}</p>@endif
                 @include('partials.social-links', ['class' => 'social--footer'])
+                @if (\App\Support\Newsletter::enabled())
+                    <p class="site-footer__subscribe">
+                        <a class="newsletter-btn" href="{{ route('newsletter.show') }}">
+                            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><rect x="3.5" y="6" width="17" height="12" rx="2.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 7.5l7.5 5.7 7.5-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            {{ __('site.footer_subscribe') }}
+                        </a>
+                    </p>
+                @endif
             </div>
 
             @if ($browse->isNotEmpty())

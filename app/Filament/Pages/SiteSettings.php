@@ -62,7 +62,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes'];
+        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes', 'newsletter_per_run'];
     }
 
     public function form(Schema $schema): Schema
@@ -95,6 +95,7 @@ class SiteSettings extends Page
                     ->schema([
                         Toggle::make('newsletter_on')->label('The newsletter sign-up is on')->helperText('Off: the Subscribe link and page are closed.'),
                         TextInput::make('newsletter_code_minutes')->label('Minutes a code works')->numeric()->minValue(1)->maxValue(120)->placeholder('15'),
+                        TextInput::make('newsletter_per_run')->label('Emails sent at a time when you send an issue')->helperText('Cheap hosting limits how many emails go out each hour. Ask your host, then set this number. Usual: 100.')->numeric()->minValue(1)->maxValue(500)->placeholder('100'),
                     ])->columns(2),
             ]);
     }
@@ -126,6 +127,9 @@ class SiteSettings extends Page
             // How long a newsletter code works, in minutes (an empty box means the usual 15).
             if ($key === 'newsletter_code_minutes') {
                 $value = is_numeric($value) ? max(1, min(120, (int) $value)) : null;
+            }
+            if ($key === 'newsletter_per_run') {
+                $value = is_numeric($value) ? max(1, min(500, (int) $value)) : null;
             }
             Setting::put($key, $value === [] ? null : $value);
         }

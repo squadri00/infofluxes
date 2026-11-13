@@ -1805,3 +1805,10 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 /* In a small card the byline is just the little picture and the name (the role has no room). */
 .pcard--c .byline__role { display: none; }
 .pcard--c .byline--card .byline__pic { width: 20px; height: 20px; font-size: .65rem; }
+
+/* The Subscribe button under the social buttons in the footer */
+.site-footer__subscribe { margin: 16px 0 0; }
+.newsletter-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--accent-text); text-decoration: none; font-weight: 700; font-size: .92rem; padding: 9px 18px; border-radius: 999px; transition: filter .18s, transform .18s; }
+.newsletter-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.newsletter-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .newsletter-btn { transition: none; } }

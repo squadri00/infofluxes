@@ -2,6 +2,8 @@
 
 /** The words of the newsletter sign-up and of its two emails. :email, :minutes, :seconds and :left are filled in by the site; {code}, {minutes}, {site} and {link} in the emails too. */
 return [
+    'newsletter_mail_footer' => 'You get this email because you subscribed to our newsletter.',
+    'newsletter_mail_unsubscribe' => 'Unsubscribe',
     'newsletter_already' => 'This address is already subscribed.',
     'newsletter_button' => 'Subscribe',
     'newsletter_close' => 'Close',
