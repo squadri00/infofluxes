@@ -35,11 +35,10 @@
         </ol>
     </nav>
 
+    {{-- The top of the page: the words on the left, the picture on the right, two equal columns (one column when there is no picture). --}}
+    <header class="category-hero {{ $category->image ? 'category-hero--split' : '' }}">
+    <div class="category-hero__text">
     <h1 class="topic__title">{{ $name }} @include('partials.id-tag', ['code' => $category->code])</h1>
-
-    @if ($category->image)
-        <figure class="topic__master topic__master--banner"><img src="{{ asset('storage/'.$category->image) }}" alt="{{ $category->image_alt }}"></figure>
-    @endif
 
     @if ($descriptionText !== '')
         <div class="topic__hook">{!! nl2br(e((string) $category->description)) !!}</div>
@@ -55,6 +54,12 @@
             @endforeach
         </nav>
     @endif
+    </div>
+
+    @if ($category->image)
+        <figure class="category-hero__picture"><img src="{{ asset('storage/'.$category->image) }}" alt="{{ $category->image_alt }}"></figure>
+    @endif
+    </header>
 
     <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>
 

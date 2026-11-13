@@ -1581,3 +1581,11 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 @media (max-width: 700px) { .hero--full .hero__media { height: 70vh; } .hero--full .hero__caption { max-width: 100%; padding-bottom: 80px; } }
 /* The banner is 20% wider than the search bar: 10% sticks out on each side (not on small screens). */
 @media (min-width: 900px) { .hero { margin-left: calc(-1 * min(10%, max(0px, (100vw - 100%) / 2 - 8px))); margin-right: calc(-1 * min(10%, max(0px, (100vw - 100%) / 2 - 8px))); } }
+
+/* Category page top: words and picture in two equal columns; the whole picture is shown (it is never cut). */
+.category-hero--split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: center; margin-bottom: 8px; }
+.category-hero__text { min-width: 0; }
+.category-hero__picture { margin: 0; }
+.category-hero__picture img { display: block; width: 100%; height: auto; border-radius: var(--radius); box-shadow: 0 10px 28px rgba(0, 0, 0, .18); }
+.category-hero:not(.category-hero--split) .category-hero__picture { display: none; }
+@media (max-width: 800px) { .category-hero--split { grid-template-columns: minmax(0, 1fr); gap: 18px; } .category-hero__picture { order: -1; } }
