@@ -22,6 +22,9 @@
                 @endif
             </a>
             <ul class="site-header__tools">
+                @if (\App\Support\Challenge::anyOn())
+                    <li class="menu__item"><a href="{{ route('challenge') }}" @if (request()->routeIs('challenge*')) aria-current="page" @endif>{{ __('site.challenge') }}</a></li>
+                @endif
                 @if (count($locales) >= 1)
                     <li class="menu__item">
                         <details class="menu__drop lang-menu">

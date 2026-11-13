@@ -104,6 +104,31 @@ class MoveFromOldSite extends Page
         Notification::make()->success()->title('The home page slider was brought across.')->send();
     }
 
+    /** @var array<string, mixed>|null */
+    public ?array $challengeResult = null;
+
+    public bool $challengeDone = false;
+
+    public static function challengeAvailable(): bool
+    {
+        return \App\Support\OldChallengeImport::available();
+    }
+
+    public function checkChallenge(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->challengeResult = (new \App\Support\OldChallengeImport)->check();
+        $this->challengeDone = false;
+    }
+
+    public function bringChallenge(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->challengeResult = (new \App\Support\OldChallengeImport)->bring();
+        $this->challengeDone = true;
+        Notification::make()->success()->title('The tests were brought across.')->send();
+    }
+
     public function checkAudio(): void
     {
         abort_unless(static::canAccess(), 403);

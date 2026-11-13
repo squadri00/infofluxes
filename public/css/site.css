@@ -1589,3 +1589,143 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 .category-hero__picture img { display: block; width: 100%; height: auto; border-radius: var(--radius); box-shadow: 0 10px 28px rgba(0, 0, 0, .18); }
 .category-hero:not(.category-hero--split) .category-hero__picture { display: none; }
 @media (max-width: 800px) { .category-hero--split { grid-template-columns: minmax(0, 1fr); gap: 18px; } .category-hero__picture { order: -1; } }
+
+/* ===== The Quran-style test ===== */
+.quiz { margin: 22px 0 10px; padding: 24px 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, .06); }
+.quiz__title { margin: 0 0 10px; font-size: 1.5rem; }
+.quiz__fine { font-size: .86rem; color: var(--muted); }
+.quiz__count { margin: 0 0 4px; color: var(--muted); font-size: .9rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.quiz__question { margin: 0 0 14px; font-size: 1.2rem; }
+.quiz__options { display: grid; gap: 12px; }
+.quiz-option { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 14px; align-items: start; padding: 14px 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--bg); cursor: pointer; transition: border-color .15s, background .15s; position: relative; }
+.quiz-option:hover { border-color: var(--accent); }
+.quiz-option input { position: absolute; opacity: 0; pointer-events: none; }
+.quiz-option:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.quiz-option:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.quiz-option__key { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-weight: 700; font-size: .9rem; }
+.quiz-option__text { font-family: "Amiri", "Noto Naskh Arabic", "Scheherazade New", "Traditional Arabic", "Arabic Typesetting", "Segoe UI", Tahoma, serif; font-size: 1.55rem; line-height: 2.05; direction: rtl; text-align: right; color: var(--text); }
+.quiz-option__reveal { grid-column: 2; display: grid; gap: 4px; margin-top: 8px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: .9rem; color: var(--muted); }
+.quiz-option__kind { justify-self: start; font-weight: 700; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: var(--gray-soft); color: var(--text); }
+.quiz-option__kind.kind-quran { background: var(--success); color: var(--accent-text, #fff); }
+.quiz-option__ref { color: var(--text); font-weight: 600; }
+.quiz-option__english { color: var(--text); }
+.quiz-option.is-answer { border-color: var(--success); background: var(--success-soft); }
+.quiz-option.is-mistaken { border-color: var(--danger); background: var(--danger-soft); }
+.quiz-option.is-other:not(.is-mistaken) { opacity: .92; }
+.quiz__verdict { margin: 0 0 14px; padding: 10px 14px; border-radius: 10px; font-weight: 600; }
+.quiz__verdict.is-right { background: var(--success-soft); border: 1px solid var(--success); }
+.quiz__verdict.is-wrong { background: var(--danger-soft); border: 1px solid var(--danger); }
+.quiz__actions { margin: 16px 0 0; display: flex; gap: 10px; flex-wrap: wrap; }
+.quiz__score { font-size: 2.2rem; font-weight: 800; margin: 0 0 8px; color: var(--accent); }
+.quiz__sub { margin: 18px 0 6px; font-size: 1rem; }
+.quiz__mistakes { margin: 0 0 12px; padding-left: 1.2rem; }
+@media (max-width: 560px) { .quiz { padding: 18px 14px; } .quiz-option { grid-template-columns: 28px minmax(0, 1fr); gap: 4px 10px; padding: 12px; } .quiz-option__text { font-size: 1.35rem; } }
+/* ===== Which scripture? ===== */
+.quiz__passage { margin: 0 0 18px; padding: 16px 20px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 0 12px 12px 0; font-size: 1.15rem; line-height: 1.65; font-family: Georgia, "Times New Roman", serif; }
+.quiz-option--plain { grid-template-columns: 34px minmax(0, 1fr); align-items: center; padding: 11px 14px; }
+.quiz-option--plain .quiz-option__text { font-family: inherit; font-size: 1.02rem; line-height: 1.4; direction: ltr; text-align: left; }
+.quiz__explain { margin: 14px 0 0; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 10px; color: var(--muted); font-size: .93rem; }
+.quiz + .quiz { margin-top: 28px; }
+/* ===== Fact or myth? ===== */
+.quiz__tf { display: flex; gap: 12px; flex-wrap: wrap; }
+.quiz__tf-button { min-width: 140px; padding: 12px 22px; font-size: 1.05rem; font-weight: 700; border: 2px solid var(--line); background: var(--bg); color: var(--text); border-radius: 12px; cursor: pointer; }
+.quiz__tf-button:hover:not(:disabled) { border-color: var(--accent); }
+.quiz__tf-button:disabled { cursor: default; }
+.quiz__tf-button.is-answer { border-color: var(--success); background: var(--success-soft); }
+.quiz__tf-button.is-mistaken { border-color: var(--danger); background: var(--danger-soft); }
+
+/* ===== The hub page and the test pages ===== */
+.tests-back { margin: 0 0 8px; font-size: .95rem; }
+.tests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 18px 0; padding: 0; list-style: none; }
+.test-card { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 4px 14px rgba(0, 0, 0, .05); }
+.test-card__title { margin: 0; font-size: 1.15rem; }
+.test-card__title a { color: var(--text); text-decoration: none; }
+.test-card__title a::after { content: ""; position: absolute; inset: 0; }
+.test-card { position: relative; }
+.test-card:hover { border-color: var(--accent); }
+.test-card:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
+.test-card__text { margin: 0; color: var(--muted); font-size: .93rem; flex: 1; }
+.test-card__go { font-weight: 700; color: var(--accent); }
+
+/* ===== Put the chapters in order ===== */
+.order__levels { display: flex; gap: 18px 28px; flex-wrap: wrap; margin: 14px 0; }
+.order__level { max-width: 320px; }
+.order__instruction { margin: 0 0 4px; font-size: 1.05rem; font-weight: 600; }
+.order__tap { margin: 0 0 12px; }
+.order__board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.order__heading { margin: 0 0 10px; font-size: .9rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.order-pool { display: flex; flex-direction: column; gap: 8px; min-height: 90px; padding: 10px; border: 2px dashed var(--line); border-radius: 12px; }
+.order-pool.is-over, .order-slot__drop.is-over { border-color: var(--accent); background: var(--accent-soft); }
+.order-tile { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ar name" "ar meaning"; gap: 0 12px; align-items: center; width: 100%; text-align: left; padding: 8px 12px; background: var(--bg); color: var(--text); border: 2px solid var(--line); border-radius: 10px; cursor: grab; font: inherit; touch-action: none; user-select: none; -webkit-user-select: none; }
+.order-tile:hover { border-color: var(--accent); }
+.order-tile.is-selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+.order-tile.is-dragging { opacity: .35; }
+.order-tile__ar { grid-area: ar; font-family: "Amiri", "Noto Naskh Arabic", "Scheherazade New", "Traditional Arabic", "Arabic Typesetting", "Segoe UI", Tahoma, serif; font-size: 1.5rem; line-height: 1.5; min-width: 5.2rem; text-align: center; }
+.order-tile__name { grid-area: name; font-weight: 700; }
+.order-tile__meaning { grid-area: meaning; font-size: .82rem; color: var(--muted); }
+.order-ghost { position: fixed; z-index: 1000; pointer-events: none; opacity: .95; box-shadow: 0 10px 28px rgba(0, 0, 0, .3); cursor: grabbing; margin: 0; }
+.order-slots { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.order-slot { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; align-items: center; }
+.order-slot__label { font-weight: 700; color: var(--muted); text-align: right; font-size: .9rem; }
+.order-slot__drop { min-height: 58px; padding: 4px; display: flex; align-items: center; border: 2px dashed var(--line); border-radius: 10px; }
+.order-slot__drop:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.order-slot__drop .order-tile { margin: 0; }
+.order-slot__empty { color: var(--muted); font-size: .85rem; padding: 0 10px; }
+.order-result { margin: 16px 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.order-result__row { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; }
+.order-result__row.is-right { border-color: var(--success); background: var(--success-soft); }
+.order-result__row.is-wrong { border-color: var(--danger); background: var(--danger-soft); }
+.order-result__mark { font-weight: 800; font-size: 1.1rem; }
+.order-result__ar { font-family: "Amiri", "Noto Naskh Arabic", "Scheherazade New", "Traditional Arabic", "Segoe UI", Tahoma, serif; font-size: 1.2rem; }
+.order-result__yours { display: block; margin-top: 2px; font-size: .9rem; color: var(--muted); }
+@media (max-width: 720px) { .order__board { grid-template-columns: 1fr; } .order-slot { grid-template-columns: 56px minmax(0, 1fr); } .order-tile__ar { min-width: 4.2rem; font-size: 1.3rem; } }
+/* ===== Practice: neon feedback ===== */
+.order__practice { margin: 12px 0; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.order__practice .quiz__fine { flex-basis: 100%; margin: 0; }
+.order__status { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 12px; font-weight: 700; }
+.order__progress { color: var(--muted); }
+.order__done { margin: 0 0 16px; padding: 14px 16px; border: 2px solid #00e676; border-radius: 12px; background: rgba(0, 230, 118, .08); box-shadow: 0 0 16px rgba(0, 230, 118, .45); }
+.order__done .quiz__score { font-size: 1.3rem; margin: 0 0 6px; }
+.order-tile { position: relative; }
+.order-tile.is-correct { border-color: #00e676; background: rgba(0, 230, 118, .1); box-shadow: 0 0 0 2px rgba(0, 230, 118, .35), 0 0 14px 2px rgba(0, 230, 118, .75), inset 0 0 10px rgba(0, 230, 118, .25); cursor: default; }
+.order-tile.is-wrong { border-color: #ff1744; background: rgba(255, 23, 68, .1); box-shadow: 0 0 0 2px rgba(255, 23, 68, .35), 0 0 14px 2px rgba(255, 23, 68, .8), inset 0 0 10px rgba(255, 23, 68, .25); cursor: default; animation: order-shake .45s; }
+.order-tile__mark { position: absolute; top: 4px; right: 8px; font-weight: 800; font-size: 1.05rem; line-height: 1; }
+.order-tile.is-correct .order-tile__mark { color: #00c853; }
+.order-tile.is-wrong .order-tile__mark { color: #ff1744; }
+.order-tile__num { grid-column: 1 / -1; font-size: .78rem; color: var(--muted); padding-top: 2px; }
+.order-slot__drop.is-correct { border-style: solid; border-color: #00e676; }
+.order-slot__drop.is-wrong { border-style: solid; border-color: #ff1744; }
+@keyframes order-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { .order-tile.is-wrong { animation: none; } .chapters-panel, .chapters-backdrop { transition: none !important; } }
+
+/* ===== The chapter list at the left edge ===== */
+.chapters-tab { position: fixed; left: 0; top: 50%; transform: translateY(-50%); z-index: 45; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 8px; background: var(--accent); color: var(--accent-text); border: 0; border-radius: 0 12px 12px 0; box-shadow: 3px 3px 12px rgba(0, 0, 0, .25); cursor: pointer; font: inherit; font-weight: 700; font-size: .85rem; }
+.chapters-tab span { writing-mode: vertical-rl; letter-spacing: .04em; }
+.chapters-tab:hover { filter: brightness(1.1); }
+.chapters-tab:focus-visible, .chapters-edge:focus-visible, .chapters-panel__close:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.chapters-tab[hidden] { display: none; }
+.chapters-backdrop { position: fixed; inset: 0; z-index: 69; background: rgba(0, 0, 0, .45); }
+.chapters-backdrop[hidden] { display: none; }
+.chapters-panel { position: fixed; z-index: 70; top: 0; left: 0; bottom: 0; width: min(400px, calc(100vw - 54px)); display: flex; flex-direction: column; background: var(--surface); color: var(--text); border-right: 1px solid var(--line); box-shadow: 6px 0 28px rgba(0, 0, 0, .3); transform: translateX(-105%); visibility: hidden; transition: transform .25s ease, visibility 0s linear .25s; }
+.chapters-panel.is-open { transform: none; visibility: visible; transition: transform .25s ease; }
+.chapters-panel__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; background: var(--accent); color: var(--accent-text); }
+.chapters-panel__title { margin: 0; font-size: 1.05rem; }
+.chapters-panel__close { background: none; border: 0; color: inherit; font-size: 1.8rem; line-height: 1; cursor: pointer; padding: 0 6px; }
+.chapters-panel__note { margin: 10px 16px 6px; font-size: .85rem; color: var(--muted); }
+.chapters-panel__search { margin: 4px 16px 10px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; }
+.chapters-list { flex: 1 1 auto; overflow-y: auto; margin: 0; padding: 0 8px 16px; list-style: none; }
+.chapters-list__item { display: grid; grid-template-columns: 38px auto 1fr; grid-template-areas: "no ar en" "no ar verses"; gap: 0 12px; align-items: center; padding: 8px; border-bottom: 1px solid var(--line); }
+.chapters-list__item[hidden] { display: none; }
+.chapters-list__item.is-in-round { background: var(--accent-soft); border-left: 4px solid var(--accent); }
+.chapters-list__no { grid-area: no; font-weight: 800; color: var(--muted); text-align: right; }
+.chapters-list__ar { grid-area: ar; font-family: "Amiri", "Noto Naskh Arabic", "Scheherazade New", "Traditional Arabic", "Arabic Typesetting", "Segoe UI", Tahoma, serif; font-size: 1.35rem; min-width: 4.6rem; text-align: center; }
+.chapters-list__en { grid-area: en; display: flex; flex-direction: column; line-height: 1.25; }
+.chapters-list__en span { font-size: .82rem; color: var(--muted); }
+.chapters-list__verses { grid-area: verses; font-size: .78rem; color: var(--muted); }
+.chapters-panel__none { margin: 14px 16px; color: var(--muted); }
+.chapters-panel__none[hidden] { display: none; }
+/* A second close button, attached to the right edge of the open panel */
+.chapters-edge { position: absolute; top: 50%; right: -42px; transform: translateY(-50%); width: 42px; height: 72px; display: flex; align-items: center; justify-content: center; background: var(--accent); color: var(--accent-text); border: 0; border-radius: 0 12px 12px 0; box-shadow: 4px 2px 12px rgba(0, 0, 0, .25); cursor: pointer; }
+.chapters-edge:hover { filter: brightness(1.1); }
+@media (max-width: 480px) { .chapters-edge { right: -36px; width: 36px; } .chapters-list__item { grid-template-columns: 30px auto 1fr; gap: 0 8px; } }
+

@@ -9,6 +9,8 @@ return [
     'skip_to_content' => 'Skip to content',
     'tagline' => 'Every belief has a source. Their logic. Your judgment.',
     'home' => 'Home',
+    'challenge' => 'Challenge yourself',
+    'challenge_intro' => 'Test what you know. Choose a test below. Each one is a challenge to your own ear and judgment, with the answers explained afterwards.',
     'search_placeholder' => 'Search the site',
     'search_button' => 'Search',
     'search_in' => 'Search in',

@@ -122,6 +122,28 @@
             @endif
         </x-filament::section>
     @endif
+    @if (\App\Filament\Pages\MoveFromOldSite::challengeAvailable())
+        <x-filament::section>
+            <x-slot name="heading">Your tests (Challenge yourself)</x-slot>
+            <p style="max-width:52rem">
+                The Arabic passages, the scripture passages, the fact statements, the quotes, the 114 chapters, the saved scores and the test settings (on or off, how many questions).
+                What is here already is not changed or made twice. The questions are managed afterwards in the Challenge yourself group of the menu.
+            </p>
+            <x-filament::button wire:click="checkChallenge" color="gray">Check the tests</x-filament::button>
+            @if ($challengeResult && ! $challengeDone)
+                <x-filament::button wire:click="bringChallenge">Bring the tests</x-filament::button>
+            @endif
+            @if ($challengeResult)
+                @php $c = $challengeResult['total']; @endphp
+                <ul style="margin:.8rem 0 0 1.2rem;list-style:disc">
+                    <li><strong>{{ $challengeDone ? 'Brought' : 'Would bring' }}:</strong>
+                        {{ $c['quiz_passages_new'] }} Arabic passages, {{ $c['scripture_passages_new'] }} scripture passages, {{ $c['fact_statements_new'] }} fact statements,
+                        {{ $c['quote_passages_new'] }} quotes, {{ $c['quran_chapters_new'] }} chapters, {{ $c['attempts_new'] }} saved scores, {{ $c['settings_changed'] }} settings</li>
+                    <li>Already here: {{ $c['quiz_passages_existing'] }} Arabic passages, {{ $c['scripture_passages_existing'] }} scripture passages, {{ $c['fact_statements_existing'] }} fact statements, {{ $c['quote_passages_existing'] }} quotes, {{ $c['quran_chapters_existing'] }} chapters</li>
+                </ul>
+            @endif
+        </x-filament::section>
+    @endif
     @if (\App\Filament\Pages\MoveFromOldSite::viewerAvailable())
         <x-filament::section>
             <x-slot name="heading">Your slide viewer choices</x-slot>
