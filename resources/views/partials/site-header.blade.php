@@ -58,18 +58,9 @@
         </div>
     </div>
 
-    {{-- Row 2: the name (or logo) and the main menu (the category tree) --}}
+    {{-- Row 2: the main menu (the category tree). The logo is in the top bar; while scrolling the header is slim and has no logo. --}}
     <div class="site-header__main">
         <div class="wrap wrap--wide site-header__main-inner">
-            {{-- The same logo again, shown only when the header is slim (while scrolling), because the top bar is hidden then. --}}
-            <a class="site-header__name site-header__name--compact" href="{{ route('home') }}" aria-label="{{ $headerName }}">
-                @if ($logo)
-                    <img class="site-header__logo" src="{{ asset('storage/'.$logo) }}" alt="">
-                @else
-                    {{ $headerName }}
-                @endif
-            </a>
-
             <button type="button" class="site-header__search-toggle" data-search-toggle aria-expanded="false" aria-controls="header-search" aria-label="{{ __('site.search_button') }}" hidden>
                 <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.5 15.5 21 21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
             </button>

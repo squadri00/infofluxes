@@ -46,24 +46,23 @@ class Step15Test extends TestCase
         $this->assertStringContainsString('href="'.route('home').'"', substr($top, $logo, 200));
     }
 
-    public function test_the_main_row_has_the_menu_and_only_a_hidden_copy_of_the_logo(): void
+    public function test_the_main_row_has_the_menu_and_no_logo(): void
     {
         \App\Models\Category::create(['name' => ['en' => 'Shows'], 'slug' => 'shows']);
         $main = $this->parts()['main'];
 
         $this->assertStringContainsString('data-site-nav', $main);
-        $this->assertSame(1, substr_count($main, '<a class="site-header__name '), 'one copy of the logo, for the slim header only');
-        $this->assertStringContainsString('site-header__name--compact', $main);
-        $this->assertStringNotContainsString('site-header__name--top', $main);
+        $this->assertStringNotContainsString('site-header__name', $main, 'no logo here, in the normal header or in the slim one');
+        $this->assertStringContainsString('data-search-toggle', $main, 'the search button is still there for the slim header');
     }
 
-    public function test_the_two_copies_never_show_together(): void
+    public function test_the_slim_header_while_scrolling_has_no_logo(): void
     {
         $css = (string) file_get_contents(public_path('css/site.css'));
 
-        $this->assertStringContainsString('.site-header__main .site-header__name--compact { display: none; }', $css, 'hidden in the normal header');
-        $this->assertStringContainsString('.site-header.is-compact .site-header__main .site-header__name--compact { display: inline-flex; }', $css, 'shown in the slim header');
-        $this->assertStringContainsString('.site-header.is-compact .site-header__top { display: none; }', $css, 'the top bar (with the other copy) is hidden then');
+        $this->assertStringContainsString('.site-header.is-compact .site-header__top { display: none; }', $css, 'the top bar, where the logo is, is hidden while scrolling');
+        $this->assertStringNotContainsString('name--compact', $css, 'no small copy of the logo any more');
+        $this->assertStringContainsString('.site-header.is-compact .site-header__main-inner { flex-wrap: nowrap;', $css, 'the menu and the search button stay on one row');
         $this->assertStringContainsString('grid-template-columns: 1fr auto 1fr', $css, 'tagline | logo | tools');
     }
 
@@ -76,9 +75,7 @@ class Step15Test extends TestCase
         $top = $this->parts()['top'];
         $this->assertMatchesRegularExpression('#site-header__name--top"[^>]*>\s*<img class="site-header__logo" src="[^"]*site/logo\.webp" alt="InfoFluxes">#', $top);
 
-        $main = $this->parts()['main'];
-        $this->assertStringContainsString('alt=""', $main, 'the hidden copy is not read twice');
-        $this->assertStringContainsString('aria-label="InfoFluxes"', $main);
+        $this->assertStringNotContainsString('site/logo.webp', $this->parts()['main'], 'the picture is in the top bar only');
     }
 
     public function test_the_search_row_and_the_tools_are_still_there(): void
