@@ -1729,3 +1729,7 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 .chapters-edge:hover { filter: brightness(1.1); }
 @media (max-width: 480px) { .chapters-edge { right: -36px; width: 36px; } .chapters-list__item { grid-template-columns: 30px auto 1fr; gap: 0 8px; } }
 
+
+/* Category page top: words 5 parts, picture 7 parts (a bigger picture); room around the Grid / List / Index buttons. */
+.category-hero--split { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.category .view-bar { margin: 26px 0 10px; }
