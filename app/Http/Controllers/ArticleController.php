@@ -15,7 +15,12 @@ class ArticleController extends Controller
             ->where('slug', $slug)
             ->when(! $preview, fn ($q) => $q->published())
             ->with(['category', 'extraCategories', 'author', 'images', 'videos', 'chapters.slides'])
-            ->firstOrFail();
+            ->first();
+
+        // No article has this address: it may be a website page (About, Privacy...), else the visitor gets "not found".
+        if (! $article) {
+            return app(PageController::class)->show($slug);
+        }
 
         $category = $article->category;
         $trail = $category ? CategoryController::trail($category) : collect();

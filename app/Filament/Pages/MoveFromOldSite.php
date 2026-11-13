@@ -105,6 +105,31 @@ class MoveFromOldSite extends Page
     }
 
     /** @var array<string, mixed>|null */
+    public ?array $pagesResult = null;
+
+    public bool $pagesDone = false;
+
+    public static function pagesAvailable(): bool
+    {
+        return \App\Support\OldPagesImport::available();
+    }
+
+    public function checkPages(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->pagesResult = (new \App\Support\OldPagesImport)->check();
+        $this->pagesDone = false;
+    }
+
+    public function bringPages(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->pagesResult = (new \App\Support\OldPagesImport)->bring();
+        $this->pagesDone = true;
+        Notification::make()->success()->title('The website pages were brought across.')->send();
+    }
+
+    /** @var array<string, mixed>|null */
     public ?array $challengeResult = null;
 
     public bool $challengeDone = false;

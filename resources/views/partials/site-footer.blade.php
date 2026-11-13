@@ -3,6 +3,7 @@
     $footerName = \App\Models\Setting::get('site_name', config('app.name'));
     $footerLogo = \App\Models\Setting::get('logo');
     $browse = \App\Models\Category::query()->whereNull('parent_id')->where('is_visible', true)->orderBy('sort_order')->orderBy('id')->limit(8)->get();
+    $footerPages = \App\Models\Page::query()->published()->where('in_footer', true)->orderBy('sort_order')->orderBy('id')->get();
     $copyright = str_replace([':year', ':site'], [now()->year, $footerName], \App\Models\Setting::get('copyright', __('site.copyright')));
 @endphp
 <footer class="site-footer">
@@ -23,6 +24,17 @@
                     <ul class="site-footer__list">
                         @foreach ($browse as $category)
                             <li><a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a></li>
+                        @endforeach
+                    </ul>
+                </nav>
+            @endif
+
+            @if ($footerPages->isNotEmpty())
+                <nav class="site-footer__col" aria-labelledby="footer-about">
+                    <h2 class="site-footer__title" id="footer-about">{{ __('site.footer_about') }}</h2>
+                    <ul class="site-footer__list">
+                        @foreach ($footerPages as $footerPage)
+                            <li><a href="{{ route('article.show', $footerPage->slug) }}" @if (request()->path() === $footerPage->slug) aria-current="page" @endif>{{ $footerPage->title }}</a></li>
                         @endforeach
                     </ul>
                 </nav>

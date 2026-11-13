@@ -122,6 +122,26 @@
             @endif
         </x-filament::section>
     @endif
+    @if (\App\Filament\Pages\MoveFromOldSite::pagesAvailable())
+        <x-filament::section>
+            <x-slot name="heading">Your website pages (About, Contact, Privacy...)</x-slot>
+            <p style="max-width:52rem">
+                The pages of the old site with their words as written. The pages that only held a test are not brought (the tests have their own pages).
+                What is here already is not changed or made twice. You edit them afterwards in <a href="{{ \App\Filament\Resources\Pages\PageResource::getUrl() }}" style="text-decoration:underline">Pages</a>.
+            </p>
+            <x-filament::button wire:click="checkPages" color="gray">Check the pages</x-filament::button>
+            @if ($pagesResult && ! $pagesDone && $pagesResult['total']['new'] > 0)
+                <x-filament::button wire:click="bringPages">Bring the pages</x-filament::button>
+            @endif
+            @if ($pagesResult)
+                @php $p = $pagesResult['total']; @endphp
+                <ul style="margin:.8rem 0 0 1.2rem;list-style:disc">
+                    <li><strong>{{ $pagesDone ? 'Brought' : 'Would bring' }}:</strong> {{ $p['new'] }} pages @if ($p['titles'])({{ implode(', ', $p['titles']) }})@endif</li>
+                    <li>Already here: {{ $p['existing'] }}. Test pages left out: {{ $p['skipped_tests'] }}.</li>
+                </ul>
+            @endif
+        </x-filament::section>
+    @endif
     @if (\App\Filament\Pages\MoveFromOldSite::challengeAvailable())
         <x-filament::section>
             <x-slot name="heading">Your tests (Challenge yourself)</x-slot>

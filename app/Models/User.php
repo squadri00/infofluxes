@@ -59,6 +59,7 @@ class User extends Authenticatable implements FilamentUser
         'comments' => 'Comments',
         'import' => 'AI import',
         'tests' => 'Challenge tests',
+        'pages' => 'Website pages',
     ];
 
     /** The screens a role has when no screens are ticked for the person. */
