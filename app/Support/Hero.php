@@ -15,19 +15,10 @@ class Hero
         return (string) Setting::get('hero_on', '1') === '1';
     }
 
-    /** 'full' = a full-size gallery with the words on top of it (usual); 'split' = words beside the slider. */
+    /** 'split' = words beside the slider (usual); 'full' = a full-size gallery with the words on top of it. */
     public static function layout(): string
     {
-        return Setting::get('hero_layout', 'full') === 'split' ? 'split' : 'full';
-    }
-
-    /** Width / height of a stored picture, kept between 1 and 2.4 so the frame is never odd. 16/9 when it cannot be read. */
-    public static function ratio(?string $path): float
-    {
-        $file = $path ? storage_path('app/public/'.ltrim($path, '/')) : null;
-        $size = ($file && is_file($file)) ? @getimagesize($file) : false;
-
-        return ($size && $size[1] > 0) ? round(min(2.4, max(1.0, $size[0] / $size[1])), 4) : round(16 / 9, 4);
+        return Setting::get('hero_layout', 'split') === 'full' ? 'full' : 'split';
     }
 
     /** Seconds before the next picture. 0 means it never moves by itself. */

@@ -101,7 +101,7 @@ class Step14Test extends TestCase
 
         $html = $this->get('/')->assertOk()->getContent();
 
-        $this->assertStringContainsString('class="hero hero--media-only hero--full"', $html, 'no words yet');
+        $this->assertStringContainsString('class="hero hero--media-only"', $html, 'no words yet');
         $this->assertLessThan(strpos($html, 'Second picture'), strpos($html, 'First picture'));
         $this->assertStringNotContainsString('Hidden picture', $html);
         $this->assertStringContainsString('hero__slide is-active', $html);

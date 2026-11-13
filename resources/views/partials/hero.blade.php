@@ -3,10 +3,8 @@
     $message = $hero['message'];
     $slides = $hero['slides'];
     $total = $slides->count();
-    $full = ($hero['layout'] ?? 'full') === 'full' && $total > 0;
-    $ratios = $full ? $slides->map(fn ($sl) => \App\Support\Hero::ratio($sl->image)) : collect();
 @endphp
-<section class="{{ implode(' ', array_filter(['hero', ! $message ? 'hero--media-only' : null, ($hero['layout'] ?? 'full') === 'full' && $slides->isNotEmpty() ? 'hero--full' : null, $slides->isEmpty() ? 'hero--text-only' : null])) }}" aria-label="{{ \App\Models\Setting::get('site_name', config('app.name')) }}">
+<section class="{{ implode(' ', array_filter(['hero', ! $message ? 'hero--media-only' : null, ($hero['layout'] ?? 'split') === 'full' && $slides->isNotEmpty() ? 'hero--full' : null, $slides->isEmpty() ? 'hero--text-only' : null])) }}" aria-label="{{ \App\Models\Setting::get('site_name', config('app.name')) }}">
     @if ($message)
         <div class="hero__text">
             <h1 class="hero__title">{{ $message->title }}</h1>
@@ -22,17 +20,16 @@
     @endif
 
     @if ($total > 0)
-        <div class="hero__media" data-hero @if ($full) style="aspect-ratio: {{ $ratios->first() }}" @endif data-hero-seconds="{{ $total > 1 ? $hero['seconds'] : 0 }}"
+        <div class="hero__media" data-hero data-hero-seconds="{{ $total > 1 ? $hero['seconds'] : 0 }}"
             role="region" aria-roledescription="carousel" aria-label="{{ __('site.hero_region') }}"
             data-label-prev="{{ __('site.hero_prev') }}" data-label-next="{{ __('site.hero_next') }}"
             data-label-goto="{{ __('site.hero_goto') }}" data-label-pause="{{ __('site.hero_pause') }}" data-label-play="{{ __('site.hero_play') }}">
             <div class="hero__slides">
                 @foreach ($slides as $i => $slide)
                     @php $link = \App\Support\Hero::link($slide->button_url); @endphp
-                    <figure class="hero__slide {{ $i === 0 ? 'is-active' : '' }}" data-hero-slide @if ($full) data-ratio="{{ $ratios[$i] }}" @endif role="group" aria-roledescription="slide"
+                    <figure class="hero__slide {{ $i === 0 ? 'is-active' : '' }}" data-hero-slide role="group" aria-roledescription="slide"
                         aria-label="{{ str_replace([':n', ':total'], [$i + 1, $total], __('site.hero_slide_of')) }}"
                         @if ($i > 0) aria-hidden="true" @endif>
-                        <span class="hero__backdrop" style="background-image: url('{{ asset('storage/'.$slide->image) }}')" aria-hidden="true"></span>
                         <img src="{{ asset('storage/'.$slide->image) }}" alt="{{ $slide->image_alt }}" @if ($i > 0) loading="lazy" @endif>
                         @if (filled($slide->heading) || filled($slide->text) || ($link && filled($slide->button_label)))
                             <figcaption class="hero__caption">

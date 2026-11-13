@@ -21,20 +21,21 @@ class Step16Test extends TestCase
         HeroSlide::create(['image' => 'hero/a.webp', 'image_alt' => ['en' => 'A'], 'is_active' => true]);
     }
 
-    public function test_usual_style_is_the_full_size_gallery(): void
+    public function test_usual_style_is_words_beside_the_slider(): void
     {
-        $this->get('/')->assertOk()->assertSee('hero--full', false);
+        $this->get('/')->assertOk()->assertDontSee('hero--full');
     }
 
-    public function test_split_style_can_be_chosen(): void
+    public function test_full_style_adds_the_full_class(): void
     {
-        Setting::put('hero_layout', 'split');
-        $this->get('/')->assertOk()->assertDontSee('hero--full');
+        Setting::put('hero_layout', 'full');
+        $this->get('/')->assertOk()->assertSee('hero--full', false);
     }
 
     public function test_full_style_without_pictures_stays_plain(): void
     {
         HeroSlide::query()->delete();
+        Setting::put('hero_layout', 'full');
         $this->get('/')->assertOk()->assertDontSee('hero--full');
     }
 }
