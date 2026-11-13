@@ -1571,9 +1571,9 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 
 /* Full-size gallery: the banner is as wide as the search bar, tall, with round corners, and the words sit on top of the pictures. */
 .hero--full { position: relative; display: block; margin: 22px 0 18px; }
-.hero--full .hero__media { border-radius: 20px; min-height: 0; height: auto; max-height: 88vh; width: 100%; aspect-ratio: 16 / 9; transition: aspect-ratio .5s ease; }
+.hero--full .hero__media { border-radius: 20px; min-height: 0; height: auto; width: 100%; aspect-ratio: 16 / 9; transition: aspect-ratio .5s ease; }
 .hero--full .hero__slide img { position: relative; object-fit: contain; }
-/* If the picture does not fill the frame (the frame is never taller than the screen), a soft blur of the same picture fills the rest. */
+/* If the picture does not fill the frame (only for pictures that are not 16:9), a soft blur of the same picture fills the rest. */
 .hero__backdrop { position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(28px) brightness(.55); }
 .hero--full .hero__text { position: absolute; z-index: 4; left: 0; right: 0; top: 0; padding: clamp(22px, 4vw, 48px) clamp(20px, 4vw, 48px) 0; max-width: 760px; pointer-events: none; }
 .hero--full .hero__title, .hero--full .hero__description { color: #fff; text-shadow: 0 2px 14px rgba(0, 0, 0, .55); }
