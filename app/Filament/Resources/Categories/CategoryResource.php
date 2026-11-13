@@ -100,6 +100,9 @@ class CategoryResource extends Resource
                 ...Translated::textarea('header_text', 'Header text', rows: 3, help: 'Shown above the list on the category page.'),
                 TextInput::make('sort_order')->label('Order')->numeric()->minValue(0)->default(0),
                 Toggle::make('is_visible')->label('Show on the site')->default(true),
+                Toggle::make('custom_data.hide_articles')->label('Do not list its articles on its page')
+                    ->helperText('For a page that shows something else, for example the Did You Know? facts. The articles stay in the admin and in search; only the list on this page is left out.')
+                    ->default(false),
                 Section::make('Search engines (optional)')
                     ->collapsed()
                     ->description('Leave empty and the name and description are used.')

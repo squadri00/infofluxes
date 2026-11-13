@@ -111,6 +111,40 @@ class Step25Test extends TestCase
         $this->get(route('did-you-know'))->assertSee('On my page')->assertSee('Elsewhere')->assertSee('Nowhere in particular');
     }
 
+    public function test_a_category_can_leave_its_articles_off_its_page_and_show_only_its_facts(): void
+    {
+        $cat = Category::create(['name' => ['en' => 'Did You Know?'], 'slug' => 'did-you-know', 'custom_data' => ['hide_articles' => true]]);
+        Article::create(['title' => ['en' => 'An article in it'], 'slug' => 'an-article-in-it', 'category_id' => $cat->id, 'status' => 'published', 'publish_date' => now()->subDay()]);
+        $this->fact('A fact for the page', ['category_id' => $cat->id]);
+
+        $html = $this->get(route('category.show', 'did-you-know'))->assertOk()->assertSee('A fact for the page')->getContent();
+
+        $this->assertStringNotContainsString('An article in it', $html);
+        $this->assertStringNotContainsString('class="view-bar"', $html, 'no Grid / List / Index buttons');
+        $this->assertStringNotContainsString('block__title">Articles', $html);
+        $this->get(route('category.show', ['slug' => 'did-you-know', 'view' => 'index']))->assertOk()->assertDontSee('An article in it');
+
+        // The article itself and the search still work.
+        $this->get('/an-article-in-it')->assertOk();
+        $this->get(route('search', ['q' => 'article in it']))->assertSee('An article in it');
+    }
+
+    public function test_a_normal_category_still_lists_its_articles(): void
+    {
+        $cat = Category::create(['name' => ['en' => 'History'], 'slug' => 'history']);
+        Article::create(['title' => ['en' => 'An article in it'], 'slug' => 'an-article-in-it', 'category_id' => $cat->id, 'status' => 'published', 'publish_date' => now()->subDay()]);
+
+        $this->get(route('category.show', 'history'))->assertSee('An article in it')->assertSee('view-bar', false);
+    }
+
+    public function test_the_category_form_has_the_switch(): void
+    {
+        $this->superuser();
+
+        \Livewire\Livewire::test(\App\Filament\Resources\Categories\Pages\ListCategories::class)->assertSuccessful();
+        $this->assertStringContainsString('custom_data.hide_articles', (string) file_get_contents(app_path('Filament/Resources/Categories/CategoryResource.php')));
+    }
+
     public function test_the_page_and_the_category_can_share_the_name_without_clashing(): void
     {
         Category::create(['name' => ['en' => 'Did You Know?'], 'slug' => 'did-you-know']);

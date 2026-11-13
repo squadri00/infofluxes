@@ -68,9 +68,13 @@
         </section>
     @endif
 
-    <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>
+    @php $hideArticles = (bool) ($category->custom_data['hide_articles'] ?? false); @endphp
 
-    @if ($mode === 'index')
+    @if (! $hideArticles)
+    <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>
+    @endif
+
+    @if ($mode === 'index' && ! $hideArticles)
         @include('partials.category-index', ['category' => $category, 'index' => $index])
     @else
     @if ($children->isNotEmpty())
@@ -84,6 +88,7 @@
         </section>
     @endif
 
+    @if (! $hideArticles)
     <section class="block">
         <h2 class="block__title">{{ __('site.articles') }}</h2>
         @if ($articles->isEmpty())
@@ -93,6 +98,7 @@
             @include('partials.pager', ['paginator' => $articles])
         @endif
     </section>
+    @endif
     @endif
 </div>
 @if ($mode === 'index')
