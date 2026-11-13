@@ -154,7 +154,7 @@ class SlideViewerSettings extends Page
                         ->itemLabel(fn (array $state) => ($state['heading'][$main] ?? null) ?: (($state['image_alt'][$main] ?? null) ?: 'Picture'))
                         ->schema([
                             Hidden::make('id'),
-                            FileUpload::make('image')->label('Picture')->image()->disk('public')->directory('hero')->maxSize(5120)->required(),
+                            FileUpload::make('image')->label('Picture')->helperText('Best size: 1920 x 1080 pixels (16:9, landscape). JPG, PNG or WebP, up to 5 MB. Other shapes still show whole, with a soft blur beside them.')->image()->disk('public')->directory('hero')->maxSize(5120)->required(),
                             ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)', required: true),
                             ...Translated::text('heading', 'Words over the picture: heading'),
                             ...Translated::text('text', 'Words over the picture: one short line', max: 500),
@@ -222,7 +222,7 @@ class SlideViewerSettings extends Page
 
         // the home page slider
         $this->keep('hero_on', ($data['hero_on'] ?? false) ? '1' : '0', '1');
-        $this->keep('hero_layout', (($data['hero_layout'] ?? 'split') === 'full') ? 'full' : 'split', 'split');
+        $this->keep('hero_layout', (($data['hero_layout'] ?? 'full') === 'split') ? 'split' : 'full', 'full');
         $this->keep('hero_slide_seconds', (string) max(0, min(60, (int) ($data['hero_slide_seconds'] ?? 6))), '6');
         foreach (['home_headline', 'home_intro', 'home_message'] as $key) {
             $words = array_filter((array) ($data[$key] ?? []), fn ($v) => filled($v));
