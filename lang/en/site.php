@@ -125,6 +125,9 @@ return [
     'search_results_for' => 'Results for “:q”',
     'search_none' => 'Nothing was found. Try other words.',
     'search_empty' => 'Type a word to search.',
+    'search_in_category' => 'Topics in :name',
+    'search_only_in' => 'Only in :name.',
+    'search_everywhere' => 'Search the whole site',
     'search_categories_found' => 'Categories',
     'search_articles_found' => 'Articles',
 

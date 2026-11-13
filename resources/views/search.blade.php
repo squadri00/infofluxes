@@ -7,9 +7,12 @@
 
 @section('content')
 <div class="wrap wrap--wide">
-    <h1 class="topic__title">{{ $q !== '' ? str_replace(':q', $q, __('site.search_results_for')) : __('site.search_title') }}</h1>
+    <h1 class="topic__title">{{ $q !== '' ? str_replace(':q', $q, __('site.search_results_for')) : ($within ? str_replace(':name', $within->name, __('site.search_in_category')) : __('site.search_title')) }}</h1>
+    @if ($within && $q !== '')
+        <p class="search__scope">{{ str_replace(':name', $within->name, __('site.search_only_in')) }} <a href="{{ route('search', ['q' => $q]) }}">{{ __('site.search_everywhere') }}</a></p>
+    @endif
 
-    @if ($q === '')
+    @if ($q === '' && ! $within)
         <p class="empty">{{ __('site.search_empty') }}</p>
     @else
         @if ($categories->isNotEmpty())
