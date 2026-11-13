@@ -1592,3 +1592,7 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 }
 /* The banner is 20% wider than the search bar: 10% sticks out on each side (not on small screens). */
 @media (min-width: 900px) { .hero { margin-left: calc(-1 * min(10%, max(0px, (100vw - 100%) / 2 - 8px))); margin-right: calc(-1 * min(10%, max(0px, (100vw - 100%) / 2 - 8px))); } }
+
+/* Split style: the picture frame is 16:9 too (whole picture, a soft blur fills any rest). */
+.hero:not(.hero--full) .hero__media { min-height: 0; height: auto; aspect-ratio: 16 / 9; align-self: center; }
+.hero:not(.hero--full) .hero__slide img { position: relative; object-fit: contain; }
