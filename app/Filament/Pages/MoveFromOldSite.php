@@ -39,6 +39,16 @@ class MoveFromOldSite extends Page
 
     public bool $storyDone = false;
 
+    /** @var array<string, mixed>|null */
+    public ?array $viewerChanges = null;
+
+    public bool $viewerDone = false;
+
+    /** @var array<string, mixed>|null */
+    public ?array $audioResult = null;
+
+    public bool $audioDone = false;
+
     public static function canAccess(): bool
     {
         return (bool) auth()->user()?->isSuperuser() && OldSiteImport::available();
@@ -62,6 +72,42 @@ class MoveFromOldSite extends Page
     public function mount(): void
     {
         $this->storyCategory = \App\Models\Category::whereNull('parent_id')->get()->first(fn ($c) => $c->mainName() === 'About Islam')?->id;
+    }
+
+    public static function viewerAvailable(): bool
+    {
+        return \App\Support\OldSettingsImport::available();
+    }
+
+    public function checkAudio(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->audioResult = (new OldStoryImport)->checkAudio();
+        $this->audioDone = false;
+    }
+
+    public function moveAudio(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->audioResult = (new OldStoryImport)->moveAudio();
+        $this->audioDone = true;
+        Notification::make()->success()->title($this->audioResult['total']['audio_copied'].' audio files were copied.')->send();
+    }
+
+    public function checkViewer(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->viewerChanges = (new \App\Support\OldSettingsImport)->check();
+        $this->viewerDone = false;
+    }
+
+    public function bringViewer(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $n = (new \App\Support\OldSettingsImport)->bring();
+        $this->viewerChanges = [];
+        $this->viewerDone = true;
+        Notification::make()->success()->title($n === 1 ? '1 choice was brought across.' : "$n choices were brought across.")->send();
     }
 
     public function checkStories(): void

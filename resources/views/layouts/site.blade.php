@@ -57,5 +57,6 @@
     <script src="{{ $ver('js/to-top.js') }}"></script>
     <script src="{{ $ver('js/view-toggle.js') }}"></script>
     <script src="{{ $ver('js/theme.js') }}"></script>
+    @stack('scripts')
 </body>
 </html>

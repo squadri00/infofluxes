@@ -209,9 +209,28 @@ class ArticleResource extends Resource
                                         TextInput::make('image_licence')->label('Picture licence (optional)')->maxLength(255),
                                         ...Translated::text('heading', 'Heading', required: true),
                                         ...Translated::textarea('body', 'Text (about 25 words)', rows: 3, help: 'Plain words. A blank line starts a new paragraph.'),
+                                        FileUpload::make('audio')->label('Audio of this slide (optional)')->disk('public')->directory('audio/slides')->acceptedFileTypes(['audio/mpeg', 'audio/mp3'])->maxSize(30720)->helperText('An MP3 file, up to 30 MB.'),
+                                        Select::make('audio_state')->label('Audio state')->options(['draft' => 'Draft: not played yet', 'approved' => 'Approved: it is played'])->default('draft')->dehydrateStateUsing(fn ($state) => $state ?: 'draft')
+                                            ->helperText('Listen plays the file only when it is Approved. A new file starts as Draft. Only a moderator or the super user can approve.')
+                                            ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                                     ]),
                             ]),
                     ]),
+
+                Section::make('Audio for the Listen button')
+                    ->description('Optional. Without a file, the Listen button reads the words aloud with the voice of the visitor\'s own device (free). A file plays instead, but only once it is Approved. A slide has its own audio box inside Story slides.')
+                    ->collapsible()
+                    ->collapsed()
+                    ->schema([
+                        FileUpload::make('cover_audio')->label('Audio of the cover (optional)')->disk('public')->directory('audio/covers')->acceptedFileTypes(['audio/mpeg', 'audio/mp3'])->maxSize(30720)->helperText('An MP3 file, up to 30 MB.'),
+                        Select::make('cover_audio_state')->label('Audio state')->options(['draft' => 'Draft: not played yet', 'approved' => 'Approved: it is played'])->default('draft')->dehydrateStateUsing(fn ($state) => $state ?: 'draft')
+                                            ->helperText('Listen plays the file only when it is Approved. A new file starts as Draft. Only a moderator or the super user can approve.')
+                                            ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                        FileUpload::make('audio')->label('One audio file for the whole story (optional)')->disk('public')->directory('audio/articles')->acceptedFileTypes(['audio/mpeg', 'audio/mp3'])->maxSize(30720)->helperText('An MP3 file, up to 30 MB.'),
+                        Select::make('audio_state')->label('Audio state')->options(['draft' => 'Draft: not played yet', 'approved' => 'Approved: it is played'])->default('draft')->dehydrateStateUsing(fn ($state) => $state ?: 'draft')
+                                            ->helperText('Listen plays the file only when it is Approved. A new file starts as Draft. Only a moderator or the super user can approve.')
+                                            ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                    ])->columns(2),
 
                 Section::make('YouTube videos')
                     ->collapsed(fn (string $operation) => $operation === 'edit')

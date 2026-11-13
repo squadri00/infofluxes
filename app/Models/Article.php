@@ -26,6 +26,18 @@ class Article extends Model
 
     public array $translatable = ['title', 'short_detail', 'long_detail', 'main_image_alt', 'page_title', 'meta_description'];
 
+    protected static function booted(): void
+    {
+        static::saving(function (Article $article) {
+            if ($article->isDirty('audio') && ! $article->isDirty('audio_state')) {
+                $article->audio_state = 'draft';
+            }
+            if ($article->isDirty('cover_audio') && ! $article->isDirty('cover_audio_state')) {
+                $article->cover_audio_state = 'draft';
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return ['search_words' => 'array', 'custom_data' => 'array', 'publish_date' => 'datetime', 'ai_assisted' => 'boolean', 'is_index_line' => 'boolean', 'is_featured' => 'boolean'];
@@ -85,6 +97,26 @@ class Article extends Model
     public function hasSlides(): bool
     {
         return isset($this->attributes['slides_count']) ? (int) $this->attributes['slides_count'] > 0 : $this->slides()->exists();
+    }
+
+    public function audioIsLive(): bool
+    {
+        return filled($this->audio) && $this->audio_state === 'approved';
+    }
+
+    public function audioUrl(): ?string
+    {
+        return filled($this->audio) ? asset('storage/'.$this->audio) : null;
+    }
+
+    public function coverAudioIsLive(): bool
+    {
+        return filled($this->cover_audio) && $this->cover_audio_state === 'approved';
+    }
+
+    public function coverAudioUrl(): ?string
+    {
+        return filled($this->cover_audio) ? asset('storage/'.$this->cover_audio) : null;
     }
 
     public function comments(): HasMany

@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\StoryBookController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +37,9 @@ Route::middleware('auth')->group(function () {
 
 // A reference code (A-42 or C-12) opens the article or category it belongs to.
 Route::get('/id/{code}', ReferenceController::class)->where('code', '[AaCc]-[0-9]+')->name('reference');
+
+// The PDF book of an article with story slides.
+Route::get('/{slug}/book', StoryBookController::class)->where('slug', '[A-Za-z0-9][A-Za-z0-9_-]*')->middleware('throttle:6,1')->name('article.book');
 
 // An article lives at /its-address. This must stay the last route.
 Route::get('/{slug}', ArticleController::class)->where('slug', '[A-Za-z0-9][A-Za-z0-9_-]*')->name('article.show');

@@ -11,6 +11,7 @@
         $markName = null;
     }
     $defaultCredit = (string) \App\Models\Setting::get('story_default_credit', 'AI Generated');
+    $showButtons = (string) \App\Models\Setting::get('story_show_buttons', '0') === '1';
     $coverImage = filled($article->main_image) ? [
         'url' => asset('storage/'.$article->main_image), 'alt' => $article->main_image_alt, 'credit' => $article->main_image_credit,
     ] : null;
@@ -125,5 +126,16 @@
 
     {{-- The dots are made by story.js. --}}
     <div class="story__dots" data-story-dots role="group" aria-label="{{ __('site.story_dots') }}"></div>
+
+    @if ($showButtons)
+        <div class="story__controls" data-story-controls hidden>
+            <button type="button" class="btn btn--small story__btn" data-story-prev>{{ __('site.story_prev') }}</button>
+            <button type="button" class="btn btn--small story__btn" data-story-next>{{ __('site.story_next') }}</button>
+            @if ($chapters->count() > 1)
+                <button type="button" class="btn btn--small story__btn" data-story-next-chapter>{{ __('site.story_next_chapter') }}</button>
+            @endif
+        </div>
+        <p class="story__hint" data-story-hint hidden>{{ __('site.story_keys_hint') }}</p>
+    @endif
 @endif
 </div>

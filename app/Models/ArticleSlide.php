@@ -15,6 +15,16 @@ class ArticleSlide extends Model
 
     public array $translatable = ['image_alt', 'heading', 'body'];
 
+    protected static function booted(): void
+    {
+        // A new or changed audio file waits for approval again, unless the state is set in the same save.
+        static::saving(function (ArticleSlide $slide) {
+            if ($slide->isDirty('audio') && ! $slide->isDirty('audio_state')) {
+                $slide->audio_state = 'draft';
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return ['custom_data' => 'array'];
@@ -28,6 +38,17 @@ class ArticleSlide extends Model
     public function hasImage(): bool
     {
         return filled($this->image);
+    }
+
+    /** An audio file plays only when a person has approved it. */
+    public function audioIsLive(): bool
+    {
+        return filled($this->audio) && $this->audio_state === 'approved';
+    }
+
+    public function audioUrl(): ?string
+    {
+        return filled($this->audio) ? asset('storage/'.$this->audio) : null;
     }
 
     public function imageUrl(): ?string

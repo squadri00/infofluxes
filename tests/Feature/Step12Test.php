@@ -106,7 +106,7 @@ class Step12Test extends TestCase
         $r = $this->run_(false);
 
         $this->assertTrue($r['dry']);
-        $this->assertSame(['stories_new' => 1, 'stories_existing' => 0, 'stories_same_title' => 0, 'chapters' => 2, 'slides' => 3, 'images_copied' => 3, 'images_missing' => 0, 'published' => 1, 'drafts' => 0], $r['total']);
+        $this->assertSame(['stories_new' => 1, 'stories_existing' => 0, 'stories_same_title' => 0, 'chapters' => 2, 'slides' => 3, 'images_copied' => 3, 'images_missing' => 0, 'published' => 1, 'drafts' => 0, 'audio_copied' => 0, 'audio_missing' => 0], $r['total']);
         $this->assertSame(0, Article::count());
         $this->assertSame([], Storage::disk('public')->allFiles());
     }

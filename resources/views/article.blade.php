@@ -23,6 +23,7 @@
     @endsection
 @endif
 
+@php $listenTracks = \App\Support\Listen::tracks($article, $storyItems ?? []); @endphp
 @section('content')
 @if ($preview)
     <div class="preview-banner"><div class="wrap">{{ __('site.draft_notice') }}</div></div>
@@ -43,6 +44,10 @@
     @if (! empty($storyItems))
         <div class="story {{ \App\Support\ViewerStyle::widthClass(true) }}" style="--v-box: {{ \App\Support\ViewerStyle::boxWidth() }}px" data-story data-total="{{ count($storyItems) }}">
             @include('partials.story-viewer', ['article' => $article, 'items' => $storyItems])
+            @if (\App\Support\StoryBook::enabled())
+                <p class="story__pdf"><a class="btn btn--small" href="{{ route('article.book', $article->slug) }}" rel="nofollow">{{ __('site.story_book_button') }}</a></p>
+            @endif
+            @include('partials.listen')
         </div>
         <script>window.STORY_LABELS = {!! json_encode(['goto' => __('site.story_goto')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) !!};</script>
         <script src="{{ asset('js/story.js') }}?v={{ @filemtime(public_path('js/story.js')) ?: 1 }}" defer></script>
@@ -63,6 +68,10 @@
                 <figcaption class="topic__master-credit">{{ __('site.story_picture_credit') }} {{ collect([$article->main_image_credit, $article->main_image_licence])->filter()->implode(' · ') }}</figcaption>
             @endif
         </figure>
+    @endif
+
+    @if (empty($storyItems))
+        @include('partials.listen')
     @endif
 
     @if ($summary !== '')
@@ -134,5 +143,10 @@
             @include('partials.article-mosaic', ['articles' => $related])
         </section>
     @endif
+@if (\App\Support\Listen::visible($listenTracks))
+    @push('scripts')
+        <script src="{{ asset('js/listen.js') }}?v={{ @filemtime(public_path('js/listen.js')) ?: 1 }}" defer></script>
+    @endpush
+@endif
 </article>
 @endsection

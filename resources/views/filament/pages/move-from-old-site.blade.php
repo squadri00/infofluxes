@@ -86,6 +86,48 @@
                     @endif
                 </ul>
             @endif
+
+            <hr style="margin:1rem 0;border-color:rgba(128,128,128,.3)">
+            <p style="max-width:52rem"><strong>Audio files.</strong> The audio of the old stories (for the Listen button) is copied into the matching slides. Every file stays <strong>Draft</strong> until a person listens and sets it to Approved. A slide that already has audio is left alone.</p>
+            <x-filament::button wire:click="checkAudio" color="gray">Check the audio</x-filament::button>
+            @if ($audioResult && ! $audioDone && $audioResult['total']['audio_copied'] > 0)
+                <x-filament::button wire:click="moveAudio" wire:confirm="Copy {{ $audioResult['total']['audio_copied'] }} audio files now?">Bring the audio</x-filament::button>
+            @endif
+            @if ($audioResult)
+                <ul style="margin:.8rem 0 0 1.2rem;list-style:disc">
+                    <li><strong>{{ $audioDone ? 'Copied' : 'Would copy' }}:</strong> {{ $audioResult['total']['audio_copied'] }} audio files @if ($audioResult['total']['audio_missing'] > 0), <strong>missing in the old site: {{ $audioResult['total']['audio_missing'] }}</strong>@endif</li>
+                    <li>Stories matched: {{ $audioResult['total']['stories_matched'] }}. Not moved yet: {{ $audioResult['total']['stories_not_moved'] }}. Slides matched: {{ $audioResult['total']['slides_matched'] }}. Not matched: {{ $audioResult['total']['slides_unmatched'] }}</li>
+                </ul>
+            @endif
+        </x-filament::section>
+    @endif
+    @if (\App\Filament\Pages\MoveFromOldSite::viewerAvailable())
+        <x-filament::section>
+            <x-slot name="heading">Your slide viewer choices</x-slot>
+            <p style="max-width:52rem">
+                The old site keeps the choices you made for the slide viewer (the box width, the picture shape, the text size, the dots, and so on).
+                This brings them across, so the story slider looks the same here. You can change any of them later in <a href="{{ \App\Filament\Pages\SlideViewerSettings::getUrl() }}" style="text-decoration:underline">Slide viewer</a>.
+            </p>
+            <x-filament::button wire:click="checkViewer" color="gray">Check the choices</x-filament::button>
+            @if (is_array($viewerChanges) && count($viewerChanges) > 0)
+                <x-filament::button wire:click="bringViewer" wire:confirm="Bring {{ count($viewerChanges) }} choices across?">Bring them across</x-filament::button>
+            @endif
+            @if ($viewerDone)
+                <p style="margin-top:.7rem">Done. The slider now follows your old choices.</p>
+            @elseif (is_array($viewerChanges))
+                @if (count($viewerChanges) === 0)
+                    <p style="margin-top:.7rem">Nothing to bring: the choices here are already the same.</p>
+                @else
+                    <table style="margin-top:.8rem;border-collapse:collapse;max-width:60rem">
+                        <thead><tr style="text-align:left;border-bottom:1px solid rgba(128,128,128,.4)"><th style="padding:.3rem .6rem">Control</th><th style="padding:.3rem .6rem">Now</th><th style="padding:.3rem .6rem">Becomes</th></tr></thead>
+                        <tbody>
+                            @foreach ($viewerChanges as $key => $c)
+                                <tr style="border-bottom:1px solid rgba(128,128,128,.2)"><td style="padding:.3rem .6rem">{{ \Illuminate\Support\Str::limit($c['label'], 70) }}</td><td style="padding:.3rem .6rem">{{ $c['now'] }}</td><td style="padding:.3rem .6rem"><strong>{{ $c['old'] }}</strong></td></tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+            @endif
         </x-filament::section>
     @endif
 </x-filament-panels::page>
