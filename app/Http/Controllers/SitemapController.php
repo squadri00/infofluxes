@@ -13,6 +13,9 @@ class SitemapController extends Controller
         foreach (Category::where('is_visible', true)->orderBy('tree_path')->get() as $c) {
             $urls[] = [route('category.show', $c->slug), $c->updated_at];
         }
+        foreach (\App\Models\Person::where('show_page', true)->orderBy('name')->get(['slug', 'updated_at']) as $p) {
+            $urls[] = [route('people.show', $p->slug), $p->updated_at];
+        }
         foreach (\App\Models\Page::published()->where('no_index', false)->orderBy('sort_order')->get(['slug', 'updated_at']) as $p) {
             $urls[] = [route('article.show', $p->slug), $p->updated_at];
         }

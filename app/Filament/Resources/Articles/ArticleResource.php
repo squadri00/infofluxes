@@ -260,6 +260,9 @@ class ArticleResource extends Resource
                         Select::make('status')->options(fn () => static::statusOptions())->default('draft')->required(),
                         DateTimePicker::make('publish_date')->label('Publish date')->helperText('Left empty, it is the moment you publish. A date in the future keeps the article hidden until then.'),
                         Select::make('author_id')->label('Author')->relationship('author', 'name')->default(fn () => auth()->id())->searchable()->preload()->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                        Select::make('contributor_id')->label('Contributor (credited on the article)')->relationship('contributor', 'name')->searchable()->preload()
+                            ->helperText('A person from Content > Contributors. Their name shows under the title and links to their page when they have one.')
+                            ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         \Filament\Forms\Components\Toggle::make('is_featured')->label('Featured on the home page')->live()
                             ->helperText('A featured article shows in the Featured part of the home page (when it is published).')
                             ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),

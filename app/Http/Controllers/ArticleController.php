@@ -14,7 +14,7 @@ class ArticleController extends Controller
         $article = Article::query()
             ->where('slug', $slug)
             ->when(! $preview, fn ($q) => $q->published())
-            ->with(['category', 'extraCategories', 'author', 'images', 'videos', 'chapters.slides'])
+            ->with(['category', 'extraCategories', 'author', 'contributor', 'images', 'videos', 'chapters.slides'])
             ->first();
 
         // No article has this address: it may be a website page (About, Privacy...), else the visitor gets "not found".

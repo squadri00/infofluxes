@@ -10,6 +10,8 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ScriptureQuizController;
 use App\Http\Controllers\WhoQuizController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\PersonController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LanguageController;
@@ -61,6 +63,17 @@ Route::prefix('quiz')->middleware('throttle:quiz')->group(function () {
     Route::post('order/check', [OrderQuizController::class, 'check'])->name('order.check');
     Route::post('order/try', [OrderQuizController::class, 'tryTile'])->name('order.try');
 });
+
+// The newsletter: an address, a code by email, the code.
+Route::get('/newsletter', [NewsletterController::class, 'show'])->name('newsletter.show');
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->middleware('throttle:20,1')->name('newsletter.subscribe');
+Route::post('/newsletter/confirm', [NewsletterController::class, 'confirm'])->middleware('throttle:20,1')->name('newsletter.confirm');
+Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribeShow'])->where('token', '[A-Za-z0-9]{20,64}')->name('newsletter.unsubscribe');
+Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->where('token', '[A-Za-z0-9]{20,64}')->middleware('throttle:20,1')->name('newsletter.unsubscribe.do');
+
+// Contributors: the list, and a page for each one who has a page.
+Route::get('/people', [PersonController::class, 'index'])->name('people.index');
+Route::get('/people/{slug}', [PersonController::class, 'show'])->where('slug', '[a-z0-9][a-z0-9-]*')->name('people.show');
 
 // A reference code (A-42 or C-12) opens the article or category it belongs to.
 Route::get('/id/{code}', ReferenceController::class)->where('code', '[AaCc]-[0-9]+')->name('reference');

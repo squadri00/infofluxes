@@ -1770,3 +1770,26 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
     .reading__side--left { order: 2; }
     .reading__side--right { order: 3; }
 }
+
+/* ===== Newsletter sign-up ===== */
+.newsletter-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.newsletter-fine { font-size: .85rem; color: var(--muted); }
+.newsletter-code-input { letter-spacing: .35em; font-size: 1.3rem; text-align: center; max-width: 12em; }
+.newsletter-resend { margin: 6px 0 0; }
+
+/* ===== Contributors ===== */
+.people { list-style: none; margin: 18px 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+.person-card { padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); display: flex; flex-direction: column; gap: 6px; }
+.person-card__link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
+.person-card__photo { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
+.person-card__photo--none { display: inline-flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: 1.5rem; }
+.person-card__name { font-weight: 700; font-size: 1.05rem; line-height: 1.25; }
+.person-card__role { color: var(--muted); font-size: .9rem; }
+.person-card__bio { margin: 0; font-size: .92rem; line-height: 1.45; }
+.person-head { display: flex; gap: 24px; align-items: flex-start; margin: 6px 0 20px; }
+.person-head__photo { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
+.person-head__role { margin: 0 0 8px; color: var(--accent); font-weight: 600; }
+.person-head__bio { margin: 0 0 8px; max-width: 62ch; }
+.person-head__note { margin: 0 0 8px; color: var(--muted); font-size: .92rem; }
+.person-body { max-width: 760px; margin-bottom: 24px; }
+@media (max-width: 600px) { .person-head { flex-direction: column; } }

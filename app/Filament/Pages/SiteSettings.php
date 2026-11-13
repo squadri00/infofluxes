@@ -50,8 +50,8 @@ class SiteSettings extends Page
         foreach (static::keys() as $key) {
             $value = Setting::all_()[$key] ?? null;
             // The two switches are on until the super user turns them off.
-            if (in_array($key, ['signups_open', 'comments_open'], true)) {
-                $value = $value === null ? true : (bool) $value;
+            if (in_array($key, ['signups_open', 'comments_open', 'newsletter_on'], true)) {
+                $value = $value === null ? true : filter_var($value, FILTER_VALIDATE_BOOLEAN);
             }
             $out[$key] = $value;
         }
@@ -62,7 +62,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo'];
+        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes'];
     }
 
     public function form(Schema $schema): Schema
@@ -90,6 +90,12 @@ class SiteSettings extends Page
                         Toggle::make('signups_open')->label('New people can sign up')->helperText('Off: the Sign up page is closed. People who already have an account can still log in.'),
                         Toggle::make('comments_open')->label('Comments are open')->helperText('Off: nobody can post a new comment. The ones already shown stay.'),
                     ])->columns(2),
+                Section::make('Newsletter')
+                    ->description('People type their email, get a 6-digit code by email, and type it back. Only then are they on the list (Content > Newsletter).')
+                    ->schema([
+                        Toggle::make('newsletter_on')->label('The newsletter sign-up is on')->helperText('Off: the Subscribe link and page are closed.'),
+                        TextInput::make('newsletter_code_minutes')->label('Minutes a code works')->numeric()->minValue(1)->maxValue(120)->placeholder('15'),
+                    ])->columns(2),
             ]);
     }
 
@@ -116,6 +122,10 @@ class SiteSettings extends Page
             // The two counts are whole numbers (an empty box means the usual number).
             if (in_array($key, ['home_featured_count', 'home_latest_count'], true)) {
                 $value = is_numeric($value) ? max(0, min(24, (int) $value)) : null;
+            }
+            // How long a newsletter code works, in minutes (an empty box means the usual 15).
+            if ($key === 'newsletter_code_minutes') {
+                $value = is_numeric($value) ? max(1, min(120, (int) $value)) : null;
             }
             Setting::put($key, $value === [] ? null : $value);
         }

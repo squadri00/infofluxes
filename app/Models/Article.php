@@ -60,6 +60,12 @@ class Article extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
+    /** The contributor credited on the article (a person with a page of their own, or just a name). */
+    public function contributor(): BelongsTo
+    {
+        return $this->belongsTo(Person::class, 'contributor_id');
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(ArticleImage::class)->orderBy('sort_order')->orderBy('id');

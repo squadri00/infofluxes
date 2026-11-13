@@ -46,6 +46,12 @@
                     @if (\App\Support\Challenge::anyOn())
                         <li><a href="{{ route('challenge') }}">{{ __('site.challenge') }}</a></li>
                     @endif
+                    @if (\App\Models\Person::query()->where('show_page', true)->exists())
+                        <li><a href="{{ route('people.index') }}">{{ __('site.people_title') }}</a></li>
+                    @endif
+                    @if (\App\Support\Newsletter::enabled())
+                        <li><a href="{{ route('newsletter.show') }}">{{ __('site.footer_subscribe') }}</a></li>
+                    @endif
                     @auth
                         <li><a href="{{ route('account') }}">{{ __('site.my_account') }}</a></li>
                         <li><a href="{{ route('submit') }}">{{ __('site.submit_article') }}</a></li>

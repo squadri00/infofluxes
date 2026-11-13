@@ -105,6 +105,31 @@ class MoveFromOldSite extends Page
     }
 
     /** @var array<string, mixed>|null */
+    public ?array $peopleResult = null;
+
+    public bool $peopleDone = false;
+
+    public static function peopleAvailable(): bool
+    {
+        return \App\Support\OldPeopleImport::available();
+    }
+
+    public function checkPeople(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->peopleResult = (new \App\Support\OldPeopleImport)->check();
+        $this->peopleDone = false;
+    }
+
+    public function bringPeople(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->peopleResult = (new \App\Support\OldPeopleImport)->bring();
+        $this->peopleDone = true;
+        Notification::make()->success()->title('The contributors were brought across.')->send();
+    }
+
+    /** @var array<string, mixed>|null */
     public ?array $socialResult = null;
 
     public bool $socialDone = false;

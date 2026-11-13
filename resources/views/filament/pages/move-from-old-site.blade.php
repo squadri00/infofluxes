@@ -122,6 +122,26 @@
             @endif
         </x-filament::section>
     @endif
+    @if (\App\Filament\Pages\MoveFromOldSite::peopleAvailable())
+        <x-filament::section>
+            <x-slot name="heading">Your contributors</x-slot>
+            <p style="max-width:52rem">
+                The people of the old site (name, role, short description, photo, public page). The people who asked for the old newsletter are not brought: they must confirm again with a code.
+                What is here already is not changed or made twice. You manage them afterwards in <a href="{{ \App\Filament\Resources\People\PersonResource::getUrl() }}" style="text-decoration:underline">Contributors</a>.
+            </p>
+            <x-filament::button wire:click="checkPeople" color="gray">Check the contributors</x-filament::button>
+            @if ($peopleResult && ! $peopleDone && $peopleResult['total']['new'] > 0)
+                <x-filament::button wire:click="bringPeople">Bring the contributors</x-filament::button>
+            @endif
+            @if ($peopleResult)
+                @php $pp = $peopleResult['total']; @endphp
+                <ul style="margin:.8rem 0 0 1.2rem;list-style:disc">
+                    <li><strong>{{ $peopleDone ? 'Brought' : 'Would bring' }}:</strong> {{ $pp['new'] }} people @if ($pp['names'])({{ implode(', ', $pp['names']) }})@endif, {{ $pp['photos'] }} photos</li>
+                    <li>Already here: {{ $pp['existing'] }}</li>
+                </ul>
+            @endif
+        </x-filament::section>
+    @endif
     @if (\App\Filament\Pages\MoveFromOldSite::socialAvailable())
         <x-filament::section>
             <x-slot name="heading">Your social media and footer text</x-slot>
