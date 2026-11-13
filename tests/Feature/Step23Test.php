@@ -195,7 +195,7 @@ class Step23Test extends TestCase
         $this->get(route('people.show', 'quiet-one'))->assertNotFound();
 
         $this->actingAs(User::factory()->create(['role' => 'superuser', 'status' => 'active']));
-        $this->get(route('people.show', 'quiet-one'))->assertOk()->assertSee('not switched on yet');
+        $this->get(route('people.show', 'quiet-one'))->assertOk()->assertSee('This page is switched off');
     }
 
     public function test_the_article_names_its_contributor_and_links_to_their_page(): void
@@ -205,8 +205,64 @@ class Step23Test extends TestCase
         Article::create(['title' => ['en' => 'First'], 'slug' => 'first', 'status' => 'published', 'publish_date' => now()->subDay(), 'contributor_id' => $amina->id]);
         Article::create(['title' => ['en' => 'Second'], 'slug' => 'second', 'status' => 'published', 'publish_date' => now()->subDay(), 'contributor_id' => $quiet->id]);
 
-        $this->get('/first')->assertOk()->assertSee('Contributor:')->assertSee('href="'.route('people.show', 'amina-khan').'"', false);
+        $html = $this->get('/first')->assertOk()->assertSee('href="'.route('people.show', 'amina-khan').'"', false)->getContent();
+        $this->assertStringContainsString('class="byline byline--topic"', $html, 'the old site\'s byline');
+        $this->assertStringContainsString('byline__pic--letter', $html, 'a coloured letter when there is no photo');
+        $this->assertStringContainsString('Research contributor', $html, 'the role');
+        $this->assertStringContainsString('Published', $html, 'and the date');
+
         $this->get('/second')->assertOk()->assertSee('Quiet One')->assertDontSee(route('people.show', 'quiet-one'), false);
+    }
+
+    public function test_the_byline_shows_the_photo_when_there_is_one(): void
+    {
+        $amina = $this->person('Amina Khan', ['photo' => 'people/amina.webp']);
+        Article::create(['title' => ['en' => 'First'], 'slug' => 'first', 'status' => 'published', 'publish_date' => now()->subDay(), 'contributor_id' => $amina->id]);
+
+        $this->get('/first')->assertSee('class="byline__pic" src="'.asset('storage/people/amina.webp').'"', false);
+    }
+
+    public function test_the_card_of_an_article_carries_the_small_byline(): void
+    {
+        $amina = $this->person('Amina Khan');
+        Article::create(['title' => ['en' => 'Credited one'], 'slug' => 'credited-one', 'status' => 'published', 'publish_date' => now()->subDay(), 'contributor_id' => $amina->id, 'is_featured' => true]);
+        Article::create(['title' => ['en' => 'Plain one'], 'slug' => 'plain-one', 'status' => 'published', 'publish_date' => now()->subHour()]);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString('byline--card', $html);
+        $this->assertSame(1, substr_count($html, 'byline--card'), 'only the credited article has one');
+    }
+
+    public function test_the_contributor_page_has_the_old_sites_parts(): void
+    {
+        $this->person('Amina Khan', ['tradition' => 'Sunni scholar', 'qualification_note' => 'Studied hadith for ten years.', 'link' => 'https://amina.example.org', 'bio' => "Line one.\nLine two."]);
+
+        $html = $this->get(route('people.show', 'amina-khan'))->assertOk()->getContent();
+
+        foreach (['person__photo--letter', 'Research contributor', 'Tradition or background: Sunni scholar', 'What qualifies them:', 'Studied hadith for ten years.', 'https://amina.example.org', 'Line one.<br />'] as $part) {
+            $this->assertStringContainsString($part, $html, $part);
+        }
+    }
+
+    public function test_the_index_uses_tiles_with_a_letter_or_a_photo(): void
+    {
+        $this->person('Amina Khan', ['tradition' => 'Sunni scholar']);
+        $this->person('Photo Person', ['photo' => 'people/p.webp']);
+
+        $html = $this->get(route('people.index'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('class="tiles person-tiles"', $html);
+        $this->assertStringContainsString('tile__initial', $html);
+        $this->assertStringContainsString(asset('storage/people/p.webp'), $html);
+        $this->assertStringContainsString('Sunni scholar', $html);
+    }
+
+    public function test_an_unsafe_website_link_is_not_shown(): void
+    {
+        $this->person('Amina Khan', ['link' => 'javascript:alert(1)']);
+
+        $this->get(route('people.show', 'amina-khan'))->assertOk()->assertDontSee('javascript:alert', false);
     }
 
     public function test_the_footer_links_to_contributors_only_when_someone_has_a_page(): void

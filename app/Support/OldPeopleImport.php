@@ -35,7 +35,7 @@ class OldPeopleImport
 
     private function run(bool $dry): array
     {
-        $report = ['new' => 0, 'existing' => 0, 'photos' => 0, 'names' => []];
+        $report = ['new' => 0, 'existing' => 0, 'photos' => 0, 'credits' => 0, 'names' => []];
 
         $work = function () use ($dry, &$report) {
             foreach (DB::connection('old_site')->table('people')->whereNull('deleted_at')->orderBy('id')->get() as $old) {
@@ -56,6 +56,27 @@ class OldPeopleImport
                         'page_body' => filled($old->page_body) ? Html::clean((string) $old->page_body) : null,
                     ]);
                 }
+            }
+
+            // The credit: an old topic that named a contributor gives that credit to the article of the same title here (when it has none yet).
+            $old = DB::connection('old_site');
+            $oldPeople = $old->table('people')->pluck('slug', 'id');
+            $locale = config('infofluxes.default_locale');
+            $mine = \App\Models\Article::query()->whereNull('contributor_id')->get(['id', 'title'])
+                ->groupBy(fn ($a) => mb_strtolower(trim((string) $a->getTranslation('title', $locale, true))));
+            foreach ($old->table('topics')->whereNotNull('contributor_person_id')->get(['title', 'contributor_person_id']) as $topic) {
+                $person = Person::withTrashed()->where('slug', $oldPeople[$topic->contributor_person_id] ?? '')->first();
+                $articles = $mine->get(mb_strtolower(trim((string) $topic->title)));
+                if (! $person || ! $articles) {
+                    continue;
+                }
+                foreach ($articles as $article) {
+                    $report['credits']++;
+                    if (! $dry) {
+                        \App\Models\Article::whereKey($article->id)->update(['contributor_id' => $person->id]);
+                    }
+                }
+                $mine->forget(mb_strtolower(trim((string) $topic->title)));
             }
         };
 

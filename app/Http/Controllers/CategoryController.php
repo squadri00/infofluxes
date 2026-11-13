@@ -25,7 +25,7 @@ class CategoryController extends Controller
         $index = $mode === 'index' ? \App\Support\CategoryIndex::build($category, $preview) : null;
 
         $articles = Article::published()
-            ->with('category')->withCount('slides')
+            ->with(['category', 'contributor'])->withCount('slides')
             ->where(fn ($q) => $q->where('category_id', $category->id)->orWhereHas('extraCategories', fn ($c) => $c->where('categories.id', $category->id)))
             ->orderBy('sort_order')->orderByDesc('publish_date')->orderByDesc('id')
             ->paginate(self::PER_PAGE);

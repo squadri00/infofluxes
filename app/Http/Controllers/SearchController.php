@@ -22,7 +22,7 @@ class SearchController extends Controller
         $categories = collect();
 
         if ($q !== '' || $category) {
-            $query = Article::published()->with('category')->withCount('slides');
+            $query = Article::published()->with(['category', 'contributor'])->withCount('slides');
 
             foreach (array_filter(preg_split('/\s+/u', mb_strtolower($q))) as $word) {
                 $like = static::like($word);

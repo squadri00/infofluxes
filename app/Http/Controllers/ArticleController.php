@@ -28,7 +28,7 @@ class ArticleController extends Controller
         $same = $category ? Article::published()->where('category_id', $category->id) : null;
         $previous = $same ? (clone $same)->where('id', '<', $article->id)->orderByDesc('id')->first() : null;
         $next = $same ? (clone $same)->where('id', '>', $article->id)->orderBy('id')->first() : null;
-        $related = $same ? (clone $same)->where('id', '!=', $article->id)->with('category')->withCount('slides')->orderByDesc('publish_date')->limit(4)->get() : collect();
+        $related = $same ? (clone $same)->where('id', '!=', $article->id)->with(['category', 'contributor'])->withCount('slides')->orderByDesc('publish_date')->limit(4)->get() : collect();
 
         // Approved comments for everyone, plus the visitor's own comments that still wait.
         $me = auth()->id();

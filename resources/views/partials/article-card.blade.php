@@ -19,6 +19,9 @@
         @if ($summary !== '')
             <p class="pcard__hook">{{ \Illuminate\Support\Str::limit($summary, $shape === 'F' ? 260 : 150) }}</p>
         @endif
+        @if ($article->relationLoaded('contributor') && $article->contributor)
+            @include('partials.byline', ['person' => $article->contributor, 'class' => 'byline--card'])
+        @endif
         @if ($firstCategory || $slideCount > 0)
             <p class="pcard__meta">
                 @if ($firstCategory)<a href="{{ route('category.show', $firstCategory->slug) }}">{{ $firstCategory->name }}</a>@endif

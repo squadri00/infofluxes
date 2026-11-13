@@ -81,9 +81,10 @@ class PersonResource extends Resource
                         $fail('Another contributor already has this address.');
                     }
                 }]),
-            TextInput::make('role_title')->label('Role (for example Research contributor)')->maxLength(255),
-            Textarea::make('bio')->label('Short description')->rows(3)->maxLength(2000),
-            Textarea::make('qualification_note')->label('Qualifications or a note about their background')->rows(2)->maxLength(2000),
+            TextInput::make('role_title')->label('Role (shown next to their name on articles)')->helperText('For example Research contributor.')->maxLength(255),
+            TextInput::make('tradition')->label('Tradition or background')->maxLength(255),
+            Textarea::make('bio')->label('Short bio')->helperText('Two or three lines.')->rows(3)->maxLength(2000),
+            Textarea::make('qualification_note')->label('What qualifies them')->rows(2)->maxLength(2000),
             FileUpload::make('photo')->label('Photo')->image()->disk('public')->directory('people')->maxSize(3072),
             TextInput::make('photo_alt')->label('Describe the photo (for people who cannot see it)')->maxLength(255),
             TextInput::make('link')->label('Their own website (optional)')->maxLength(2048)
@@ -106,6 +107,7 @@ class PersonResource extends Resource
                 ImageColumn::make('photo')->disk('public')->circular()->size(34),
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('role_title')->label('Role')->searchable(),
+                TextColumn::make('tradition')->label('Tradition')->toggleable(),
                 IconColumn::make('show_page')->label('Public page')->boolean(),
                 TextColumn::make('articles_count')->label('Articles')->counts('articles')->sortable(),
                 TextColumn::make('slug')->label('Address')->formatStateUsing(fn ($state) => '/people/'.$state)->toggleable(isToggledHiddenByDefault: true),

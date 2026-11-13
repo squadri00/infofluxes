@@ -18,11 +18,11 @@ class HomeController extends Controller
         $featuredCount = max(0, min(24, (int) Setting::get('home_featured_count', self::FEATURED_DEFAULT)));
         $latestCount = max(0, min(24, (int) Setting::get('home_latest_count', self::LATEST_DEFAULT)));
 
-        $featured = $featuredCount > 0 ? Article::featuredOnHome()->with('category')->withCount('slides')->limit($featuredCount)->get() : collect();
+        $featured = $featuredCount > 0 ? Article::featuredOnHome()->with(['category', 'contributor'])->withCount('slides')->limit($featuredCount)->get() : collect();
 
         // An article already shown under "Featured" is not shown again under "Latest".
         $latest = $latestCount > 0
-            ? Article::published()->with('category')->withCount('slides')->whereNotIn('id', $featured->pluck('id'))->orderByDesc('publish_date')->orderByDesc('id')->limit($latestCount)->get()
+            ? Article::published()->with(['category', 'contributor'])->withCount('slides')->whereNotIn('id', $featured->pluck('id'))->orderByDesc('publish_date')->orderByDesc('id')->limit($latestCount)->get()
             : collect();
 
         return view('home', [

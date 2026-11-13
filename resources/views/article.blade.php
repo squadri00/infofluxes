@@ -62,16 +62,17 @@
 
     <h1 class="{{ empty($storyItems) ? 'topic__title' : 'visually-hidden' }}">{{ $title }} @include('partials.id-tag', ['code' => $article->code])</h1>
 
-    <p class="article__byline">
-        @if ($article->author)<span>{{ __('site.by') }} <strong>{{ $article->author->name }}</strong></span>@endif
-        @if ($article->contributor)
-            <span>{{ __('site.contributor') }}
-                @if ($article->contributor->pageUrl())<a href="{{ $article->contributor->pageUrl() }}"><strong>{{ $article->contributor->name }}</strong></a>@else<strong>{{ $article->contributor->name }}</strong>@endif
-            </span>
-        @endif
-        @if ($date)<time datetime="{{ $date->toDateString() }}">{{ __('site.published') }} {{ $date->format('j M Y') }}</time>@endif
-        @if (filled($article->reviewer_name))<span>{{ __('site.reviewed_by') }} <strong>{{ $article->reviewer_name }}</strong></span>@endif
-    </p>
+    @if ($article->contributor)
+        {{-- A credited contributor: a small picture, the name (a link when they have a page), their role and the date. --}}
+        @include('partials.byline', ['person' => $article->contributor, 'date' => $date, 'class' => 'byline--topic'])
+        @if (filled($article->reviewer_name))<p class="article__byline"><span>{{ __('site.reviewed_by') }} <strong>{{ $article->reviewer_name }}</strong></span></p>@endif
+    @else
+        <p class="article__byline">
+            @if ($article->author)<span>{{ __('site.by') }} <strong>{{ $article->author->name }}</strong></span>@endif
+            @if ($date)<time datetime="{{ $date->toDateString() }}">{{ __('site.published') }} {{ $date->format('j M Y') }}</time>@endif
+            @if (filled($article->reviewer_name))<span>{{ __('site.reviewed_by') }} <strong>{{ $article->reviewer_name }}</strong></span>@endif
+        </p>
+    @endif
 
     @if ($article->main_image && empty($storyItems))
         <figure class="topic__master">

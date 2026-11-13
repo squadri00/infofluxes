@@ -130,13 +130,14 @@
                 What is here already is not changed or made twice. You manage them afterwards in <a href="{{ \App\Filament\Resources\People\PersonResource::getUrl() }}" style="text-decoration:underline">Contributors</a>.
             </p>
             <x-filament::button wire:click="checkPeople" color="gray">Check the contributors</x-filament::button>
-            @if ($peopleResult && ! $peopleDone && $peopleResult['total']['new'] > 0)
+            @if ($peopleResult && ! $peopleDone && ($peopleResult['total']['new'] + $peopleResult['total']['credits']) > 0)
                 <x-filament::button wire:click="bringPeople">Bring the contributors</x-filament::button>
             @endif
             @if ($peopleResult)
                 @php $pp = $peopleResult['total']; @endphp
                 <ul style="margin:.8rem 0 0 1.2rem;list-style:disc">
                     <li><strong>{{ $peopleDone ? 'Brought' : 'Would bring' }}:</strong> {{ $pp['new'] }} people @if ($pp['names'])({{ implode(', ', $pp['names']) }})@endif, {{ $pp['photos'] }} photos</li>
+                    <li>Credits on articles ({{ $peopleDone ? 'given' : 'to give' }}): {{ $pp['credits'] }} (an article of the same title as an old topic that named a contributor)</li>
                     <li>Already here: {{ $pp['existing'] }}</li>
                 </ul>
             @endif

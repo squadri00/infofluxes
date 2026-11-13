@@ -1777,19 +1777,31 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 .newsletter-code-input { letter-spacing: .35em; font-size: 1.3rem; text-align: center; max-width: 12em; }
 .newsletter-resend { margin: 6px 0 0; }
 
-/* ===== Contributors ===== */
-.people { list-style: none; margin: 18px 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
-.person-card { padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); display: flex; flex-direction: column; gap: 6px; }
-.person-card__link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
-.person-card__photo { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
-.person-card__photo--none { display: inline-flex; align-items: center; justify-content: center; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: 1.5rem; }
-.person-card__name { font-weight: 700; font-size: 1.05rem; line-height: 1.25; }
-.person-card__role { color: var(--muted); font-size: .9rem; }
-.person-card__bio { margin: 0; font-size: .92rem; line-height: 1.45; }
-.person-head { display: flex; gap: 24px; align-items: flex-start; margin: 6px 0 20px; }
-.person-head__photo { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
-.person-head__role { margin: 0 0 8px; color: var(--accent); font-weight: 600; }
-.person-head__bio { margin: 0 0 8px; max-width: 62ch; }
-.person-head__note { margin: 0 0 8px; color: var(--muted); font-size: .92rem; }
-.person-body { max-width: 760px; margin-bottom: 24px; }
-@media (max-width: 600px) { .person-head { flex-direction: column; } }
+
+/* ===== Byline (who made it) and the contributor page, as on the old site ===== */
+.byline { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; font-size: .85rem; color: var(--muted); line-height: 1.3; }
+.byline__pic { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex: none; background: var(--gray-soft); }
+.byline__pic--letter { display: inline-flex; align-items: center; justify-content: center; background: hsl(var(--h, 210) 38% 36%); color: #fff; font-weight: 700; font-size: .95rem; }
+.byline__who { display: inline-flex; flex-direction: column; }
+.byline__name { color: var(--text); font-weight: 600; }
+.byline__role { font-size: .78rem; }
+.byline--topic { margin: 0 0 14px; }
+.byline--card { margin-top: 8px; gap: 3px 8px; font-size: .8rem; }
+.byline--card .byline__pic { width: 24px; height: 24px; font-size: .75rem; }
+.byline--card .byline__who { flex-direction: row; gap: 6px; align-items: baseline; }
+.byline--card .byline__role::before { content: "\00b7\00a0"; }
+.byline--card .byline__dates::before { content: "\00b7\00a0"; }
+.byline--topic .byline__dates::before { content: "\00b7\00a0"; }
+.person__head { display: flex; gap: 20px; align-items: center; margin: 0 0 18px; }
+.person__photo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; flex: none; background: var(--gray-soft); }
+.person__photo--letter { display: inline-flex; align-items: center; justify-content: center; background: hsl(var(--h, 210) 38% 36%); color: #fff; font-weight: 700; font-size: 3rem; }
+.person__name { margin: 0 0 4px; }
+.person__role { margin: 0 0 4px !important; color: var(--accent); font-weight: 600; }
+.person__meta { margin: 0 !important; color: var(--muted); font-size: .92rem; }
+.person__qual { color: var(--muted); }
+.person__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.person__list li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; }
+.person-tiles .tile__media { aspect-ratio: 1 / 1; }
+/* In a small card the byline is just the little picture and the name (the role has no room). */
+.pcard--c .byline__role { display: none; }
+.pcard--c .byline--card .byline__pic { width: 20px; height: 20px; font-size: .65rem; }
