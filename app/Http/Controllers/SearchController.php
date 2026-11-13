@@ -20,6 +20,7 @@ class SearchController extends Controller
         $category = $categoryId ? Category::query()->where('is_visible', true)->find($categoryId) : null;
         $articles = null;
         $categories = collect();
+        $facts = collect();
 
         if ($q !== '' || $category) {
             $query = Article::published()->with(['category', 'contributor'])->withCount('slides');
@@ -36,6 +37,17 @@ class SearchController extends Controller
 
             $articles = $query->orderByDesc('publish_date')->orderByDesc('id')->paginate(20)->withQueryString();
 
+            // The Did You Know? facts follow the same rules: every word, any capital letters, limited to the chosen category.
+            $factQuery = \App\Models\DidYouKnow::query()->visible();
+            foreach (array_filter(preg_split('/\s+/u', mb_strtolower($q))) as $word) {
+                $like = static::like($word);
+                $factQuery->where(fn ($w) => static::matches($w, ['title', 'body'], ['source'], $like));
+            }
+            if ($category) {
+                $factQuery->whereIn('category_id', $category->descendantIds());
+            }
+            $facts = $factQuery->ordered()->limit(24)->get();
+
             if ($q !== '') {
                 $like = static::like(mb_strtolower($q));
                 $categories = Category::query()->where('is_visible', true)
@@ -44,7 +56,7 @@ class SearchController extends Controller
             }
         }
 
-        return view('search', ['q' => $q, 'articles' => $articles, 'categories' => $categories, 'chosen' => $categoryId, 'within' => $category]);
+        return view('search', ['q' => $q, 'articles' => $articles, 'categories' => $categories, 'chosen' => $categoryId, 'within' => $category, 'facts' => $facts]);
     }
 
     /** A word as a LIKE pattern: the characters that mean something to LIKE are made plain (the escape character is the pipe). */

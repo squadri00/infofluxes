@@ -39,7 +39,7 @@ class CategoryController extends Controller
             'mode' => $mode,
             'index' => $index,
             // The "Did You Know?" facts that were put on the page of this category.
-            'facts' => \App\Models\DidYouKnow::query()->published()->whereNotNull('source')->where('category_id', $category->id)->ordered()->get(),
+            'facts' => \App\Models\DidYouKnow::query()->visible()->where('category_id', $category->id)->ordered()->get(),
         ]);
     }
 

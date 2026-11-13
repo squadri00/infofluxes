@@ -25,6 +25,47 @@ class DidYouKnow extends Model
         return ['ai_assisted' => 'boolean', 'custom_data' => 'array'];
     }
 
+    protected static function booted(): void
+    {
+        // Every fact gets an address from its heading, and keeps it when the heading is changed later.
+        static::saving(function (self $fact) {
+            if (blank($fact->slug)) {
+                $fact->slug = static::uniqueSlug((string) $fact->getTranslation('title', config('infofluxes.default_locale'), true), $fact->id);
+            }
+        });
+    }
+
+    public static function uniqueSlug(string $title, ?int $exceptId = null): string
+    {
+        $base = \Illuminate\Support\Str::slug($title) ?: 'fact';
+        $slug = $base;
+        for ($n = 2; static::query()->where('slug', $slug)->when($exceptId, fn ($q) => $q->where('id', '!=', $exceptId))->exists(); $n++) {
+            $slug = $base.'-'.$n;
+        }
+
+        return $slug;
+    }
+
+    /** The page of this fact. */
+    public function url(): string
+    {
+        return route('did-you-know.show', $this->slug);
+    }
+
+    /** The first words of the answer as plain text, for a card. */
+    public function summary(int $limit = 150): string
+    {
+        $text = trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags(preg_replace('~</(p|h[1-6]|li|td|th|tr|div)>~i', ' ', (string) $this->body)), ENT_QUOTES | ENT_HTML5)));
+
+        return \Illuminate\Support\Str::limit($text, $limit);
+    }
+
+    /** May a visitor see it? Published, and with a source. */
+    public function scopeVisible(Builder $query): Builder
+    {
+        return $query->where('status', 'published')->whereNotNull('source');
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

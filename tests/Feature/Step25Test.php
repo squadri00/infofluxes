@@ -120,7 +120,7 @@ class Step25Test extends TestCase
         $html = $this->get(route('category.show', 'did-you-know'))->assertOk()->assertSee('A fact for the page')->getContent();
 
         $this->assertStringNotContainsString('An article in it', $html);
-        $this->assertStringNotContainsString('class="view-bar"', $html, 'no Grid / List / Index buttons');
+        $this->assertStringContainsString('class="view-bar"', $html, 'the facts are items too, so they get the Grid / List / Index buttons');
         $this->assertStringNotContainsString('block__title">Articles', $html);
         $this->get(route('category.show', ['slug' => 'did-you-know', 'view' => 'index']))->assertOk()->assertDontSee('An article in it');
 
@@ -137,7 +137,8 @@ class Step25Test extends TestCase
         $html = $this->get(route('category.show', 'did-you-know'))->assertOk()->assertSee('A fact for the page')->getContent();
 
         $this->assertStringNotContainsString('No articles here yet', $html);
-        $this->assertStringNotContainsString('class="view-bar"', $html);
+        $this->assertStringContainsString('class="view-bar"', $html);
+        $this->assertStringContainsString('class="mosaic"', $html, 'the facts are normal cards');
     }
 
     public function test_the_same_category_with_articles_works_like_every_other_category(): void

@@ -12,6 +12,7 @@ use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ReplicateAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -89,7 +90,10 @@ class DidYouKnowResource extends Resource
                 ->getSearchResultsUsing(fn (string $search) => Article::query()->published()->where('title->'.config('infofluxes.default_locale'), 'like', '%'.$search.'%')->limit(30)->get()->mapWithKeys(fn (Article $a) => [$a->id => $a->mainTitle().' ('.$a->code.')'])->all())
                 ->getOptionLabelUsing(fn ($value) => ($a = Article::find($value)) ? $a->mainTitle().' ('.$a->code.')' : null)
                 ->helperText('A long list or a long story belongs in an article. The card then shows the short answer and a "Read the full article" button.'),
-            Select::make('category_id')->label('Show it on the page of this category (optional)')->options(fn () => Category::choices())->searchable()->placeholder('Only on the Did You Know? page'),
+            FileUpload::make('image')->label('Picture for its card (optional)')->image()->disk('public')->directory('facts')->maxSize(3072)
+                ->helperText('Shown on the card in the category page. A card without a picture is a text card, like an article without one.'),
+            TextInput::make('image_alt')->label('Describe the picture (for people who cannot see it)')->maxLength(255),
+            Select::make('category_id')->label('Show it in this category (optional)')->options(fn () => Category::choices())->searchable()->placeholder('Only on the Did You Know? page'),
             Select::make('status')->label('Status')->options(DidYouKnow::STATUSES)->default('draft')->required()->live()->native(true),
             TextInput::make('reviewer_name')->label('Reviewed by')->maxLength(255)
                 ->helperText('The person who checked it. Written with AI help? Leave "Written with AI help" on until a person has read and checked it.')
@@ -118,7 +122,7 @@ class DidYouKnowResource extends Resource
             ->recordActions([
                 EditAction::make()->label('Modify')->modalHeading('Modify the fact')->modalWidth(Width::FourExtraLarge)
                     ->mutateDataUsing(fn (array $data) => static::clean($data)),
-                ReplicateAction::make()->label('Clone')->excludeAttributes(['sort_order'])
+                ReplicateAction::make()->label('Clone')->excludeAttributes(['sort_order', 'slug'])
                     ->beforeReplicaSaved(function (DidYouKnow $replica) {
                         $replica->status = 'draft';
                         $replica->sort_order = (int) DidYouKnow::max('sort_order') + 1;

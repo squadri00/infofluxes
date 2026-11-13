@@ -61,22 +61,25 @@
     @endif
     </header>
 
-    @if ($facts->isNotEmpty())
-        <section class="block">
-            <h2 class="block__title">{{ __('site.dyk_title') }}</h2>
-            @include('partials.did-you-know-list', ['entries' => $facts])
-        </section>
-    @endif
+    {{-- The list of this category: its sub-categories, its Did You Know? facts and its articles, in the same cards and the same Grid / List / Index views as every other category.
+         The switch "Do not list its articles" leaves the articles out. A category with facts but no articles shows only the facts (an empty list would only say "nothing here"). --}}
+    @php
+        $hideArticles = (bool) ($category->custom_data['hide_articles'] ?? false);
+        $factsOnly = $articles->total() === 0 && $facts->isNotEmpty();
+        $showBar = ! $hideArticles || $facts->isNotEmpty();
+    @endphp
 
-    {{-- The articles list is left out when the category asks for that, or when it has no articles at all and shows facts instead (an empty list would only say "nothing here"). --}}
-    @php $hideArticles = (bool) ($category->custom_data['hide_articles'] ?? false) || ($articles->total() === 0 && $facts->isNotEmpty()); @endphp
-
-    @if (! $hideArticles)
+    @if ($showBar)
     <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>
     @endif
 
-    @if ($mode === 'index' && ! $hideArticles)
-        @include('partials.category-index', ['category' => $category, 'index' => $index])
+    @if ($mode === 'index' && $showBar)
+        @php
+            // The index counts the facts too; with the articles switched off it lists only the facts.
+            $indexShown = $hideArticles ? ['root' => ['children' => [], 'articles' => []], 'subjects' => 0] : $index;
+            $indexShown['subjects'] += $facts->count();
+        @endphp
+        @include('partials.category-index', ['category' => $category, 'index' => $indexShown, 'facts' => $facts])
     @else
     @if ($children->isNotEmpty())
         <section class="block">
@@ -89,7 +92,14 @@
         </section>
     @endif
 
-    @if (! $hideArticles)
+    @if ($facts->isNotEmpty())
+    <section class="block">
+        <h2 class="block__title">{{ __('site.dyk_title') }}</h2>
+        @include('partials.article-mosaic', ['articles' => $facts, 'card' => 'partials.fact-card'])
+    </section>
+    @endif
+
+    @if (! $hideArticles && ! $factsOnly)
     <section class="block">
         <h2 class="block__title">{{ __('site.articles') }}</h2>
         @if ($articles->isEmpty())

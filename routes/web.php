@@ -66,7 +66,8 @@ Route::prefix('quiz')->middleware('throttle:quiz')->group(function () {
 });
 
 // Did You Know?: the short facts, listed like a FAQ.
-Route::get('/did-you-know', DidYouKnowController::class)->name('did-you-know');
+Route::get('/did-you-know', [DidYouKnowController::class, 'index'])->name('did-you-know');
+Route::get('/did-you-know/{slug}', [DidYouKnowController::class, 'show'])->where('slug', '[a-z0-9][a-z0-9-]*')->name('did-you-know.show');
 
 // The newsletter: an address, a code by email, the code.
 Route::get('/newsletter', [NewsletterController::class, 'show'])->name('newsletter.show');

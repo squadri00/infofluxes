@@ -26,9 +26,18 @@
             </section>
         @endif
 
+        @if ($facts->isNotEmpty())
+            <section class="block">
+                <h2 class="block__title">{{ __('site.dyk_title') }}</h2>
+                @include('partials.article-mosaic', ['articles' => $facts, 'card' => 'partials.fact-card'])
+            </section>
+        @endif
+
         <section class="block">
             <h2 class="block__title">{{ __('site.search_articles_found') }}</h2>
-            @if ($articles->isEmpty())
+            @if ($articles->isEmpty() && $facts->isNotEmpty())
+                <p class="empty">{{ __('site.search_no_articles_but_facts') }}</p>
+            @elseif ($articles->isEmpty())
                 <p class="empty">{{ __('site.search_none') }}</p>
             @else
                 @include('partials.article-mosaic', ['articles' => $articles->getCollection()])

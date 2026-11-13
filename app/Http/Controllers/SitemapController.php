@@ -11,10 +11,13 @@ class SitemapController extends Controller
     {
         $urls = [[route('home'), null]];
         if (\App\Models\DidYouKnow::published()->whereNotNull('source')->exists()) {
-            $urls[] = [route('did-you-know'), \App\Models\DidYouKnow::published()->max('updated_at')];
+            $urls[] = [route('did-you-know'), \Illuminate\Support\Carbon::parse(\App\Models\DidYouKnow::published()->max('updated_at'))];
         }
         foreach (Category::where('is_visible', true)->orderBy('tree_path')->get() as $c) {
             $urls[] = [route('category.show', $c->slug), $c->updated_at];
+        }
+        foreach (\App\Models\DidYouKnow::visible()->ordered()->get(['slug', 'updated_at']) as $d) {
+            $urls[] = [route('did-you-know.show', $d->slug), $d->updated_at];
         }
         foreach (\App\Models\Person::where('show_page', true)->orderBy('name')->get(['slug', 'updated_at']) as $p) {
             $urls[] = [route('people.show', $p->slug), $p->updated_at];

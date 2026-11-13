@@ -91,6 +91,7 @@ return [
     'dyk_source' => 'Source',
     'dyk_ai' => 'Written with AI help',
     'dyk_read_article' => 'Read the full article',
+    'dyk_more' => 'More facts',
     'people_title' => 'Contributors',
     'people_intro' => 'The people who research, write and answer on this site.',
     'people_none' => 'No contributors are listed yet.',
@@ -141,6 +142,7 @@ return [
 
     'search_title' => 'Search',
     'search_results_for' => 'Results for “:q”',
+    'search_no_articles_but_facts' => 'No articles match, but see the facts above.',
     'search_none' => 'Nothing was found. Try other words.',
     'search_empty' => 'Type a word to search.',
     'search_in_category' => 'Topics in :name',
