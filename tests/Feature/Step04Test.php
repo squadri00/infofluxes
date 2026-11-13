@@ -190,9 +190,9 @@ class Step04Test extends TestCase
     {
         $this->get('/no-such-page')->assertNotFound()->assertSee('Page not found')->assertSee('Go to the home page');
     }
-
+    public function test_the_language_button_is_always_there_and_lists_every_language_that_is_on(): void
     public function test_the_language_button_shows_only_when_more_than_one_language_is_on(): void
-    {
+        $this->get('/')->assertSee('lang-menu', false)->assertSee('English')->assertDontSee('Arabic');
         $this->get('/')->assertDontSee('lang-menu', false);
 
         config(['infofluxes.locales' => ['en' => 'English', 'ar' => 'Arabic']]);

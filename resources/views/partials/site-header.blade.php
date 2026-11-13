@@ -22,7 +22,7 @@
                 @endif
             </a>
             <ul class="site-header__tools">
-                @if (count($locales) > 1)
+                @if (count($locales) >= 1)
                     <li class="menu__item">
                         <details class="menu__drop lang-menu">
                             <summary aria-label="{{ __('site.language') }}"><span class="lang-code">{{ strtoupper(app()->getLocale()) }}</span></summary>
