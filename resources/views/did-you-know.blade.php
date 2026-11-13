@@ -5,7 +5,7 @@
 @section('canonical', route('did-you-know'))
 
 @section('content')
-<div class="wrap">
+<div class="wrap wrap--wide">
     <nav class="path" aria-label="Path"><ol><li><a href="{{ route('home') }}">{{ __('site.home') }}</a></li><li aria-current="page">{{ __('site.dyk_title') }}</li></ol></nav>
 
     <h1 class="topic__title">{{ __('site.dyk_title') }}</h1>

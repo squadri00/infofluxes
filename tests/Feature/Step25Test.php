@@ -52,6 +52,23 @@ class Step25Test extends TestCase
         $this->assertStringContainsString('href="https://example.org/first-fact"', $html, 'the source is a link when it is a web address');
     }
 
+    public function test_the_facts_are_four_columns_of_cards_and_opening_one_closes_the_other(): void
+    {
+        $this->fact('One');
+        $this->fact('Two', ['sort_order' => 2]);
+
+        $html = $this->get(route('did-you-know'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('wrap wrap--wide', $html, 'the wide page, so four columns fit');
+        $this->assertStringContainsString('class="dyk" data-dyk', $html);
+        $this->assertStringContainsString('dyk__num', $html, 'a number on each card');
+        $this->assertStringContainsString('o.open = false', $html, 'opening one closes the others');
+
+        $css = (string) file_get_contents(public_path('css/site.css'));
+        $this->assertStringContainsString('.dyk { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));', $css);
+        $this->assertStringContainsString('@media (max-width: 520px) { .dyk { grid-template-columns: minmax(0, 1fr); } }', $css, 'one column on a phone');
+    }
+
     public function test_drafts_and_facts_without_a_source_are_never_shown(): void
     {
         $this->fact('A draft', ['status' => 'draft']);
