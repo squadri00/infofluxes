@@ -90,6 +90,7 @@ return [
     'dyk_none' => 'No facts are listed yet.',
     'dyk_source' => 'Source',
     'dyk_ai' => 'Written with AI help',
+    'dyk_read_article' => 'Read the full article',
     'people_title' => 'Contributors',
     'people_intro' => 'The people who research, write and answer on this site.',
     'people_none' => 'No contributors are listed yet.',

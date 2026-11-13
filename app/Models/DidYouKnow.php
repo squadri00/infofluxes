@@ -30,6 +30,12 @@ class DidYouKnow extends Model
         return $this->belongsTo(Category::class);
     }
 
+    /** The article that tells the whole story, when the fact points to one. */
+    public function article(): BelongsTo
+    {
+        return $this->belongsTo(Article::class);
+    }
+
     public function getCodeAttribute(): string
     {
         return 'D-'.$this->id;

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\DidYouKnow;
 
 use App\Filament\Resources\DidYouKnow\Pages\ManageDidYouKnow;
 use App\Filament\Support\Translated;
+use App\Models\Article;
 use App\Models\Category;
 use App\Models\DidYouKnow;
 use App\Support\Html;
@@ -77,8 +78,17 @@ class DidYouKnowResource extends Resource
             ...Translated::text('title', 'Heading (a question or a short statement)', required: true),
             ...Translated::rich('body', 'The short answer', required: true),
             TextInput::make('source')->label('Source: where to check it')->maxLength(500)
-                ->helperText('A web address you opened and read, or the name of the book, with chapter and page. Needed before the fact can be published.')
-                ->required(fn (Get $get) => $get('status') === 'published'),
+                ->helperText('A web address you opened and read, or the name of the book with chapter and page, for example: Sahih al-Bukhari, Book of Faith, hadith 8. Needed before the fact can be published.')
+                ->required(fn (Get $get) => $get('status') === 'published')
+                ->rules([fn () => function (string $attribute, $value, \Closure $fail) {
+                    if (filled($value) && ! static::goodSource((string) $value)) {
+                        $fail('Name the book (with chapter and page) or give a web address you opened. "AI" or a tool name is not a source.');
+                    }
+                }]),
+            Select::make('article_id')->label('Link to the full article (optional)')->searchable()
+                ->getSearchResultsUsing(fn (string $search) => Article::query()->published()->where('title->'.config('infofluxes.default_locale'), 'like', '%'.$search.'%')->limit(30)->get()->mapWithKeys(fn (Article $a) => [$a->id => $a->mainTitle().' ('.$a->code.')'])->all())
+                ->getOptionLabelUsing(fn ($value) => ($a = Article::find($value)) ? $a->mainTitle().' ('.$a->code.')' : null)
+                ->helperText('A long list or a long story belongs in an article. The card then shows the short answer and a "Read the full article" button.'),
             Select::make('category_id')->label('Show it on the page of this category (optional)')->options(fn () => Category::choices())->searchable()->placeholder('Only on the Did You Know? page'),
             Select::make('status')->label('Status')->options(DidYouKnow::STATUSES)->default('draft')->required()->live()->native(true),
             TextInput::make('reviewer_name')->label('Reviewed by')->maxLength(255)
@@ -118,14 +128,37 @@ class DidYouKnowResource extends Resource
             ->paginated(false);
     }
 
-    /** The answer is cleaned the same way an article is: no scripts, no unsafe links. */
+    /** The answer is cleaned the same way an article is (no scripts, no unsafe links), and pasted leftovers are removed. */
     public static function clean(array $data): array
     {
         foreach ((array) ($data['body'] ?? []) as $locale => $html) {
-            $data['body'][$locale] = Html::clean((string) $html);
+            $data['body'][$locale] = static::tidy(Html::clean((string) $html));
         }
 
         return $data;
+    }
+
+    /**
+     * Leftovers of a paste from a chat tool: the little source chip (a line like "Province of Manitoba+1") and empty paragraphs.
+     * Only a paragraph that is nothing but such a chip is removed; the words of the answer are never touched.
+     */
+    public static function tidy(string $html): string
+    {
+        $html = preg_replace('~<p>\s*[^<]{2,80}\+\d{1,2}\s*</p>~u', '', $html) ?? $html;
+
+        return preg_replace('~<p>(\s|&nbsp;|<br\s*/?>)*</p>~i', '', $html) ?? $html;
+    }
+
+    /** Is this a source a reader could check? Not a tool name, not a few letters. */
+    public static function goodSource(string $source): bool
+    {
+        $source = trim($source);
+        $plain = mb_strtolower(preg_replace('/[^\p{L}\p{N}]+/u', ' ', $source));
+        if (preg_match('#^https?://\S+\.\S+#i', $source)) {
+            return true;
+        }
+
+        return mb_strlen(trim($plain)) >= 8 && ! in_array(trim($plain), ['ai', 'chatgpt', 'chat gpt', 'gpt', 'gemini', 'claude', 'copilot', 'internet', 'google', 'online', 'the internet', 'various', 'unknown'], true);
     }
 
     public static function getPages(): array

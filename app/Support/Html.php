@@ -8,7 +8,8 @@ namespace App\Support;
  */
 class Html
 {
-    private const TAGS = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'ul', 'ol', 'li', 'a', 'h2', 'h3', 'h4', 'blockquote', 'hr', 'code', 'pre', 'sub', 'sup'];
+    private const TAGS = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'ul', 'ol', 'li', 'a', 'h2', 'h3', 'h4', 'blockquote', 'hr', 'code', 'pre', 'sub', 'sup',
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption'];
 
     public static function clean(?string $html): string
     {
@@ -76,7 +77,9 @@ class Html
                 continue;
             }
             foreach (iterator_to_array($child->attributes) as $attr) {
-                $keep = $name === 'a' && $attr->name === 'href' && static::safeHref($attr->value);
+                $keep = ($name === 'a' && $attr->name === 'href' && static::safeHref($attr->value))
+                    // a cell that spans several columns or rows: whole numbers only
+                    || (in_array($name, ['td', 'th'], true) && in_array($attr->name, ['colspan', 'rowspan'], true) && preg_match('/^[1-9][0-9]?$/', trim($attr->value)));
                 if (! $keep) {
                     $child->removeAttributeNode($attr);
                 }
