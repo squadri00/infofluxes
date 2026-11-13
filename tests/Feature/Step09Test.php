@@ -102,6 +102,58 @@ class Step09Test extends TestCase
         $this->assertStringContainsString('title="&lt;script&gt;', $html);
     }
 
+    /** The sections of the article form, with whether each one starts closed. */
+    private function sections($page): array
+    {
+        $out = [];
+        foreach ($page->instance()->form->getFlatComponents() as $c) {
+            if ($c instanceof \Filament\Schemas\Components\Section) {
+                $out[(string) $c->getHeading()] = $c->isCollapsed();
+            }
+        }
+
+        return $out;
+    }
+
+    public function test_every_section_of_an_article_starts_closed_when_it_is_opened_to_edit(): void
+    {
+        $main = $this->cat('Main place');
+        $article = Article::create(['title' => ['en' => 'An article'], 'slug' => 'an-article', 'category_id' => $main->id]);
+
+        $sections = $this->sections(Livewire::test(EditArticle::class, ['record' => $article->getRouteKey()]));
+
+        $this->assertSame(['The article', 'Pictures', 'Story slides', 'YouTube videos', 'Publishing', 'Search engines (optional)'], array_keys($sections));
+        foreach ($sections as $heading => $closed) {
+            $this->assertTrue($closed, "$heading starts closed");
+        }
+    }
+
+    public function test_a_new_article_keeps_the_first_parts_open_so_the_title_can_be_typed(): void
+    {
+        $sections = $this->sections(Livewire::test(\App\Filament\Resources\Articles\Pages\CreateArticle::class));
+
+        $this->assertFalse($sections['The article'], 'the title and the categories are here');
+        $this->assertFalse($sections['Publishing']);
+        $this->assertTrue($sections['Story slides']);
+        $this->assertTrue($sections['Search engines (optional)']);
+    }
+
+    public function test_the_chapters_and_slides_of_a_story_start_closed(): void
+    {
+        $main = $this->cat('Main place');
+        $article = Article::create(['title' => ['en' => 'A story'], 'slug' => 'a-story', 'category_id' => $main->id]);
+        $chapter = $article->chapters()->create(['title' => ['en' => 'Chapter one'], 'sort_order' => 1]);
+        $chapter->slides()->create(['heading' => ['en' => 'Slide one'], 'sort_order' => 1]);
+
+        $page = Livewire::test(EditArticle::class, ['record' => $article->getRouteKey()]);
+        $repeaters = collect($page->instance()->form->getFlatComponents())->filter(fn ($c) => $c instanceof \Filament\Forms\Components\Repeater && in_array($c->getName(), ['chapters', 'slides'], true));
+
+        $this->assertGreaterThanOrEqual(2, $repeaters->count());
+        foreach ($repeaters as $repeater) {
+            $this->assertTrue($repeater->isCollapsed(), $repeater->getName().' items start closed');
+        }
+    }
+
     public function test_choosing_other_categories_is_saved(): void
     {
         $main = $this->cat('Main place');

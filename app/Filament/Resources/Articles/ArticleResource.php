@@ -117,6 +117,8 @@ class ArticleResource extends Resource
             ->columns(1)
             ->components([
                 Section::make('The article')
+                    ->collapsible()
+                    ->collapsed(fn (string $operation) => $operation === 'edit')
                     ->schema([
                         TextInput::make('code_shown')
                             ->label('Code')
@@ -147,6 +149,7 @@ class ArticleResource extends Resource
                     ])->columns(1),
 
                 Section::make('Pictures')
+                    ->collapsed(fn (string $operation) => $operation === 'edit')
                     ->schema([
                         FileUpload::make('main_image')->label('Main picture')->image()
                             ->acceptedFileTypes(\App\Support\StoryImage::TYPES)->disk(\App\Support\StoryImage::DISK)->directory(\App\Support\StoryImage::DIRECTORY)
@@ -175,7 +178,7 @@ class ArticleResource extends Resource
                 Section::make('Story slides')
                     ->description('Optional. Add chapters, and slides inside them, to tell this article as a picture story. The slide viewer then shows above the text, with the main picture as its cover. A slide has a picture (you can leave it out), a heading and about 25 words. NEVER show or draw the Prophets (AS) or the Prophet Muhammad ﷺ. Allowed pictures: maps, objects, places, inscriptions, calligraphy and plain diagrams.')
                     ->collapsible()
-                    ->collapsed(fn (?Article $record) => ! $record?->slides()->exists())
+                    ->collapsed()
                     ->schema([
                         Repeater::make('chapters')
                             ->relationship('chapters')
@@ -183,7 +186,7 @@ class ArticleResource extends Resource
                             ->hiddenLabel()
                             ->addActionLabel('Add a chapter')
                             ->defaultItems(0)
-                            ->collapsible()
+                            ->collapsible()->collapsed()
                             ->itemLabel(fn (array $state) => $state['title'][config('infofluxes.default_locale')] ?? 'Chapter')
                             ->schema([
                                 ...Translated::text('title', 'Chapter name', required: true),
@@ -193,7 +196,7 @@ class ArticleResource extends Resource
                                     ->label('Slides')
                                     ->addActionLabel('Add a slide')
                                     ->defaultItems(0)
-                                    ->collapsible()
+                                    ->collapsible()->collapsed()
                                     ->itemLabel(fn (array $state) => $state['heading'][config('infofluxes.default_locale')] ?? 'Slide')
                                     ->schema([
                                         FileUpload::make('image')->label('Picture (you can leave it out)')->image()
@@ -211,6 +214,7 @@ class ArticleResource extends Resource
                     ]),
 
                 Section::make('YouTube videos')
+                    ->collapsed(fn (string $operation) => $operation === 'edit')
                     ->schema([
                         Repeater::make('videos')
                             ->hiddenLabel()
@@ -231,6 +235,8 @@ class ArticleResource extends Resource
                     ])->collapsible(),
 
                 Section::make('Publishing')
+                    ->collapsible()
+                    ->collapsed(fn (string $operation) => $operation === 'edit')
                     ->schema([
                         Select::make('status')->options(fn () => static::statusOptions())->default('draft')->required(),
                         DateTimePicker::make('publish_date')->label('Publish date')->helperText('Left empty, it is the moment you publish. A date in the future keeps the article hidden until then.'),
