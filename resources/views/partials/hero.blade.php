@@ -30,7 +30,7 @@
                     <figure class="hero__slide {{ $i === 0 ? 'is-active' : '' }}" data-hero-slide role="group" aria-roledescription="slide"
                         aria-label="{{ str_replace([':n', ':total'], [$i + 1, $total], __('site.hero_slide_of')) }}"
                         @if ($i > 0) aria-hidden="true" @endif>
-                        <img src="{{ asset('storage/'.$slide->image) }}" alt="{{ $slide->image_alt }}" @if ($i > 0) loading="lazy" @endif>
+                        <img src="{{ ($hero['layout'] ?? 'split') === 'full' ? \App\Support\Hero::bannerUrl($slide) : asset('storage/'.$slide->image) }}" alt="{{ $slide->image_alt }}" @if ($i > 0) loading="lazy" @endif>
                         @if (filled($slide->heading) || filled($slide->text) || ($link && filled($slide->button_label)))
                             <figcaption class="hero__caption">
                                 @if (filled($slide->heading))<h2 class="hero__heading">{{ $slide->heading }}</h2>@endif

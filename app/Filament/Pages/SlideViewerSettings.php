@@ -85,7 +85,7 @@ class SlideViewerSettings extends Page
         ])->all();
         $out['slides'] = HeroSlide::query()->orderBy('sort_order')->orderBy('id')->get()->map(fn (HeroSlide $s) => [
             'id' => $s->id, 'image' => $s->image ? [$s->image] : [], 'image_alt' => $s->getTranslations('image_alt'), 'heading' => $s->getTranslations('heading'), 'text' => $s->getTranslations('text'),
-            'button_label' => $s->getTranslations('button_label'), 'button_url' => $s->button_url, 'new_tab' => $s->new_tab, 'is_active' => $s->is_active,
+            'button_label' => $s->getTranslations('button_label'), 'button_url' => $s->button_url, 'new_tab' => $s->new_tab, 'is_active' => $s->is_active, 'focus' => $s->custom_data['focus'] ?? 'middle',
         ])->all();
 
         return $out;
@@ -154,7 +154,9 @@ class SlideViewerSettings extends Page
                         ->itemLabel(fn (array $state) => ($state['heading'][$main] ?? null) ?: (($state['image_alt'][$main] ?? null) ?: 'Picture'))
                         ->schema([
                             Hidden::make('id'),
-                            FileUpload::make('image')->label('Picture')->image()->disk('public')->directory('hero')->maxSize(5120)->required(),
+                            FileUpload::make('image')->label('Picture')->image()->disk('public')->directory('hero')->maxSize(5120)->required()
+                                ->helperText('Any picture works: the site cuts it to the gallery shape (2000 x 920) by itself and keeps it sharp. Use a picture at least 2000 pixels wide for the best result.'),
+                            Select::make('focus')->label('If the picture is cut, keep the')->options(['top' => 'Top part', 'middle' => 'Middle part', 'bottom' => 'Bottom part'])->default('middle')->native(true),
                             ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)', required: true),
                             ...Translated::text('heading', 'Words over the picture: heading'),
                             ...Translated::text('text', 'Words over the picture: one short line', max: 500),
@@ -244,6 +246,7 @@ class SlideViewerSettings extends Page
             'button_url' => filled($s['button_url'] ?? null) ? trim($s['button_url']) : null,
             'new_tab' => (bool) ($s['new_tab'] ?? false),
             'is_active' => (bool) ($s['is_active'] ?? true),
+            'custom_data' => ['focus' => in_array($s['focus'] ?? 'middle', ['top', 'middle', 'bottom'], true) ? $s['focus'] : 'middle'],
         ]);
 
         Setting::forget();
