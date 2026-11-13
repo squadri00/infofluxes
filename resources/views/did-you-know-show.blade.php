@@ -4,6 +4,8 @@
     $site = \App\Models\Setting::get('site_name', config('app.name'));
     $answer = \App\Support\Html::clean((string) $fact->body);
     $full = $fact->article && $fact->article->status === 'published' ? $fact->article : null;
+    // The same page as an article: the branch on the left, "Recently viewed" on the right.
+    $sidebars = (bool) $sideTree;
 @endphp
 
 @section('title', $fact->title.' | '.$site)
@@ -23,7 +25,13 @@
     <div class="preview-banner"><div class="wrap">{{ __('site.draft_notice') }}</div></div>
 @endif
 
-<article class="wrap topic fact">
+<div class="{{ $sidebars ? 'wrap wrap--wide reading' : 'wrap topic' }}">
+@if ($sidebars)
+    <aside class="reading__side reading__side--left" aria-label="{{ __('site.related_topics') }}">
+        @include('partials.side-tree', ['root' => $sideRoot, 'tree' => $sideTree, 'current' => null, 'currentFact' => $fact, 'sideFacts' => $sideFacts])
+    </aside>
+@endif
+<article class="{{ $sidebars ? 'topic reading__main fact' : 'topic fact' }}">
     <nav class="path" aria-label="Path">
         <ol>
             <li><a href="{{ route('home') }}">{{ __('site.home') }}</a></li>
@@ -65,4 +73,10 @@
         </section>
     @endif
 </article>
+@if ($sidebars)
+    <aside class="reading__side reading__side--right" aria-label="{{ __('site.recent_title') }}">
+        @include('partials.recent-box', ['url' => $fact->url(), 'title' => $fact->title])
+    </aside>
+@endif
+</div>
 @endsection

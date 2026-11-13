@@ -44,11 +44,13 @@ class ArticleController extends Controller
         // The branch beside the article: the category one step up (or the category itself at the top), with every topic below it.
         $sideRoot = $category ? ($category->parent ?? $category) : null;
         $sideTree = $sideRoot ? \App\Support\CategoryIndex::build($sideRoot, $preview) : null;
+        $sideFacts = $sideRoot ? \App\Models\DidYouKnow::forBranch($sideRoot) : collect();
 
         return view('article', [
             'storyItems' => $storyItems,
             'sideRoot' => $sideRoot,
             'sideTree' => $sideTree,
+            'sideFacts' => $sideFacts,
             'comments' => $comments,
             'article' => $article,
             'trail' => $trail,

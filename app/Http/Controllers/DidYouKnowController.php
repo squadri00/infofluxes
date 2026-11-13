@@ -26,7 +26,13 @@ class DidYouKnowController extends Controller
             ->when($category, fn ($q) => $q->where('category_id', $category->id))
             ->ordered()->limit(4)->get();
 
+        // The left side: the branch the fact belongs to, like an article.
+        $sideRoot = $category ? ($category->parent ?? $category) : null;
+
         return view('did-you-know-show', [
+            'sideRoot' => $sideRoot,
+            'sideTree' => $sideRoot ? \App\Support\CategoryIndex::build($sideRoot, $preview) : null,
+            'sideFacts' => $sideRoot ? DidYouKnow::forBranch($sideRoot) : collect(),
             'fact' => $fact,
             'trail' => $trail,
             'more' => $more,

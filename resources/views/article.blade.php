@@ -33,7 +33,7 @@
 <div class="{{ $sidebars ? 'wrap wrap--wide reading' : 'wrap topic' }}">
 @if ($sidebars)
     <aside class="reading__side reading__side--left" aria-label="{{ __('site.related_topics') }}">
-        @include('partials.side-tree', ['root' => $sideRoot, 'tree' => $sideTree, 'current' => $article])
+        @include('partials.side-tree', ['root' => $sideRoot, 'tree' => $sideTree, 'current' => $article, 'sideFacts' => $sideFacts])
     </aside>
 @endif
 <article class="{{ $sidebars ? 'topic reading__main' : 'topic-inner' }}">

@@ -60,6 +60,12 @@ class DidYouKnow extends Model
         return \Illuminate\Support\Str::limit($text, $limit);
     }
 
+    /** The visible facts that sit in a category or below it, grouped by their category (for the tree beside a page). */
+    public static function forBranch(Category $root): \Illuminate\Support\Collection
+    {
+        return static::query()->visible()->whereIn('category_id', $root->descendantIds())->ordered()->get()->groupBy('category_id');
+    }
+
     /** May a visitor see it? Published, and with a source. */
     public function scopeVisible(Builder $query): Builder
     {

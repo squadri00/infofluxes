@@ -107,6 +107,21 @@ class CategoryIndex
         return false;
     }
 
+    /** Is this category the branch itself, or anywhere below it? */
+    public static function containsCategory(array $node, int $categoryId): bool
+    {
+        if ((int) $node['category']->id === $categoryId) {
+            return true;
+        }
+        foreach ($node['children'] as $child) {
+            if (static::containsCategory($child, $categoryId)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /** @return array<string, mixed> */
     private static function node(Category $category, $kids): array
     {
