@@ -36,8 +36,14 @@ class ArticleController extends Controller
 
         $storyItems = \App\Support\StoryItems::build($article);
 
+        // The branch beside the article: the category one step up (or the category itself at the top), with every topic below it.
+        $sideRoot = $category ? ($category->parent ?? $category) : null;
+        $sideTree = $sideRoot ? \App\Support\CategoryIndex::build($sideRoot, $preview) : null;
+
         return view('article', [
             'storyItems' => $storyItems,
+            'sideRoot' => $sideRoot,
+            'sideTree' => $sideTree,
             'comments' => $comments,
             'article' => $article,
             'trail' => $trail,

@@ -29,7 +29,14 @@
     <div class="preview-banner"><div class="wrap">{{ __('site.draft_notice') }}</div></div>
 @endif
 
-<article class="wrap topic">
+@php $sidebars = empty($storyItems) && $sideTree; @endphp
+<div class="{{ $sidebars ? 'wrap wrap--wide reading' : 'wrap topic' }}">
+@if ($sidebars)
+    <aside class="reading__side reading__side--left" aria-label="{{ __('site.related_topics') }}">
+        @include('partials.side-tree', ['root' => $sideRoot, 'tree' => $sideTree, 'current' => $article])
+    </aside>
+@endif
+<article class="{{ $sidebars ? 'topic reading__main' : 'topic-inner' }}">
     <nav class="path" aria-label="Path">
         <ol>
             <li><a href="{{ route('home') }}">{{ __('site.home') }}</a></li>
@@ -149,4 +156,10 @@
     @endpush
 @endif
 </article>
+@if ($sidebars)
+    <aside class="reading__side reading__side--right" aria-label="{{ __('site.recent_title') }}">
+        @include('partials.recent-box', ['article' => $article, 'title' => $title])
+    </aside>
+@endif
+</div>
 @endsection

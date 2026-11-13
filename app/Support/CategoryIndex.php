@@ -90,6 +90,23 @@ class CategoryIndex
         return preg_match('/^[A-Z]{2}-[0-9IVX]+(\.[0-9]+)*$/', $name) ? $name : $item->code;
     }
 
+    /** Is this article listed anywhere in the branch (a heading and everything below it)? */
+    public static function contains(array $node, int $articleId): bool
+    {
+        foreach ($node['articles'] as $line) {
+            if ((int) $line['article']->id === $articleId) {
+                return true;
+            }
+        }
+        foreach ($node['children'] as $child) {
+            if (static::contains($child, $articleId)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /** @return array<string, mixed> */
     private static function node(Category $category, $kids): array
     {
