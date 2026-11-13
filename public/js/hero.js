@@ -35,6 +35,7 @@
                 if (link) { link.tabIndex = on ? 0 : -1; }
                 var img = slide.querySelector('img');
                 if (img && on) { img.loading = 'eager'; }
+                if (on && slide.dataset.ratio) { slide.parentNode.parentNode.style.aspectRatio = slide.dataset.ratio; }
             });
             dots.forEach(function (d, i) {
                 d.classList.toggle('is-current', i === current);

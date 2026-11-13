@@ -21,6 +21,15 @@ class Hero
         return Setting::get('hero_layout', 'split') === 'full' ? 'full' : 'split';
     }
 
+    /** Width / height of a stored picture, kept between 1 and 2.4 so the frame is never odd. 16/9 when it cannot be read. */
+    public static function ratio(?string $path): float
+    {
+        $file = $path ? storage_path('app/public/'.ltrim($path, '/')) : null;
+        $size = ($file && is_file($file)) ? @getimagesize($file) : false;
+
+        return ($size && $size[1] > 0) ? round(min(2.4, max(1.0, $size[0] / $size[1])), 4) : round(16 / 9, 4);
+    }
+
     /** Seconds before the next picture. 0 means it never moves by itself. */
     public static function seconds(): int
     {
