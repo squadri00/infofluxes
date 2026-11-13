@@ -122,6 +122,27 @@
             @endif
         </x-filament::section>
     @endif
+    @if (\App\Filament\Pages\MoveFromOldSite::socialAvailable())
+        <x-filament::section>
+            <x-slot name="heading">Your social media and footer text</x-slot>
+            <p style="max-width:52rem">
+                The social accounts of the old site and the "about" text of the footer. The old addresses were only placeholders (the home page of each network), so replace them with your own in
+                <a href="{{ \App\Filament\Resources\Social\SocialLinkResource::getUrl() }}" style="text-decoration:underline">Social media</a>.
+                What is here already is not changed or made twice.
+            </p>
+            <x-filament::button wire:click="checkSocial" color="gray">Check social media</x-filament::button>
+            @if ($socialResult && ! $socialDone && ($socialResult['total']['new'] + $socialResult['total']['footer_text']) > 0)
+                <x-filament::button wire:click="bringSocial">Bring social media</x-filament::button>
+            @endif
+            @if ($socialResult)
+                @php $s = $socialResult['total']; @endphp
+                <ul style="margin:.8rem 0 0 1.2rem;list-style:disc">
+                    <li><strong>{{ $socialDone ? 'Brought' : 'Would bring' }}:</strong> {{ $s['new'] }} accounts, {{ $s['footer_text'] ? 'the footer text' : 'no footer text' }}</li>
+                    <li>Already here: {{ $s['existing'] }} accounts</li>
+                </ul>
+            @endif
+        </x-filament::section>
+    @endif
     @if (\App\Filament\Pages\MoveFromOldSite::pagesAvailable())
         <x-filament::section>
             <x-slot name="heading">Your website pages (About, Contact, Privacy...)</x-slot>

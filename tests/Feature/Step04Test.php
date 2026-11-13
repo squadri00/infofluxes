@@ -241,11 +241,11 @@ class Step04Test extends TestCase
         $this->assertTrue(SiteSettings::canAccess());
 
         Livewire::test(SiteSettings::class)
-            ->fillForm(['site_name' => ['en' => 'Saved Name'], 'tagline' => ['en' => 'Saved tagline'], 'social_facebook' => 'https://facebook.com/x'])
+            ->fillForm(['site_name' => ['en' => 'Saved Name'], 'tagline' => ['en' => 'Saved tagline']])
             ->call('save')
             ->assertHasNoFormErrors();
 
         Setting::forget();
-        $this->get('/')->assertSee('Saved Name')->assertSee('Saved tagline')->assertSee('https://facebook.com/x', false);
+        $this->get('/')->assertSee('Saved Name')->assertSee('Saved tagline');
     }
 }

@@ -62,7 +62,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'social_facebook', 'social_instagram', 'social_x', 'social_youtube', 'social_tiktok'];
+        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo'];
     }
 
     public function form(Schema $schema): Schema
@@ -89,15 +89,6 @@ class SiteSettings extends Page
                     ->schema([
                         Toggle::make('signups_open')->label('New people can sign up')->helperText('Off: the Sign up page is closed. People who already have an account can still log in.'),
                         Toggle::make('comments_open')->label('Comments are open')->helperText('Off: nobody can post a new comment. The ones already shown stay.'),
-                    ])->columns(2),
-                Section::make('Social networks')
-                    ->description('A web address that starts with https://. A network with no address shows nothing.')
-                    ->schema([
-                        TextInput::make('social_facebook')->label('Facebook')->url()->maxLength(300),
-                        TextInput::make('social_instagram')->label('Instagram')->url()->maxLength(300),
-                        TextInput::make('social_x')->label('X')->url()->maxLength(300),
-                        TextInput::make('social_youtube')->label('YouTube')->url()->maxLength(300),
-                        TextInput::make('social_tiktok')->label('TikTok')->url()->maxLength(300),
                     ])->columns(2),
             ]);
     }

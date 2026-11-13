@@ -43,6 +43,18 @@
             <nav class="site-footer__col" aria-labelledby="footer-take-part">
                 <h2 class="site-footer__title" id="footer-take-part">{{ __('site.footer_take_part') }}</h2>
                 <ul class="site-footer__list">
+                    @if (\App\Support\Challenge::anyOn())
+                        <li><a href="{{ route('challenge') }}">{{ __('site.challenge') }}</a></li>
+                    @endif
+                    @auth
+                        <li><a href="{{ route('account') }}">{{ __('site.my_account') }}</a></li>
+                        <li><a href="{{ route('submit') }}">{{ __('site.submit_article') }}</a></li>
+                    @else
+                        <li><a href="{{ route('login') }}">{{ __('site.login') }}</a></li>
+                        @if ((bool) \App\Models\Setting::get('signups_open', true))
+                            <li><a href="{{ route('register') }}">{{ __('site.signup') }}</a></li>
+                        @endif
+                    @endauth
                     <li><a href="{{ route('search') }}">{{ __('site.footer_search') }}</a></li>
                     <li><a href="{{ route('sitemap') }}">{{ __('site.footer_sitemap') }}</a></li>
                 </ul>

@@ -120,7 +120,7 @@ return [
     'related' => 'More in this category',
     'draft_notice' => 'This is a draft. Only people who work on the site can see it.',
     'id_title' => 'The reference code of this page',
-    'footer_about' => 'About',
+    'social_label' => 'Follow us',
 
     'search_title' => 'Search',
     'search_results_for' => 'Results for “:q”',

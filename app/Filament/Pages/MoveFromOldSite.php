@@ -105,6 +105,31 @@ class MoveFromOldSite extends Page
     }
 
     /** @var array<string, mixed>|null */
+    public ?array $socialResult = null;
+
+    public bool $socialDone = false;
+
+    public static function socialAvailable(): bool
+    {
+        return \App\Support\OldSocialImport::available();
+    }
+
+    public function checkSocial(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->socialResult = (new \App\Support\OldSocialImport)->check();
+        $this->socialDone = false;
+    }
+
+    public function bringSocial(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->socialResult = (new \App\Support\OldSocialImport)->bring();
+        $this->socialDone = true;
+        Notification::make()->success()->title('The social media accounts were brought across.')->send();
+    }
+
+    /** @var array<string, mixed>|null */
     public ?array $pagesResult = null;
 
     public bool $pagesDone = false;

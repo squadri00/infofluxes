@@ -1,18 +1,14 @@
-{{-- The site's social buttons. Each address is a setting; a network with no address shows nothing. --}}
-@php
-    $networks = ['facebook' => 'Facebook', 'instagram' => 'Instagram', 'x' => 'X', 'youtube' => 'YouTube', 'tiktok' => 'TikTok'];
-    $links = [];
-    foreach ($networks as $key => $label) {
-        $url = (string) \App\Models\Setting::get('social_'.$key);
-        if (preg_match('~^https?://~i', $url)) {
-            $links[$key] = [$label, $url];
-        }
-    }
-@endphp
-@if ($links)
-    <ul class="social {{ $class ?? '' }}" aria-label="Social networks">
-        @foreach ($links as $key => [$label, $url])
-            <li><a class="social__btn social__btn--{{ $key }}" href="{{ $url }}" target="_blank" rel="noopener noreferrer me" aria-label="{{ $label }}" title="{{ $label }}"><span aria-hidden="true">{{ mb_strtoupper(mb_substr($label, 0, 1)) }}</span></a></li>
+{{-- The site's own social network buttons, each in its brand colour. $class is an extra word for the list (header or footer). --}}
+@php $links = \App\Support\Social::links(); @endphp
+@if ($links->isNotEmpty())
+    <ul class="social {{ $class ?? '' }}" aria-label="{{ __('site.social_label') }}">
+        @foreach ($links as $link)
+            @php $colour = \App\Support\Social::colour($link->platform); @endphp
+            <li>
+                <a class="social__btn social__btn--{{ $link->platform }}" href="{{ \App\Support\Social::safeUrl($link->url) }}" target="_blank" rel="noopener noreferrer me" aria-label="{{ $link->buttonTitle() }}" title="{{ $link->buttonTitle() }}" style="background: {{ $colour }}">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false" style="color: {{ str_starts_with($colour, '#') ? $colour : '#d6249f' }}">{!! \App\Support\Social::drawing($link->platform) !!}</svg>
+                </a>
+            </li>
         @endforeach
     </ul>
 @endif
