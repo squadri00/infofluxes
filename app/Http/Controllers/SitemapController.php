@@ -10,6 +10,9 @@ class SitemapController extends Controller
     public function __invoke()
     {
         $urls = [[route('home'), null]];
+        if (\App\Models\DidYouKnow::published()->whereNotNull('source')->exists()) {
+            $urls[] = [route('did-you-know'), \App\Models\DidYouKnow::published()->max('updated_at')];
+        }
         foreach (Category::where('is_visible', true)->orderBy('tree_path')->get() as $c) {
             $urls[] = [route('category.show', $c->slug), $c->updated_at];
         }

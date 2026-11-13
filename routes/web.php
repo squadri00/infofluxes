@@ -10,6 +10,7 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ScriptureQuizController;
 use App\Http\Controllers\WhoQuizController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\DidYouKnowController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\CategoryController;
@@ -63,6 +64,9 @@ Route::prefix('quiz')->middleware('throttle:quiz')->group(function () {
     Route::post('order/check', [OrderQuizController::class, 'check'])->name('order.check');
     Route::post('order/try', [OrderQuizController::class, 'tryTile'])->name('order.try');
 });
+
+// Did You Know?: the short facts, listed like a FAQ.
+Route::get('/did-you-know', DidYouKnowController::class)->name('did-you-know');
 
 // The newsletter: an address, a code by email, the code.
 Route::get('/newsletter', [NewsletterController::class, 'show'])->name('newsletter.show');

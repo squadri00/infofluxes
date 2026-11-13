@@ -82,7 +82,7 @@ class Article extends Model
         $base = \Illuminate\Support\Str::slug($title) ?: 'article';
         $slug = $base;
         $n = 2;
-        while (static::withTrashed()->where('slug', $slug)->exists() || in_array($slug, Category::RESERVED_SLUGS, true) || Page::query()->where('slug', $slug)->exists()) {
+        while (static::withTrashed()->where('slug', $slug)->exists() || in_array($slug, Category::RESERVED_SLUGS, true) || in_array($slug, Page::RESERVED, true) || Page::query()->where('slug', $slug)->exists()) {
             $slug = $base.'-'.$n++;
         }
 

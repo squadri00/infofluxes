@@ -62,6 +62,7 @@ class User extends Authenticatable implements FilamentUser
         'pages' => 'Website pages',
         'people' => 'Contributors',
         'newsletter' => 'Send newsletter',
+        'facts' => 'Did You Know?',
     ];
 
     /** The screens a role has when no screens are ticked for the person. */

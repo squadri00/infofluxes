@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\DB;
 class OldSiteImport
 {
     /** The main menu headings, in order. */
-    public const HEADINGS = ['About Islam', 'History and Civilizations', 'Science and Knowledge', 'Comparative Religions', 'Society and World Affairs', 'Fact Files'];
+    public const HEADINGS = ['About Islam', 'History and Civilizations', 'Science and Knowledge', 'Comparative Religions', 'Society and World Affairs', 'Did You Know?'];
 
     /**
      * collection => [the heading it sits under, the names the index category may already have (the first is used for a new one), whether it has Parts].

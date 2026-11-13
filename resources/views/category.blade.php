@@ -61,6 +61,13 @@
     @endif
     </header>
 
+    @if ($facts->isNotEmpty())
+        <section class="block">
+            <h2 class="block__title">{{ __('site.dyk_title') }}</h2>
+            @include('partials.did-you-know-list', ['entries' => $facts])
+        </section>
+    @endif
+
     <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>
 
     @if ($mode === 'index')

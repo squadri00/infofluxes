@@ -104,7 +104,7 @@ class Step07Test extends TestCase
         $this->assertSame([
             'About Islam', '-Quran Index', '--God and Creation', '---Allah (SWT) and attributes', '----Oneness',
             'History and Civilizations', '-Early history',
-            'Science and Knowledge', 'Comparative Religions', 'Society and World Affairs', 'Fact Files',
+            'Science and Knowledge', 'Comparative Religions', 'Society and World Affairs', 'Did You Know?',
         ], $names);
 
         $oneness = Category::get()->first(fn ($c) => $c->mainName() === 'Oneness');
