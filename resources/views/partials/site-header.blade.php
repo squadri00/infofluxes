@@ -13,6 +13,14 @@
     <div class="site-header__top">
         <div class="wrap wrap--wide site-header__top-inner">
             <p class="site-header__tagline">{{ \App\Models\Setting::get('tagline', __('site.tagline')) }}</p>
+            {{-- The logo (or the name) sits in the middle of the top bar. --}}
+            <a class="site-header__name site-header__name--top" href="{{ route('home') }}">
+                @if ($logo)
+                    <img class="site-header__logo" src="{{ asset('storage/'.$logo) }}" alt="{{ $headerName }}">
+                @else
+                    {{ $headerName }}
+                @endif
+            </a>
             <ul class="site-header__tools">
                 @if (count($locales) > 1)
                     <li class="menu__item">
@@ -53,9 +61,10 @@
     {{-- Row 2: the name (or logo) and the main menu (the category tree) --}}
     <div class="site-header__main">
         <div class="wrap wrap--wide site-header__main-inner">
-            <a class="site-header__name" href="{{ route('home') }}">
+            {{-- The same logo again, shown only when the header is slim (while scrolling), because the top bar is hidden then. --}}
+            <a class="site-header__name site-header__name--compact" href="{{ route('home') }}" aria-label="{{ $headerName }}">
                 @if ($logo)
-                    <img class="site-header__logo" src="{{ asset('storage/'.$logo) }}" alt="{{ $headerName }}">
+                    <img class="site-header__logo" src="{{ asset('storage/'.$logo) }}" alt="">
                 @else
                     {{ $headerName }}
                 @endif
