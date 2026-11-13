@@ -20,6 +20,7 @@ return [
     'all_categories' => 'All categories',
     'menu' => 'Menu',
     'main_menu' => 'Main menu',
+    'more' => 'More',
     'theme_to_dark' => 'Switch to dark mode',
     'theme_to_light' => 'Switch to light mode',
     'language' => 'Language',

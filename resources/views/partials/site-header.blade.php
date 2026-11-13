@@ -70,7 +70,7 @@
 
             @if (count($menu))
                 <button type="button" class="site-nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav" hidden>{{ __('site.menu') }}</button>
-                <nav class="menu menu--main" id="site-nav" aria-label="{{ __('site.main_menu') }}" data-site-nav>
+                <nav class="menu menu--main" id="site-nav" aria-label="{{ __('site.main_menu') }}" data-site-nav data-more-label="{{ __('site.more') }}">
                     <ul class="menu__list">
                         @foreach ($menu as $item)
                             @include('partials.menu-item', ['item' => $item])

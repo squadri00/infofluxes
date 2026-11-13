@@ -1812,3 +1812,10 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 .newsletter-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
 .newsletter-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .newsletter-btn { transition: none; } }
+
+/* The menu stays on one row: what does not fit moves into the "More" drop-down (public/js/header.js). */
+.site-header.menu-fit .menu--main .menu__list { flex-wrap: nowrap; }
+.site-header.menu-fit .menu--main .menu__item { flex: 0 0 auto; white-space: nowrap; }
+.menu__more .menu__sub { right: 0; left: auto; min-width: 240px; max-height: 70vh; overflow-y: auto; }
+.menu__more-head > a { font-weight: 700; }
+.menu__more-child > a { padding-left: 24px !important; font-size: .92em; }
