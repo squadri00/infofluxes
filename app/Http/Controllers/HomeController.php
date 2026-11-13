@@ -26,6 +26,7 @@ class HomeController extends Controller
             : collect();
 
         return view('home', [
+            'hero' => \App\Support\Hero::forHome(),
             'categories' => Category::query()->whereNull('parent_id')->where('is_visible', true)->orderBy('sort_order')->orderBy('id')->get(),
             'featured' => $featured,
             'articles' => $latest,

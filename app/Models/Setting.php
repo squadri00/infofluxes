@@ -19,7 +19,7 @@ class Setting extends Model
     }
 
     /** Settings that hold a text for each language. */
-    public const TRANSLATED = ['site_name', 'tagline', 'footer_about', 'copyright'];
+    public const TRANSLATED = ['site_name', 'tagline', 'footer_about', 'copyright', 'home_headline', 'home_intro', 'home_message'];
 
     private static ?array $cache = null;
 

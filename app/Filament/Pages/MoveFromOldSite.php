@@ -49,6 +49,11 @@ class MoveFromOldSite extends Page
 
     public bool $audioDone = false;
 
+    /** @var array<string, mixed>|null */
+    public ?array $heroResult = null;
+
+    public bool $heroDone = false;
+
     public static function canAccess(): bool
     {
         return (bool) auth()->user()?->isSuperuser() && OldSiteImport::available();
@@ -77,6 +82,26 @@ class MoveFromOldSite extends Page
     public static function viewerAvailable(): bool
     {
         return \App\Support\OldSettingsImport::available();
+    }
+
+    public static function heroAvailable(): bool
+    {
+        return \App\Support\OldHeroImport::available();
+    }
+
+    public function checkHero(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->heroResult = (new \App\Support\OldHeroImport)->check();
+        $this->heroDone = false;
+    }
+
+    public function bringHero(): void
+    {
+        abort_unless(static::canAccess(), 403);
+        $this->heroResult = (new \App\Support\OldHeroImport)->bring();
+        $this->heroDone = true;
+        Notification::make()->success()->title('The home page slider was brought across.')->send();
     }
 
     public function checkAudio(): void

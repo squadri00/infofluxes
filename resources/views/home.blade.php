@@ -7,7 +7,33 @@
 @section('canonical', route('home'))
 
 @section('content')
-<div class="wrap wrap--wide">
+<div class="wrap wrap--wide home">
+    @if ($hero)
+        @include('partials.hero', ['hero' => $hero])
+        @if ($hero['slides']->count() > 1)
+            @push('scripts')
+                <script src="{{ asset('js/hero.js') }}?v={{ @filemtime(public_path('js/hero.js')) ?: 1 }}" defer></script>
+            @endpush
+        @endif
+    @endif
+
+    @php
+        $headline = \App\Models\Setting::get('home_headline');
+        $intro = \App\Models\Setting::get('home_intro');
+        $message = \App\Models\Setting::get('home_message');
+    @endphp
+    @if (! $hero || filled($intro) || filled($message))
+        <section class="home__hero">
+            @if (! $hero && filled($headline))
+                <h1 class="home__headline">{{ $headline }}</h1>
+            @else
+                <h1 class="visually-hidden">{{ $homeName }}</h1>
+            @endif
+            @if (filled($intro))<div class="home__intro">{!! \App\Support\Html::fromPlain($intro) !!}</div>@endif
+            @if (filled($message))<div class="home__message">{!! \App\Support\Html::fromPlain($message) !!}</div>@endif
+        </section>
+    @endif
+
     <div class="view-bar">@include('partials.view-toggle')</div>
 
     @if ($featured->isNotEmpty())

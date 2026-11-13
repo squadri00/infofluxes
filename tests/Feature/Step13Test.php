@@ -80,11 +80,11 @@ class Step13Test extends TestCase
     {
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
         $this->assertFalse(SlideViewerSettings::canAccess());
-        $this->get('/admin/slide-viewer-settings')->assertForbidden();
+        $this->get('/admin/sliders')->assertForbidden();
 
         $this->superuser();
         $this->assertTrue(SlideViewerSettings::canAccess());
-        $this->get('/admin/slide-viewer-settings')->assertOk();
+        $this->get('/admin/sliders')->assertOk();
     }
 
     public function test_the_screen_has_every_control_of_the_old_site_in_groups(): void

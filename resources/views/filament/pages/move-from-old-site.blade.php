@@ -101,6 +101,27 @@
             @endif
         </x-filament::section>
     @endif
+    @if (\App\Filament\Pages\MoveFromOldSite::heroAvailable())
+        <x-filament::section>
+            <x-slot name="heading">Your home page slider</x-slot>
+            <p style="max-width:52rem">
+                The sets of words, the slider pictures, and the banner settings (on or off, the seconds, the home headline, introduction and message) of the old home page.
+                What is here already is not changed or made twice. You manage it all afterwards in <a href="{{ \App\Filament\Pages\SlideViewerSettings::getUrl() }}" style="text-decoration:underline">Sliders</a>.
+            </p>
+            <x-filament::button wire:click="checkHero" color="gray">Check the home slider</x-filament::button>
+            @if ($heroResult && ! $heroDone && ($heroResult['total']['messages_new'] + $heroResult['total']['slides_new'] + $heroResult['total']['settings_changed']) > 0)
+                <x-filament::button wire:click="bringHero">Bring the home slider</x-filament::button>
+            @endif
+            @if ($heroResult)
+                @php $h = $heroResult['total']; @endphp
+                <ul style="margin:.8rem 0 0 1.2rem;list-style:disc">
+                    <li><strong>{{ $heroDone ? 'Brought' : 'Would bring' }}:</strong> {{ $h['messages_new'] }} sets of words, {{ $h['slides_new'] }} pictures, {{ $h['settings_changed'] }} settings</li>
+                    <li>Already here: {{ $h['messages_existing'] }} sets of words, {{ $h['slides_existing'] }} pictures</li>
+                    <li>Picture files {{ $heroDone ? 'copied' : 'to copy' }}: {{ $h['images_copied'] }} @if ($h['images_missing'] > 0)(<strong>missing in the old site: {{ $h['images_missing'] }}</strong>)@endif</li>
+                </ul>
+            @endif
+        </x-filament::section>
+    @endif
     @if (\App\Filament\Pages\MoveFromOldSite::viewerAvailable())
         <x-filament::section>
             <x-slot name="heading">Your slide viewer choices</x-slot>
