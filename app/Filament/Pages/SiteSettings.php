@@ -62,7 +62,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_width', 'image_quality'];
+        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
     }
 
     public function form(Schema $schema): Schema
@@ -91,12 +91,13 @@ class SiteSettings extends Page
                         Toggle::make('comments_open')->label('Comments are open')->helperText('Off: nobody can post a new comment. The ones already shown stay.'),
                     ])->columns(2),
                 Section::make('Pictures')
-                    ->description('Every picture you upload is saved lighter (as a WebP) and no wider than the width below, so the site stays fast. Story pictures have their own settings in Sliders.')
+                    ->description('Every picture you upload is saved as a WebP that is no heavier than the size below, so the site loads fast, also on a phone. The quality is lowered a little first; only if that is not enough is the picture made narrower. Story pictures have their own settings in Sliders.')
                     ->schema([
                         TextInput::make('upload_max_mb')->label('Biggest picture you may upload (MB)')->helperText('Up to 12.')->numeric()->minValue(1)->maxValue(12)->placeholder('12'),
+                        TextInput::make('image_max_kb')->label('Heaviest saved picture (KB)')->helperText('Usually 300. Between 50 and 1500.')->numeric()->minValue(50)->maxValue(1500)->placeholder('300'),
                         TextInput::make('image_max_width')->label('Widest saved picture (pixels)')->helperText('A wider picture is made narrower. A narrower one is never made bigger.')->numeric()->minValue(400)->maxValue(6000)->placeholder('2400'),
-                        TextInput::make('image_quality')->label('Quality of the saved picture (40 to 95)')->helperText('85 is a good balance. Higher is sharper and heavier.')->numeric()->minValue(40)->maxValue(95)->placeholder('85'),
-                    ])->columns(3),
+                        TextInput::make('image_quality')->label('Best quality tried first (40 to 95)')->helperText('85 is a good balance. It goes down from here until the picture fits.')->numeric()->minValue(40)->maxValue(95)->placeholder('85'),
+                    ])->columns(4),
                 Section::make('Newsletter')
                     ->description('People type their email, get a 6-digit code by email, and type it back. Only then are they on the list (Content > Newsletter).')
                     ->schema([
@@ -141,6 +142,9 @@ class SiteSettings extends Page
             // Pictures: the biggest upload (MB), the widest saved picture (pixels) and the WebP quality. An empty box means the usual number.
             if ($key === 'upload_max_mb') {
                 $value = is_numeric($value) ? max(1, min(12, (int) $value)) : null;
+            }
+            if ($key === 'image_max_kb') {
+                $value = is_numeric($value) ? max(50, min(1500, (int) $value)) : null;
             }
             if ($key === 'image_max_width') {
                 $value = is_numeric($value) ? max(400, min(6000, (int) $value)) : null;

@@ -18,6 +18,6 @@ class ImageUpload
             ->acceptedFileTypes(ImageStore::TYPES)
             ->maxSize(fn () => ImageStore::maxKb())
             ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => ImageStore::store($file, $directory))
-            ->helperText(fn () => 'JPG, PNG or WebP, up to '.(ImageStore::maxKb() / 1024).' MB. It is saved lighter and no wider than '.ImageStore::maxWidth().' pixels.');
+            ->helperText(fn () => 'JPG, PNG, WebP or GIF, up to '.(ImageStore::maxKb() / 1024).' MB. It is saved as a WebP of at most '.round(ImageStore::maxBytes() / 1024).' KB (and no wider than '.ImageStore::maxWidth().' pixels), so it loads fast, also on a phone.');
     }
 }
