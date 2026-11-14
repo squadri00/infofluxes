@@ -4,59 +4,130 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\DidYouKnow;
+use App\Models\Page;
+use App\Models\Person;
 use Illuminate\Http\Request;
 
 /**
- * The site search. Every word typed must be found (any capital letters) in the title, the short detail, the search words or the long text,
- * in the visitor's language or in the main language. Choosing a category limits the search to it and everything below it.
- * A category chosen without any word lists its topics.
+ * The site search. It finds a thing by its ID (A-42, C-12, D-9, P-2, K-1, or an index ID such as QR-1.1.001), by words of its title,
+ * by its search keywords, or by words in its text. Every word typed must be found (any capital letters), in the visitor's language
+ * or in the main language. Choosing a category limits the search to it and everything below it; a category chosen without a word lists its topics.
+ * Nothing is left out: every category, fact, page and contributor that matches is shown, and the articles are shown in full pages with a count.
  */
 class SearchController extends Controller
 {
+    /** Articles on one page of results. "Show all" lifts it (up to ALL_CAP). */
+    public const PER_PAGE = 120;
+
+    public const ALL_CAP = 2000;
+
+    /** The kinds of ID: the letter in front of the number. */
+    private const LETTERS = ['a' => 'articles', 'c' => 'categories', 'd' => 'facts', 'p' => 'pages', 'k' => 'people'];
+
     public function __invoke(Request $request)
     {
         $q = trim(mb_substr((string) $request->query('q'), 0, 200));
         $categoryId = (int) $request->query('category');
+        $showAll = $request->boolean('all');
         $category = $categoryId ? Category::query()->where('is_visible', true)->find($categoryId) : null;
-        $articles = null;
-        $categories = collect();
-        $facts = collect();
+
+        $result = ['articles' => null, 'subjects' => collect(), 'categories' => collect(), 'facts' => collect(), 'pages' => collect(), 'people' => collect(), 'cut' => false];
 
         if ($q !== '' || $category) {
+            $words = array_values(array_filter(preg_split('/\s+/u', mb_strtolower($q))));
+            $ids = $category ? $category->descendantIds() : null;
+
+            // ----- articles that are published -----
             $query = Article::published()->with(['category', 'contributor'])->withCount('slides');
-
-            foreach (array_filter(preg_split('/\s+/u', mb_strtolower($q))) as $word) {
-                $like = static::like($word);
-                $query->where(fn ($w) => static::matches($w, ['title', 'short_detail', 'long_detail'], ['search_words'], $like));
-            }
-
-            if ($category) {
-                $ids = $category->descendantIds();
+            static::applyWords($query, $words, 'a', ['title', 'short_detail', 'long_detail'], ['search_words', 'working_name']);
+            if ($ids) {
                 $query->where(fn ($w) => $w->whereIn('category_id', $ids)->orWhereHas('extraCategories', fn ($c) => $c->whereIn('categories.id', $ids)));
             }
+            static::exactFirst($query, $words, 'a');
+            $query->orderByDesc('publish_date')->orderByDesc('id');
+            $result['articles'] = $showAll ? $query->paginate(static::ALL_CAP)->withQueryString() : $query->paginate(static::PER_PAGE)->withQueryString();
 
-            $articles = $query->orderByDesc('publish_date')->orderByDesc('id')->paginate(20)->withQueryString();
+            // ----- planned subjects of the indexes (no article yet), found by their ID or their words -----
+            $subjects = Article::query()->where('is_index_line', true)->where('status', '!=', 'published')->where('status', '!=', 'archived')->with('category');
+            static::applyWords($subjects, $words, 'a', ['title'], ['working_name']);
+            if ($ids) {
+                $subjects->whereIn('category_id', $ids);
+            }
+            static::exactFirst($subjects, $words, 'a');
+            $subjects = $subjects->orderBy('category_id')->orderBy('sort_order')->orderBy('id')->limit(static::ALL_CAP + 1)->get()
+                ->filter(fn (Article $a) => $a->category && $a->category->is_visible)->values();
+            $result['cut'] = $subjects->count() > static::ALL_CAP;
+            $result['subjects'] = $subjects->take(static::ALL_CAP);
 
-            // The Did You Know? facts follow the same rules: every word, any capital letters, limited to the chosen category.
-            $factQuery = \App\Models\DidYouKnow::query()->visible();
-            foreach (array_filter(preg_split('/\s+/u', mb_strtolower($q))) as $word) {
-                $like = static::like($word);
-                $factQuery->where(fn ($w) => static::matches($w, ['title', 'body'], ['source'], $like));
+            // ----- Did You Know? facts -----
+            $facts = DidYouKnow::query()->visible();
+            static::applyWords($facts, $words, 'd', ['title', 'body'], ['source']);
+            if ($ids) {
+                $facts->whereIn('category_id', $ids);
             }
-            if ($category) {
-                $factQuery->whereIn('category_id', $category->descendantIds());
-            }
-            $facts = $factQuery->ordered()->limit(24)->get();
+            static::exactFirst($facts, $words, 'd');
+            $result['facts'] = $facts->ordered()->get();
 
             if ($q !== '') {
-                $like = static::like(mb_strtolower($q));
-                $categories = Category::query()->where('is_visible', true)
-                    ->where(fn ($w) => static::matches($w, ['name'], [], $like))
-                    ->orderBy('tree_path')->limit(12)->get();
+                // ----- categories (hidden ones never) -----
+                $categories = Category::query()->where('is_visible', true);
+                static::applyWords($categories, $words, 'c', ['name', 'description', 'header_text'], ['working_name']);
+                if ($ids) {
+                    $categories->whereIn('id', $ids);
+                }
+                static::exactFirst($categories, $words, 'c');
+                $result['categories'] = $categories->orderBy('tree_path')->get();
+
+                // ----- website pages and contributors -----
+                if (! $category) {
+                    $pages = Page::query()->published();
+                    static::applyWords($pages, $words, 'p', ['title', 'body'], []);
+                    static::exactFirst($pages, $words, 'p');
+                    $result['pages'] = $pages->orderBy('sort_order')->get();
+
+                    $people = Person::query()->where('show_page', true);
+                    static::applyWords($people, $words, 'k', [], ['name', 'role_title', 'tradition', 'bio', 'qualification_note']);
+                    static::exactFirst($people, $words, 'k');
+                    $result['people'] = $people->orderBy('name')->get();
+                }
             }
         }
 
-        return view('search', ['q' => $q, 'articles' => $articles, 'categories' => $categories, 'chosen' => $categoryId, 'within' => $category, 'facts' => $facts]);
+        $total = ($result['articles']?->total() ?? 0) + $result['subjects']->count() + $result['categories']->count()
+            + $result['facts']->count() + $result['pages']->count() + $result['people']->count();
+
+        return view('search', $result + ['q' => $q, 'chosen' => $categoryId, 'within' => $category, 'total' => $total, 'showAll' => $showAll]);
+    }
+
+    /** "A-42", "a42" or "A 42" is an ID: the letter says what kind, the number is the id. Null when the word is not an ID. */
+    private static function codeToken(string $word): ?array
+    {
+        return preg_match('/^([acdpk])-?(\d{1,9})$/', $word, $m) ? [$m[1], (int) $m[2]] : null;
+    }
+
+    /** Every word must be found: in the chosen columns, or (when the word is an ID of this kind) as the id itself. */
+    private static function applyWords($query, array $words, string $letter, array $translated, array $plain): void
+    {
+        foreach ($words as $word) {
+            $like = static::like($word);
+            $token = static::codeToken($word);
+            $query->where(function ($w) use ($like, $token, $letter, $translated, $plain) {
+                $w->where(fn ($x) => static::matches($x, $translated, $plain, $like));
+                if ($token && $token[0] === $letter) {
+                    $w->orWhere('id', $token[1]);
+                }
+            });
+        }
+    }
+
+    /** When the search is one ID, the thing with that ID comes first. */
+    private static function exactFirst($query, array $words, string $letter): void
+    {
+        $token = count($words) === 1 ? static::codeToken($words[0]) : null;
+        if ($token && $token[0] === $letter) {
+            $query->orderByRaw('(id = ?) desc', [$token[1]]);
+        }
     }
 
     /** A word as a LIKE pattern: the characters that mean something to LIKE are made plain (the escape character is the pipe). */
