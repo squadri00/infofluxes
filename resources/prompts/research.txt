@@ -13,10 +13,11 @@ How to work:
 3. Put a short list "Please check" at the end for the human reviewer.
 
 Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no other markdown. Only "## " and "### " for headings and "- " for list lines.
+Put the whole answer inside ONE code block (three backticks before it and three after it), so that the "## " marks and the line breaks are kept when it is copied.
 
 TYPE: article
 CATEGORY: {{CATEGORY}}
-ALSO IN:
+ALSO IN: (leave this line empty)
 TITLE: (a clear title, at most 200 letters)
 SHORT: (the plain answer in one or two simple sentences, at most 600 letters, so the reader knows the point before reading on)
 LONG:

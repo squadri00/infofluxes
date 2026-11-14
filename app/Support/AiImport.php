@@ -154,9 +154,19 @@ class AiImport
         if (! empty($f['__title_from_type'])) {
             $warnings[] = 'The title was on the TYPE line. It was read as the title: '.mb_substr($title, 0, 80);
         }
+        $auto = [];
         $headings = Html::outline($long);
-        if ($kind === 'article' && mb_strlen($long) > 2500 && $headings === []) {
-            $warnings[] = 'The text has no headings ("## "). It will be one long block, without drop-down parts.';
+        if ($kind === 'article' && $headings === []) {
+            // Copying from a chat window often drops the "## " marks. Short lines that stand over a paragraph are taken as headings.
+            [$guessed, $count] = static::guessHeadings($long);
+            if ($count >= 2) {
+                $long = $guessed;
+                $headings = Html::outline($long);
+                $warnings[] = 'The "## " marks were missing (a chat window often drops them when you copy). '.$count.' short lines were read as headings. Check that they are right.';
+                $auto[] = 'Headings were guessed from short lines. Check that every heading is a real heading and that no heading is missing.';
+            } elseif (mb_strlen($long) > 2500) {
+                $warnings[] = 'The text has no headings ("## "). It will be one long block, without drop-down parts.';
+            }
         }
 
         // Sources: read the list, and ask every web address whether it opens.
@@ -165,7 +175,6 @@ class AiImport
             $warnings[] = 'More than '.self::MAX_SOURCES.' sources. Only the first '.self::MAX_SOURCES.' are kept.';
             $sources = array_slice($sources, 0, self::MAX_SOURCES);
         }
-        $auto = [];
         if ($kind === 'article' && $sources === []) {
             $warnings[] = 'There is no SOURCES list. Do not publish an article without its sources.';
         }
@@ -270,13 +279,25 @@ class AiImport
                 $errors[] = 'CATEGORY: '.$problem;
             }
         }
+        // ALSO IN is only a help. A name that does not fit is left out with a note; it never stops the article from being saved.
         $extra = [];
-        foreach (array_filter(array_map('trim', preg_split('/;/', (string) ($f['ALSO IN'] ?? '')))) as $text) {
+        foreach (array_filter(array_map('trim', preg_split('/[;\n]/', (string) ($f['ALSO IN'] ?? '')))) as $text) {
             [$other, $problem] = static::findCategory($text);
-            if ($problem) {
-                $errors[] = 'ALSO IN: '.$problem;
-            } elseif ($other && (! $category || $other->id !== $category->id)) {
-                $extra[$other->id] = $other;
+            $tries = [[$other, $problem, $text]];
+            if ($problem && str_contains($text, ',')) {
+                // "Tawhid, Worship in Islam": names written with commas instead of semicolons
+                $tries = [];
+                foreach (array_filter(array_map('trim', explode(',', $text))) as $piece) {
+                    [$o, $p] = static::findCategory($piece);
+                    $tries[] = [$o, $p, $piece];
+                }
+            }
+            foreach ($tries as [$o, $p, $piece]) {
+                if ($p) {
+                    $warnings[] = 'ALSO IN: "'.mb_substr($piece, 0, 60).'" was left out. '.$p;
+                } elseif ($o && (! $category || $o->id !== $category->id)) {
+                    $extra[$o->id] = $o;
+                }
             }
         }
 
@@ -315,6 +336,41 @@ class AiImport
                 'quotes' => $blocks, 'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
         ];
+    }
+
+    /**
+     * Gives a text the "## " marks a chat window dropped: a short line without an end mark, with a blank line (or the start) before it
+     * and a longer line of text straight after it, is a heading. Verse and hadith blocks and list lines are never touched.
+     *
+     * @return array{0: string, 1: int} the new text and the number of headings made
+     */
+    public static function guessHeadings(string $text): array
+    {
+        $lines = explode("\n", str_replace("\r", '', $text));
+        $out = [];
+        $count = 0;
+        $inBlock = false;
+        $previousBlank = true;
+        foreach ($lines as $i => $line) {
+            $t = trim($line);
+            if (preg_match('/^\[(QURAN|HADITH)\]$/i', $t)) {
+                $inBlock = true;
+            }
+            $next = trim((string) ($lines[$i + 1] ?? ''));
+            $words = preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY);
+            $looksLikeHeading = ! $inBlock && $previousBlank && $t !== '' && mb_strlen($t) <= 90 && count($words) <= 12
+                && ! preg_match('/[.;:,!…]["”’\')\]]*$/u', $t)                 // a sentence ends with a mark; a heading does not
+                && ! preg_match('/^(#|[-•*]\s|\[|[A-Z ]{3,}:)/u', $t)           // not already marked, not a list line, not a field
+                && $next !== '' && ! preg_match('/^(#|\[)/', $next) && mb_strlen($next) > mb_strlen($t);
+            $out[] = $looksLikeHeading ? '## '.$t : $line;
+            $count += $looksLikeHeading ? 1 : 0;
+            if (preg_match('/^\[\/(QURAN|HADITH)\]$/i', $t)) {
+                $inBlock = false;
+            }
+            $previousBlank = $t === '';
+        }
+
+        return [implode("\n", $out), $count];
     }
 
     /**
