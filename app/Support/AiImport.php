@@ -202,6 +202,19 @@ class AiImport
             }
         }
 
+        // How easy the text is to read.
+        $reading = ReadingLevel::measure($long);
+        if ($reading['hard']) {
+            $warnings[] = 'Hard to read: the sentences have '.$reading['average'].' words on average (the target is about 15, the limit '.config('infofluxes.reading.avg_max').')'
+                .($reading['too_long'] ? ' and '.count($reading['too_long']).' sentence(s) are longer than '.config('infofluxes.reading.sentence_max').' words' : '').'. Make them shorter and simpler before you publish.';
+            foreach (array_slice($reading['too_long'], 0, 3) as $sentence) {
+                $auto[] = 'Make this sentence shorter and simpler: "'.mb_substr($sentence, 0, 110).(mb_strlen($sentence) > 110 ? '…' : '').'"';
+            }
+            if ($reading['average'] > (float) config('infofluxes.reading.avg_max')) {
+                $auto[] = 'The whole text is hard to read for an ordinary reader. Simplify it.';
+            }
+        }
+
         $pleaseCheck = array_values(array_filter(array_map(fn ($l) => trim(preg_replace('/^\s*[-•]\s*/u', '', $l)), explode("\n", (string) ($f['PLEASE CHECK'] ?? '')))));
         $pleaseCheck = array_slice(array_values(array_unique(array_merge($pleaseCheck, $auto))), 0, 60);
         if (isset($f['REVIEWER']) && $f['REVIEWER'] !== '') {
@@ -261,7 +274,7 @@ class AiImport
                 'title' => $title, 'short' => $short, 'long' => $long, 'source' => $source !== '' ? $source : null,
                 'category_id' => $category?->id, 'category_label' => $category ? Category::choices()[$category->id] ?? $category->code : null,
                 'extra_ids' => array_keys($extra), 'words' => $words->all(), 'videos' => $videos,
-                'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
+                'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
         ];
     }

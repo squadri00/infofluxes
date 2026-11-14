@@ -18,7 +18,7 @@ TYPE: article
 CATEGORY: {{CATEGORY}}
 ALSO IN:
 TITLE: (a clear title, at most 200 letters)
-SHORT: (one or two sentences, at most 600 letters, that tell what the article is about)
+SHORT: (the plain answer in one or two simple sentences, at most 600 letters, so the reader knows the point before reading on)
 LONG:
 ## (first main heading)
 (short paragraphs, with an empty line between them)
