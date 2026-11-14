@@ -16,6 +16,7 @@ class ReadingLevel
      */
     public static function measure(string $text): array
     {
+        $text = preg_replace('/^\s*\[(QURAN|HADITH)\]\s*$.*?(?:^\s*\[\/\1\]\s*$|\z)/ims', '', str_replace("\r", '', $text)) ?? $text;
         $words = 0;
         $sentences = [];
         foreach (explode("\n", str_replace("\r", '', $text)) as $line) {

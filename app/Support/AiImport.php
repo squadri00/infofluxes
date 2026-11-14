@@ -202,6 +202,41 @@ class AiImport
             }
         }
 
+        // Verse and hadith blocks: each must be complete.
+        $blocks = Html::quoteBlocks($long);
+        foreach ($blocks as $bl) {
+            $what = $bl['type'] === 'hadith' ? 'hadith' : 'verse';
+            $label = mb_substr($bl['ref'] !== '' ? $bl['ref'] : ($bl['text'] ?: $bl['arabic']), 0, 60);
+            if ($bl['text'] === '') {
+                $warnings[] = 'A '.$what.' block has no English words (TEXT): '.$label;
+            }
+            if ($bl['ref'] === '') {
+                $warnings[] = 'A '.$what.' block has no reference (REF): '.$label;
+                $auto[] = 'A '.$what.' has no reference. Find where it comes from: '.$label;
+
+                continue;
+            }
+            if ($bl['type'] === 'quran') {
+                if (QuranRefs::find($bl['ref']) === [] && ! preg_match('/\d+\s*:\s*\d+/', $bl['ref'])) {
+                    $warnings[] = 'A verse block has no surah and verse number in its reference: '.$label;
+                    $auto[] = 'A verse reference has no surah and verse number: '.$label;
+                }
+                if ($bl['arabic'] === '') {
+                    $warnings[] = 'A verse block has no Arabic text: '.$label;
+                    $auto[] = 'Add the Arabic text of the verse (copy it from Quran.com): '.$label;
+                }
+            } else {
+                if (! preg_match('/\d/', $bl['ref'])) {
+                    $warnings[] = 'A hadith reference has no number: '.$label;
+                    $auto[] = 'A hadith reference has no number. Check it on Sunnah.com: '.$label;
+                }
+                if (! preg_match('/\b(sahih|saheeh|hasan|da[\x{2019}\']?if|daeef|weak|mawdu|fabricated|grade)\b/iu', $bl['ref'])) {
+                    $warnings[] = 'A hadith reference has no grade: '.$label;
+                    $auto[] = 'A hadith has no grade (sahih, hasan, daif). Find the grade and who gave it: '.$label;
+                }
+            }
+        }
+
         // How easy the text is to read.
         $reading = ReadingLevel::measure($long);
         if ($reading['hard']) {
@@ -274,7 +309,7 @@ class AiImport
                 'title' => $title, 'short' => $short, 'long' => $long, 'source' => $source !== '' ? $source : null,
                 'category_id' => $category?->id, 'category_label' => $category ? Category::choices()[$category->id] ?? $category->code : null,
                 'extra_ids' => array_keys($extra), 'words' => $words->all(), 'videos' => $videos,
-                'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
+                'quotes' => $blocks, 'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
         ];
     }

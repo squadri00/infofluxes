@@ -21,7 +21,7 @@ TITLE: (a clear title, at most 200 letters)
 SHORT: (the plain answer in one or two simple sentences, at most 600 letters, so the reader knows the point before reading on)
 LONG:
 ## (first main heading)
-(short paragraphs, with an empty line between them)
+(short paragraphs, with an empty line between them; every verse and hadith in its [QURAN] or [HADITH] block, as in the rules)
 ### (sub-heading, when the part has smaller parts)
 (short paragraphs)
 ## (next main heading)

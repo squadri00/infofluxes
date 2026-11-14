@@ -188,7 +188,7 @@
     function textOf(el) {
         if (!el) { return ''; }
         var copy = el.cloneNode(true);
-        Array.prototype.forEach.call(copy.querySelectorAll('.id-tag, [data-id-tag], [hidden], .visually-hidden, script, style'), function (n) { n.parentNode.removeChild(n); });
+        Array.prototype.forEach.call(copy.querySelectorAll('.id-tag, [data-id-tag], [hidden], .visually-hidden, .quote__ar, script, style'), function (n) { n.parentNode.removeChild(n); });
 
         return copy.textContent || '';
     }

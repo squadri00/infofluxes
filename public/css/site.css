@@ -1887,3 +1887,11 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 .article__sources-type { font-size: 1rem; margin: .8rem 0 .3rem; color: var(--muted); }
 .article__sources-list { margin: 0; padding-left: 1.2rem; display: grid; gap: .35rem; }
 .article__sources-list a { margin-left: .4rem; white-space: nowrap; }
+
+/* Verse and hadith blocks: the Quran in the accent blue, a hadith in a soft green, so the two are easy to tell apart */
+.article__body blockquote.quote { margin: 1.1em 0; padding: .9em 1.1em; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; background: var(--accent-soft); color: var(--text); font-style: normal; }
+.article__body blockquote.quote--hadith { border-left-color: var(--success); background: var(--success-soft); }
+.quote__ar { margin: 0 0 .6em; font-family: "Amiri", "Scheherazade New", "Noto Naskh Arabic", "Traditional Arabic", "Segoe UI", serif; font-size: 1.55rem; line-height: 2.1; text-align: right; }
+.quote__text { margin: 0 0 .5em; }
+.quote__ref { display: block; font-style: normal; font-size: .85rem; color: var(--muted); }
+.quote--quran .quote__ref::before, .quote--hadith .quote__ref::before { content: ""; display: block; height: 1px; width: 2.5rem; margin-bottom: .45rem; background: currentColor; opacity: .35; }

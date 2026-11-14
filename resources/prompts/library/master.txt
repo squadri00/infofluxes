@@ -30,10 +30,27 @@ The reader should finish thinking: "I understand this now."
 - Do not use Wikipedia, anonymous websites, blogs or social media as evidence. Do not repeat websites that only copy each other. Look for the original.
 - Free sources first. Name free places to read the source (for example Quran.com, Sunnah.com, the Bible on a free site, archive.org, a university page).
 
-4. Quotations
+4. Quotations, Quran verses and hadith
 - Never change a quotation. Copy it word for word, or do not quote.
 - Say exactly where it comes from: book, chapter, verse or page, and the translation and translator when there is one.
 - Keep Arabic or Hebrew or Greek wording exactly as written when you quote it. Then explain it in plain words.
+- Show EVERY Quran verse and EVERY hadith in a block of its own, inside LONG, on lines of their own, right after the plain-words sentence that explains it. Use exactly this shape:
+
+[QURAN]
+ARABIC: (the Arabic text of the verse, exactly as in the Quran)
+TEXT: (the English translation, word for word from the named translation)
+REF: Surah Al-Mulk 67:3 · Saheeh International (text as shown on Quran.com)
+[/QURAN]
+
+[HADITH]
+ARABIC: (the Arabic text, only if you opened it and can copy it exactly; otherwise leave this line out)
+TEXT: (the English wording, word for word from the named translation)
+REF: Sahih al-Bukhari 1 · Grade: Sahih · Translation: (name of the translation)
+[/HADITH]
+
+- One verse, or one short run of verses, in each block. The reference of a verse must have the surah name and the numbers (for example Surah Al-Ikhlas 112:1-4). The reference of a hadith must have the collection, the number and the grade.
+- Nothing else goes inside a block: no explanation and no comment. The explanation goes in the paragraph before or after it, in plain words.
+- If you cannot copy the Arabic exactly, leave the ARABIC line out. Never type Arabic from memory.
 
 5. Fairness
 - Describe each belief the way its own followers describe it, using that tradition's own recognised sources.

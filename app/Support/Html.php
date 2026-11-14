@@ -9,7 +9,10 @@ namespace App\Support;
 class Html
 {
     private const TAGS = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'ul', 'ol', 'li', 'a', 'h2', 'h3', 'h4', 'blockquote', 'hr', 'code', 'pre', 'sub', 'sup',
-        'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption'];
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption', 'cite'];
+
+    /** The only class names that survive (used by the verse and hadith blocks). */
+    private const CLASSES = ['quote', 'quote--quran', 'quote--hadith', 'quote__ar', 'quote__text', 'quote__ref'];
 
     public static function clean(?string $html): string
     {
@@ -70,8 +73,27 @@ class Html
                 $list = [];
             }
         };
+        $block = null;      // while inside [QURAN] ... [/QURAN] or [HADITH] ... [/HADITH]
+        $blockLines = [];
         foreach ($lines as $line) {
             $line = rtrim($line);
+            if ($block !== null) {
+                if (preg_match('/^\s*\[\/'.$block.'\]\s*$/i', $line)) {
+                    $out .= static::quoteBlock($block, $blockLines);
+                    $block = null;
+                    $blockLines = [];
+                } else {
+                    $blockLines[] = $line;
+                }
+
+                continue;
+            }
+            if (preg_match('/^\s*\[(QURAN|HADITH)\]\s*$/i', $line, $bm)) {
+                $flush();
+                $block = strtoupper($bm[1]);
+
+                continue;
+            }
             if (trim($line) === '') {
                 $flush();
             } elseif (preg_match('/^\s*###\s+(.+)$/u', $line, $m)) {
@@ -92,9 +114,63 @@ class Html
                 $para[] = trim($line);
             }
         }
+        if ($block !== null) {
+            $out .= static::quoteBlock($block, $blockLines);   // a block that was never closed is still kept
+        }
         $flush();
 
         return $out;
+    }
+
+    /**
+     * The verse and hadith blocks of a marked text.
+     *
+     * @return list<array{type: string, arabic: string, text: string, ref: string}>
+     */
+    public static function quoteBlocks(?string $text): array
+    {
+        $out = [];
+        if (preg_match_all('/^\s*\[(QURAN|HADITH)\]\s*$(.*?)(?:^\s*\[\/\1\]\s*$|\z)/ims', str_replace("\r", '', (string) $text), $m, PREG_SET_ORDER)) {
+            foreach ($m as $b) {
+                $f = static::quoteFields(explode("\n", trim($b[2], "\n")));
+                $out[] = ['type' => strtolower($b[1]), 'arabic' => $f['ARABIC'], 'text' => $f['TEXT'], 'ref' => $f['REF']];
+            }
+        }
+
+        return $out;
+    }
+
+    /** @return array{ARABIC: string, TEXT: string, REF: string} */
+    private static function quoteFields(array $lines): array
+    {
+        $f = ['ARABIC' => '', 'TEXT' => '', 'REF' => ''];
+        $key = null;
+        foreach ($lines as $line) {
+            if (preg_match('/^\s*(ARABIC|TEXT|REF)\s*:\s?(.*)$/iu', $line, $m)) {
+                $key = strtoupper($m[1]);
+                $f[$key] = trim($m[2]);
+            } elseif ($key !== null && trim($line) !== '') {
+                $f[$key] .= ' '.trim($line);
+            }
+        }
+
+        return array_map('trim', $f);
+    }
+
+    /** One verse or hadith block as safe HTML. A block with neither Arabic nor English words is dropped. */
+    private static function quoteBlock(string $type, array $lines): string
+    {
+        $f = static::quoteFields($lines);
+        if ($f['ARABIC'] === '' && $f['TEXT'] === '') {
+            return '';
+        }
+        $kind = $type === 'HADITH' ? 'hadith' : 'quran';
+
+        return '<blockquote class="quote quote--'.$kind.'">'
+            .($f['ARABIC'] !== '' ? '<p class="quote__ar" dir="rtl" lang="ar">'.e($f['ARABIC']).'</p>' : '')
+            .($f['TEXT'] !== '' ? '<p class="quote__text">'.e($f['TEXT']).'</p>' : '')
+            .($f['REF'] !== '' ? '<cite class="quote__ref">'.e($f['REF']).'</cite>' : '')
+            .'</blockquote>';
     }
 
     /** The main headings (## ) of a marked text, in order. */
@@ -160,6 +236,16 @@ class Html
                 $keep = ($name === 'a' && $attr->name === 'href' && static::safeHref($attr->value))
                     // a cell that spans several columns or rows: whole numbers only
                     || (in_array($name, ['td', 'th'], true) && in_array($attr->name, ['colspan', 'rowspan'], true) && preg_match('/^[1-9][0-9]?$/', trim($attr->value)));
+                if ($attr->name === 'class' && in_array($name, ['blockquote', 'p', 'cite'], true)) {
+                    $classes = array_values(array_intersect(preg_split('/\s+/', trim($attr->value)), self::CLASSES));
+                    if ($classes !== []) {
+                        $attr->value = implode(' ', $classes);
+                        $keep = true;
+                    }
+                }
+                if ($name === 'p' && (($attr->name === 'dir' && $attr->value === 'rtl') || ($attr->name === 'lang' && $attr->value === 'ar'))) {
+                    $keep = true;
+                }
                 if (! $keep) {
                     $child->removeAttributeNode($attr);
                 }
