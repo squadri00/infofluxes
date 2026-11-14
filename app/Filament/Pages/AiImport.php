@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\AiPrompt;
+use App\Models\Category;
 use App\Models\ImportLog;
 use App\Support\AiImport as Importer;
 use App\Support\Prompts;
@@ -30,10 +32,20 @@ class AiImport extends Page
 
     protected string $view = 'filament.pages.ai-import';
 
-    public string $kind = 'article';
+    public string $kind = 'research';
 
     public string $topic = '';
 
+    /** The form of a researched article. */
+    public ?int $categoryId = null;
+
+    public string $specialist = '';
+
+    public int $words = 1500;
+
+    public string $depth = 'normal';
+
+    public string $comments = '';
     public string $paste = '';
 
     /** @var array<int, array<string, mixed>> */
@@ -51,7 +63,44 @@ class AiImport extends Page
 
     public function prompt(): string
     {
+        if ($this->kind === 'research') {
+            return Prompts::research([
+                'topic' => $this->topic, 'category_id' => $this->categoryId, 'specialist' => $this->specialist ?: null,
+                'words' => $this->words, 'depth' => $this->depth, 'comments' => $this->comments,
+            ]);
+        }
+
         return Prompts::make(array_key_exists($this->kind, Prompts::KINDS) ? $this->kind : 'article', $this->topic);
+    }
+
+    /** The category decides which specialist prompt is suggested. The contributor can still change it. */
+    public function updatedCategoryId(): void
+    {
+        $this->categoryId = $this->categoryId ?: null;
+        $this->specialist = AiPrompt::suggestFor($this->categoryId ? Category::find($this->categoryId) : null) ?? $this->specialist;
+    }
+
+    public function updatedWords(): void
+    {
+        $this->words = max(300, min(8000, (int) $this->words));
+    }
+
+    /** @return array<int, string> */
+    public function categoryChoices(): array
+    {
+        return Category::choices();
+    }
+
+    /** @return array<string, string> */
+    public function specialists(): array
+    {
+        return AiPrompt::query()->where('kind', 'specialist')->orderBy('sort_order')->pluck('title', 'slug')->all();
+    }
+
+    /** @return array<string, string> */
+    public function depths(): array
+    {
+        return Prompts::DEPTHS;
     }
 
     public function kinds(): array

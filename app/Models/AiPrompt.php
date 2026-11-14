@@ -49,15 +49,41 @@ class AiPrompt extends Model
     public static function installDefaults(): int
     {
         $added = 0;
-        foreach ((array) require resource_path('prompts/library/index.php') as $slug => [$kind, $title, $useFor, $order]) {
+        foreach ((array) require resource_path('prompts/library/index.php') as $slug => [$kind, $title, $useFor, $order, $match]) {
             if (static::query()->where('slug', $slug)->exists()) {
                 continue;
             }
-            static::create(['slug' => $slug, 'kind' => $kind, 'title' => $title, 'use_for' => $useFor, 'body' => static::fileBody($slug), 'sort_order' => $order]);
+            static::create(['slug' => $slug, 'kind' => $kind, 'title' => $title, 'use_for' => $useFor, 'body' => static::fileBody($slug), 'sort_order' => $order, 'custom_data' => ['match' => $match]]);
             $added++;
         }
 
         return $added;
+    }
+
+    /** The words that point to this prompt when they are found in a category path. */
+    public function matchWords(): array
+    {
+        return array_values(array_filter(array_map(fn ($w) => mb_strtolower(trim((string) $w)), (array) ($this->custom_data['match'] ?? []))));
+    }
+
+    /** The specialist prompt that fits a category best (by its path), or null when nothing fits. */
+    public static function suggestFor(?Category $category): ?string
+    {
+        if (! $category) {
+            return null;
+        }
+        $path = mb_strtolower(Category::choices()[$category->id] ?? $category->mainName());
+        $best = null;
+        $bestScore = 0;
+        foreach (static::query()->where('kind', 'specialist')->orderBy('sort_order')->get() as $p) {
+            $score = collect($p->matchWords())->filter(fn ($w) => str_contains($path, $w))->count();
+            if ($score > $bestScore) {
+                $best = $p->slug;
+                $bestScore = $score;
+            }
+        }
+
+        return $best;
     }
 
     /** The master rules, then the chosen specialist prompt, joined into one text. */

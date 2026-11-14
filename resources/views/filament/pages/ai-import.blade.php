@@ -18,16 +18,58 @@
                 </select>
             </label>
             <label>
-                <strong>{{ $kind === 'categories' ? 'The area to plan' : ($kind === 'fact' ? 'The fact to check' : 'The subject of the article') }}</strong><br>
+                <strong>{{ $kind === 'categories' ? 'The area to plan' : ($kind === 'fact' ? 'The fact to check' : ($kind === 'research' ? 'The title or the question' : 'The subject of the article')) }}</strong><br>
                 <input type="text" wire:model.live.debounce.400ms="topic" maxlength="300" style="width:100%;padding:.5rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent" placeholder="Write it in a few words">
             </label>
+            @if ($kind === 'research')
+                @php $box = 'width:100%;padding:.5rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent'; @endphp
+                <label>
+                    <strong>Category</strong> <span style="opacity:.7">(where the article will be saved)</span><br>
+                    <select wire:model.live="categoryId" style="{{ $box }}">
+                        <option value="">Choose a category</option>
+                        @foreach ($this->categoryChoices() as $id => $label)
+                            <option value="{{ $id }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <label>
+                    <strong>Kind of research</strong> <span style="opacity:.7">(chosen for you from the category; change it if it does not fit)</span><br>
+                    <select wire:model.live="specialist" style="{{ $box }}">
+                        <option value="">None (master rules only)</option>
+                        @foreach ($this->specialists() as $slug => $title)
+                            <option value="{{ $slug }}">{{ $title }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <div style="display:grid;grid-template-columns:minmax(8rem,12rem) 1fr;gap:.9rem">
+                    <label>
+                        <strong>Words</strong><br>
+                        <input type="number" wire:model.live.debounce.600ms="words" min="300" max="8000" step="100" style="{{ $box }}">
+                    </label>
+                    <label>
+                        <strong>How detailed</strong><br>
+                        <select wire:model.live="depth" style="{{ $box }}">
+                            @foreach ($this->depths() as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </label>
+                </div>
+                <label>
+                    <strong>Comments for the AI</strong> <span style="opacity:.7">(optional: a point to cover, a view to include, a source to use)</span><br>
+                    <textarea wire:model.live.debounce.600ms="comments" rows="3" maxlength="1500" style="{{ $box }}"></textarea>
+                </label>
+                @if ($words > \App\Support\Prompts::PARTS_ABOVE)
+                    <div style="opacity:.8">A long article is written in parts: the AI first gives an outline, then you ask it for each part.</div>
+                @endif
+            @endif
             <div x-data="{ copied: false }">
                 <textarea x-ref="prompt" readonly rows="10" style="width:100%;padding:.6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent;font-family:monospace;font-size:.85rem">{{ $this->prompt() }}</textarea>
                 <button type="button" class="fi-btn" style="margin-top:.5rem;padding:.45rem .9rem;border:1px solid rgba(128,128,128,.6);border-radius:.4rem;cursor:pointer"
                         x-on:click="navigator.clipboard.writeText($refs.prompt.value).then(() => { copied = true; setTimeout(() => copied = false, 2500) })">
                     <span x-show="!copied">Copy the prompt</span><span x-show="copied" x-cloak>Copied</span>
                 </button>
-                <span style="margin-left:.6rem;opacity:.7">The list of your present categories is already inside the prompt.</span>
+                <span style="margin-left:.6rem;opacity:.7">{{ $kind === 'research' ? 'The master rules, the kind of research and your choices are already inside the prompt.' : 'The list of your present categories is already inside the prompt.' }}</span>
             </div>
         </div>
     </x-filament::section>

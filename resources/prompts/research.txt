@@ -1,0 +1,37 @@
+{{RULES}}
+
+==================================================
+THE ARTICLE TO WRITE
+
+Subject (the title or the question): {{TOPIC}}
+Category: {{CATEGORY}}
+Length: about {{WORDS}} words in LONG (not counting the sources). {{DEPTH}}
+{{COMMENTS}}{{PARTS}}
+How to work:
+1. Search the web for good sources first. Open and read them. Use only what you really opened.
+2. Write the article in clear parts. Use "## " for a main heading and "### " for a sub-heading. Choose headings that describe the text below them. Use only the parts that fit the subject.
+3. Put a short list "Please check" at the end for the human reviewer.
+
+Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no other markdown. Only "## " and "### " for headings and "- " for list lines.
+
+TYPE: article
+CATEGORY: {{CATEGORY}}
+ALSO IN:
+TITLE: (a clear title, at most 200 letters)
+SHORT: (one or two sentences, at most 600 letters, that tell what the article is about)
+LONG:
+## (first main heading)
+(short paragraphs, with an empty line between them)
+### (sub-heading, when the part has smaller parts)
+(short paragraphs)
+## (next main heading)
+...
+KEYWORDS: (words people would search for, separated by commas)
+VIDEOS: (YouTube addresses you are sure exist, separated by commas, or leave empty)
+SOURCE: (one line: the one to three main sources)
+SOURCES:
+- PRIMARY | author or scripture, title, chapter or verse or page | web address | opened: yes or no
+- SECONDARY | author, title, publisher, year | web address | opened: yes or no
+PLEASE CHECK:
+- (each point the reviewer must check first: a verse number, a hadith grade, a date, a link that did not open, a claim with only one source)
+END

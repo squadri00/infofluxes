@@ -23,7 +23,7 @@ class AiImport
 
     public const MAX_CATEGORY_LINES = 300;
 
-    private const KEYS = ['TYPE', 'CATEGORY', 'ALSO IN', 'TITLE', 'SHORT', 'LONG', 'KEYWORDS', 'VIDEOS', 'SOURCE', 'REVIEWER'];
+    private const KEYS = ['TYPE', 'CATEGORY', 'ALSO IN', 'TITLE', 'SHORT', 'LONG', 'KEYWORDS', 'VIDEOS', 'SOURCES', 'SOURCE', 'PLEASE CHECK', 'REVIEWER'];
 
     /**
      * @return array<int, array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>}>
@@ -131,6 +131,9 @@ class AiImport
         }
         if (strip_tags($long.$short.$title) !== $long.$short.$title) {
             $warnings[] = 'The text has "<" and ">" signs. They are shown as plain text, not as formatting.';
+        }
+        if (trim((string) ($f['SOURCES'] ?? '')) !== '' || trim((string) ($f['PLEASE CHECK'] ?? '')) !== '') {
+            $warnings[] = 'SOURCES and PLEASE CHECK are not saved yet. Keep the AI answer; the next step of the build saves them.';
         }
         if (isset($f['REVIEWER']) && $f['REVIEWER'] !== '') {
             $warnings[] = 'REVIEWER was ignored. A person writes their own name there after reading the article.';

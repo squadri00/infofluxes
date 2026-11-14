@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -72,6 +73,7 @@ class AiPromptResource extends Resource
             TextInput::make('use_for')->label('Use it for')->maxLength(255)->helperText('One line that tells a contributor when to choose this prompt.'),
             Textarea::make('body')->label('The words of the prompt')->required()->rows(24)->extraInputAttributes(['style' => 'font-family: monospace; font-size: 13px'])
                 ->helperText('These words are copied into the AI chat. Keep them in simple English. "Reset to the original" brings back the first version.'),
+            TagsInput::make('custom_data.match')->label('Match words')->helperText('A specialist prompt is suggested for a category when these words are found in its path (for example "bible"). Not used by the master rules.'),
             TextInput::make('sort_order')->label('Order (small numbers first)')->numeric()->default(10),
         ])->columns(1);
     }
