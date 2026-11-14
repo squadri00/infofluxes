@@ -1,4 +1,9 @@
 <x-filament-panels::page>
+    <style>
+        .ai-cat-list { background: #ffffff; color: #111827; }
+        .dark .ai-cat-list { background: #18181b; color: #f4f4f5; }
+        .ai-cat-list button:hover { background: rgba(31, 95, 139, .18) !important; }
+    </style>
     <p style="max-width:50rem">
         Three steps. 1: copy a prompt into an AI chat. 2: paste its answer here and press <strong>Check</strong>.
         3: press <strong>Save as drafts</strong>. Everything is saved as a <strong>draft</strong>. Nothing is ever published from this screen,
@@ -40,10 +45,10 @@
                     </div>
                     <input type="text" x-show="current() === ''" x-model="query" x-on:focus="open = true" x-on:input="open = true" autocomplete="off"
                            placeholder="Type a word to find the category (for example: tawhid, hadith, Bible)" style="{{ $box }}">
-                    <div x-show="open && current() === ''" x-cloak style="position:absolute;z-index:30;left:0;right:0;max-height:18rem;overflow-y:auto;margin-top:.2rem;border:1px solid rgba(128,128,128,.6);border-radius:.4rem;background:Canvas;color:CanvasText;box-shadow:0 8px 24px rgba(0,0,0,.35)">
+                    <div class="ai-cat-list" x-show="open && current() === ''" x-cloak style="position:absolute;z-index:30;left:0;right:0;max-height:18rem;overflow-y:auto;margin-top:.2rem;border:1px solid rgba(128,128,128,.6);border-radius:.4rem;box-shadow:0 8px 24px rgba(0,0,0,.35)">
                         <template x-for="o in shown" :key="o.id">
                             <button type="button" x-on:click="pick(o)" x-text="o.label" style="display:block;width:100%;text-align:left;padding:.45rem .7rem;cursor:pointer;border:0;border-bottom:1px solid rgba(128,128,128,.25);background:transparent;color:inherit;font-size:.9rem"
-                                    onmouseover="this.style.background='rgba(128,128,128,.25)'" onmouseout="this.style.background='transparent'"></button>
+                                   ></button>
                         </template>
                         <div x-show="shown.length === 0" style="padding:.6rem .7rem;opacity:.7">No category matches. Try another word.</div>
                         <div x-show="total > 60" style="padding:.4rem .7rem;opacity:.7;font-size:.85rem" x-text="'Showing 60 of ' + total + '. Type more letters to narrow the list.'"></div>
