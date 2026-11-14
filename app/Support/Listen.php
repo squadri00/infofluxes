@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Article;
+use App\Models\Story;
 use App\Models\Setting;
 
 /**
@@ -42,7 +43,7 @@ class Listen
      *
      * @return array{topic: ?string, cover: ?string, slides: array<int, string>, full: list<int>, coverInFirst: bool}
      */
-    public static function tracks(?Article $article, array $items = []): array
+    public static function tracks(Article|Story|null $article, array $items = []): array
     {
         $tracks = ['topic' => null, 'cover' => null, 'slides' => [], 'full' => [], 'coverInFirst' => false];
         if (! $article || static::source() === 'device') {

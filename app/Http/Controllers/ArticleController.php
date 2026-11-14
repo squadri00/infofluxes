@@ -14,11 +14,16 @@ class ArticleController extends Controller
         $article = Article::query()
             ->where('slug', $slug)
             ->when(! $preview, fn ($q) => $q->published())
-            ->with(['category', 'extraCategories', 'author', 'contributor', 'images', 'videos', 'chapters.slides'])
+            ->with(['category', 'extraCategories', 'author', 'contributor', 'images', 'videos'])
             ->first();
 
-        // No article has this address: it may be a website page (About, Privacy...), else the visitor gets "not found".
+        // No article has this address: it may be the old address of a visual story (it goes on to the story), a website page (About, Privacy...), else "not found".
         if (! $article) {
+            $story = \App\Models\Story::published()->where('slug', $slug)->orWhere('custom_data->old_slug', $slug)->first();
+            if ($story) {
+                return redirect($story->url(), 301);
+            }
+
             return app(PageController::class)->show($slug);
         }
 
@@ -39,15 +44,12 @@ class ArticleController extends Controller
             ->with(['user', 'replies' => fn ($q) => $visible($q)->with('user')])
             ->orderBy('id')->get();
 
-        $storyItems = \App\Support\StoryItems::build($article);
-
         // The branch beside the article: the category one step up (or the category itself at the top), with every topic below it.
         $sideRoot = $category ? ($category->parent ?? $category) : null;
         $sideTree = $sideRoot ? \App\Support\CategoryIndex::build($sideRoot, $preview) : null;
         $sideFacts = $sideRoot ? \App\Models\DidYouKnow::forBranch($sideRoot) : collect();
 
         return view('article', [
-            'storyItems' => $storyItems,
             'sideRoot' => $sideRoot,
             'sideTree' => $sideTree,
             'sideFacts' => $sideFacts,

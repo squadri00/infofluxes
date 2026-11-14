@@ -11,9 +11,22 @@
     </div>
     <p class="empty" data-qi-none hidden>{{ __('site.index_none') }}</p>
 
-    @php $facts = $facts ?? collect(); @endphp
-    @if (empty($rootNode['children']) && empty($rootNode['articles']) && $facts->isEmpty())
+    @php $facts = $facts ?? collect(); $stories = $stories ?? collect(); @endphp
+    @if (empty($rootNode['children']) && empty($rootNode['articles']) && $facts->isEmpty() && $stories->isEmpty())
         <p class="empty">{{ __('site.no_articles') }}</p>
+    @endif
+
+    @if ($stories->isNotEmpty())
+        {{-- The Visual Stories of this category, as lines like the subjects below. --}}
+        <ul class="qi__list">
+            @foreach ($stories as $story)
+                <li class="qi__item" data-qi-item data-text="{{ mb_strtolower($story->code.' '.$story->title.' '.$category->name) }}">
+                    <span class="qi__code">{{ $story->code }}</span>
+                    <a href="{{ $story->url() }}">{{ $story->title }}</a>
+                    <span class="qi__read">{{ __('site.index_read') }}</span>
+                </li>
+            @endforeach
+        </ul>
     @endif
 
     @if ($facts->isNotEmpty())

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Article;
+use App\Models\Story;
 use App\Models\Setting;
 
 /**
@@ -12,7 +13,7 @@ use App\Models\Setting;
 class StoryItems
 {
     /** @return array<int, array<string, mixed>> */
-    public static function build(Article $article): array
+    public static function build(Article|Story $article): array
     {
         $article->loadMissing('chapters.slides');
 

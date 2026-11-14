@@ -122,7 +122,7 @@ class Step09Test extends TestCase
 
         $sections = $this->sections(Livewire::test(EditArticle::class, ['record' => $article->getRouteKey()]));
 
-        $this->assertSame(['The article', 'Pictures', 'Story slides', 'Audio for the Listen button', 'YouTube videos', 'Publishing', 'Search engines (optional)'], array_keys($sections));
+        $this->assertSame(['The article', 'Pictures', 'Audio for the Listen button', 'YouTube videos', 'Publishing', 'Search engines (optional)'], array_keys($sections));
         foreach ($sections as $heading => $closed) {
             $this->assertTrue($closed, "$heading starts closed");
         }
@@ -134,18 +134,18 @@ class Step09Test extends TestCase
 
         $this->assertFalse($sections['The article'], 'the title and the categories are here');
         $this->assertFalse($sections['Publishing']);
-        $this->assertTrue($sections['Story slides']);
+        $this->assertTrue($sections['Audio for the Listen button']);
         $this->assertTrue($sections['Search engines (optional)']);
     }
 
     public function test_the_chapters_and_slides_of_a_story_start_closed(): void
     {
         $main = $this->cat('Main place');
-        $article = Article::create(['title' => ['en' => 'A story'], 'slug' => 'a-story', 'category_id' => $main->id]);
+        $article = \App\Models\Story::create(['title' => ['en' => 'A story'], 'slug' => 'a-story', 'category_id' => $main->id]);
         $chapter = $article->chapters()->create(['title' => ['en' => 'Chapter one'], 'sort_order' => 1]);
         $chapter->slides()->create(['heading' => ['en' => 'Slide one'], 'sort_order' => 1]);
 
-        $page = Livewire::test(EditArticle::class, ['record' => $article->getRouteKey()]);
+        $page = Livewire::test(\App\Filament\Resources\Stories\Pages\EditStory::class, ['record' => $article->getRouteKey()]);
         $repeaters = collect($page->instance()->form->getFlatComponents())->filter(fn ($c) => $c instanceof \Filament\Forms\Components\Repeater && in_array($c->getName(), ['chapters', 'slides'], true));
 
         $this->assertGreaterThanOrEqual(2, $repeaters->count());

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Article;
+use App\Models\Story;
 use App\Models\Setting;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 /** Makes an article with story slides into a PDF book: cover, contents, a page for each chapter, and a page for each slide. */
 class StoryBook
 {
-    public static function pdf(Article $article): string
+    public static function pdf(Article|Story $article): string
     {
         $article->unsetRelation('chapters');
         $article->load('chapters.slides');

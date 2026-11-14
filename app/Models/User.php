@@ -55,6 +55,7 @@ class User extends Authenticatable implements FilamentUser
     /** The admin screens the super user can tick for a person. (Users and Site settings are only ever for the super user.) */
     public const SCREENS = [
         'articles' => 'Articles',
+        'stories' => 'Visual Stories',
         'categories' => 'Categories',
         'comments' => 'Comments',
         'import' => 'AI import',
@@ -67,8 +68,8 @@ class User extends Authenticatable implements FilamentUser
 
     /** The screens a role has when no screens are ticked for the person. */
     public const ROLE_SCREENS = [
-        'moderator' => ['articles', 'categories', 'comments'],
-        'author' => ['articles'],
+        'moderator' => ['articles', 'stories', 'categories', 'comments'],
+        'author' => ['articles', 'stories'],
     ];
 
     public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany

@@ -16,6 +16,12 @@ class SitemapController extends Controller
         foreach (Category::where('is_visible', true)->orderBy('tree_path')->get() as $c) {
             $urls[] = [route('category.show', $c->slug), $c->updated_at];
         }
+        if (\App\Models\Story::published()->exists()) {
+            $urls[] = [route('stories'), \Illuminate\Support\Carbon::parse(\App\Models\Story::published()->max('updated_at'))];
+        }
+        foreach (\App\Models\Story::published()->orderByDesc('id')->limit(5000)->get(['slug', 'updated_at']) as $st) {
+            $urls[] = [route('story.show', $st->slug), $st->updated_at];
+        }
         foreach (\App\Models\DidYouKnow::visible()->ordered()->get(['slug', 'updated_at']) as $d) {
             $urls[] = [route('did-you-know.show', $d->slug), $d->updated_at];
         }

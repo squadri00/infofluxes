@@ -61,12 +61,14 @@
     @endif
     </header>
 
-    {{-- The list of this category: its sub-categories, its Did You Know? facts and its articles, in the same cards and the same Grid / List / Index views as every other category.
+    {{-- The list of this category: its sub-categories, its Visual Stories, its Did You Know? facts and its articles, in the same cards and the same Grid / List / Index views as every other category.
          The switch "Do not list its articles" leaves the articles out. A category with facts but no articles shows only the facts (an empty list would only say "nothing here"). --}}
     @php
         $hideArticles = (bool) ($category->custom_data['hide_articles'] ?? false);
-        $factsOnly = $articles->total() === 0 && $facts->isNotEmpty();
-        $showBar = ! $hideArticles || $facts->isNotEmpty();
+        $stories = $stories ?? collect();
+        $otherItems = $facts->isNotEmpty() || $stories->isNotEmpty();
+        $factsOnly = $articles->total() === 0 && $otherItems;
+        $showBar = ! $hideArticles || $otherItems;
     @endphp
 
     @if ($showBar)
@@ -77,9 +79,9 @@
         @php
             // The index counts the facts too; with the articles switched off it lists only the facts.
             $indexShown = $hideArticles ? ['root' => ['children' => [], 'articles' => []], 'subjects' => 0] : $index;
-            $indexShown['subjects'] += $facts->count();
+            $indexShown['subjects'] += $facts->count() + $stories->count();
         @endphp
-        @include('partials.category-index', ['category' => $category, 'index' => $indexShown, 'facts' => $facts])
+        @include('partials.category-index', ['category' => $category, 'index' => $indexShown, 'facts' => $facts, 'stories' => $stories])
     @else
     @if ($children->isNotEmpty())
         <section class="block">
@@ -90,6 +92,13 @@
                 @endforeach
             </ul>
         </section>
+    @endif
+
+    @if ($stories->isNotEmpty())
+    <section class="block">
+        <h2 class="block__title">{{ __('site.stories_title') }}</h2>
+        @include('partials.story-grid', ['stories' => $stories])
+    </section>
     @endif
 
     @if ($facts->isNotEmpty())

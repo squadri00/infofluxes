@@ -7,10 +7,11 @@ use App\Models\Category;
 use App\Models\DidYouKnow;
 use App\Models\Page;
 use App\Models\Person;
+use App\Models\Story;
 use Illuminate\Http\Request;
 
 /**
- * The site search. It finds a thing by its ID (A-42, C-12, D-9, P-2, K-1, or an index ID such as QR-1.1.001), by words of its title,
+ * The site search. It finds a thing by its ID (A-42, C-12, D-9, P-2, K-1, S-7, or an index ID such as QR-1.1.001), by words of its title,
  * by its search keywords, or by words in its text. Every word typed must be found (any capital letters), in the visitor's language
  * or in the main language. Choosing a category limits the search to it and everything below it; a category chosen without a word lists its topics.
  * Nothing is left out: every category, fact, page and contributor that matches is shown, and the articles are shown in full pages with a count.
@@ -32,7 +33,7 @@ class SearchController extends Controller
         $showAll = $request->boolean('all');
         $category = $categoryId ? Category::query()->where('is_visible', true)->find($categoryId) : null;
 
-        $result = ['articles' => null, 'subjects' => collect(), 'categories' => collect(), 'facts' => collect(), 'pages' => collect(), 'people' => collect(), 'cut' => false];
+        $result = ['articles' => null, 'subjects' => collect(), 'categories' => collect(), 'facts' => collect(), 'stories' => collect(), 'pages' => collect(), 'people' => collect(), 'cut' => false];
 
         if ($q !== '' || $category) {
             $words = array_values(array_filter(preg_split('/\s+/u', mb_strtolower($q))));
@@ -47,6 +48,15 @@ class SearchController extends Controller
             static::exactFirst($query, $words, 'a');
             $query->orderByDesc('publish_date')->orderByDesc('id');
             $result['articles'] = $showAll ? $query->paginate(static::ALL_CAP)->withQueryString() : $query->paginate(static::PER_PAGE)->withQueryString();
+
+            // ----- Visual Stories -----
+            $stories = Story::published()->with(['category', 'contributor'])->withCount('slides');
+            static::applyWords($stories, $words, 's', ['title', 'short_detail', 'long_detail'], ['search_words']);
+            if ($ids) {
+                $stories->where(fn ($w) => $w->whereIn('category_id', $ids)->orWhereHas('extraCategories', fn ($c) => $c->whereIn('categories.id', $ids)));
+            }
+            static::exactFirst($stories, $words, 's');
+            $result['stories'] = $stories->orderByDesc('publish_date')->orderByDesc('id')->get();
 
             // ----- planned subjects of the indexes (no article yet), found by their ID or their words -----
             $subjects = Article::query()->where('is_index_line', true)->where('status', '!=', 'published')->where('status', '!=', 'archived')->with('category');
@@ -94,7 +104,7 @@ class SearchController extends Controller
             }
         }
 
-        $total = ($result['articles']?->total() ?? 0) + $result['subjects']->count() + $result['categories']->count()
+        $total = ($result['articles']?->total() ?? 0) + $result['subjects']->count() + $result['stories']->count() + $result['categories']->count()
             + $result['facts']->count() + $result['pages']->count() + $result['people']->count();
 
         return view('search', $result + ['q' => $q, 'chosen' => $categoryId, 'within' => $category, 'total' => $total, 'showAll' => $showAll]);
@@ -103,7 +113,7 @@ class SearchController extends Controller
     /** "A-42", "a42" or "A 42" is an ID: the letter says what kind, the number is the id. Null when the word is not an ID. */
     private static function codeToken(string $word): ?array
     {
-        return preg_match('/^([acdpk])-?(\d{1,9})$/', $word, $m) ? [$m[1], (int) $m[2]] : null;
+        return preg_match('/^([acdpks])-?(\d{1,9})$/', $word, $m) ? [$m[1], (int) $m[2]] : null;
     }
 
     /** Every word must be found: in the chosen columns, or (when the word is an ID of this kind) as the id itself. */

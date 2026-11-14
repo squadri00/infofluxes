@@ -3,18 +3,19 @@
 namespace App\Support;
 
 use App\Models\Article;
+use App\Models\Story;
 use App\Models\User;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Moves the old slide stories (the old "Stories in pictures" that have chapters and slides) into this site, each as an article
- * with story slides, and copies their pictures.
+ * Moves the old slide stories (the old "Stories in pictures" that have chapters and slides) into this site, each as a Visual Story,
+ * and copies their pictures.
  *
  * - The cards (claims with sources) and the fact files are not moved. They stay in the old database.
- * - The old ID (for example T-14) is kept as the working name, so a story is never moved twice.
- * - A story whose title is already an article here is left alone and reported.
+ * - The old ID (for example T-14) is kept inside the story (and was the working name of the article it was before), so a story is never moved twice.
+ * - A story whose title is already a story or an article here is left alone and reported.
  * - A story that was published and is not AI-assisted (or has a reviewer name) is published; any other is a draft,
  *   because AI text must be read by a person first.
  * - All or nothing for the data. The old database and the old files are only read.
@@ -79,7 +80,7 @@ class OldStoryImport
                 ->whereExists(fn ($q) => $q->selectRaw('1')->from('story_chapters')->whereColumn('story_chapters.topic_id', 'topics.id'))->orderBy('id')->get();
 
             foreach ($topics as $topic) {
-                $article = Article::withTrashed()->where('working_name', $topic->public_id)->first();
+                $article = static::moved($topic->public_id);
                 if (! $article) {
                     $this->report['stories_not_moved']++;
 
@@ -160,7 +161,7 @@ class OldStoryImport
             ->whereExists(fn ($q) => $q->selectRaw('1')->from('story_chapters')->whereColumn('story_chapters.topic_id', 'topics.id'))
             ->orderBy('id')->get();
 
-        $existingTitles = Article::withTrashed()->get()->map(fn ($a) => mb_strtolower(trim($a->mainTitle())))->all();
+        $existingTitles = Article::withTrashed()->get()->concat(Story::withTrashed()->get())->map(fn ($a) => mb_strtolower(trim($a->mainTitle())))->all();
 
         foreach ($topics as $topic) {
             $chapters = $this->old->table('story_chapters')->where('topic_id', $topic->id)->orderBy('sort_order')->orderBy('id')->get();
@@ -169,7 +170,7 @@ class OldStoryImport
                 continue;
             }
 
-            if (Article::withTrashed()->where('working_name', $topic->public_id)->exists()) {
+            if (static::moved($topic->public_id) || Article::withTrashed()->where('working_name', $topic->public_id)->exists()) {
                 $this->report['stories_existing']++;
 
                 continue;
@@ -202,11 +203,11 @@ class OldStoryImport
         $article = null;
         if (! $this->dry) {
             $short = trim((string) $topic->summary) !== '' ? trim((string) $topic->summary) : trim(preg_replace('/\s+/', ' ', strip_tags((string) $topic->hook)));
-            $article = Article::create([
+            $article = Story::create([
                 'title' => [$locale => trim($topic->title)],
-                'slug' => Article::uniqueSlug($topic->title),
+                'slug' => Story::uniqueSlug($topic->title),
                 'category_id' => $this->categoryId,
-                'working_name' => $topic->public_id,
+                'custom_data' => ['old_id' => $topic->public_id],
                 'short_detail' => [$locale => mb_substr($short, 0, 600)],
                 'long_detail' => [$locale => Html::clean((string) $topic->hook).Html::clean((string) $topic->context)],
                 'main_image' => $cover,
@@ -252,6 +253,12 @@ class OldStoryImport
                 ]);
             }
         }
+    }
+
+    /** The story that came from this old topic (by its old ID, for example T-14), or null. */
+    public static function moved(string $oldId): ?Story
+    {
+        return Story::withTrashed()->where('custom_data->old_id', $oldId)->first();
     }
 
     /** Old paragraphs as plain text: a blank line between paragraphs. */

@@ -25,7 +25,17 @@ class HomeController extends Controller
             ? Article::published()->with(['category', 'contributor'])->withCount('slides')->whereNotIn('id', $featured->pluck('id'))->orderByDesc('publish_date')->orderByDesc('id')->limit($latestCount)->get()
             : collect();
 
+        // The Stories in pictures strip: the featured stories first, then the newest, up to the number set (0 = no strip).
+        $storyCount = max(0, min(12, (int) Setting::get('home_stories_count', 4)));
+        $stories = $storyCount > 0
+            ? \App\Models\Story::featuredOnHome()->with(['category', 'contributor'])->withCount('slides')->limit($storyCount)->get()
+            : collect();
+        if ($storyCount > 0 && $stories->count() < $storyCount) {
+            $stories = $stories->concat(\App\Models\Story::published()->with(['category', 'contributor'])->withCount('slides')->whereNotIn('id', $stories->pluck('id'))->orderByDesc('publish_date')->orderByDesc('id')->limit($storyCount - $stories->count())->get());
+        }
+
         return view('home', [
+            'stories' => $stories,
             'hero' => \App\Support\Hero::forHome(),
             'categories' => Category::query()->whereNull('parent_id')->where('is_visible', true)->orderBy('sort_order')->orderBy('id')->get(),
             'featured' => $featured,

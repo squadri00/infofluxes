@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Filament\Resources\Articles\Pages\EditArticle;
-use App\Filament\Resources\Articles\Pages\ListArticles;
-use App\Models\Article;
-use App\Models\ArticleChapter;
-use App\Models\ArticleSlide;
+use App\Filament\Resources\Stories\Pages\EditStory;
+use App\Filament\Resources\Stories\Pages\ListStories;
+use App\Models\Story;
+use App\Models\StoryChapter;
+use App\Models\StorySlide;
 use App\Models\Category;
 use App\Models\Setting;
 use App\Models\User;
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-/** Step 11: story slides on an article. The slide viewer shows above the text; the page is otherwise the same article page. */
+/** Step 11: a Visual Story. The slide viewer shows above the text. */
 class Step11Test extends TestCase
 {
     use RefreshDatabase;
@@ -34,26 +34,26 @@ class Step11Test extends TestCase
         $this->cat = Category::create(['name' => ['en' => 'Shows'], 'slug' => 'shows']);
     }
 
-    private function article(string $title, array $extra = []): Article
+    private function article(string $title, array $extra = []): Story
     {
-        return Article::create(array_merge([
-            'title' => ['en' => $title], 'slug' => Article::uniqueSlug($title), 'category_id' => $this->cat->id,
+        return Story::create(array_merge([
+            'title' => ['en' => $title], 'slug' => Story::uniqueSlug($title), 'category_id' => $this->cat->id,
             'status' => 'published', 'publish_date' => now()->subDay(),
         ], $extra));
     }
 
-    private function chapter(Article $a, string $title, int $order = 1): ArticleChapter
+    private function chapter(Story $a, string $title, int $order = 1): StoryChapter
     {
         return $a->chapters()->create(['title' => ['en' => $title], 'sort_order' => $order]);
     }
 
-    private function slide(ArticleChapter $c, string $heading, array $extra = []): ArticleSlide
+    private function slide(StoryChapter $c, string $heading, array $extra = []): StorySlide
     {
         return $c->slides()->create(array_merge(['heading' => ['en' => $heading], 'body' => ['en' => 'Some words.'], 'sort_order' => 1], $extra));
     }
 
     /** A story: cover picture, two chapters, three slides. */
-    private function story(): Article
+    private function story(): Story
     {
         $a = $this->article('A picture story', [
             'short_detail' => ['en' => 'The short words of the story.'], 'long_detail' => ['en' => '<p>The text under the viewer.</p>'],
@@ -70,11 +70,11 @@ class Step11Test extends TestCase
 
     // ---------- the public page ----------
 
-    public function test_an_article_with_slides_shows_the_viewer_above_the_text(): void
+    public function test_a_story_with_slides_shows_the_viewer_above_the_text(): void
     {
         $a = $this->story();
 
-        $html = $this->get('/'.$a->slug)->assertOk()->getContent();
+        $html = $this->get($a->url())->assertOk()->getContent();
 
         $this->assertStringContainsString('data-story data-total="4"', $html, 'cover + 3 slides');
         $this->assertStringContainsString('data-viewer', $html);
@@ -90,7 +90,7 @@ class Step11Test extends TestCase
 
     public function test_the_cover_lists_the_chapters_and_their_slides_and_the_chapter_buttons_are_there(): void
     {
-        $html = $this->get('/'.$this->story()->slug)->getContent();
+        $html = $this->get($this->story()->url())->getContent();
 
         $this->assertStringContainsString('data-story-goto="2">First chapter</a>', $html, 'the first chapter starts at slide 2 (the cover is slide 1)');
         $this->assertStringContainsString('data-story-goto="2">Slide one</a>', $html);
@@ -121,7 +121,7 @@ class Step11Test extends TestCase
 
     public function test_a_picture_credit_is_shown_and_an_empty_one_says_ai_generated(): void
     {
-        $html = $this->get('/'.$this->story()->slug)->getContent();
+        $html = $this->get($this->story()->url())->getContent();
 
         $this->assertStringContainsString('Picture: Own work', $html);
         $this->assertStringContainsString('Picture: AI Generated', $html, 'the old rule: no credit means AI Generated');
@@ -134,12 +134,12 @@ class Step11Test extends TestCase
         $a = $this->article('Words only');
         $this->slide($this->chapter($a, 'Only chapter'), 'No picture here');
 
-        $this->assertStringContainsString('slide slide--text', $this->get('/'.$a->slug)->getContent());
+        $this->assertStringContainsString('slide slide--text', $this->get($a->url())->getContent());
     }
 
     public function test_slide_text_is_shown_as_safe_paragraphs(): void
     {
-        $html = $this->get('/'.$this->story()->slug)->getContent();
+        $html = $this->get($this->story()->url())->getContent();
 
         $this->assertStringContainsString('<p>Para one.</p><p>Para two with &lt;b&gt;tags&lt;/b&gt; &lt;script&gt;x()&lt;/script&gt;</p>', $html);
         $this->assertStringNotContainsString('<script>x()', $html);
@@ -149,7 +149,7 @@ class Step11Test extends TestCase
     {
         $a = $this->article('Plain article', ['main_image' => 'stories/plain.webp', 'main_image_alt' => ['en' => 'A plain picture'], 'main_image_credit' => 'Some museum', 'main_image_licence' => 'Public domain']);
 
-        $html = $this->get('/'.$a->slug)->assertOk()->getContent();
+        $html = $this->get($a->url())->assertOk()->getContent();
 
         $this->assertStringNotContainsString('data-story', $html);
         $this->assertStringNotContainsString('js/story.js', $html);
@@ -160,7 +160,7 @@ class Step11Test extends TestCase
 
     public function test_the_story_pictures_are_protected_and_marked_like_the_old_viewer(): void
     {
-        $html = $this->get('/'.$this->story()->slug)->getContent();
+        $html = $this->get($this->story()->url())->getContent();
 
         $this->assertStringContainsString('slide__media is-protected', $html);
         $this->assertStringContainsString('class="slide__shield"', $html);
@@ -168,7 +168,7 @@ class Step11Test extends TestCase
 
         Setting::put('story_protect_images', '0');
         Setting::put('story_watermark_on', '0');
-        $off = $this->get('/'.$this->story()->slug.'x')->getStatusCode();   // another address: just makes sure nothing breaks
+        $off = $this->get($this->story()->url().'x')->getStatusCode();   // another address: just makes sure nothing breaks
         $this->assertSame(404, $off);
     }
 
@@ -176,10 +176,10 @@ class Step11Test extends TestCase
     {
         $a = $this->story();
         $a->update(['status' => 'draft']);
-        $this->get('/'.$a->slug)->assertNotFound();
+        $this->get($a->url())->assertNotFound();
 
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
-        $this->get('/'.$a->slug)->assertOk()->assertSee('data-story', false);
+        $this->get($a->url())->assertOk()->assertSee('data-story', false);
     }
 
     // ---------- the cards ----------
@@ -196,8 +196,7 @@ class Step11Test extends TestCase
         }
         $home = $this->get('/')->getContent();
         $this->assertMatchesRegularExpression('/\b1 slide\b/', $home);
-        $this->assertStringNotContainsString('0 slides', $home, 'an article with no slides carries no note');
-        $this->assertSame(2, preg_match_all('/\d+ slides?\b/', $home), 'only the two stories carry a note');
+        $this->assertSame(3, preg_match_all('/\d+ slides?\b/', $home), 'every story card carries a note');
     }
 
     public function test_the_story_viewer_script_and_its_style_exist(): void
@@ -209,12 +208,12 @@ class Step11Test extends TestCase
 
     // ---------- the admin ----------
 
-    public function test_chapters_and_slides_are_saved_from_the_article_form(): void
+    public function test_chapters_and_slides_are_saved_from_the_story_form(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
         $a = $this->article('To tell as a story', ['status' => 'draft']);
 
-        Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])
+        Livewire::test(EditStory::class, ['record' => $a->getRouteKey()])
             ->fillForm(['chapters' => [
                 ['title' => ['en' => 'Chapter A'], 'slides' => [
                     ['heading' => ['en' => 'First slide'], 'body' => ['en' => 'First words.'], 'image_credit' => 'Me'],
@@ -226,9 +225,9 @@ class Step11Test extends TestCase
 
         $a = $a->fresh();
         $this->assertSame(['Chapter A', 'Chapter B'], $a->chapters->map->getTranslation('title', 'en')->all());
-        $this->assertSame(['First slide', 'Second slide', 'Third slide'], $a->slides()->orderBy('article_chapters.sort_order')->orderBy('article_slides.sort_order')->get()->map->getTranslation('heading', 'en')->all());
+        $this->assertSame(['First slide', 'Second slide', 'Third slide'], $a->slides()->orderBy('story_chapters.sort_order')->orderBy('story_slides.sort_order')->get()->map->getTranslation('heading', 'en')->all());
         $this->assertTrue($a->hasSlides());
-        $this->assertSame('Me', $a->slides()->orderBy('article_slides.id')->first()->image_credit);
+        $this->assertSame('Me', $a->slides()->orderBy('story_slides.id')->first()->image_credit);
     }
 
     public function test_a_chapter_needs_a_name_and_a_slide_needs_a_heading(): void
@@ -236,7 +235,7 @@ class Step11Test extends TestCase
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
         $a = $this->article('Needs names', ['status' => 'draft']);
 
-        Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])
+        Livewire::test(EditStory::class, ['record' => $a->getRouteKey()])
             ->fillForm(['chapters' => [['title' => ['en' => ''], 'slides' => [['heading' => ['en' => '']]]]]])
             ->call('save')
             ->assertHasFormErrors();
@@ -249,8 +248,8 @@ class Step11Test extends TestCase
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
         $a = $this->story();
 
-        Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])
-            ->assertSee('Story slides')->assertSee('NEVER show or draw the Prophets')
+        Livewire::test(EditStory::class, ['record' => $a->getRouteKey()])
+            ->assertSee('Chapters and slides')->assertSee('NEVER show or draw the Prophets')
             ->assertFormSet(fn (array $state) => count($state['chapters']) === 2);
     }
 
@@ -259,9 +258,9 @@ class Step11Test extends TestCase
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
         $a = $this->story();
 
-        Livewire::test(ListArticles::class)->callAction(TestAction::make('replicate')->table($a));
+        Livewire::test(ListStories::class)->callAction(TestAction::make('replicate')->table($a));
 
-        $copy = Article::where('id', '!=', $a->id)->first();
+        $copy = Story::where('id', '!=', $a->id)->first();
         $this->assertSame(2, $copy->chapters()->count());
         $this->assertSame(3, $copy->slides()->count());
         $this->assertSame(3, $a->fresh()->slides()->count(), 'the original keeps its own');
@@ -269,13 +268,13 @@ class Step11Test extends TestCase
         $this->assertSame('draft', $copy->status);
     }
 
-    public function test_deleting_an_article_for_good_removes_its_slides(): void
+    public function test_deleting_a_story_for_good_removes_its_slides(): void
     {
         $a = $this->story();
         $a->forceDelete();
 
-        $this->assertSame(0, ArticleChapter::count());
-        $this->assertSame(0, ArticleSlide::count());
+        $this->assertSame(0, StoryChapter::count());
+        $this->assertSame(0, StorySlide::count());
     }
 
     // ---------- the pictures ----------

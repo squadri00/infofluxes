@@ -23,6 +23,7 @@
                 @php
                     $parts = array_filter([
                         'categories' => [$categories->count(), __('site.search_categories_found')],
+                        'stories' => [$stories->count(), __('site.stories_title')],
                         'facts' => [$facts->count(), __('site.dyk_title')],
                         'articles' => [$articles->total(), __('site.search_articles_found')],
                         'subjects' => [$subjects->count(), __('site.search_subjects_found')],
@@ -50,6 +51,13 @@
                         @include('partials.category-tile', ['category' => $found])
                     @endforeach
                 </ul>
+            </section>
+        @endif
+
+        @if ($stories->isNotEmpty())
+            <section class="block" id="found-stories">
+                <h2 class="block__title">{{ __('site.stories_title') }} <span class="block__n">({{ $stories->count() }})</span></h2>
+                @include('partials.story-grid', ['stories' => $stories])
             </section>
         @endif
 

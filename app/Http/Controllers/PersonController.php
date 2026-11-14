@@ -29,6 +29,8 @@ class PersonController extends Controller
         $articles = Article::published()->where('contributor_id', $person->id)->with('category')->withCount('slides')
             ->orderByDesc('publish_date')->orderByDesc('id')->get();
 
-        return view('person.show', ['person' => $person, 'articles' => $articles, 'preview' => $preview && ! $person->show_page]);
+        $stories = \App\Models\Story::published()->where('contributor_id', $person->id)->with('category')->withCount('slides')->orderByDesc('publish_date')->orderByDesc('id')->get();
+
+        return view('person.show', ['person' => $person, 'articles' => $articles, 'stories' => $stories, 'preview' => $preview && ! $person->show_page]);
     }
 }

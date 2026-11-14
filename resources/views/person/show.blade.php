@@ -60,12 +60,19 @@
         <div class="person__body article__body">{!! $person->safeBody() !!}</div>
     @endif
 
+    @if ($stories->isNotEmpty())
+        <section class="block">
+            <h2 class="block__title">{{ __('site.stories_title') }}</h2>
+            @include('partials.story-grid', ['stories' => $stories])
+        </section>
+    @endif
+
     @if ($articles->isNotEmpty())
         <section class="block">
             <h2 class="block__title">{{ __('site.people_articles') }}</h2>
             @include('partials.article-mosaic', ['articles' => $articles])
         </section>
-    @elseif (blank($person->page_body) && blank($person->bio))
+    @elseif ($stories->isEmpty() && blank($person->page_body) && blank($person->bio))
         <p class="empty">{{ __('site.people_nothing_yet') }}</p>
     @endif
 </div>

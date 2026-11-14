@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\MoveFromOldSite;
-use App\Models\Article;
+use App\Models\Story;
 use App\Models\Category;
 use App\Models\User;
 use App\Support\OldStoryImport;
@@ -107,7 +107,7 @@ class Step12Test extends TestCase
 
         $this->assertTrue($r['dry']);
         $this->assertSame(['stories_new' => 1, 'stories_existing' => 0, 'stories_same_title' => 0, 'chapters' => 2, 'slides' => 3, 'images_copied' => 3, 'images_missing' => 0, 'published' => 1, 'drafts' => 0, 'audio_copied' => 0, 'audio_missing' => 0], $r['total']);
-        $this->assertSame(0, Article::count());
+        $this->assertSame(0, Story::count());
         $this->assertSame([], Storage::disk('public')->allFiles());
     }
 
@@ -117,7 +117,7 @@ class Step12Test extends TestCase
 
         $this->run_();
 
-        $a = Article::where('working_name', 'T-14')->first();
+        $a = Story::where('custom_data->old_id', 'T-14')->first();
         $this->assertSame('What happened before the Night Journey?', $a->mainTitle());
         $this->assertSame($this->cat->id, $a->category_id);
         $this->assertSame('A short description.', $a->getTranslation('short_detail', 'en'));
@@ -136,7 +136,7 @@ class Step12Test extends TestCase
         $this->oldStory();
         $this->run_();
 
-        $a = Article::where('working_name', 'T-14')->first();
+        $a = Story::where('custom_data->old_id', 'T-14')->first();
         $this->assertSame('stories/cover-T-14.webp', $a->main_image);
         Storage::disk('public')->assertExists('stories/cover-T-14.webp');
         Storage::disk('public')->assertExists('stories/a-T-14.webp');
@@ -154,7 +154,7 @@ class Step12Test extends TestCase
         $this->oldStory();
         $this->run_();
 
-        $slide = Article::where('working_name', 'T-14')->first()->chapters->first()->slides->last();
+        $slide = Story::where('custom_data->old_id', 'T-14')->first()->chapters->first()->slides->last();
         $this->assertSame("Para one.\n\nPara two & more.", $slide->getTranslation('body', 'en'));
         $this->assertSame('', OldStoryImport::plain(''));
         $this->assertSame("a\nb", OldStoryImport::plain('a<br>b'));
@@ -169,44 +169,44 @@ class Step12Test extends TestCase
 
         $r = $this->run_();
 
-        $this->assertSame('published', Article::where('working_name', 'T-1')->first()->status);
-        $this->assertSame('Shamim', Article::where('working_name', 'T-1')->first()->reviewer_name);
-        $this->assertSame('draft', Article::where('working_name', 'T-2')->first()->status, 'AI text waits for a person');
-        $this->assertTrue(Article::where('working_name', 'T-2')->first()->ai_assisted);
-        $this->assertSame('draft', Article::where('working_name', 'T-3')->first()->status);
-        $this->assertSame('published', Article::where('working_name', 'T-4')->first()->status);
-        $this->assertSame('2026-10-05 12:00:00', Article::where('working_name', 'T-4')->first()->publish_date->format('Y-m-d H:i:s'));
+        $this->assertSame('published', Story::where('custom_data->old_id', 'T-1')->first()->status);
+        $this->assertSame('Shamim', Story::where('custom_data->old_id', 'T-1')->first()->reviewer_name);
+        $this->assertSame('draft', Story::where('custom_data->old_id', 'T-2')->first()->status, 'AI text waits for a person');
+        $this->assertTrue(Story::where('custom_data->old_id', 'T-2')->first()->ai_assisted);
+        $this->assertSame('draft', Story::where('custom_data->old_id', 'T-3')->first()->status);
+        $this->assertSame('published', Story::where('custom_data->old_id', 'T-4')->first()->status);
+        $this->assertSame('2026-10-05 12:00:00', Story::where('custom_data->old_id', 'T-4')->first()->publish_date->format('Y-m-d H:i:s'));
         $this->assertSame([2, 2], [$r['total']['published'], $r['total']['drafts']]);
-        $this->assertNull(Article::where('working_name', 'T-3')->first()->publish_date);
+        $this->assertNull(Story::where('custom_data->old_id', 'T-3')->first()->publish_date);
     }
 
     public function test_a_story_whose_title_is_already_an_article_is_left_alone_and_reported(): void
     {
         $this->oldStory('T-16', 'What is Sidrat al-Muntaha?');
-        Article::create(['title' => ['en' => 'what is sidrat al-muntaha?'], 'slug' => 'mine', 'category_id' => $this->cat->id]);
+        \App\Models\Article::create(['title' => ['en' => 'what is sidrat al-muntaha?'], 'slug' => 'mine', 'category_id' => $this->cat->id]);
 
         $r = $this->run_();
 
         $this->assertSame(1, $r['total']['stories_same_title']);
         $this->assertSame(['What is Sidrat al-Muntaha?'], $r['same_title']);
         $this->assertSame(0, $r['total']['stories_new']);
-        $this->assertSame(1, Article::count(), 'the owner\'s own article is not touched');
-        $this->assertSame(0, Article::first()->chapters()->count());
+        $this->assertSame(0, Story::count(), 'no story is made');
+        $this->assertSame(1, \App\Models\Article::count(), 'the owner\'s own article is not touched');
     }
 
     public function test_moving_again_does_not_make_a_story_twice(): void
     {
         $this->oldStory();
         $this->run_();
-        $articles = Article::count();
-        $slides = \App\Models\ArticleSlide::count();
+        $articles = Story::count();
+        $slides = \App\Models\StorySlide::count();
 
         $again = $this->run_();
 
         $this->assertSame(1, $again['total']['stories_existing']);
         $this->assertSame(0, $again['total']['stories_new']);
-        $this->assertSame($articles, Article::count());
-        $this->assertSame($slides, \App\Models\ArticleSlide::count());
+        $this->assertSame($articles, Story::count());
+        $this->assertSame($slides, \App\Models\StorySlide::count());
     }
 
     public function test_a_missing_old_picture_is_counted_and_the_slide_is_still_made(): void
@@ -218,7 +218,7 @@ class Step12Test extends TestCase
 
         $this->assertSame(1, $r['total']['images_missing']);
         $this->assertSame(2, $r['total']['images_copied']);
-        $slide = Article::where('working_name', 'T-14')->first()->chapters->first()->slides->first();
+        $slide = Story::where('custom_data->old_id', 'T-14')->first()->chapters->first()->slides->first();
         $this->assertSame('Slide A', $slide->getTranslation('heading', 'en'));
         $this->assertNull($slide->image);
     }
@@ -248,7 +248,7 @@ class Step12Test extends TestCase
 
         $r = $this->run_();
 
-        $this->assertSame(['A story with slides'], Article::all()->map->mainTitle()->all());
+        $this->assertSame(['A story with slides'], Story::all()->map->mainTitle()->all());
         $this->assertSame(1, $r['total']['stories_new']);
     }
 
@@ -257,8 +257,8 @@ class Step12Test extends TestCase
         $this->oldStory('T-1', 'First story');
         $this->oldStory('T-2', 'Second story');
         $stop = true;
-        \App\Models\ArticleSlide::creating(function ($slide) use (&$stop) {
-            if ($stop && $slide->getTranslation('heading', 'en') === 'Slide C' && Article::count() >= 2) {
+        \App\Models\StorySlide::creating(function ($slide) use (&$stop) {
+            if ($stop && $slide->getTranslation('heading', 'en') === 'Slide C' && Story::count() >= 2) {
                 throw new \RuntimeException('stop');
             }
         });
@@ -272,9 +272,9 @@ class Step12Test extends TestCase
             $stop = false;
         }
 
-        $this->assertSame(0, Article::count());
-        $this->assertSame(0, \App\Models\ArticleChapter::count());
-        $this->assertSame(0, \App\Models\ArticleSlide::count());
+        $this->assertSame(0, Story::count());
+        $this->assertSame(0, \App\Models\StoryChapter::count());
+        $this->assertSame(0, \App\Models\StorySlide::count());
     }
 
     public function test_a_moved_story_is_shown_with_the_viewer_on_the_public_site(): void
@@ -282,7 +282,7 @@ class Step12Test extends TestCase
         $this->oldStory();
         $this->run_();
 
-        $html = $this->get('/'.Article::where('working_name', 'T-14')->first()->slug)->assertOk()->getContent();
+        $html = $this->get(Story::where('custom_data->old_id', 'T-14')->first()->url())->assertOk()->getContent();
 
         $this->assertStringContainsString('data-story data-total="4"', $html);
         $this->assertStringContainsString('Picture: Inforfluxes', $html);
@@ -314,10 +314,10 @@ class Step12Test extends TestCase
             ->assertSee('Would move')->assertSee('1 stories, 2 chapters, 3 slides')
             ->assertSee('Move the stories now');
 
-        $this->assertSame(0, Article::count());
+        $this->assertSame(0, Story::count());
 
         $page->call('moveStories')->assertSee('Moved');
-        $this->assertSame($other->id, Article::where('working_name', 'T-14')->first()->category_id);
+        $this->assertSame($other->id, Story::where('custom_data->old_id', 'T-14')->first()->category_id);
     }
 
     public function test_the_page_will_not_move_without_a_category(): void
@@ -327,7 +327,7 @@ class Step12Test extends TestCase
 
         Livewire::test(MoveFromOldSite::class)->set('storyCategory', null)->call('moveStories');
 
-        $this->assertSame(0, Article::count());
+        $this->assertSame(0, Story::count());
     }
 
     public function test_the_command_checks_and_moves(): void
@@ -336,10 +336,10 @@ class Step12Test extends TestCase
         User::factory()->create(['role' => 'superuser', 'status' => 'active']);
 
         $this->artisan('site:move-stories-from-old', ['--check' => true])->expectsOutputToContain('Would move: 1 stories, 2 chapters, 3 slides')->assertSuccessful();
-        $this->assertSame(0, Article::count());
+        $this->assertSame(0, Story::count());
 
         $this->artisan('site:move-stories-from-old')->expectsOutputToContain('Moved: 1 stories')->assertSuccessful();
-        $this->assertSame(1, Article::count());
+        $this->assertSame(1, Story::count());
 
         $this->artisan('site:move-stories-from-old', ['--category' => 'C-999'])->expectsOutputToContain('The category was not found')->assertFailed();
     }

@@ -20,7 +20,7 @@ class Category extends Model
     protected $guarded = [];
 
     /** Words that are already web addresses of the site and cannot be used for a category. */
-    public const RESERVED_SLUGS = ['admin', 'login', 'logout', 'register', 'search', 'category', 'article', 'storage', 'livewire', 'up', 'profile', 'comments', 'submit', 'account', 'id', 'language', 'sitemap', 'people', 'newsletter', 'challenge-yourself', 'quiz'];
+    public const RESERVED_SLUGS = ['admin', 'login', 'logout', 'register', 'search', 'category', 'article', 'storage', 'livewire', 'up', 'profile', 'comments', 'submit', 'account', 'id', 'language', 'sitemap', 'people', 'newsletter', 'stories', 'challenge-yourself', 'quiz'];
 
     public array $translatable = ['name', 'image_alt', 'description', 'header_text', 'page_title', 'meta_description'];
 
@@ -69,7 +69,10 @@ class Category extends Model
     /** How many articles are in this category (main or additional). */
     public function articleCount(): int
     {
-        return Article::query()->where('category_id', $this->id)->orWhereHas('extraCategories', fn ($q) => $q->where('categories.id', $this->id))->count();
+        $articles = Article::query()->where(fn ($w) => $w->where('category_id', $this->id)->orWhereHas('extraCategories', fn ($q) => $q->where('categories.id', $this->id)))->count();
+        $stories = Story::query()->where(fn ($w) => $w->where('category_id', $this->id)->orWhereHas('extraCategories', fn ($q) => $q->where('categories.id', $this->id)))->count();
+
+        return $articles + $stories;
     }
 
     /** A web address made from a name: letters, numbers and dashes, never a reserved word, never one already used. */

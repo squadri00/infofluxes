@@ -23,13 +23,13 @@
     @endsection
 @endif
 
-@php $listenTracks = \App\Support\Listen::tracks($article, $storyItems ?? []); @endphp
+@php $listenTracks = \App\Support\Listen::tracks($article, []); @endphp
 @section('content')
 @if ($preview)
     <div class="preview-banner"><div class="wrap">{{ __('site.draft_notice') }}</div></div>
 @endif
 
-@php $sidebars = empty($storyItems) && $sideTree; @endphp
+@php $sidebars = (bool) $sideTree; @endphp
 <div class="{{ $sidebars ? 'wrap wrap--wide reading' : 'wrap topic' }}">
 @if ($sidebars)
     <aside class="reading__side reading__side--left" aria-label="{{ __('site.related_topics') }}">
@@ -47,20 +47,7 @@
         </ol>
     </nav>
 
-    {{-- An article with story slides: the slide viewer comes first, above the text. Its cover shows the title and the main picture. --}}
-    @if (! empty($storyItems))
-        <div class="story {{ \App\Support\ViewerStyle::widthClass(true) }}" style="--v-box: {{ \App\Support\ViewerStyle::boxWidth() }}px" data-story data-total="{{ count($storyItems) }}">
-            @include('partials.story-viewer', ['article' => $article, 'items' => $storyItems])
-            @if (\App\Support\StoryBook::enabled())
-                <p class="story__pdf"><a class="btn btn--small" href="{{ route('article.book', $article->slug) }}" rel="nofollow">{{ __('site.story_book_button') }}</a></p>
-            @endif
-            @include('partials.listen')
-        </div>
-        <script>window.STORY_LABELS = {!! json_encode(['goto' => __('site.story_goto')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) !!};</script>
-        <script src="{{ asset('js/story.js') }}?v={{ @filemtime(public_path('js/story.js')) ?: 1 }}" defer></script>
-    @endif
-
-    <h1 class="{{ empty($storyItems) ? 'topic__title' : 'visually-hidden' }}">{{ $title }} @include('partials.id-tag', ['code' => $article->code])</h1>
+    <h1 class="topic__title">{{ $title }} @include('partials.id-tag', ['code' => $article->code])</h1>
 
     @if ($article->contributor)
         {{-- A credited contributor: a small picture, the name (a link when they have a page), their role and the date. --}}
@@ -74,7 +61,7 @@
         </p>
     @endif
 
-    @if ($article->main_image && empty($storyItems))
+    @if ($article->main_image)
         <figure class="topic__master">
             <img src="{{ asset('storage/'.$article->main_image) }}" alt="{{ $article->main_image_alt }}">
             @if (filled($article->main_image_credit) || filled($article->main_image_licence))
@@ -83,9 +70,7 @@
         </figure>
     @endif
 
-    @if (empty($storyItems))
-        @include('partials.listen')
-    @endif
+    @include('partials.listen')
 
     @if ($summary !== '')
         <div class="topic__hook"><p>{{ $summary }}</p></div>

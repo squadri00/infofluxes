@@ -56,8 +56,8 @@
         <x-filament::section>
             <x-slot name="heading">The old slide stories</x-slot>
             <p style="max-width:52rem">
-                The old "Stories in pictures" that have chapters and slides become <strong>articles with story slides</strong>, with their pictures.
-                The cards (claims with sources) and the fact files stay in the old site. A story whose title is already an article here is left alone.
+                The old "Stories in pictures" that have chapters and slides become <strong>Visual Stories</strong> (Content &gt; Visual Stories), with their pictures.
+                The cards (claims with sources) and the fact files stay in the old site. A story whose title is already a story or an article here is left alone.
                 A story that was published and read by a person is published; any other is a draft.
             </p>
             <label style="display:block;margin:.8rem 0;max-width:52rem">

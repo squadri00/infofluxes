@@ -4,8 +4,9 @@ namespace Tests\Feature;
 
 use App\Filament\Pages\MoveFromOldSite;
 use App\Filament\Pages\SlideViewerSettings;
-use App\Filament\Resources\Articles\Pages\EditArticle;
+use App\Filament\Resources\Stories\Pages\EditStory;
 use App\Models\Article;
+use App\Models\Story;
 use App\Models\ArticleChapter;
 use App\Models\ArticleSlide;
 use App\Models\Category;
@@ -44,7 +45,7 @@ class Step13Test extends TestCase
         $this->cat = Category::create(['name' => ['en' => 'Shows'], 'slug' => 'shows']);
     }
 
-    private function story(array $extra = []): Article
+    private function story(array $extra = []): Story
     {
         // a real small picture on the fake disk, so the book and the viewer have something to show
         $im = imagecreatetruecolor(800, 450);
@@ -53,7 +54,7 @@ class Step13Test extends TestCase
         imagewebp($im, null, 70);
         Storage::disk('public')->put('stories/p.webp', ob_get_clean());
 
-        $a = Article::create(array_merge([
+        $a = Story::create(array_merge([
             'title' => ['en' => 'A story with ﷺ in it'], 'slug' => 'a-story', 'category_id' => $this->cat->id, 'status' => 'published', 'publish_date' => now()->subDay(),
             'short_detail' => ['en' => 'Short words.'], 'long_detail' => ['en' => '<p>The text.</p>'], 'main_image' => 'stories/p.webp', 'main_image_alt' => ['en' => 'Cover'],
         ], $extra));
@@ -173,7 +174,7 @@ class Step13Test extends TestCase
         $this->story();
 
         Livewire::test(SlideViewerSettings::class)->assertActionVisible('see');
-        Article::query()->delete();
+        Story::query()->delete();
         Livewire::test(SlideViewerSettings::class)->assertActionHidden('see');
     }
 
@@ -194,7 +195,7 @@ class Step13Test extends TestCase
     {
         $this->story();
 
-        $html = $this->get('/a-story')->getContent();
+        $html = $this->get('/stories/a-story')->getContent();
         $this->assertStringContainsString('Picture: AI Generated', $html);
         $this->assertStringContainsString('slide__shield', $html);
         $this->assertStringContainsString('slide__mark-name', $html);
@@ -202,7 +203,7 @@ class Step13Test extends TestCase
         Setting::put('story_default_credit', 'Our own pictures');
         Setting::put('story_protect_images', '0');
         Setting::put('story_watermark_on', '0');
-        $html = $this->get('/a-story')->getContent();
+        $html = $this->get('/stories/a-story')->getContent();
         $this->assertStringContainsString('Picture: Our own pictures', $html);
         $this->assertStringNotContainsString('slide__shield', $html);
         $this->assertStringNotContainsString('slide__mark', $html);
@@ -212,10 +213,10 @@ class Step13Test extends TestCase
     public function test_the_previous_next_buttons_show_only_when_switched_on(): void
     {
         $this->story();
-        $this->assertStringNotContainsString('data-story-prev', $this->get('/a-story')->getContent());
+        $this->assertStringNotContainsString('data-story-prev', $this->get('/stories/a-story')->getContent());
 
         Setting::put('story_show_buttons', '1');
-        $html = $this->get('/a-story')->getContent();
+        $html = $this->get('/stories/a-story')->getContent();
         $this->assertStringContainsString('data-story-prev', $html);
         $this->assertStringContainsString('data-story-next-chapter', $html, 'there is more than one chapter');
         $this->assertStringContainsString('Tip: use the left and right arrow keys', $html);
@@ -235,7 +236,7 @@ class Step13Test extends TestCase
     {
         $this->story();
 
-        $r = $this->get('/a-story/book')->assertOk();
+        $r = $this->get('/stories/a-story/book')->assertOk();
 
         $this->assertSame('application/pdf', $r->headers->get('Content-Type'));
         $this->assertStringContainsString('attachment; filename="a-story.pdf"', $r->headers->get('Content-Disposition'));
@@ -249,17 +250,17 @@ class Step13Test extends TestCase
     public function test_the_book_button_is_on_the_story_and_follows_the_setting(): void
     {
         $this->story();
-        $this->get('/a-story')->assertSee('Download as a PDF book')->assertSee(route('article.book', 'a-story'), false);
+        $this->get('/stories/a-story')->assertSee('Download as a PDF book')->assertSee(route('story.book', 'a-story'), false);
 
         Setting::put('story_pdf_on', '0');
-        $this->get('/a-story')->assertDontSee('Download as a PDF book');
-        $this->get('/a-story/book')->assertNotFound();
+        $this->get('/stories/a-story')->assertDontSee('Download as a PDF book');
+        $this->get('/stories/a-story/book')->assertNotFound();
     }
 
     public function test_only_a_visible_story_with_slides_has_a_book(): void
     {
         $this->story(['status' => 'draft']);
-        $this->get('/a-story/book')->assertNotFound();
+        $this->get('/stories/a-story/book')->assertNotFound();
 
         $plain = Article::create(['title' => ['en' => 'No slides'], 'slug' => 'no-slides', 'category_id' => $this->cat->id, 'status' => 'published', 'publish_date' => now()->subDay()]);
         $this->get('/no-slides/book')->assertNotFound();
@@ -267,7 +268,7 @@ class Step13Test extends TestCase
 
         Filament::setCurrentPanel('admin');
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
-        $this->get('/a-story/book')->assertOk();
+        $this->get('/stories/a-story/book')->assertOk();
     }
 
     public function test_the_book_layout_is_a_setting_and_the_salutation_sign_is_handled(): void
@@ -275,7 +276,7 @@ class Step13Test extends TestCase
         $this->assertSame('full', StoryBook::layout());
         Setting::put('story_book_layout', 'side');
         $this->assertSame('side', StoryBook::layout());
-        $this->get('/a-story/book')->assertNotFound();   // no story yet: just proves the layout setting does not break routing
+        $this->get('/stories/a-story/book')->assertNotFound();   // no story yet: just proves the layout setting does not break routing
 
         // without a font for the sign it is written in words; with the font it keeps the sign
         $text = (string) StoryBook::t('Prophet Muhammad ﷺ <b>');
@@ -291,7 +292,7 @@ class Step13Test extends TestCase
 
         $this->assertNull(StoryBook::data('stories/p.webp'));
         $this->assertNull(StoryBook::data(null));
-        $this->get('/a-story/book')->assertOk();
+        $this->get('/stories/a-story/book')->assertOk();
     }
 
     // ---------- Listen ----------
@@ -301,7 +302,7 @@ class Step13Test extends TestCase
         $this->story();
         Article::create(['title' => ['en' => 'Plain one'], 'slug' => 'plain-one', 'category_id' => $this->cat->id, 'status' => 'published', 'publish_date' => now()->subDay(), 'long_detail' => ['en' => '<p>Words.</p>']]);
 
-        foreach (['/a-story', '/plain-one'] as $url) {
+        foreach (['/stories/a-story', '/plain-one'] as $url) {
             $html = $this->get($url)->assertOk()->getContent();
             $this->assertStringContainsString('data-listen=', $html, $url);
             $this->assertStringContainsString('Listen to the story', $html, $url);
@@ -315,7 +316,7 @@ class Step13Test extends TestCase
         $this->story();
         Setting::put('listen_on', '0');
 
-        $html = $this->get('/a-story')->getContent();
+        $html = $this->get('/stories/a-story')->getContent();
         $this->assertStringNotContainsString('data-listen=', $html);
         $this->assertStringNotContainsString('js/listen.js', $html);
     }
@@ -346,7 +347,7 @@ class Step13Test extends TestCase
     {
         $a = $this->story();
         $a->update(['cover_audio' => 'audio/covers/c.mp3', 'cover_audio_state' => 'approved']);
-        $slides = $a->slides()->orderBy('article_slides.id')->get();
+        $slides = $a->slides()->orderBy('story_slides.id')->get();
         $slides[0]->update(['audio' => 'audio/slides/one.mp3', 'audio_state' => 'approved']);
         $slides[1]->update(['audio' => 'audio/slides/two.mp3']);                              // a new file: still draft
 
@@ -413,7 +414,7 @@ class Step13Test extends TestCase
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
 
         $sections = [];
-        $page = Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()]);
+        $page = Livewire::test(EditStory::class, ['record' => $a->getRouteKey()]);
         foreach ($page->instance()->form->getFlatComponents() as $c) {
             if ($c instanceof \Filament\Schemas\Components\Section) {
                 $sections[] = (string) $c->getHeading();
@@ -426,7 +427,7 @@ class Step13Test extends TestCase
         $author = User::factory()->create(['role' => 'author', 'status' => 'active']);
         $this->actingAs($author);
         $mine = $this->story(['slug' => 'mine', 'author_id' => $author->id, 'status' => 'draft']);
-        Livewire::test(EditArticle::class, ['record' => $mine->getRouteKey()])->assertFormFieldIsDisabled('cover_audio_state');
+        Livewire::test(EditStory::class, ['record' => $mine->getRouteKey()])->assertFormFieldIsDisabled('cover_audio_state');
     }
 
     // ---------- the old choices brought across ----------
@@ -552,10 +553,10 @@ class Step13Test extends TestCase
             $r = (new OldStoryImport($cat->id))->move();
 
             $this->assertSame(3, $r['total']['audio_copied']);
-            $a = Article::where('working_name', 'T-14')->first();
+            $a = Story::where('custom_data->old_id', 'T-14')->first();
             $this->assertSame('audio/cover.mp3', $a->cover_audio);
             $this->assertSame('draft', $a->cover_audio_state);
-            $slides = $a->slides()->orderBy('article_slides.sort_order')->get();
+            $slides = $a->slides()->orderBy('story_slides.sort_order')->get();
             $this->assertSame(['approved', 'draft', 'draft'], $slides->map->audio_state->all());
             $this->assertSame('audio/one.mp3', $slides[0]->audio);
             $this->assertNull($slides[2]->audio);
@@ -572,7 +573,7 @@ class Step13Test extends TestCase
         try {
             $cat = Category::create(['name' => ['en' => 'About Islam'], 'slug' => 'about-islam']);
             // the story was moved earlier, without audio; one slide was renamed since
-            $a = Article::create(['title' => ['en' => 'A story'], 'slug' => 'a-story-moved', 'category_id' => $cat->id, 'working_name' => 'T-14', 'status' => 'published']);
+            $a = Story::create(['title' => ['en' => 'A story'], 'slug' => 'a-story-moved', 'category_id' => $cat->id, 'custom_data' => ['old_id' => 'T-14'], 'status' => 'published']);
             $ch = $a->chapters()->create(['title' => ['en' => 'First'], 'sort_order' => 1]);
             $ch->slides()->create(['heading' => ['en' => 'Slide one'], 'sort_order' => 1]);
             $ch->slides()->create(['heading' => ['en' => 'A new name'], 'sort_order' => 2]);
@@ -586,7 +587,7 @@ class Step13Test extends TestCase
             $r = (new OldStoryImport)->moveAudio();
             $this->assertSame(2, $r['total']['audio_copied'], 'the cover and slide one');
             $this->assertSame('audio/cover.mp3', $a->fresh()->cover_audio);
-            $slides = $a->slides()->orderBy('article_slides.sort_order')->get();
+            $slides = $a->slides()->orderBy('story_slides.sort_order')->get();
             $this->assertSame('audio/one.mp3', $slides[0]->audio);
             $this->assertSame('approved', $slides[0]->audio_state);
             $this->assertNull($slides[1]->audio, 'a slide that does not match is left alone');
@@ -608,7 +609,7 @@ class Step13Test extends TestCase
 
             $this->assertSame(1, $r['total']['stories_not_moved']);
             $this->assertSame(0, $r['total']['stories_matched']);
-            $this->assertSame(0, Article::count());
+            $this->assertSame(0, Story::count());
         } finally {
             $this->removeDir($dir);
         }
@@ -619,7 +620,7 @@ class Step13Test extends TestCase
         $dir = $this->fakeOldStoryWithAudio();
         try {
             $cat = Category::create(['name' => ['en' => 'About Islam'], 'slug' => 'about-islam']);
-            $a = Article::create(['title' => ['en' => 'A story'], 'slug' => 'a-story-moved', 'category_id' => $cat->id, 'working_name' => 'T-14', 'status' => 'published']);
+            $a = Story::create(['title' => ['en' => 'A story'], 'slug' => 'a-story-moved', 'category_id' => $cat->id, 'custom_data' => ['old_id' => 'T-14'], 'status' => 'published']);
             $a->chapters()->create(['title' => ['en' => 'First'], 'sort_order' => 1])->slides()->create(['heading' => ['en' => 'Slide one'], 'sort_order' => 1]);
 
             $this->artisan('site:move-audio-from-old', ['--check' => true])->expectsOutputToContain('Would copy: 2 audio files')->assertSuccessful();

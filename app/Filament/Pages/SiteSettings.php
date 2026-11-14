@@ -62,7 +62,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
+        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
     }
 
     public function form(Schema $schema): Schema
@@ -84,6 +84,7 @@ class SiteSettings extends Page
                     ->schema([
                         TextInput::make('home_featured_count')->label('Featured: how many')->numeric()->minValue(0)->maxValue(24)->placeholder('6'),
                         TextInput::make('home_latest_count')->label('Latest: how many')->numeric()->minValue(0)->maxValue(24)->placeholder('8'),
+                        TextInput::make('home_stories_count')->label('Stories in pictures: how many')->helperText('Featured stories first, then the newest. 0 hides the part.')->numeric()->minValue(0)->maxValue(12)->placeholder('4'),
                     ])->columns(2),
                 Section::make('People and discussion')
                     ->schema([
@@ -129,7 +130,7 @@ class SiteSettings extends Page
                 $value = array_filter($value, fn ($v) => filled($v));
             }
             // The two counts are whole numbers (an empty box means the usual number).
-            if (in_array($key, ['home_featured_count', 'home_latest_count'], true)) {
+            if (in_array($key, ['home_featured_count', 'home_latest_count', 'home_stories_count'], true)) {
                 $value = is_numeric($value) ? max(0, min(24, (int) $value)) : null;
             }
             // How long a newsletter code works, in minutes (an empty box means the usual 15).

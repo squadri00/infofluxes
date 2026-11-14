@@ -36,6 +36,13 @@
 
     <div class="view-bar">@include('partials.view-toggle')</div>
 
+    @if ($stories->isNotEmpty())
+        <section class="block">
+            <h2 class="block__title">{{ __('site.stories_title') }} <a class="block__more" href="{{ route('stories') }}">{{ __('site.stories_all') }} &rarr;</a></h2>
+            @include('partials.story-grid', ['stories' => $stories])
+        </section>
+    @endif
+
     @if ($featured->isNotEmpty())
         <section class="block">
             <h2 class="block__title">{{ __('site.featured') }}</h2>

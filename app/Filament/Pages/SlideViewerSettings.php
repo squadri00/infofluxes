@@ -3,7 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Support\Translated;
-use App\Models\Article;
+use App\Models\Story;
 use App\Models\HeroMessage;
 use App\Models\HeroSlide;
 use App\Models\Setting;
@@ -188,7 +188,7 @@ class SlideViewerSettings extends Page
             Tabs::make('sliders')->persistTabInQueryString()->tabs([
                 Tab::make('Home page slider')->icon('heroicon-o-home')->schema($home),
                 Tab::make('Story slider')->icon('heroicon-o-presentation-chart-line')
-                    ->badge('articles with story slides')
+                    ->badge('Visual Stories')
                     ->schema($storySections),
             ]),
         ]);
@@ -299,8 +299,8 @@ class SlideViewerSettings extends Page
                 ->label('See a story')
                 ->icon('heroicon-o-eye')
                 ->color('gray')
-                ->url(fn () => ($a = Article::published()->whereHas('chapters')->orderBy('id')->first()) ? route('article.show', $a->slug) : null, shouldOpenInNewTab: true)
-                ->visible(fn () => Article::published()->whereHas('chapters')->exists()),
+                ->url(fn () => ($a = Story::published()->whereHas('chapters')->orderBy('id')->first()) ? $a->url() : null, shouldOpenInNewTab: true)
+                ->visible(fn () => Story::published()->whereHas('chapters')->exists()),
             Action::make('reset')
                 ->label('Back to the usual story slider settings')
                 ->color('danger')

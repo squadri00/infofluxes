@@ -247,7 +247,9 @@ class Step30Test extends TestCase
         }
 
         $articles = (string) file_get_contents(base_path('app/Filament/Resources/Articles/ArticleResource.php'));
-        $this->assertSame(2, substr_count($articles, 'ImageStore::maxKb()'), 'the main picture and the story slide picture share the limit');
+        $stories = (string) file_get_contents(base_path('app/Filament/Resources/Stories/StoryResource.php'));
+        $this->assertSame(1, substr_count($articles, 'ImageStore::maxKb()'), 'the article picture uses the shared limit');
+        $this->assertSame(2, substr_count($stories, 'ImageStore::maxKb()'), 'the story cover and the slide picture share the limit');
         $this->assertStringNotContainsString('maxSize(10240)', $articles);
     }
 
