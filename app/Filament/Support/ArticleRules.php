@@ -13,8 +13,12 @@ class ArticleRules
      * @param  array<string, mixed>  $data  the form data
      * @param  ?string  $previousStatus  the status before this save (null for a new article)
      */
-    public static function apply(array $data, ?string $previousStatus = null, ?string $currentSlug = null, bool $aiAssisted = false): array
+    public static function apply(array $data, ?string $previousStatus = null, ?string $currentSlug = null, bool $aiAssisted = false, ?Article $record = null): array
     {
+        // The form holds only some keys of custom_data. The others (sources, the AI's check points) are kept as they are.
+        if ($record) {
+            $data['custom_data'] = array_merge((array) $record->custom_data, (array) ($data['custom_data'] ?? []));
+        }
         $role = auth()->user()?->role;
         $canPublish = in_array($role, ['superuser', 'moderator'], true);
         $status = $data['status'] ?? 'draft';
@@ -28,8 +32,19 @@ class ArticleRules
             \Filament\Notifications\Notification::make()->danger()->title('Not published')->body('This article was written with AI help. Write the name of the person who read it in "Reviewer", then publish.')->persistent()->send();
             $status = $previousStatus && $previousStatus !== 'published' ? $previousStatus : 'draft';
         }
+        // The review checklist: every line ticked before an article written with AI help goes live.
+        if ($status === 'published' && ($aiAssisted || ! empty($data['ai_assisted'])) && $previousStatus !== 'published' && $record) {
+            $left = \App\Support\ReviewChecklist::left((array) ($data['custom_data'] ?? []));
+            if ($left !== []) {
+                \Filament\Notifications\Notification::make()->danger()->title(__('review.blocked_title'))->body(__('review.blocked_body', ['left' => count($left)]))->persistent()->send();
+                $status = $previousStatus && $previousStatus !== 'published' ? $previousStatus : 'draft';
+            } else {
+                // who finished the review, and when
+                $data['custom_data']['review']['reviewed_by'] = $data['reviewer_name'] ?? null;
+                $data['custom_data']['review']['reviewed_at'] = now()->toDateTimeString();
+            }
+        }
         $data['status'] = $status;
-
         // Only a moderator or the super user features an article. Anyone else changes nothing there (and a new article is not featured).
         if (! $canPublish) {
             unset($data['featured_order']);

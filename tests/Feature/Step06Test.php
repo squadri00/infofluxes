@@ -393,7 +393,7 @@ class Step06Test extends TestCase
         Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])->fillForm(['status' => 'published', 'reviewer_name' => ''])->call('save');
         $this->assertSame('draft', $a->fresh()->status, 'not published without a reviewer');
 
-        Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])->fillForm(['status' => 'published', 'reviewer_name' => 'Dr Check'])->call('save')->assertHasNoFormErrors();
+        Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])->fillForm(['status' => 'published', 'reviewer_name' => 'Dr Check', 'custom_data' => ['review' => ['done' => array_keys(\App\Support\ReviewChecklist::standard())]]])->call('save')->assertHasNoFormErrors();
         $this->assertSame('published', $a->fresh()->status);
         $this->assertSame('Dr Check', $a->fresh()->reviewer_name);
     }

@@ -14,7 +14,7 @@ class EditArticle extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        return ArticleRules::apply($data, $this->record->status, $this->record->slug, (bool) $this->record->ai_assisted);
+        return ArticleRules::apply($data, $this->record->status, $this->record->slug, (bool) $this->record->ai_assisted, $this->record);
     }
 
     protected function getHeaderActions(): array

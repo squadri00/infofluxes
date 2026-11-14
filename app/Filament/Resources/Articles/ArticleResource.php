@@ -207,6 +207,18 @@ class ArticleResource extends Resource
                             ]),
                     ])->collapsible(),
 
+                Section::make(fn () => __('review.section'))
+                    ->description(fn () => __('review.section_help'))
+                    ->visible(fn (?\App\Models\Article $record) => $record && ($record->ai_assisted || filled($record->custom_data['please_check'] ?? null)))
+                    ->collapsible()
+                    ->schema([
+                        \Filament\Forms\Components\CheckboxList::make('custom_data.review.done')->label(fn () => __('review.standard_label'))
+                            ->options(fn () => \App\Support\ReviewChecklist::standard())->columns(1),
+                        \Filament\Forms\Components\CheckboxList::make('custom_data.review.points_done')->label(fn () => __('review.points_label'))
+                            ->options(fn (?\App\Models\Article $record) => \App\Support\ReviewChecklist::points($record?->custom_data))->columns(1)
+                            ->visible(fn (?\App\Models\Article $record) => \App\Support\ReviewChecklist::points($record?->custom_data) !== []),
+                    ]),
+
                 Section::make('Publishing')
                     ->collapsible()
                     ->collapsed(fn (string $operation) => $operation === 'edit')
