@@ -32,6 +32,7 @@ class Html
             return e(strip_tags($html));
         }
         static::walk($root);
+        static::restoreQuoteBlocks($doc, $root);
 
         $out = '';
         foreach ($root->childNodes as $child) {
@@ -120,6 +121,72 @@ class Html
         $flush();
 
         return $out;
+    }
+
+    /**
+     * The article editor rewrites the text when someone saves the form and drops the classes of a verse or hadith block.
+     * A plain quote that has the shape of one (Arabic line, English line, a reference like "Surah An-Nahl 16:36 · ..." or "Sahih al-Bukhari 7373 ...")
+     * gets its classes back, so it is shown in the blue or green style again. A quote that does not have this shape is left as it is.
+     */
+    private static function restoreQuoteBlocks(\DOMDocument $doc, \DOMElement $root): void
+    {
+        $refPattern = '/^(?:Surah|Sura|Surat)\b.*\d+\s*:\s*\d+|^(?:Sahih|Sunan|Jami|Muwatta|Musnad)\b.*\d|\b(?:Bukhari|Muslim)\b.*\d/iu';
+        foreach (iterator_to_array($root->getElementsByTagName('blockquote')) as $bq) {
+            if (str_contains((string) $bq->getAttribute('class'), 'quote')) {
+                continue;
+            }
+            $parts = [];
+            foreach ($bq->childNodes as $child) {
+                $text = trim(preg_replace('/\s+/u', ' ', $child->textContent));
+                if ($text !== '' && ($child instanceof \DOMText || ($child instanceof \DOMElement && in_array(strtolower($child->tagName), ['p', 'cite', 'footer', 'em', 'i', 'small'], true)))) {
+                    $parts[] = $text;
+                }
+            }
+            if (count($parts) < 2 || ! preg_match($refPattern, end($parts))) {
+                continue;
+            }
+            $ref = array_pop($parts);
+            $isArabic = function (string $t): bool {
+                $letters = preg_match_all('/\p{L}/u', $t);
+
+                return $letters > 0 && preg_match_all('/[\x{0600}-\x{06FF}\x{0750}-\x{077F}]/u', $t) / $letters >= 0.6;
+            };
+            $arabic = '';
+            $english = [];
+            foreach ($parts as $p) {
+                if ($arabic === '' && $isArabic($p)) {
+                    $arabic = $p;
+                } else {
+                    $english[] = $p;
+                }
+            }
+            if ($arabic === '' && $english === []) {
+                continue;
+            }
+            $kind = preg_match('/^(?:Surah|Sura|Surat)\b/iu', $ref) ? 'quran' : 'hadith';
+            while ($bq->firstChild) {
+                $bq->removeChild($bq->firstChild);
+            }
+            $bq->setAttribute('class', 'quote quote--'.$kind);
+            if ($arabic !== '') {
+                $p = $doc->createElement('p');
+                $p->setAttribute('class', 'quote__ar');
+                $p->setAttribute('dir', 'rtl');
+                $p->setAttribute('lang', 'ar');
+                $p->appendChild($doc->createTextNode($arabic));
+                $bq->appendChild($p);
+            }
+            if ($english !== []) {
+                $p = $doc->createElement('p');
+                $p->setAttribute('class', 'quote__text');
+                $p->appendChild($doc->createTextNode(implode(' ', $english)));
+                $bq->appendChild($p);
+            }
+            $cite = $doc->createElement('cite');
+            $cite->setAttribute('class', 'quote__ref');
+            $cite->appendChild($doc->createTextNode($ref));
+            $bq->appendChild($cite);
+        }
     }
 
     /**

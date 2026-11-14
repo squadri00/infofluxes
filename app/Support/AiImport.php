@@ -339,8 +339,8 @@ class AiImport
     }
 
     /**
-     * Gives a text the "## " marks a chat window dropped: a short line without an end mark, with a blank line (or the start) before it
-     * and a longer line of text straight after it, is a heading. Verse and hadith blocks and list lines are never touched.
+     * Gives a text the "## " marks a chat window dropped: a short line without an end mark, with a blank line, the start or a finished sentence
+     * before it and a longer line of text straight after it, is a heading. Verse and hadith blocks and list lines are never touched.
      *
      * @return array{0: string, 1: int} the new text and the number of headings made
      */
@@ -351,6 +351,7 @@ class AiImport
         $count = 0;
         $inBlock = false;
         $previousBlank = true;
+        $previousEndsSentence = false;
         foreach ($lines as $i => $line) {
             $t = trim($line);
             if (preg_match('/^\[(QURAN|HADITH)\]$/i', $t)) {
@@ -358,7 +359,7 @@ class AiImport
             }
             $next = trim((string) ($lines[$i + 1] ?? ''));
             $words = preg_split('/\s+/u', $t, -1, PREG_SPLIT_NO_EMPTY);
-            $looksLikeHeading = ! $inBlock && $previousBlank && $t !== '' && mb_strlen($t) <= 90 && count($words) <= 12
+            $looksLikeHeading = ! $inBlock && ($previousBlank || $previousEndsSentence) && $t !== '' && mb_strlen($t) <= 90 && count($words) <= 12
                 && ! preg_match('/[.;:,!…]["”’\')\]]*$/u', $t)                 // a sentence ends with a mark; a heading does not
                 && ! preg_match('/^(#|[-•*]\s|\[|[A-Z ]{3,}:)/u', $t)           // not already marked, not a list line, not a field
                 && $next !== '' && ! preg_match('/^(#|\[)/', $next) && mb_strlen($next) > mb_strlen($t);
@@ -368,6 +369,7 @@ class AiImport
                 $inBlock = false;
             }
             $previousBlank = $t === '';
+            $previousEndsSentence = $t !== '' && ! $looksLikeHeading && (bool) preg_match('/[.!?]["\x{201D}\x{2019}\')\]]*$/u', $t);
         }
 
         return [implode("\n", $out), $count];
