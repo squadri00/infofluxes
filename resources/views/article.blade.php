@@ -79,6 +79,11 @@
     @endif
 
     @if ($body !== '')
+        @if (! empty($article->custom_data['accordion']))
+            <div class="acc-tools" data-acc-tools hidden>
+                <button type="button" class="acc-toggle" data-acc-toggle data-label-open="{{ __('site.expand_all') }}" data-label-close="{{ __('site.collapse_all') }}">{{ __('site.expand_all') }}</button>
+            </div>
+        @endif
         <div class="article__body">{!! $bodyShown !!}</div>
     @endif
 
@@ -111,8 +116,9 @@
     @endif
 
     @if ($sources->isNotEmpty())
-        <section class="article__sources" aria-label="{{ __('site.sources') }}">
-            <h2 class="block__title">{{ __('site.sources') }}</h2>
+        <details class="acc acc--sources article__sources">
+            <summary class="acc__title">{{ __('site.sources') }} ({{ $sources->count() }})</summary>
+            <div class="acc__body">
             @foreach (['primary' => 'sources_primary', 'secondary' => 'sources_secondary', 'other' => 'sources_other'] as $type => $label)
                 @php $group = $sources->filter(fn ($x) => ($x['type'] ?? 'other') === $type); @endphp
                 @if ($group->isNotEmpty())
@@ -129,7 +135,8 @@
                     </ul>
                 @endif
             @endforeach
-        </section>
+            </div>
+        </details>
     @endif
 
     @if (filled($article->source_line))
@@ -168,6 +175,7 @@
 @if (\App\Support\Listen::visible($listenTracks))
     @push('scripts')
         <script src="{{ asset('js/listen.js') }}?v={{ @filemtime(public_path('js/listen.js')) ?: 1 }}" defer></script>
+        <script src="{{ asset('js/accordion.js') }}?v={{ @filemtime(public_path('js/accordion.js')) ?: 1 }}" defer></script>
     @endpush
 @endif
 </article>

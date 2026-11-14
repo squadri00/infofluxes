@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Http;
 /**
  * Asks a web address "do you open?". Only http and https to public servers; never a local or private address.
  * The answer is kept for ten minutes, so pressing Check and then Save does not ask twice.
- * "ok" = the page opened; "broken" = an error or no answer; "skipped" = not a web address we may visit.
+ * "ok" = the page opened; "broken" = an error or no answer; "blocked" = the site refuses automatic visits (it may well open for a person);
+ * "skipped" = not a web address we may visit.
  */
 class LinkChecker
 {
     public const MAX_LINKS = 30;
 
-    /** @return 'ok'|'broken'|'skipped' */
+    /** @return 'ok'|'broken'|'blocked'|'skipped' */
     public static function check(string $url): string
     {
         $url = trim($url);
@@ -22,7 +23,7 @@ class LinkChecker
         return Cache::remember('linkcheck:'.md5($url), 600, fn () => static::ask($url));
     }
 
-    /** @return 'ok'|'broken'|'skipped' */
+    /** @return 'ok'|'broken'|'blocked'|'skipped' */
     private static function ask(string $url): string
     {
         if (! static::allowed($url)) {
@@ -35,7 +36,12 @@ class LinkChecker
                 $r = Http::timeout(8)->withHeaders($opts)->withOptions(['allow_redirects' => ['max' => 3, 'protocols' => ['http', 'https']], 'stream' => true])->get($url);
             }
 
-            return $r->successful() ? 'ok' : 'broken';
+            if ($r->successful()) {
+                return 'ok';
+            }
+
+            // 401, 403, 429 and 999 mean "I will not talk to a program", not "this page is missing".
+            return in_array($r->status(), [401, 403, 429, 999], true) ? 'blocked' : 'broken';
         } catch (\Throwable) {
             return 'broken';
         }

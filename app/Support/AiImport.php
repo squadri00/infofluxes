@@ -187,6 +187,9 @@ class AiImport
                 if ($sources[$i]['link'] === 'broken') {
                     $warnings[] = 'This link did not open: '.mb_substr($src['url'], 0, 90);
                     $auto[] = 'A link did not open, find the right one: '.mb_substr($src['url'], 0, 90);
+                } elseif ($sources[$i]['link'] === 'blocked') {
+                    $warnings[] = 'This site does not allow automatic checks. Open the link yourself: '.mb_substr($src['url'], 0, 90);
+                    $auto[] = 'Open this link yourself, the site does not allow automatic checks: '.mb_substr($src['url'], 0, 90);
                 } elseif ($sources[$i]['link'] === 'skipped') {
                     $warnings[] = 'This address cannot be checked from here: '.mb_substr($src['url'], 0, 90);
                 }

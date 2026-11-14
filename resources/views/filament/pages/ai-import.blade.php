@@ -150,6 +150,7 @@
                                         <li>
                                             @if (($src['link'] ?? null) === 'ok') <span style="color:#2d9d5a">✓ opens</span>
                                             @elseif (($src['link'] ?? null) === 'broken') <span style="color:#d92d20">✗ did not open</span>
+                                            @elseif (($src['link'] ?? null) === 'blocked') <span style="color:#b07800">⚠ open it yourself (the site blocks checks)</span>
                                             @elseif (($src['link'] ?? null) === 'skipped') <span style="opacity:.7">not checked</span>
                                             @else <span style="opacity:.7">no link</span> @endif
                                             · {{ ucfirst($src['type']) }}: {{ $src['ref'] }}

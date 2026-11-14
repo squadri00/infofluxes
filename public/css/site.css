@@ -1873,17 +1873,22 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 @media (prefers-reduced-motion: reduce) { .scard, .scard__media img { transition: none; } }
 
 /* Drop-down parts of a researched article */
-.article__body .acc { border: 1px solid var(--line); border-radius: var(--radius); margin: .7rem 0; background: var(--surface); }
-.article__body .acc__title { cursor: pointer; font-weight: 700; font-size: 1.1rem; padding: .75rem 1rem; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
-.article__body .acc__title::-webkit-details-marker { display: none; }
-.article__body .acc__title::after { content: "+"; color: var(--accent); font-size: 1.3rem; line-height: 1; }
-.article__body .acc[open] > .acc__title::after { content: "\2212"; }
-.article__body .acc[open] > .acc__title { border-bottom: 1px solid var(--line); }
-.article__body .acc__body { padding: .2rem 1rem .8rem; }
-.article__body .acc__body h3 { margin-top: 1.1rem; }
+.acc { border: 1px solid var(--line); border-radius: var(--radius); margin: .7rem 0; background: var(--surface); }
+.acc__title { cursor: pointer; font-weight: 700; font-size: 1.1rem; padding: .75rem 1rem; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+.acc__title::-webkit-details-marker { display: none; }
+.acc__title::after { content: "+"; color: var(--accent); font-size: 1.3rem; line-height: 1; }
+.acc[open] > .acc__title::after { content: "\2212"; }
+.acc[open] > .acc__title { border-bottom: 1px solid var(--line); }
+.acc__body { padding: .2rem 1rem .8rem; }
+.acc__body h3 { margin-top: 1.1rem; }
 
 /* Sources of an article */
 .article__sources { margin: 1.5rem 0; }
+.acc-tools { display: flex; justify-content: flex-end; margin: .6rem 0 -.2rem; }
+.acc-tools[hidden] { display: none; }
+.acc-toggle { cursor: pointer; font: inherit; font-size: .9rem; font-weight: 600; padding: .35rem .9rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text); }
+.acc-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.acc-toggle:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .article__sources-type { font-size: 1rem; margin: .8rem 0 .3rem; color: var(--muted); }
 .article__sources-list { margin: 0; padding-left: 1.2rem; display: grid; gap: .35rem; }
 .article__sources-list a { margin-left: .4rem; white-space: nowrap; }

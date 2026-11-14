@@ -138,6 +138,8 @@ return [
     'reviewed_by' => 'Reviewed by',
     'source' => 'Source',
     'sources' => 'Sources',
+    'expand_all' => 'Expand all',
+    'collapse_all' => 'Collapse all',
     'sources_primary' => 'First-hand sources',
     'sources_secondary' => 'Other sources',
     'sources_other' => 'More sources',
