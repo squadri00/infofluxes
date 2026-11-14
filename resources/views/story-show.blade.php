@@ -86,6 +86,8 @@
         <div class="topic__hook"><p>{{ $summary }}</p></div>
     @endif
 
+    @include('partials.engage', ['item' => $story])
+
     @if ($body !== '')
         <div class="article__body">{!! $body !!}</div>
     @endif
@@ -122,6 +124,10 @@
         </section>
     @endif
 </article>
+
+@push('scripts')
+    <script src="{{ asset('js/share.js') }}?v={{ @filemtime(public_path('js/share.js')) ?: 1 }}" defer></script>
+@endpush
 
 @if (\App\Support\Listen::visible($listenTracks))
     @push('scripts')

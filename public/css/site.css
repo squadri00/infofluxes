@@ -1900,3 +1900,21 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 .quote__text { margin: 0 0 .5em; }
 .quote__ref { display: block; font-style: normal; font-size: .85rem; color: var(--muted); }
 .quote--quran .quote__ref::before, .quote--hadith .quote__ref::before { content: ""; display: block; height: 1px; width: 2.5rem; margin-bottom: .45rem; background: currentColor; opacity: .35; }
+
+/* Like, dislike, save and share */
+.engage { margin: 1rem 0 1.2rem; }
+.engage__row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.engage__form { margin: 0; }
+.engage__btn { display: inline-flex; align-items: center; gap: .45rem; cursor: pointer; font: inherit; font-size: .92rem; font-weight: 600; padding: .42rem .95rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text); list-style: none; }
+.engage__btn::-webkit-details-marker { display: none; }
+.engage__btn:hover { border-color: var(--accent); color: var(--accent); }
+.engage__btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.engage__btn.is-on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.engage__count { min-width: 1.2em; text-align: center; font-weight: 700; color: var(--muted); }
+.engage__btn.is-on .engage__count { color: inherit; }
+.engage__share { position: relative; }
+.engage__share[open] > .engage__btn { border-color: var(--accent); color: var(--accent); }
+.engage__panel { position: absolute; z-index: 20; top: calc(100% + .4rem); left: 0; min-width: 12rem; display: grid; gap: .1rem; padding: .4rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }
+.engage__link { display: block; text-align: left; font: inherit; font-size: .92rem; padding: .45rem .7rem; border: 0; border-radius: 6px; background: transparent; color: var(--text); text-decoration: none; cursor: pointer; }
+.engage__link:hover { background: var(--accent-soft); color: var(--accent); }
+.engage__hint { margin: .5rem 0 0; font-size: .88rem; color: var(--muted); }

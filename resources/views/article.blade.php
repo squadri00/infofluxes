@@ -78,6 +78,8 @@
         <div class="topic__hook"><p>{{ $summary }}</p></div>
     @endif
 
+    @include('partials.engage', ['item' => $article])
+
     @if ($body !== '')
         @if (! empty($article->custom_data['accordion']))
             <div class="acc-tools" data-acc-tools hidden>
@@ -175,6 +177,7 @@
 @if (\App\Support\Listen::visible($listenTracks))
     @push('scripts')
         <script src="{{ asset('js/listen.js') }}?v={{ @filemtime(public_path('js/listen.js')) ?: 1 }}" defer></script>
+        <script src="{{ asset('js/share.js') }}?v={{ @filemtime(public_path('js/share.js')) ?: 1 }}" defer></script>
         <script src="{{ asset('js/accordion.js') }}?v={{ @filemtime(public_path('js/accordion.js')) ?: 1 }}" defer></script>
     @endpush
 @endif

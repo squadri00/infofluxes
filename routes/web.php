@@ -11,6 +11,7 @@ use App\Http\Controllers\ScriptureQuizController;
 use App\Http\Controllers\WhoQuizController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DidYouKnowController;
+use App\Http\Controllers\EngageController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\CategoryController;
@@ -43,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/submit/{article}', [AccountController::class, 'edit'])->whereNumber('article')->name('submit.edit');
     Route::post('/submit/{article}', [AccountController::class, 'update'])->whereNumber('article')->middleware('throttle:20,1');
     Route::post('/comments', [CommentController::class, 'store'])->middleware('throttle:10,1')->name('comments.store');
+    Route::post('/react/{type}/{id}', [EngageController::class, 'react'])->where('type', 'article|story')->whereNumber('id')->middleware('throttle:60,1')->name('react');
+    Route::post('/save/{type}/{id}', [EngageController::class, 'save'])->where('type', 'article|story')->whereNumber('id')->middleware('throttle:60,1')->name('save');
 });
 
 // Challenge yourself: the tests, and the answers they ask for (JSON, for the page script).

@@ -302,10 +302,10 @@ class Step13Test extends TestCase
         $this->story();
         Article::create(['title' => ['en' => 'Plain one'], 'slug' => 'plain-one', 'category_id' => $this->cat->id, 'status' => 'published', 'publish_date' => now()->subDay(), 'long_detail' => ['en' => '<p>Words.</p>']]);
 
-        foreach (['/stories/a-story', '/plain-one'] as $url) {
+        foreach (['/stories/a-story' => 'Listen to the story', '/plain-one' => 'Listen to the article'] as $url => $words) {
             $html = $this->get($url)->assertOk()->getContent();
             $this->assertStringContainsString('data-listen=', $html, $url);
-            $this->assertStringContainsString('Listen to the story', $html, $url);
+            $this->assertStringContainsString($words, $html, $url);
             $this->assertStringContainsString('js/listen.js', $html, $url);
         }
         $this->assertStringContainsString('.article__body', (string) file_get_contents(public_path('js/listen.js')), 'it also reads the long text of an article without slides');

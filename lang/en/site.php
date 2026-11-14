@@ -193,6 +193,7 @@ return [
     'story_book_chapter' => 'Chapter',
     'story_book_made' => 'Made on',
     'listen_button' => 'Listen to the story',
+    'listen_button_article' => 'Listen to the article',
     'listen_pause' => 'Pause',
     'listen_resume' => 'Resume',
     'listen_back' => 'Back',

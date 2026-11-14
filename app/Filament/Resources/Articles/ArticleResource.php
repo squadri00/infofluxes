@@ -266,6 +266,7 @@ class ArticleResource extends Resource
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'extraCategories', 'author']))
             ->columns([
                 TextColumn::make('code')->label('ID')->state(fn (Article $record) => $record->code)->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('id', $dir))->weight('bold'),
+                TextColumn::make('reactions')->label('Likes / dislikes')->state(fn (Article $record) => $record->likesCount().' / '.$record->dislikesCount())->toggleable(),
                 TextColumn::make('title')->label('Title')
                     ->state(fn (Article $record) => $record->mainTitle())
                     ->formatStateUsing(fn ($state) => \App\Filament\Support\Cells::scroll($state, 'if-scroll--title'))

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\SavedItem;
 use App\Support\Html;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -16,6 +17,9 @@ class AccountController extends Controller
         return view('account.index', [
             'articles' => Article::where('author_id', auth()->id())->orderByDesc('id')->get(),
             'staff' => auth()->user()->isStaff(),
+            // Only what is still published (a deleted or hidden item is left out).
+            'saved' => SavedItem::where('user_id', auth()->id())->with('saveable')->latest('id')->get()
+                ->filter(fn ($s) => $s->saveable && $s->saveable->status === 'published')->values(),
         ]);
     }
 

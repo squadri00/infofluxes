@@ -35,5 +35,30 @@
             </ul>
         @endif
     </section>
+    <section class="block">
+        <h2 class="block__title">{{ __('engage.my_saved') }}</h2>
+        @if ($saved->isEmpty())
+            <p class="empty">{{ __('engage.no_saved') }}</p>
+        @else
+            <ul class="account-list">
+                @foreach ($saved as $row)
+                    @php
+                        $thing = $row->saveable;
+                        $kind = $thing instanceof \App\Models\Story ? 'story' : 'article';
+                        $thingUrl = $kind === 'story' ? $thing->url() : route('article.show', $thing->slug);
+                    @endphp
+                    <li>
+                        <a href="{{ $thingUrl }}"><strong>{{ $thing->mainTitle() }}</strong></a> @include('partials.id-tag', ['code' => $thing->code])
+                        <span class="account-list__status">{{ __('engage.kind_'.$kind) }}</span>
+                        <form method="post" action="{{ route('save', [$kind, $thing->id]) }}" style="display:inline">
+                            @csrf
+                            <input type="hidden" name="from" value="account">
+                            <button type="submit" class="btn btn--small">{{ __('engage.remove') }}</button>
+                        </form>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+    </section>
 </div>
 @endsection

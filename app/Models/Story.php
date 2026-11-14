@@ -18,7 +18,7 @@ use Spatie\Translatable\HasTranslations;
  */
 class Story extends Model
 {
-    use HasTranslations, SoftDeletes;
+    use HasTranslations, SoftDeletes, \App\Models\Concerns\HasEngagement;
 
     protected $guarded = [];
 

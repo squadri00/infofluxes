@@ -13,7 +13,7 @@ use Spatie\Translatable\HasTranslations;
 /** An article. The code (A-42) is made from the id, so it never changes and is never used twice. */
 class Article extends Model
 {
-    use HasTranslations, SoftDeletes;
+    use HasTranslations, SoftDeletes, \App\Models\Concerns\HasEngagement;
 
     protected $guarded = [];
 
