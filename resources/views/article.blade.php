@@ -6,6 +6,8 @@
     $siteTitle = \App\Models\Setting::get('site_name', config('app.name'));
     $date = $article->publish_date ?: $article->created_at;
     $body = \App\Support\Html::clean((string) $article->long_detail);
+    $bodyShown = ! empty($article->custom_data['accordion']) ? \App\Support\Html::accordion($body) : $body;
+    $sources = collect((array) ($article->custom_data['sources'] ?? []))->filter(fn ($x) => filled($x['ref'] ?? null))->values();
     $videos = $article->videos->filter(fn ($v) => filled($v->youtube_id));
     $others = $article->extraCategories->filter(fn ($c) => $c->is_visible);
 @endphp
@@ -77,7 +79,7 @@
     @endif
 
     @if ($body !== '')
-        <div class="article__body">{!! $body !!}</div>
+        <div class="article__body">{!! $bodyShown !!}</div>
     @endif
 
     @if ($videos->isNotEmpty())
@@ -105,6 +107,28 @@
                     </figure>
                 @endforeach
             </div>
+        </section>
+    @endif
+
+    @if ($sources->isNotEmpty())
+        <section class="article__sources" aria-label="{{ __('site.sources') }}">
+            <h2 class="block__title">{{ __('site.sources') }}</h2>
+            @foreach (['primary' => 'sources_primary', 'secondary' => 'sources_secondary', 'other' => 'sources_other'] as $type => $label)
+                @php $group = $sources->filter(fn ($x) => ($x['type'] ?? 'other') === $type); @endphp
+                @if ($group->isNotEmpty())
+                    <h3 class="article__sources-type">{{ __('site.'.$label) }}</h3>
+                    <ul class="article__sources-list">
+                        @foreach ($group as $src)
+                            <li>
+                                {{ $src['ref'] }}
+                                @if (! empty($src['url']) && preg_match('#^https?://#i', $src['url']))
+                                    <a href="{{ $src['url'] }}" rel="nofollow noopener" target="_blank">{{ __('site.sources_open') }}</a>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            @endforeach
         </section>
     @endif
 

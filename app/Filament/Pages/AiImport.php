@@ -118,14 +118,14 @@ class AiImport extends Page
 
             return;
         }
-        $this->items = Importer::parse($this->paste);
+        $this->items = Importer::parse($this->paste, true);
         $this->checked = true;
     }
 
     public function save(): void
     {
         // The pasted text is read again here, so what is saved is never what a browser claims it checked.
-        $items = Importer::parse($this->paste);
+        $items = Importer::parse($this->paste, true);
         $user = auth()->user();
 
         if (collect($items)->contains(fn ($i) => $i['kind'] === 'categories' && $i['errors'] === []) && ! $user->canUseScreen('categories')) {

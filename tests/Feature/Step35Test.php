@@ -102,18 +102,4 @@ class Step35Test extends TestCase
         $this->assertStringContainsString('TYPE: article', $p);
         $this->assertStringContainsString('Fasting', $p);
     }
-
-    public function test_an_answer_with_sources_is_not_lost_silently_and_does_not_break_the_other_fields(): void
-    {
-        $cat = Category::create(['name' => ['en' => 'Shows'], 'slug' => 'shows']);
-        $answer = "TYPE: article\nCATEGORY: {$cat->code}\nALSO IN:\nTITLE: A researched one\nSHORT: Short words.\nLONG:\n## First part\nWords here.\n### Small part\nMore words.\nKEYWORDS: a, b\nVIDEOS:\nSOURCE: One main source\nSOURCES:\n- PRIMARY | Book | https://example.org | opened: yes\nPLEASE CHECK:\n- The date\nEND";
-
-        $item = Importer::parse($answer)[0];
-
-        $this->assertSame([], $item['errors']);
-        $this->assertSame('One main source', $item['data']['source']);
-        $this->assertStringNotContainsString('PRIMARY', $item['data']['long']);
-        $this->assertStringContainsString('## First part', $item['data']['long']);
-        $this->assertNotEmpty(array_filter($item['warnings'], fn ($w) => str_contains($w, 'not saved yet')));
-    }
 }

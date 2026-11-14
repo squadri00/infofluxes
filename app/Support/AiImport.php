@@ -19,6 +19,10 @@ class AiImport
 {
     public const MAX_CHARS = 200000;
 
+    public const MAX_LONG = 60000;
+
+    public const MAX_SOURCES = 60;
+
     public const MAX_ITEMS = 50;
 
     public const MAX_CATEGORY_LINES = 300;
@@ -28,7 +32,7 @@ class AiImport
     /**
      * @return array<int, array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>}>
      */
-    public static function parse(string $text): array
+    public static function parse(string $text, bool $checkLinks = false): array
     {
         $text = str_replace(["\r\n", "\r"], "\n", mb_substr($text, 0, self::MAX_CHARS));
         // A chat often wraps the answer in a code box. The fence lines are not part of the answer.
@@ -41,14 +45,14 @@ class AiImport
                 $items[] = ['kind' => 'article', 'title' => '(too many)', 'errors' => ['Only '.self::MAX_ITEMS.' items can be checked at one time. Paste the rest again after saving these.'], 'warnings' => [], 'data' => []];
                 break;
             }
-            $items[] = static::parseBlock($block);
+            $items[] = static::parseBlock($block, $checkLinks);
         }
 
         return $items;
     }
 
     /** @return array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>} */
-    private static function parseBlock(string $block): array
+    private static function parseBlock(string $block, bool $checkLinks = false): array
     {
         $fields = [];
         $current = null;
@@ -57,7 +61,11 @@ class AiImport
             if (preg_match('/^\s*END\s*$/i', $line)) {
                 break;
             }
-            if (preg_match('/^\s*('.implode('|', array_map(fn ($k) => str_replace(' ', '\s+', $k), self::KEYS)).')\s*:\s?(.*)$/i', $line, $m)) {
+            $keys = implode('|', array_map(fn ($k) => str_replace(' ', '\s+', $k), self::KEYS));
+            // An AI often writes **TITLE:** or "TYPE: article" (with quote marks). The marks are ignored; only the key counts.
+            $marks = '(?:\*\*|__)?';
+            if (preg_match('/^\s*[\x{201C}\x{201D}"\']?\s*'.$marks.'(TYPE)'.$marks.'\s*:\s*'.$marks.'\s?(.*)$/iu', $line, $m)
+                || preg_match('/^\s*'.$marks.'('.$keys.')'.$marks.'\s*:\s*'.$marks.'\s?(.*)$/iu', $line, $m)) {
                 $current = strtoupper(preg_replace('/\s+/', ' ', $m[1]));
                 $fields[$current] = $m[2];
                 continue;
@@ -70,7 +78,13 @@ class AiImport
         }
         $fields = array_map('trim', $fields);
         // For a categories answer the lines of the list follow "TYPE: categories", so the kind is the first line only.
-        $kind = strtolower(trim((string) strtok($fields['TYPE'] ?? '', "\n")));
+        $kindRaw = trim((string) strtok($fields['TYPE'] ?? '', "\n"));
+        $kind = strtolower($kindRaw);
+        $sameLine = '';
+        if (preg_match('/^[\s"\x{201C}\x{201D}\'*_]*(article|fact|categories)\b(.*)$/iu', $kindRaw, $km)) {
+            $kind = strtolower($km[1]);
+            $sameLine = trim($km[2], " \t\"'*_-–—:.\u{201C}\u{201D}");
+        }
 
         if ($kind === 'categories') {
             // The category lines come after "TYPE: categories" (they are in the TYPE value's following lines).
@@ -83,11 +97,16 @@ class AiImport
             return ['kind' => 'article', 'title' => mb_substr(trim($fields['TITLE'] ?? (implode(' ', $rawLines) ?: '(unknown)')), 0, 80), 'errors' => ['The first line must say "TYPE: article", "TYPE: fact" or "TYPE: categories".'], 'warnings' => [], 'data' => []];
         }
 
-        return static::checkArticle($kind, $fields);
+        if ($sameLine !== '' && trim($fields['TITLE'] ?? '') === '') {
+            $fields['TITLE'] = $sameLine;
+            $fields['__title_from_type'] = '1';
+        }
+
+        return static::checkArticle($kind, $fields, $checkLinks);
     }
 
     /** @param array<string, string> $f */
-    private static function checkArticle(string $kind, array $f): array
+    private static function checkArticle(string $kind, array $f, bool $checkLinks = false): array
     {
         $errors = [];
         $warnings = [];
@@ -109,8 +128,8 @@ class AiImport
         }
         if ($long === '') {
             $errors[] = 'LONG (the text) is missing.';
-        } elseif (mb_strlen($long) > 30000) {
-            $errors[] = 'LONG is longer than 30,000 letters.';
+        } elseif (mb_strlen($long) > self::MAX_LONG) {
+            $errors[] = 'LONG is longer than '.number_format(self::MAX_LONG).' letters.';
         }
         if (mb_strlen($source) > 500) {
             $errors[] = 'SOURCE is longer than 500 letters. Keep it to one line.';
@@ -132,9 +151,59 @@ class AiImport
         if (strip_tags($long.$short.$title) !== $long.$short.$title) {
             $warnings[] = 'The text has "<" and ">" signs. They are shown as plain text, not as formatting.';
         }
-        if (trim((string) ($f['SOURCES'] ?? '')) !== '' || trim((string) ($f['PLEASE CHECK'] ?? '')) !== '') {
-            $warnings[] = 'SOURCES and PLEASE CHECK are not saved yet. Keep the AI answer; the next step of the build saves them.';
+        if (! empty($f['__title_from_type'])) {
+            $warnings[] = 'The title was on the TYPE line. It was read as the title: '.mb_substr($title, 0, 80);
         }
+        $headings = Html::outline($long);
+        if ($kind === 'article' && mb_strlen($long) > 2500 && $headings === []) {
+            $warnings[] = 'The text has no headings ("## "). It will be one long block, without drop-down parts.';
+        }
+
+        // Sources: read the list, and ask every web address whether it opens.
+        $sources = static::readSources((string) ($f['SOURCES'] ?? ''));
+        if (count($sources) > self::MAX_SOURCES) {
+            $warnings[] = 'More than '.self::MAX_SOURCES.' sources. Only the first '.self::MAX_SOURCES.' are kept.';
+            $sources = array_slice($sources, 0, self::MAX_SOURCES);
+        }
+        $auto = [];
+        if ($kind === 'article' && $sources === []) {
+            $warnings[] = 'There is no SOURCES list. Do not publish an article without its sources.';
+        }
+        $checked = 0;
+        foreach ($sources as $i => $src) {
+            $label = mb_substr($src['ref'], 0, 70);
+            if ($src['opened'] === false) {
+                $warnings[] = 'The AI says it did not open this source: '.$label;
+                $auto[] = 'Open this source yourself, the AI did not: '.$label;
+            }
+            if ($src['url'] === null) {
+                $warnings[] = 'This source has no web address: '.$label;
+
+                continue;
+            }
+            if ($checkLinks && $checked < LinkChecker::MAX_LINKS) {
+                $checked++;
+                $sources[$i]['link'] = LinkChecker::check($src['url']);
+                if ($sources[$i]['link'] === 'broken') {
+                    $warnings[] = 'This link did not open: '.mb_substr($src['url'], 0, 90);
+                    $auto[] = 'A link did not open, find the right one: '.mb_substr($src['url'], 0, 90);
+                } elseif ($sources[$i]['link'] === 'skipped') {
+                    $warnings[] = 'This address cannot be checked from here: '.mb_substr($src['url'], 0, 90);
+                }
+            }
+        }
+
+        // Quran references: only that the surah and verse exist.
+        $quran = QuranRefs::find($long."\n".($f['SOURCES'] ?? ''));
+        foreach ($quran as $q) {
+            if (! $q['valid']) {
+                $warnings[] = 'Quran reference '.$q['ref'].' cannot be right: '.$q['problem'].'.';
+                $auto[] = 'Quran reference '.$q['ref'].' does not exist ('.$q['problem'].').';
+            }
+        }
+
+        $pleaseCheck = array_values(array_filter(array_map(fn ($l) => trim(preg_replace('/^\s*[-•]\s*/u', '', $l)), explode("\n", (string) ($f['PLEASE CHECK'] ?? '')))));
+        $pleaseCheck = array_slice(array_values(array_unique(array_merge($pleaseCheck, $auto))), 0, 60);
         if (isset($f['REVIEWER']) && $f['REVIEWER'] !== '') {
             $warnings[] = 'REVIEWER was ignored. A person writes their own name there after reading the article.';
         }
@@ -192,8 +261,54 @@ class AiImport
                 'title' => $title, 'short' => $short, 'long' => $long, 'source' => $source !== '' ? $source : null,
                 'category_id' => $category?->id, 'category_label' => $category ? Category::choices()[$category->id] ?? $category->code : null,
                 'extra_ids' => array_keys($extra), 'words' => $words->all(), 'videos' => $videos,
+                'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
         ];
+    }
+
+    /**
+     * Lines of the SOURCES field: "- PRIMARY | the source | web address | opened: yes". Missing parts are allowed.
+     *
+     * @return list<array{type: string, ref: string, url: ?string, opened: ?bool, link: ?string}>
+     */
+    public static function readSources(string $text): array
+    {
+        $out = [];
+        foreach (explode("\n", str_replace("\r", '', $text)) as $line) {
+            $line = trim(preg_replace('/^\s*[-•*]\s*/u', '', $line));
+            if ($line === '' || preg_match('/^(none|n\/a)$/i', $line)) {
+                continue;
+            }
+            $parts = array_map('trim', explode('|', $line));
+            $type = 'other';
+            if (preg_match('/^(primary|secondary)\b/i', $parts[0] ?? '', $tm)) {
+                $type = strtolower($tm[1]);
+                array_shift($parts);
+            }
+            $url = null;
+            $opened = null;
+            $refs = [];
+            foreach ($parts as $p) {
+                if (preg_match('/^opened\s*:\s*(yes|no)/i', $p, $om)) {
+                    $opened = strtolower($om[1]) === 'yes';
+                } elseif (preg_match('#https?://[^\s|)\]>]+#i', $p, $um)) {
+                    $url ??= rtrim($um[0], '.,;');
+                    $rest = trim(str_replace($um[0], '', $p), " ()[]<>");
+                    if ($rest !== '') {
+                        $refs[] = $rest;
+                    }
+                } elseif ($p !== '') {
+                    $refs[] = $p;
+                }
+            }
+            $ref = mb_substr(implode(' | ', $refs), 0, 400);
+            if ($ref === '' && $url === null) {
+                continue;
+            }
+            $out[] = ['type' => $type, 'ref' => $ref !== '' ? $ref : (string) $url, 'url' => $url, 'opened' => $opened, 'link' => null];
+        }
+
+        return $out;
     }
 
     /**
@@ -342,12 +457,17 @@ class AiImport
                 'slug' => Article::uniqueSlug($d['title']),
                 'category_id' => $d['category_id'],
                 'short_detail' => [$locale => $d['short']],
-                'long_detail' => [$locale => Html::fromPlain($d['long'])],
+                'long_detail' => [$locale => Html::fromMarked($d['long'])],
                 'search_words' => $d['words'] ?: null,
                 'source_line' => $d['source'],
                 'author_id' => $user?->id,
                 'status' => 'draft',
                 'ai_assisted' => true,
+                'custom_data' => array_filter([
+                    'accordion' => count(array_filter($d['outline'], fn ($h) => $h['level'] === 2)) >= 2 ? true : null,
+                    'sources' => $d['sources'] ?: null,
+                    'please_check' => $d['please_check'] ?: null,
+                ]) ?: null,
             ]);
             if ($d['extra_ids']) {
                 $article->extraCategories()->sync($d['extra_ids']);

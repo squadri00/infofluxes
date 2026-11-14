@@ -110,6 +110,38 @@
                         @foreach ($item['warnings'] as $warning)
                             <div style="color:#b07800">Note: {{ $warning }}</div>
                         @endforeach
+                        @if (! empty($item['data']['outline']))
+                            <details style="margin-top:.5rem"><summary style="cursor:pointer">Parts of the article ({{ count($item['data']['outline']) }})</summary>
+                                <ul style="margin:.3rem 0 0 1.2rem;list-style:disc">
+                                    @foreach ($item['data']['outline'] as $h)
+                                        <li style="margin-left:{{ ($h['level'] - 2) * 1.2 }}rem">{{ $h['title'] }}</li>
+                                    @endforeach
+                                </ul>
+                            </details>
+                        @endif
+                        @if (! empty($item['data']['sources']))
+                            <details style="margin-top:.4rem" @if (collect($item['data']['sources'])->contains(fn ($x) => ($x['link'] ?? null) === 'broken')) open @endif><summary style="cursor:pointer">Sources ({{ count($item['data']['sources']) }})</summary>
+                                <ul style="margin:.3rem 0 0 1.2rem;list-style:disc">
+                                    @foreach ($item['data']['sources'] as $src)
+                                        <li>
+                                            @if (($src['link'] ?? null) === 'ok') <span style="color:#2d9d5a">✓ opens</span>
+                                            @elseif (($src['link'] ?? null) === 'broken') <span style="color:#d92d20">✗ did not open</span>
+                                            @elseif (($src['link'] ?? null) === 'skipped') <span style="opacity:.7">not checked</span>
+                                            @else <span style="opacity:.7">no link</span> @endif
+                                            · {{ ucfirst($src['type']) }}: {{ $src['ref'] }}
+                                            @if (! empty($src['url'])) <span style="opacity:.7">({{ \Illuminate\Support\Str::limit($src['url'], 70) }})</span> @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </details>
+                        @endif
+                        @if (! empty($item['data']['please_check']))
+                            <details style="margin-top:.4rem" open><summary style="cursor:pointer"><strong>Please check ({{ count($item['data']['please_check']) }})</strong></summary>
+                                <ul style="margin:.3rem 0 0 1.2rem;list-style:disc">
+                                    @foreach ($item['data']['please_check'] as $point)<li>{{ $point }}</li>@endforeach
+                                </ul>
+                            </details>
+                        @endif
                     </div>
                 @endforeach
 

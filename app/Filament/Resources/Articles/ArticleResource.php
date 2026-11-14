@@ -225,6 +225,7 @@ class ArticleResource extends Resource
                             ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => (bool) $get('is_featured'))
                             ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('reviewer_name')->label('Reviewer name')->helperText('The person who checked it. Needed before an article written with AI help can be published.')->maxLength(255),
+                        \Filament\Forms\Components\Toggle::make('custom_data.accordion')->label('Show the parts as drop-down sections')->helperText('Each main heading becomes a drop-down section (it needs at least two main headings).'),
                         \Filament\Forms\Components\Toggle::make('ai_assisted')->label('Written with AI help')->helperText('Made by the AI import. Leave it on until a person has read and checked the article.')->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('slug')->label('Web address (short name)')->helperText('Left empty, it is made from the title.')->maxLength(255)
                             ->unique(ignoreRecord: true)

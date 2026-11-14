@@ -50,6 +50,86 @@ class Html
         return implode('', array_map(fn ($p) => '<p>'.nl2br(e(trim($p))).'</p>', $paragraphs));
     }
 
+    /**
+     * Text with light marks becomes safe HTML: "## " a main heading, "### " a sub-heading, "- " a list line,
+     * a blank line a new paragraph. Everything else is plain text. No other mark is read, and no HTML is accepted.
+     */
+    public static function fromMarked(?string $text): string
+    {
+        $lines = explode("\n", trim(str_replace(["\r\n", "\r"], "\n", (string) $text)));
+        $out = '';
+        $para = [];
+        $list = [];
+        $flush = function () use (&$out, &$para, &$list) {
+            if ($para) {
+                $out .= '<p>'.implode('<br>', array_map(fn ($l) => e($l), $para)).'</p>';
+                $para = [];
+            }
+            if ($list) {
+                $out .= '<ul>'.implode('', array_map(fn ($l) => '<li>'.e($l).'</li>', $list)).'</ul>';
+                $list = [];
+            }
+        };
+        foreach ($lines as $line) {
+            $line = rtrim($line);
+            if (trim($line) === '') {
+                $flush();
+            } elseif (preg_match('/^\s*###\s+(.+)$/u', $line, $m)) {
+                $flush();
+                $out .= '<h3>'.e(trim($m[1])).'</h3>';
+            } elseif (preg_match('/^\s*##\s+(.+)$/u', $line, $m)) {
+                $flush();
+                $out .= '<h2>'.e(trim($m[1])).'</h2>';
+            } elseif (preg_match('/^\s*[-•]\s+(.+)$/u', $line, $m)) {
+                if ($para) {
+                    $flush();
+                }
+                $list[] = trim($m[1]);
+            } else {
+                if ($list) {
+                    $flush();
+                }
+                $para[] = trim($line);
+            }
+        }
+        $flush();
+
+        return $out;
+    }
+
+    /** The main headings (## ) of a marked text, in order. */
+    public static function outline(?string $text): array
+    {
+        preg_match_all('/^\s*(#{2,3})\s+(.+)$/mu', str_replace("\r", '', (string) $text), $m, PREG_SET_ORDER);
+
+        return array_map(fn ($h) => ['level' => strlen($h[1]), 'title' => trim($h[2])], $m);
+    }
+
+    /**
+     * Wraps each main heading (h2) and what follows it into a drop-down section. The words before the first heading stay open.
+     * With fewer than two main headings nothing changes. The first section starts open.
+     */
+    public static function accordion(string $html): string
+    {
+        if (preg_match_all('/<h2>/', $html) < 2) {
+            return $html;
+        }
+        $parts = preg_split('/(?=<h2>)/', $html, -1, PREG_SPLIT_NO_EMPTY);
+        $out = '';
+        $first = true;
+        foreach ($parts as $part) {
+            if (! preg_match('#^<h2>(.*?)</h2>(.*)$#s', $part, $m)) {
+                $out .= $part;
+
+                continue;
+            }
+            $out .= '<details class="acc"'.($first ? ' open' : '').'><summary class="acc__title">'.$m[1].'</summary><div class="acc__body">'.$m[2].'</div></details>';
+            $first = false;
+        }
+
+        return $out;
+    }
+
     private static function walk(\DOMNode $node): void
     {
         foreach (iterator_to_array($node->childNodes) as $child) {
