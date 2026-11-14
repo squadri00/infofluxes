@@ -1,5 +1,7 @@
 <x-filament-panels::page>
     <style>
+        .ai-sel, .ai-sel option { background-color: #ffffff !important; color: #111827 !important; }
+        .dark .ai-sel, .dark .ai-sel option { background-color: #18181b !important; color: #f4f4f5 !important; }
         .ai-cat-list { background: #ffffff; color: #111827; }
         .dark .ai-cat-list { background: #18181b; color: #f4f4f5; }
         .ai-cat-list button:hover { background: rgba(31, 95, 139, .18) !important; }
@@ -16,7 +18,7 @@
         <div style="display:grid;gap:.9rem;max-width:60rem">
             <label>
                 <strong>What do you want?</strong><br>
-                <select wire:model.live="kind" style="padding:.5rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent">
+                <select class="ai-sel" wire:model.live="kind" style="padding:.5rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent">
                     @foreach ($this->kinds() as $key => $label)
                         <option value="{{ $key }}">{{ $label }}</option>
                     @endforeach
@@ -56,7 +58,7 @@
                 </div>
                 <label>
                     <strong>Kind of research</strong> <span style="opacity:.7">(chosen for you from the category; change it if it does not fit)</span><br>
-                    <select wire:model.live="specialist" style="{{ $box }}">
+                    <select class="ai-sel" wire:model.live="specialist" style="{{ $box }}">
                         <option value="">None (master rules only)</option>
                         @foreach ($this->specialists() as $slug => $title)
                             <option value="{{ $slug }}">{{ $title }}</option>
@@ -70,7 +72,7 @@
                     </label>
                     <label>
                         <strong>How detailed</strong><br>
-                        <select wire:model.live="depth" style="{{ $box }}">
+                        <select class="ai-sel" wire:model.live="depth" style="{{ $box }}">
                             @foreach ($this->depths() as $key => $label)
                                 <option value="{{ $key }}">{{ $label }}</option>
                             @endforeach
