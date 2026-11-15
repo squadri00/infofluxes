@@ -18,7 +18,12 @@ use Spatie\Translatable\HasTranslations;
  */
 class Story extends Model
 {
-    use HasTranslations, SoftDeletes, \App\Models\Concerns\HasEngagement, \App\Models\Concerns\LogsActivity;
+    use HasTranslations, SoftDeletes, \App\Models\Concerns\HasEngagement, \App\Models\Concerns\LogsActivity, \App\Models\Concerns\KeepsOldAddress;
+
+    public function publicPath(?string $slug = null): string
+    {
+        return '/stories/'.($slug ?? $this->slug);
+    }
 
     public array $activityUndo = ['source_line', 'search_words'];
 

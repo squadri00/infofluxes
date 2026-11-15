@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Filament\Resources\Redirects\Pages;
+
+use App\Filament\Resources\Redirects\RedirectResource;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ManageRecords;
+
+class ManageRedirects extends ManageRecords
+{
+    protected static string $resource = RedirectResource::class;
+
+    protected ?string $heading = 'Redirects';
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            CreateAction::make()->label('New redirect')->mutateDataUsing(function (array $data) {
+                $data['type'] = 'manual';
+
+                return $data;
+            }),
+        ];
+    }
+}

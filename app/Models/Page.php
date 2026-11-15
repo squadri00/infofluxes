@@ -13,7 +13,12 @@ use Spatie\Translatable\HasTranslations;
  */
 class Page extends Model
 {
-    use HasTranslations, \App\Models\Concerns\LogsActivity;
+    use HasTranslations, \App\Models\Concerns\LogsActivity, \App\Models\Concerns\KeepsOldAddress;
+
+    public function publicPath(?string $slug = null): string
+    {
+        return '/'.($slug ?? $this->slug);
+    }
 
     protected $guarded = [];
 

@@ -12,7 +12,12 @@ use Illuminate\Support\Str;
 /** A contributor: someone credited on articles. When "show_page" is on they also have a page of their own at /people/their-name. */
 class Person extends Model
 {
-    use SoftDeletes, \App\Models\Concerns\LogsActivity;
+    use SoftDeletes, \App\Models\Concerns\LogsActivity, \App\Models\Concerns\KeepsOldAddress;
+
+    public function publicPath(?string $slug = null): string
+    {
+        return '/people/'.($slug ?? $this->slug);
+    }
 
     public array $activityUndo = ['name', 'role_title', 'bio', 'qualification_note', 'page_body'];
 

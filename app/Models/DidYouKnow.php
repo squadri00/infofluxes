@@ -10,7 +10,12 @@ use Spatie\Translatable\HasTranslations;
 /** One "Did You Know?" entry: a short fact with its source. Code D-<number>. */
 class DidYouKnow extends Model
 {
-    use HasTranslations, \App\Models\Concerns\LogsActivity;
+    use HasTranslations, \App\Models\Concerns\LogsActivity, \App\Models\Concerns\KeepsOldAddress;
+
+    public function publicPath(?string $slug = null): string
+    {
+        return '/did-you-know/'.($slug ?? $this->slug);
+    }
 
     protected $table = 'did_you_know_entries';
 

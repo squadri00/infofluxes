@@ -15,7 +15,12 @@ use Spatie\Translatable\HasTranslations;
  */
 class Category extends Model
 {
-    use HasTranslations, SoftDeletes, \App\Models\Concerns\LogsActivity;
+    use HasTranslations, SoftDeletes, \App\Models\Concerns\LogsActivity, \App\Models\Concerns\KeepsOldAddress;
+
+    public function publicPath(?string $slug = null): string
+    {
+        return '/category/'.($slug ?? $this->slug);
+    }
 
     protected $guarded = [];
 

@@ -13,7 +13,12 @@ use Spatie\Translatable\HasTranslations;
 /** An article. The code (A-42) is made from the id, so it never changes and is never used twice. */
 class Article extends Model
 {
-    use HasTranslations, SoftDeletes, \App\Models\Concerns\HasEngagement, \App\Models\Concerns\LogsActivity;
+    use HasTranslations, SoftDeletes, \App\Models\Concerns\HasEngagement, \App\Models\Concerns\LogsActivity, \App\Models\Concerns\KeepsOldAddress;
+
+    public function publicPath(?string $slug = null): string
+    {
+        return '/'.($slug ?? $this->slug);
+    }
 
     /** Fields besides the translated ones that may be put back from the history. */
     public array $activityUndo = ['source_line', 'search_words'];
