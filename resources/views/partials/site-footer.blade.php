@@ -2,6 +2,7 @@
 @php
     $footerName = \App\Models\Setting::get('site_name', config('app.name'));
     $footerLogo = \App\Models\Setting::get('logo');
+    $footerWithName = (bool) filter_var(\App\Models\Setting::get('logo_with_name', true), FILTER_VALIDATE_BOOLEAN);
     $browse = \App\Models\Category::query()->whereNull('parent_id')->where('is_visible', true)->orderBy('sort_order')->orderBy('id')->limit(8)->get();
     $footerPages = \App\Models\Page::query()->published()->where('in_footer', true)->orderBy('sort_order')->orderBy('id')->get();
     $copyright = str_replace([':year', ':site'], [now()->year, $footerName], \App\Models\Setting::get('copyright', __('site.copyright')));
@@ -11,14 +12,15 @@
         <div class="site-footer__grid">
             <div class="site-footer__brand">
                 <a class="site-footer__name" href="{{ route('home') }}">
-                    @if ($footerLogo)<img class="site-footer__logo" src="{{ asset('storage/'.$footerLogo) }}" alt="{{ $footerName }}">@else{{ $footerName }}@endif
+                    @if ($footerLogo)<img class="site-footer__logo" src="{{ asset('storage/'.$footerLogo) }}" alt="{{ $footerWithName ? '' : $footerName }}">@endif
+                    @if (! $footerLogo || $footerWithName)<span>{{ $footerName }}</span>@endif
                 </a>
                 <p class="site-footer__tagline">{{ \App\Models\Setting::get('tagline', __('site.tagline')) }}</p>
                 @if (filled(\App\Models\Setting::get('footer_about')))<p class="site-footer__about">{{ \App\Models\Setting::get('footer_about') }}</p>@endif
                 @include('partials.social-links', ['class' => 'social--footer'])
                 @if (\App\Support\Newsletter::enabled())
                     <p class="site-footer__subscribe">
-                        <a class="newsletter-btn" href="{{ route('newsletter.show') }}">
+                        <a class="newsletter-btn" href="{{ route('newsletter.show') }}" data-nl-open>
                             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><rect x="3.5" y="6" width="17" height="12" rx="2.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4.5 7.5l7.5 5.7 7.5-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             {{ __('site.footer_subscribe') }}
                         </a>

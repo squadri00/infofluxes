@@ -53,7 +53,7 @@ class SiteSettings extends Page
         foreach (static::keys() as $key) {
             $value = Setting::all_()[$key] ?? null;
             // The two switches are on until the super user turns them off.
-            if (in_array($key, ['signups_open', 'comments_open', 'newsletter_on', 'card_stats_on'], true)) {
+            if (in_array($key, ['signups_open', 'comments_open', 'newsletter_on', 'newsletter_popup_delay', 'newsletter_popup_days', 'card_stats_on', 'logo_with_name'], true)) {
                 $value = $value === null ? true : filter_var($value, FILTER_VALIDATE_BOOLEAN);
             }
             $out[$key] = $value;
@@ -65,7 +65,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'card_stats_on', 'card_image_fit', 'card_image_focus', 'card_image_saturation', 'card_image_contrast', 'card_image_brightness', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
+        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'logo_with_name', 'newsletter_on', 'newsletter_popup_delay', 'newsletter_popup_days', 'card_stats_on', 'card_image_fit', 'card_image_focus', 'card_image_saturation', 'card_image_contrast', 'card_image_brightness', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
     }
 
     public function form(Schema $schema): Schema
@@ -81,6 +81,7 @@ class SiteSettings extends Page
                         ...Translated::textarea('footer_about', 'About text in the footer', rows: 3),
                         ...Translated::text('copyright', 'Copyright line', help: 'You can use :year and :site.'),
                         \App\Filament\Support\ImageUpload::make('logo', 'site')->label('Logo'),
+                        Toggle::make('logo_with_name')->label('Show the site name beside the logo')->helperText('On: the logo and the name, side by side (for a logo that is only a picture). Off: only the logo (for a logo that already contains the name).'),
                     ]),
                 Section::make('Home page')
                     ->description('How many articles each part of the home page shows. A part set to 0 is not shown. Featured articles are chosen on the article itself.')
@@ -116,6 +117,8 @@ class SiteSettings extends Page
                     ->description('People type their email, get a 6-digit code by email, and type it back. Only then are they on the list (Content > Newsletter).')
                     ->schema([
                         Toggle::make('newsletter_on')->label('The newsletter sign-up is on')->helperText('Off: the Subscribe link and page are closed.'),
+                        TextInput::make('newsletter_popup_delay')->label('Seconds before the newsletter card slides in')->helperText('0 shows it at once. The card waits until the cookie notice is answered. Switch it off in Site controls.')->numeric()->minValue(0)->maxValue(120)->placeholder('8'),
+                        TextInput::make('newsletter_popup_days')->label('Days it stays away after a visitor closes it')->numeric()->minValue(1)->maxValue(365)->placeholder('14'),
                         TextInput::make('newsletter_code_minutes')->label('Minutes a code works')->numeric()->minValue(1)->maxValue(120)->placeholder('15'),
                         TextInput::make('newsletter_per_run')->label('Emails sent at a time when you send an issue')->helperText('Cheap hosting limits how many emails go out each hour. Ask your host, then set this number. Usual: 100.')->numeric()->minValue(1)->maxValue(500)->placeholder('100'),
                     ])->columns(2),
@@ -158,6 +161,12 @@ class SiteSettings extends Page
             }
             if ($key === 'card_image_focus' && ! array_key_exists((string) $value, \App\Support\CardPictures::FOCUS)) {
                 $value = null;
+            }
+            if ($key === 'newsletter_popup_delay') {
+                $value = is_numeric($value) ? max(0, min(120, (int) $value)) : null;
+            }
+            if ($key === 'newsletter_popup_days') {
+                $value = is_numeric($value) ? max(1, min(365, (int) $value)) : null;
             }
             if ($key === 'newsletter_per_run') {
                 $value = is_numeric($value) ? max(1, min(500, (int) $value)) : null;

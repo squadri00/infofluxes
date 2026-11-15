@@ -69,11 +69,14 @@ class Step15Test extends TestCase
     public function test_the_logo_picture_or_the_site_name_is_shown_in_the_middle(): void
     {
         $top = $this->parts()['top'];
-        $this->assertMatchesRegularExpression('#site-header__name--top"[^>]*>\s*InfoFluxes\s*</a>#', $top, 'no logo yet: the name');
+        $this->assertMatchesRegularExpression('#site-header__name--top"[^>]*>\s*<span class="site-header__wordmark">InfoFluxes</span>\s*</a>#', $top, 'no logo yet: the name');
 
         Setting::put('logo', 'site/logo.webp');
         $top = $this->parts()['top'];
-        $this->assertMatchesRegularExpression('#site-header__name--top"[^>]*>\s*<img class="site-header__logo" src="[^"]*site/logo\.webp" alt="InfoFluxes">#', $top);
+        // The logo is a picture only, so the name stays beside it (switch "Show the site name beside the logo").
+        $this->assertMatchesRegularExpression('#site-header__name--top"[^>]*>\s*<img class="site-header__logo" src="[^"]*site/logo\.webp" alt="">\s*<span class="site-header__wordmark">InfoFluxes</span>#', $top);
+        Setting::put('logo_with_name', false);
+        $this->assertMatchesRegularExpression('#site-header__name--top"[^>]*>\s*<img class="site-header__logo" src="[^"]*site/logo\.webp" alt="InfoFluxes">\s*</a>#', $this->parts()['top']);
 
         $this->assertStringNotContainsString('site/logo.webp', $this->parts()['main'], 'the picture is in the top bar only');
     }

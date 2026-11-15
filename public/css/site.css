@@ -2089,3 +2089,39 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 }
 /* Phones: room under the last footer line, so the back-to-top button does not sit on the text */
 @media (max-width: 760px) { .site-footer__bar { padding-bottom: 74px; } }
+
+/* The logo (a picture) beside the name */
+.site-header__name--top { display: inline-flex; align-items: center; gap: 10px; }
+.site-header__wordmark { font-weight: 800; font-size: 1.35rem; letter-spacing: -.01em; line-height: 1; }
+.site-footer__name { display: inline-flex; align-items: center; gap: 10px; }
+.site-footer__name .site-footer__logo { height: 38px; width: auto; }
+@media (max-width: 760px) {
+    .m-header__logo { display: inline-flex; align-items: center; gap: 8px; }
+    .m-header__logo img { height: 34px; width: auto; }
+}
+/* The newsletter card (bottom left) */
+.nlc { position: fixed; left: 16px; bottom: 16px; z-index: 55; width: min(300px, calc(100vw - 32px)); background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 34px rgba(0, 0, 0, .35); overflow: hidden; animation: nlc-in .35s ease-out; }
+.nlc[hidden] { display: none; }
+.nlc__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 8px 7px 14px; background: var(--accent); color: var(--accent-text); }
+.nlc__label { font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.nlc__close { width: 28px; height: 28px; border: 0; border-radius: 50%; background: transparent; color: inherit; font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.nlc__close:hover { background: rgba(0, 0, 0, .18); }
+.nlc__body { padding: 14px 16px 14px; display: grid; gap: 10px; }
+.nlc__title { margin: 0; font-size: 1.15rem; line-height: 1.25; }
+.nlc__text { margin: 0; font-size: .92rem; color: var(--muted); }
+.nlc__form { display: grid; gap: 8px; margin: 0; }
+.nlc__form[hidden], .nlc__text[hidden], .nlc__fine[hidden], .nlc__message[hidden] { display: none; }
+.nlc__form input[type="email"], .nlc__form input[type="text"] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; }
+.nlc__form input:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+.nlc__button { padding: 11px 14px; border: 0; border-radius: 6px; background: var(--accent); color: var(--accent-text); font: inherit; font-weight: 700; cursor: pointer; }
+.nlc__button:hover { filter: brightness(1.1); }
+.nlc__button:disabled { opacity: .6; cursor: wait; }
+.nlc__resend { padding: 4px; border: 0; background: none; color: var(--muted); font: inherit; font-size: .85rem; text-decoration: underline; cursor: pointer; }
+.nlc__fine { margin: 0; font-size: .72rem; line-height: 1.4; color: var(--muted); }
+.nlc__fine a { color: inherit; }
+.nlc__message { margin: 0; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+.nlc__message.is-good { background: var(--success-soft); }
+.nlc__message.is-bad { background: var(--danger-soft); }
+@keyframes nlc-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .nlc { animation: none; } }
+@media (max-width: 760px) { .nlc { left: 8px; right: 8px; bottom: 8px; width: auto; } }

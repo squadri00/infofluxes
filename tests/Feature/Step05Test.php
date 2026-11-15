@@ -243,7 +243,7 @@ class Step05Test extends TestCase
 
         $this->get('/register')->assertNotFound();
         $this->post('/register', ['name' => 'Late', 'email' => 'late@example.org', 'password' => 'a-long-password-1', 'password_confirmation' => 'a-long-password-1'])->assertNotFound();
-        $this->get('/')->assertDontSee('Sign up');
+        $this->get('/')->assertDontSee(route('register'), false);   // no link to the sign-up page (the newsletter card has its own "Sign up for free" button)
     }
 
     public function test_log_in_works_with_a_right_password_only_and_for_active_people_only(): void

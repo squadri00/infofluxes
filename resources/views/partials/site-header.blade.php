@@ -1,6 +1,7 @@
 {{-- The page header in three rows: a thin top bar, the name and main menu, and the search bar. --}}
 @php
     $logo = \App\Models\Setting::get('logo');
+    $withName = (bool) filter_var(\App\Models\Setting::get('logo_with_name', true), FILTER_VALIDATE_BOOLEAN);
     $headerName = \App\Models\Setting::get('site_name', config('app.name'));
     $menu = \App\Support\SiteMenu::header();
     $searchCategories = \App\Models\Category::publicChoices(1);
@@ -16,10 +17,9 @@
             {{-- The logo (or the name) sits in the middle of the top bar. --}}
             <a class="site-header__name site-header__name--top" href="{{ route('home') }}">
                 @if ($logo)
-                    <img class="site-header__logo" src="{{ asset('storage/'.$logo) }}" alt="{{ $headerName }}">
-                @else
-                    {{ $headerName }}
+                    <img class="site-header__logo" src="{{ asset('storage/'.$logo) }}" alt="{{ $withName ? '' : $headerName }}">
                 @endif
+                @if (! $logo || $withName)<span class="site-header__wordmark">{{ $headerName }}</span>@endif
             </a>
             <ul class="site-header__tools">
                 @if (\App\Support\Challenge::anyOn())

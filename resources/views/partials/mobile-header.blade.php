@@ -3,6 +3,7 @@
      Under the bar comes a full-width search. On bigger screens this whole part is hidden and the usual header is shown. --}}
 @php
     $mLogo = \App\Models\Setting::get('logo');
+    $mWithName = (bool) filter_var(\App\Models\Setting::get('logo_with_name', true), FILTER_VALIDATE_BOOLEAN);
     $mName = \App\Models\Setting::get('site_name', config('app.name'));
     $mMenu = \App\Support\SiteMenu::header();
     $mLangs = \App\Support\Languages::menu();
@@ -11,7 +12,8 @@
 <header class="m-header" data-m-header>
     <div class="m-header__bar">
         <a class="m-header__logo" href="{{ route('home') }}">
-            @if ($mLogo)<img src="{{ asset('storage/'.$mLogo) }}" alt="{{ $mName }}">@else{{ $mName }}@endif
+            @if ($mLogo)<img src="{{ asset('storage/'.$mLogo) }}" alt="{{ $mWithName ? '' : $mName }}">@endif
+            @if (! $mLogo || $mWithName)<span>{{ $mName }}</span>@endif
         </a>
         @if (\App\Support\SiteControls::on('theme'))
             <button type="button" class="theme-toggle" data-theme-toggle data-label-to-dark="{{ __('site.theme_to_dark') }}" data-label-to-light="{{ __('site.theme_to_light') }}" aria-label="{{ __('site.theme_to_dark') }}">

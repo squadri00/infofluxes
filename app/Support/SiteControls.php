@@ -25,6 +25,7 @@ class SiteControls
             'share' => ['The share buttons', 'WhatsApp, Facebook, X, email and copy the link.', 'noisy', 'ctl_share', true],
             'recent' => ['"Recently viewed" beside an article', 'The pages this visitor opened last. The article then uses the full width.', 'noisy', 'ctl_recent', true],
             'social' => ['The social network buttons', 'The coloured buttons in the footer (set them in Social media).', 'noisy', 'ctl_social', true],
+            'newsletter_popup' => ['The newsletter card that slides in at the bottom left', 'A small card that offers the newsletter a few seconds after a page opens. The Subscribe link in the footer always works.', 'noisy', 'ctl_newsletter_popup', true],
             'related' => ['"Related" articles under an article', 'The row of other articles from the same category.', 'noisy', 'ctl_related', true],
             // The useful extras: "Quiet look" leaves these as they are.
             'save' => ['Save for later (bookmarks)', 'For people who are logged in. They find their list in My account.', 'extras', 'ctl_save', true],

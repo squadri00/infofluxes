@@ -13,6 +13,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('favicon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     {!! \App\Support\Seo::trackingHead() !!}
     <title>{{ $pageTitle }}</title>
     @if ($pageDescription !== '')
@@ -81,6 +84,10 @@
     <script src="{{ $ver('js/view-toggle.js') }}"></script>
     <script src="{{ $ver('js/theme.js') }}"></script>
     @stack('scripts')
+    @if (\App\Support\Newsletter::enabled() && \App\Support\SiteControls::on('newsletter_popup') && ! request()->routeIs('newsletter.*'))
+        @include('partials.newsletter-popup')
+        <script src="{{ $ver('js/newsletter-popup.js') }}" defer></script>
+    @endif
     @if (\App\Support\Seo::consentOn())
         @include('partials.consent-banner')
         <script src="{{ $ver('js/consent.js') }}"></script>

@@ -29,6 +29,18 @@ class Newsletter
         return max(1, min(120, (int) Setting::get('newsletter_code_minutes', 15)));
     }
 
+    /** Seconds after the page opens before the newsletter card shows. */
+    public static function popupDelay(): int
+    {
+        return max(0, min(120, (int) Setting::get('newsletter_popup_delay', 8)));
+    }
+
+    /** Days the card stays away after a visitor closes it. */
+    public static function popupDays(): int
+    {
+        return max(1, min(365, (int) Setting::get('newsletter_popup_days', 14)));
+    }
+
     /** The words of the sign-up, from lang/<locale>/newsletter.php. */
     public static function words(string $key): string
     {
