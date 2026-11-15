@@ -93,6 +93,12 @@ class Article extends Model
         return $slug;
     }
 
+    /** The check of each source link (see the Link checker). */
+    public function linkChecks(): HasMany
+    {
+        return $this->hasMany(LinkCheck::class);
+    }
+
     public function chapters(): HasMany
     {
         return $this->hasMany(ArticleChapter::class)->orderBy('sort_order')->orderBy('id');

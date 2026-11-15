@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 /**
  * Asks a web address "do you open?". Only http and https to public servers; never a local or private address.
- * The answer is kept for ten minutes, so pressing Check and then Save does not ask twice.
+ * check() keeps the answer for ten minutes, so pressing Check and then Save does not ask twice; probe() always asks.
  * "ok" = the page opened; "broken" = an error or no answer; "blocked" = the site refuses automatic visits (it may well open for a person);
  * "skipped" = not a web address we may visit.
  */
@@ -20,14 +20,19 @@ class LinkChecker
     {
         $url = trim($url);
 
-        return Cache::remember('linkcheck:'.md5($url), 600, fn () => static::ask($url));
+        return Cache::remember('linkcheck:'.md5($url), 600, fn () => static::probe($url)['status']);
     }
 
-    /** @return 'ok'|'broken'|'blocked'|'skipped' */
-    private static function ask(string $url): string
+    /**
+     * Asks now (no remembered answer) and also says what the server answered.
+     *
+     * @return array{status: 'ok'|'broken'|'blocked'|'skipped', code: ?int}
+     */
+    public static function probe(string $url): array
     {
+        $url = trim($url);
         if (! static::allowed($url)) {
-            return 'skipped';
+            return ['status' => 'skipped', 'code' => null];
         }
         try {
             $opts = ['User-Agent' => 'InfoFluxesLinkCheck/1.0'];
@@ -35,15 +40,14 @@ class LinkChecker
             if ($r->status() === 405 || $r->status() === 403 || $r->status() === 501 || $r->status() >= 400) {
                 $r = Http::timeout(8)->withHeaders($opts)->withOptions(['allow_redirects' => ['max' => 3, 'protocols' => ['http', 'https']], 'stream' => true])->get($url);
             }
-
             if ($r->successful()) {
-                return 'ok';
+                return ['status' => 'ok', 'code' => $r->status()];
             }
 
             // 401, 403, 429 and 999 mean "I will not talk to a program", not "this page is missing".
-            return in_array($r->status(), [401, 403, 429, 999], true) ? 'blocked' : 'broken';
+            return ['status' => in_array($r->status(), [401, 403, 429, 999], true) ? 'blocked' : 'broken', 'code' => $r->status()];
         } catch (\Throwable) {
-            return 'broken';
+            return ['status' => 'broken', 'code' => null];
         }
     }
 

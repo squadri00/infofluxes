@@ -12,3 +12,6 @@ Artisan::command('inspire', function () {
 
 // Old history lines are tidied once a week (Settings > History says how long they are kept).
 \Illuminate\Support\Facades\Schedule::command('history:prune')->weeklyOn(0, '04:00');
+
+// Source links are checked a few at a time through the day; each link is looked at again after a week.
+\Illuminate\Support\Facades\Schedule::command('links:check --limit=60')->hourly()->withoutOverlapping();

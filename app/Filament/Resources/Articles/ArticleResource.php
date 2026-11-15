@@ -305,11 +305,24 @@ class ArticleResource extends Resource
 
                         return $query->where(fn ($q) => $q->whereIn('category_id', $ids)->orWhereHas('extraCategories', fn ($c) => $c->whereIn('categories.id', $ids)));
                     }),
+                \Filament\Tables\Filters\TernaryFilter::make('broken_links')->label('Has broken sources')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereHas('linkChecks', fn ($l) => $l->broken()),
+                        false: fn (Builder $query) => $query->whereDoesntHave('linkChecks', fn ($l) => $l->broken()),
+                        blank: fn (Builder $query) => $query,
+                    ),
                 SelectFilter::make('author_id')->label('Author')->relationship('author', 'name'),
                 TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make()->label('Modify'),
+                \Filament\Actions\Action::make('check_links')->label('Check source links')->icon('heroicon-o-link')->color('gray')
+                    ->visible(fn (Article $record) => ! empty($record->custom_data['sources']) && (auth()->user()?->canPublish() ?? false))
+                    ->action(function (Article $record) {
+                        $r = \App\Support\LinkSweep::checkArticle($record);
+                        \Filament\Notifications\Notification::make()->title($r['broken'] > 0 ? $r['broken'].' broken source link(s)' : 'No broken source links')
+                            ->body($r['checked'].' link(s) checked'.($r['blocked'] ? ', '.$r['blocked'].' blocked (open them yourself).' : '.'))->color($r['broken'] > 0 ? 'danger' : 'success')->send();
+                    }),
                 \Filament\Actions\Action::make('write_with_ai')->label('Write with AI help')->icon('heroicon-o-sparkles')->color('gray')
                     ->visible(fn (Article $record) => \App\Support\IndexEntries::isBlank($record) && (auth()->user()?->canUseScreen('import') ?? false))
                     ->url(fn (Article $record) => \App\Filament\Pages\AiImport::getUrl(['entry' => $record->id])),
