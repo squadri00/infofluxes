@@ -631,7 +631,7 @@ class AiImport
                 'search_words' => $d['words'] ?: null,
                 'source_line' => $d['source'],
                 'author_id' => $user?->id,
-                'status' => 'draft',
+                'status' => 'written',   // text is in, a person has not reviewed it yet
                 'ai_assisted' => true,
                 'custom_data' => array_filter([
                     'accordion' => count(array_filter($d['outline'], fn ($h) => $h['level'] === 2)) >= 2 ? true : null,

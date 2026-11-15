@@ -19,6 +19,7 @@ class Article extends Model
 
     public const STATUSES = [
         'draft' => 'Draft',
+        'written' => 'Written, waiting for review',
         'in_review' => 'In review',
         'published' => 'Published',
         'archived' => 'Archived',

@@ -150,7 +150,7 @@ class Step44Test extends TestCase
         $this->assertTrue($e->is_index_line);
         $this->assertSame('Allah (SWT) Alone Is the Creator of All Things', $e->mainTitle());
         $this->assertSame('allah-swt-alone-is-the-creator-of-all-things', $e->slug);
-        $this->assertSame('draft', $e->status);
+        $this->assertSame('written', $e->status);
         $this->assertTrue($e->ai_assisted);
         $this->assertSame($admin->id, $e->author_id);
         $this->assertSame('Allah (SWT) alone creates', $e->custom_data['index_title']);

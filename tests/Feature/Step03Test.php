@@ -174,7 +174,7 @@ class Step03Test extends TestCase
         Livewire::test(CreateArticle::class)->fillForm(['title' => ['en' => 'Author try'], 'category_id' => $cat->id, 'status' => 'draft'])->call('create');
         $a = Article::where('slug', 'author-try')->first();
         $this->assertSame('draft', $a->status);
-        $this->assertSame(['draft', 'in_review'], array_keys(\App\Filament\Resources\Articles\ArticleResource::statusOptions()));
+        $this->assertSame(['draft', 'written', 'in_review'], array_keys(\App\Filament\Resources\Articles\ArticleResource::statusOptions()));
 
         $this->as('moderator');
         Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])->fillForm(['status' => 'published'])->call('save')->assertHasNoFormErrors();

@@ -197,7 +197,7 @@ class Step06Test extends TestCase
 
         $this->assertCount(1, $made['articles']);
         $a = Article::find($made['articles'][0]);
-        $this->assertSame('draft', $a->status);
+        $this->assertSame('written', $a->status);
         $this->assertTrue($a->ai_assisted);
         $this->assertNull($a->reviewer_name);
         $this->assertSame($user->id, $a->author_id);
@@ -340,7 +340,7 @@ class Step06Test extends TestCase
             ->call('save');
 
         $this->assertSame(1, Article::count());
-        $this->assertSame('draft', Article::first()->status);
+        $this->assertSame('written', Article::first()->status);
         $this->assertSame(1, ImportLog::count());
     }
 
@@ -391,7 +391,7 @@ class Step06Test extends TestCase
         $this->actingAs($mod);
 
         Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])->fillForm(['status' => 'published', 'reviewer_name' => ''])->call('save');
-        $this->assertSame('draft', $a->fresh()->status, 'not published without a reviewer');
+        $this->assertSame('written', $a->fresh()->status, 'not published without a reviewer');
 
         Livewire::test(EditArticle::class, ['record' => $a->getRouteKey()])->fillForm(['status' => 'published', 'reviewer_name' => 'Dr Check', 'custom_data' => ['review' => ['done' => array_keys(\App\Support\ReviewChecklist::standard())]]])->call('save')->assertHasNoFormErrors();
         $this->assertSame('published', $a->fresh()->status);

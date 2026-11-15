@@ -50,6 +50,7 @@ return [
     'edit_article' => 'Edit your article',
     'status' => 'Status',
     'status_draft' => 'Draft',
+    'status_written' => 'Written, waiting for review',
     'status_in_review' => 'Waiting for a moderator',
     'status_published' => 'Published',
     'status_archived' => 'Archived',

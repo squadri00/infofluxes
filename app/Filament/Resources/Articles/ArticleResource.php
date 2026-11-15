@@ -72,7 +72,7 @@ class ArticleResource extends Resource
     /** An author may delete only their own articles that are not published yet. */
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return static::mine($record) && (auth()->user()->canPublish() || in_array($record->status, ['draft', 'in_review'], true));
+        return static::mine($record) && (auth()->user()->canPublish() || in_array($record->status, ['draft', 'written', 'in_review'], true));
     }
 
     public static function getEloquentQuery(): Builder
@@ -90,7 +90,7 @@ class ArticleResource extends Resource
 
         return in_array($role, ['superuser', 'moderator'], true)
             ? Article::STATUSES
-            : array_intersect_key(Article::STATUSES, array_flip(['draft', 'in_review']));
+            : array_intersect_key(Article::STATUSES, array_flip(['draft', 'written', 'in_review']));
     }
 
     /** The categories whose path or code contains the typed words (at most 50). Done in memory, with no database search. */
@@ -287,7 +287,7 @@ class ArticleResource extends Resource
                     ->disabled(fn () => ! auth()->user()?->canPublish()),
                 TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => Article::STATUSES[$state] ?? $state)
-                    ->color(fn ($state) => ['published' => 'success', 'in_review' => 'warning', 'draft' => 'gray', 'archived' => 'danger'][$state] ?? 'gray'),
+                    ->color(fn ($state) => ['published' => 'success', 'in_review' => 'warning', 'written' => 'info', 'draft' => 'gray', 'archived' => 'danger'][$state] ?? 'gray'),
                 \Filament\Tables\Columns\IconColumn::make('ai_assisted')->label('AI')->boolean()->trueIcon('heroicon-o-sparkles')->falseIcon('')->trueColor('warning')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('author.name')->label('Author')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('publish_date')->label('Publish date')->date('j M Y')->sortable()->toggleable(),

@@ -140,6 +140,7 @@ class IndexEntries
         $entry->search_words = ($d['words'] ?? []) ?: null;
         $entry->source_line = $d['source'] ?? null;
         $entry->ai_assisted = true;
+        $entry->status = $entry->status === 'draft' ? 'written' : $entry->status;   // it has text now; a person has not reviewed it yet
         $entry->author_id ??= $user?->id;
         $entry->custom_data = $custom;
         $entry->save();

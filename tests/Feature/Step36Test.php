@@ -179,7 +179,7 @@ class Step36Test extends TestCase
         Livewire::test(AiImport::class)->set('paste', $this->answer())->call('check')->call('save');
 
         $a = Article::where('slug', 'a-researched-one')->firstOrFail();
-        $this->assertSame('draft', $a->status);
+        $this->assertSame('written', $a->status);
         $this->assertTrue((bool) $a->ai_assisted);
         $this->assertStringContainsString('<h2>First part</h2>', $a->getTranslation('long_detail', 'en'));
         $this->assertTrue($a->custom_data['accordion']);
