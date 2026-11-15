@@ -12,9 +12,10 @@
         @else
             <span class="tile__initial">{{ mb_strtoupper(mb_substr($name, 0, 1)) }}</span>
         @endif
+        @if ($category->code)<span class="media-pill" title="{{ __('site.id_title') }}">{{ $category->code }}</span>@endif
     </a>
     <div class="tile__body">
-        <a class="tile__link" href="{{ route('category.show', $category->slug) }}">{{ $name }}</a> @include('partials.id-tag', ['code' => $category->code])
+        <a class="tile__link" href="{{ route('category.show', $category->slug) }}">{{ $name }}</a>
         @if ($text !== '')
             <p class="tile__text">{{ \Illuminate\Support\Str::limit($text, 90) }}</p>
         @endif

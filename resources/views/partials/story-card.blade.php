@@ -12,10 +12,11 @@
         @else
             <span class="scard__blank" aria-hidden="true">{{ mb_strtoupper(mb_substr($story->title, 0, 1)) }}</span>
         @endif
+        @if ($story->code)<span class="media-pill" title="{{ __('site.id_title') }}">{{ $story->code }}</span>@endif
         <span class="scard__badge">{{ $slideCount === 1 ? __('site.story_one_slide') : str_replace(':n', $slideCount, __('site.story_slides_count')) }}</span>
     </a>
     <div class="scard__body">
-        <h3 class="scard__title"><a href="{{ $story->url() }}">{{ $story->title }}</a> @include('partials.id-tag', ['code' => $story->code])</h3>
+        <h3 class="scard__title"><a href="{{ $story->url() }}">{{ $story->title }}</a></h3>
         @if ($summary !== '')<p class="scard__hook">{{ \Illuminate\Support\Str::limit($summary, 140) }}</p>@endif
         @include('partials.card-stats', ['item' => $story])
         <p class="scard__meta">

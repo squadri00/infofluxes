@@ -504,7 +504,8 @@ mark { background: var(--warning-soft); color: inherit; padding: 0 2px; border-r
 .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .tile { padding: 0; overflow: hidden; display: flex; flex-direction: column; transition: border-color .15s, transform .15s; }
 .tile:hover { border-color: var(--accent); transform: translateY(-2px); }
-.tile__media { display: block; aspect-ratio: 16 / 9; background: hsl(var(--h, 210) 38% 36%); overflow: hidden; }
+.media-pill { position: absolute; top: 10px; right: 10px; z-index: 2; padding: 3px 10px; border-radius: 999px; background: rgba(8, 12, 20, .72); color: #fff; font-size: .75rem; font-weight: 700; letter-spacing: .02em; line-height: 1.4; backdrop-filter: blur(4px); pointer-events: none; }
+.tile__media { position: relative; display: block; aspect-ratio: 16 / 9; background: hsl(var(--h, 210) 38% 36%); overflow: hidden; }
 .tile__media img { display: block; width: 100%; height: 100%; object-fit: var(--card-fit, cover); object-position: var(--card-pos, center); filter: var(--card-filter, none); }
 .tile__initial { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 3.2rem; font-weight: 700; color: #fff; opacity: .9; }
 .tile__body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
