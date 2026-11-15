@@ -59,6 +59,7 @@
     {!! \App\Support\Seo::custom('body_start') !!}
     <a class="skip-link" href="#content">{{ __('site.skip_to_content') }}</a>
 
+    @include('partials.mobile-header')
     @include('partials.site-header')
 
     <main id="content">
@@ -74,6 +75,7 @@
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 14l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <script src="{{ $ver('js/header.js') }}"></script>
+    <script src="{{ $ver('js/mobile-header.js') }}"></script>
     <script src="{{ $ver('js/search-form.js') }}"></script>
     <script src="{{ $ver('js/to-top.js') }}"></script>
     <script src="{{ $ver('js/view-toggle.js') }}"></script>
