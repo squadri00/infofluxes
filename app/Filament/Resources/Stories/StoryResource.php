@@ -299,10 +299,16 @@ class StoryResource extends Resource
             ->filters([
                 SelectFilter::make('status')->options(Story::STATUSES),
                 TernaryFilter::make('is_featured')->label('Featured on the home page'),
-                SelectFilter::make('category')->label('In category')->options(fn () => Category::choices())->searchable()
-                    ->query(fn (Builder $query, array $data) => filled($data['value'] ?? null)
-                        ? $query->where(fn ($q) => $q->where('category_id', $data['value'])->orWhereHas('extraCategories', fn ($c) => $c->where('categories.id', $data['value'])))
-                        : $query),
+                SelectFilter::make('category')->label('In category (and everything below it)')->options(fn () => Category::choices())->searchable()
+                    // A heading shows what sits in it and in every sub-category below it, because articles sit only in the last-level categories.
+                    ->query(function (Builder $query, array $data) {
+                        if (! filled($data['value'] ?? null) || ! ($category = Category::find($data['value']))) {
+                            return $query;
+                        }
+                        $ids = $category->descendantIds();
+
+                        return $query->where(fn ($q) => $q->whereIn('category_id', $ids)->orWhereHas('extraCategories', fn ($c) => $c->whereIn('categories.id', $ids)));
+                    }),
                 SelectFilter::make('author_id')->label('Author')->relationship('author', 'name'),
                 TrashedFilter::make(),
             ])
