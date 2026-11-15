@@ -17,6 +17,9 @@
         <p class="search__hint">{{ __('site.search_hint') }}</p>
     @else
         {{-- How many were found, and where: every kind of result has its own part below, and none is left out. --}}
+        @if (! empty($also))
+            <p class="search__also">{{ __('site.search_also') }} {{ implode(', ', $also) }}</p>
+        @endif
         <p class="search__count" role="status">
             <strong>{{ $total === 1 ? __('site.search_one_result') : str_replace(':n', $total, __('site.search_n_results')) }}</strong>
             @if ($total > 0)

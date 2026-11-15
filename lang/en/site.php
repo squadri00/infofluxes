@@ -155,6 +155,7 @@ return [
     'social_label' => 'Follow us',
 
     'search_title' => 'Search',
+    'search_also' => 'Also searched for:',
     'search_results_for' => 'Results for “:q”',
     'search_no_articles_but_facts' => 'No articles match, but see the facts above.',
     'search_none' => 'Nothing was found. Try other words.',
