@@ -47,7 +47,9 @@
     @stack('jsonld')
     {{-- Put the chosen light / dark mode on before the page is drawn, so it does not flash. --}}
     <script>try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
+    @if (\App\Support\SiteControls::on('grid_list'))
     <script>try{if(localStorage.getItem('infofluxes.view')==='list'){document.documentElement.setAttribute('data-view','list');}}catch(e){}</script>
+    @endif
     <link rel="stylesheet" href="{{ $ver('css/site.css') }}">
     {!! \App\Support\CardPictures::css() !!}
     {!! \App\Support\Seo::custom('head') !!}

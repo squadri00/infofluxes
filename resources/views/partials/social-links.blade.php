@@ -1,5 +1,5 @@
 {{-- The site's own social network buttons, each in its brand colour. $class is an extra word for the list (header or footer). --}}
-@php $links = \App\Support\Social::links(); @endphp
+@php $links = \App\Support\SiteControls::on('social') ? \App\Support\Social::links() : collect(); @endphp
 @if ($links->isNotEmpty())
     <ul class="social {{ $class ?? '' }}" aria-label="{{ __('site.social_label') }}">
         @foreach ($links as $link)

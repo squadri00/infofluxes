@@ -321,6 +321,12 @@ return [
         'tips' => ['Tracking never runs on localhost and, by default, not for logged-in staff.', 'robots.txt and sitemap.xml are made by themselves. Open /robots.txt on the live site to see them.', 'Articles and stories already carry structured data (JSON-LD) for Google.'],
     ],
     [
+        'key' => 'site-controls', 'title' => 'Site controls', 'group' => 'Settings', 'classes' => [\App\Filament\Pages\SiteControlsPage::class], 'access' => 'superuser',
+        'what' => 'One page of On/Off switches for the parts of the public site that make it look busy: likes, counts, share buttons, recently viewed, social buttons, related articles, and the useful extras like Listen, Save for later and the language button.',
+        'steps' => ['Turn a switch on to show a part, off to hide it, then press Save.', '"Quiet look" switches off all the noisy parts at once. "Normal look" brings them back. The useful extras are never touched by either.', '"All settings (advanced)" opens Site settings.'],
+        'tips' => ['Hiding a part never deletes anything: likes, saved items and comments are kept and come back when you switch it on.', 'Some switches are the same ones as in other screens (Listen, newsletter, comments, PDF book), so they always agree.'],
+    ],
+    [
         'key' => 'analytics', 'title' => 'Analytics', 'group' => 'Reports', 'classes' => [\App\Filament\Pages\AnalyticsDashboard::class], 'access' => 'superuser',
         'what' => 'What is going on at the site, read from your Google Analytics: visitors, pages read, where people come from, countries, devices, and who is on the site right now.',
         'steps' => ['First time: follow the five steps on the page (switch on the Data API, make a service account and a JSON key, add its email as Viewer in Google Analytics, copy the Property ID, upload the key here).', 'Choose Last 7, 28 or 90 days. Every number is compared with the same number of days before (green arrow up, red arrow down).', 'Press Refresh to ask Google again. Numbers are kept for 10 minutes.'],

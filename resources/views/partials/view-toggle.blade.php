@@ -1,5 +1,6 @@
 {{-- Grid / list / index switch for lists of articles and categories. Grid and list are kept on the reader's device (public/js/view-toggle.js).
      On a category page, Index is a link to ?view=index (the whole branch as a quick list). Needs nothing; optional: $indexUrl, $plainUrl, $mode. --}}
+@if (\App\Support\SiteControls::on('grid_list'))
 @php
     $indexUrl = $indexUrl ?? null;
     $plainUrl = $plainUrl ?? null;
@@ -32,3 +33,4 @@
         </a>
     @endif
 </div>
+@endif

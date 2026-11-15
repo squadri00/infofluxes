@@ -37,7 +37,7 @@
 @endif
 
 @php $sidebars = (bool) $sideTree; @endphp
-<div class="{{ $sidebars ? 'wrap wrap--wide reading' : 'wrap topic' }}">
+<div class="{{ $sidebars ? 'wrap wrap--wide reading' : 'wrap topic' }}{{ $sidebars && ! \App\Support\SiteControls::on('recent') ? ' reading--two' : '' }}">
 @if ($sidebars)
     <aside class="reading__side reading__side--left" aria-label="{{ __('site.related_topics') }}">
         @include('partials.side-tree', ['root' => $sideRoot, 'tree' => $sideTree, 'current' => $article, 'sideFacts' => $sideFacts])
@@ -59,12 +59,12 @@
     @if ($article->contributor)
         {{-- A credited contributor: a small picture, the name (a link when they have a page), their role and the date. --}}
         @include('partials.byline', ['person' => $article->contributor, 'date' => $date, 'class' => 'byline--topic'])
-        @if (filled($article->reviewer_name))<p class="article__byline"><span>{{ __('site.reviewed_by') }} <strong>{{ $article->reviewer_name }}</strong></span></p>@endif
+        @if (\App\Support\SiteControls::on('reviewed_by') && filled($article->reviewer_name))<p class="article__byline"><span>{{ __('site.reviewed_by') }} <strong>{{ $article->reviewer_name }}</strong></span></p>@endif
     @else
         <p class="article__byline">
             @if ($article->author)<span>{{ __('site.by') }} <strong>{{ $article->author->name }}</strong></span>@endif
             @if ($date)<time datetime="{{ $date->toDateString() }}">{{ __('site.published') }} {{ $date->format('j M Y') }}</time>@endif
-            @if (filled($article->reviewer_name))<span>{{ __('site.reviewed_by') }} <strong>{{ $article->reviewer_name }}</strong></span>@endif
+            @if (\App\Support\SiteControls::on('reviewed_by') && filled($article->reviewer_name))<span>{{ __('site.reviewed_by') }} <strong>{{ $article->reviewer_name }}</strong></span>@endif
         </p>
     @endif
 
@@ -175,7 +175,7 @@
 
     @include('partials.comments', ['article' => $article, 'comments' => $comments])
 
-    @if ($related->isNotEmpty())
+    @if ($related->isNotEmpty() && \App\Support\SiteControls::on('related'))
         <section class="block">
             <h2 class="block__title">{{ __('site.related') }}</h2>
             @include('partials.article-mosaic', ['articles' => $related])
@@ -192,7 +192,7 @@
     @endpush
 @endif
 </article>
-@if ($sidebars)
+@if ($sidebars && \App\Support\SiteControls::on('recent'))
     <aside class="reading__side reading__side--right" aria-label="{{ __('site.recent_title') }}">
         @include('partials.recent-box', ['article' => $article, 'title' => $title])
     </aside>

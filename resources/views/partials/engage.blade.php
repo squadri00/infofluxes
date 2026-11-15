@@ -10,8 +10,10 @@
     $shareText = rawurlencode($itemTitle);
     $shareUrl = rawurlencode($itemUrl);
 @endphp
+@if (\App\Support\SiteControls::on('reactions') || \App\Support\SiteControls::on('save') || \App\Support\SiteControls::on('share'))
 <div class="engage" id="engage" aria-label="{{ __('engage.label') }}">
     <div class="engage__row">
+        @if (\App\Support\SiteControls::on('reactions'))
         <form method="post" action="{{ route('react', [$type, $item->id]) }}" class="engage__form">
             @csrf
             <input type="hidden" name="value" value="like">
@@ -29,6 +31,8 @@
                 <span>{{ __('engage.dislike') }}</span>
             </button>
         </form>
+        @endif
+        @if (\App\Support\SiteControls::on('save'))
         <form method="post" action="{{ route('save', [$type, $item->id]) }}" class="engage__form">
             @csrf
             <button type="submit" class="engage__btn{{ $saved ? ' is-on' : '' }}" aria-pressed="{{ $saved ? 'true' : 'false' }}" title="{{ $saved ? __('engage.unsave') : __('engage.save') }}">
@@ -37,6 +41,8 @@
             </button>
         </form>
 
+        @endif
+        @if (\App\Support\SiteControls::on('share'))
         <details class="engage__share" data-share data-title="{{ $itemTitle }}" data-url="{{ $itemUrl }}">
             <summary class="engage__btn" title="{{ __('engage.share') }}">
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.1c-.8 0-1.5.3-2 .8l-7.1-4.2c.1-.2.1-.5.1-.7s0-.5-.1-.7L16 7.2c.5.5 1.2.8 2 .8 1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3c0 .2 0 .5.1.7L8 9.8C7.500 9.300 6.800 9 6 9c-1.700 0-3 1.300-3 3s1.300 3 3 3c.8 0 1.500-.3 2-.8l7.200 4.200c-.1.200-.1.400-.1.600 0 1.600 1.300 2.900 2.900 2.900s2.900-1.300 2.900-2.900-1.200-2.900-2.900-2.900z"/></svg>
@@ -50,6 +56,7 @@
                 <a class="engage__link" href="mailto:?subject={{ $shareText }}&amp;body={{ $shareUrl }}">{{ __('engage.email') }}</a>
             </div>
         </details>
+        @endif
     </div>
     @auth
         @unless (auth()->user()->hasVerifiedEmail())
@@ -60,3 +67,4 @@
         <p class="engage__hint"><a href="{{ route('login') }}">{{ __('engage.log_in') }}</a> {{ __('engage.log_in_to') }}</p>
     @endguest
 </div>
+@endif

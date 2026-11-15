@@ -15,6 +15,7 @@ class EngageController extends Controller
 
     public function react(Request $request, string $type, int $id)
     {
+        abort_unless(\App\Support\SiteControls::on('reactions'), 404);
         abort_unless(auth()->user()->isActive(), 403);
         $value = $request->validate(['value' => ['required', 'in:like,dislike']])['value'] === 'like' ? Reaction::LIKE : Reaction::DISLIKE;
         $item = $this->find($type, $id);
@@ -33,6 +34,7 @@ class EngageController extends Controller
 
     public function save(Request $request, string $type, int $id)
     {
+        abort_unless(\App\Support\SiteControls::on('save'), 404);
         abort_unless(auth()->user()->isActive(), 403);
         $item = $this->find($type, $id);
 

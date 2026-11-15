@@ -65,12 +65,12 @@
 
     @if ($story->contributor)
         @include('partials.byline', ['person' => $story->contributor, 'date' => $date, 'class' => 'byline--topic'])
-        @if (filled($story->reviewer_name))<p class="article__byline"><span>{{ __('site.reviewed_by') }} <strong>{{ $story->reviewer_name }}</strong></span></p>@endif
+        @if (\App\Support\SiteControls::on('reviewed_by') && filled($story->reviewer_name))<p class="article__byline"><span>{{ __('site.reviewed_by') }} <strong>{{ $story->reviewer_name }}</strong></span></p>@endif
     @else
         <p class="article__byline">
             @if ($story->author)<span>{{ __('site.by') }} <strong>{{ $story->author->name }}</strong></span>@endif
             @if ($date)<time datetime="{{ $date->toDateString() }}">{{ __('site.published') }} {{ $date->format('j M Y') }}</time>@endif
-            @if (filled($story->reviewer_name))<span>{{ __('site.reviewed_by') }} <strong>{{ $story->reviewer_name }}</strong></span>@endif
+            @if (\App\Support\SiteControls::on('reviewed_by') && filled($story->reviewer_name))<span>{{ __('site.reviewed_by') }} <strong>{{ $story->reviewer_name }}</strong></span>@endif
         </p>
     @endif
 

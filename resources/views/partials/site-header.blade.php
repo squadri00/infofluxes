@@ -25,7 +25,7 @@
                 @if (\App\Support\Challenge::anyOn())
                     <li class="menu__item"><a href="{{ route('challenge') }}" @if (request()->routeIs('challenge*')) aria-current="page" @endif>{{ __('site.challenge') }}</a></li>
                 @endif
-                @if (count($locales) >= 1)
+                @if (count($locales) >= 1 && \App\Support\SiteControls::on('language'))
                     @php $current = collect($locales)->firstWhere('code', app()->getLocale()) ?? $locales[0]; @endphp
                     <li class="menu__item">
                         <details class="menu__drop lang-menu">
@@ -44,12 +44,14 @@
                         </details>
                     </li>
                 @endif
+                @if (\App\Support\SiteControls::on('theme'))
                 <li class="menu__item">
                     <button type="button" class="theme-toggle" data-theme-toggle data-label-to-dark="{{ __('site.theme_to_dark') }}" data-label-to-light="{{ __('site.theme_to_light') }}" aria-label="{{ __('site.theme_to_dark') }}">
                         <svg class="theme-toggle__moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg>
                         <svg class="theme-toggle__sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
                     </button>
                 </li>
+                @endif
                 @auth
                     <li class="menu__item"><a href="{{ route('account') }}">{{ auth()->user()->name }}</a></li>
                     @if ($staff)

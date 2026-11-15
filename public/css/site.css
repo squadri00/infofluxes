@@ -1980,3 +1980,7 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .consent__text { flex: 1 1 22rem; display: grid; gap: 2px; }
 .consent__buttons { display: flex; flex-wrap: wrap; gap: 8px; }
 .btn--ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+
+/* Site controls: an article without the Recently viewed column */
+.reading--two { grid-template-columns: minmax(0, 270px) minmax(0, 1fr); }
+@media (max-width: 1100px) { .reading--two { grid-template-columns: minmax(0, 1fr); } }
