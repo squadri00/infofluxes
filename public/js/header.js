@@ -41,6 +41,27 @@
     function plainLinks(item) {
         var out = document.createDocumentFragment();
         var drop = item.querySelector('details.menu__drop');
+        // A wide panel: its own link first, then the sub-categories by name (not the feature card).
+        if (drop && drop.classList.contains('menu__drop--mega')) {
+            var headLi = document.createElement('li');
+            headLi.className = 'menu__more-head';
+            var headA = document.createElement('a');
+            headA.href = drop.getAttribute('data-url');
+            headA.textContent = drop.querySelector('summary').textContent;
+            headLi.appendChild(headA);
+            out.appendChild(headLi);
+            Array.prototype.forEach.call(drop.querySelectorAll('.mega__list a'), function (a) {
+                var li = document.createElement('li');
+                li.className = 'menu__more-child';
+                var c = document.createElement('a');
+                c.href = a.getAttribute('href');
+                var name = a.querySelector('strong');
+                c.textContent = (name || a).textContent;
+                li.appendChild(c);
+                out.appendChild(li);
+            });
+            return out;
+        }
         var links = drop ? Array.prototype.slice.call(drop.querySelectorAll('.menu__sub a')) : Array.prototype.slice.call(item.querySelectorAll(':scope > a'));
         links.forEach(function (a, i) {
             var li = document.createElement('li');

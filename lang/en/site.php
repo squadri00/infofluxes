@@ -162,6 +162,8 @@ return [
     'source' => 'Source',
     'sources' => 'Sources',
     'expand_all' => 'Expand all',
+    'mega_see_all' => 'See all',
+    'mega_explore' => 'Explore',
     'faq_title' => 'Frequently asked questions',
     'faq_short' => 'FAQ',
     'faq_intro' => 'Short answers to the questions people ask us most. Press a question to open its answer.',

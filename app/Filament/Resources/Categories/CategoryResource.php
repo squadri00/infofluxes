@@ -101,6 +101,23 @@ class CategoryResource extends Resource
                 ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)'),
                 ...Translated::textarea('description', 'Description', rows: 4),
                 ...Translated::textarea('header_text', 'Header text', rows: 3, help: 'Shown above the list on the category page.'),
+                Section::make('Big menu panel (optional)')
+                    ->collapsed()
+                    ->description('In the main menu a heading with sub-categories opens a wide panel: the sub-categories on the left (each with its icon and the start of its description) and one feature card on the right. The icon shows when this category is listed in a panel. The card boxes are used when this is a main menu heading; leave them empty and the card is made from this category (its picture, name and description).')
+                    ->schema([
+                        Select::make('menu_icon')->label('Icon in the panel')->options(\App\Support\MenuIcons::options())->placeholder('No icon')->native(false),
+                        ...Translated::text('feature_title', 'Card: title', max: 120),
+                        ...Translated::textarea('feature_text', 'Card: short text', rows: 2),
+                        ...Translated::text('feature_button', 'Card: button words', max: 40, help: 'For example: Start here. Empty: Explore.'),
+                        \App\Filament\Support\ImageUpload::make('feature_image', 'menu')->label('Card: picture')->helperText('Empty: the picture of this category.'),
+                        TextInput::make('feature_url')->label('Card: where the button goes')->maxLength(500)->placeholder('/category/the-quran or https://...')
+                            ->helperText('An address of this site (starts with /) or a full web address (https://). Empty: this category.')
+                            ->rules([fn () => function (string $attribute, $value, \Closure $fail) {
+                                if (filled($value) && \App\Support\SiteMenu::safeUrl((string) $value) === null) {
+                                    $fail('Start with / for a page of this site, or with https:// for another website.');
+                                }
+                            }]),
+                    ])->columns(1),
                 TextInput::make('sort_order')->label('Order')->numeric()->minValue(0)->default(0),
                 Toggle::make('is_visible')->label('Show on the site')->default(true),
                 Toggle::make('custom_data.hide_articles')->label('Do not list its articles on its page')
