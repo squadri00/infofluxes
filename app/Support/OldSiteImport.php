@@ -81,7 +81,7 @@ class OldSiteImport
     {
         $this->authorId = $author?->id;
 
-        return $this->run(false);
+        return \App\Models\Activity::quiet(fn () => $this->run(false));
     }
 
     private function run(bool $dry): array

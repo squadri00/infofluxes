@@ -13,7 +13,7 @@ use Spatie\Translatable\HasTranslations;
  */
 class Page extends Model
 {
-    use HasTranslations;
+    use HasTranslations, \App\Models\Concerns\LogsActivity;
 
     protected $guarded = [];
 

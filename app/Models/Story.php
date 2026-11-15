@@ -18,7 +18,9 @@ use Spatie\Translatable\HasTranslations;
  */
 class Story extends Model
 {
-    use HasTranslations, SoftDeletes, \App\Models\Concerns\HasEngagement;
+    use HasTranslations, SoftDeletes, \App\Models\Concerns\HasEngagement, \App\Models\Concerns\LogsActivity;
+
+    public array $activityUndo = ['source_line', 'search_words'];
 
     protected $guarded = [];
 

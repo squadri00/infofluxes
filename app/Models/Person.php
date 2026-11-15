@@ -12,7 +12,9 @@ use Illuminate\Support\Str;
 /** A contributor: someone credited on articles. When "show_page" is on they also have a page of their own at /people/their-name. */
 class Person extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, \App\Models\Concerns\LogsActivity;
+
+    public array $activityUndo = ['name', 'role_title', 'bio', 'qualification_note', 'page_body'];
 
     protected $table = 'people';
 

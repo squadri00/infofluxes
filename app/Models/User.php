@@ -17,7 +17,10 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, \App\Models\Concerns\LogsActivity;
+
+    /** Nothing of a person is put back from the history (roles and status are changed on the Users screen). */
+    public array $activityUndo = [];
 
     public const ROLES = [
         'superuser' => 'Super user',

@@ -54,7 +54,7 @@ class OldStoryImport
     {
         $this->authorId = $author?->id ?? $this->authorId;
 
-        return $this->run(false);
+        return \App\Models\Activity::quiet(fn () => $this->run(false));
     }
 
     /** What would be copied: audio files of stories that were already moved. Writes nothing. */
@@ -66,7 +66,7 @@ class OldStoryImport
     /** Copy the audio files (and their state) of old stories into the matching slides here. A slide that already has audio is left alone. */
     public function moveAudio(): array
     {
-        return $this->runAudio(false);
+        return \App\Models\Activity::quiet(fn () => $this->runAudio(false));
     }
 
     private function runAudio(bool $dry): array

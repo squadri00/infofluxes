@@ -10,7 +10,7 @@ use Spatie\Translatable\HasTranslations;
 /** One "Did You Know?" entry: a short fact with its source. Code D-<number>. */
 class DidYouKnow extends Model
 {
-    use HasTranslations;
+    use HasTranslations, \App\Models\Concerns\LogsActivity;
 
     protected $table = 'did_you_know_entries';
 

@@ -15,7 +15,7 @@ use Spatie\Translatable\HasTranslations;
  */
 class Category extends Model
 {
-    use HasTranslations, SoftDeletes;
+    use HasTranslations, SoftDeletes, \App\Models\Concerns\LogsActivity;
 
     protected $guarded = [];
 

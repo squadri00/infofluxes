@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class AiPrompt extends Model
 {
+    use \App\Models\Concerns\LogsActivity;
+
+    public array $activityUndo = ['title', 'use_for', 'body'];
+
     protected $fillable = ['slug', 'kind', 'title', 'use_for', 'body', 'sort_order', 'custom_data'];
 
     protected function casts(): array

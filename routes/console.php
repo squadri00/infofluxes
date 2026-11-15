@@ -9,3 +9,6 @@ Artisan::command('inspire', function () {
 
 // A backup every night. On the computer or server a scheduled task must run "php artisan schedule:run" every minute (see Settings > Backups).
 \Illuminate\Support\Facades\Schedule::command('backup:run')->dailyAt('03:00')->withoutOverlapping();
+
+// Old history lines are tidied once a week (Settings > History says how long they are kept).
+\Illuminate\Support\Facades\Schedule::command('history:prune')->weeklyOn(0, '04:00');
