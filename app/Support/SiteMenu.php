@@ -33,6 +33,7 @@ class SiteMenu
             $out[] = [
                 'label' => $root->name,
                 'url' => route('category.show', $root->slug),
+                'icon' => (string) $root->menu_icon,
                 'children' => $children,
                 'feature' => $children ? static::feature($root) : null,
             ];

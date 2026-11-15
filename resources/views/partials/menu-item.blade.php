@@ -6,7 +6,7 @@
             <summary>{{ $item['label'] }}</summary>
             <div class="menu__sub mega">
                 <div class="mega__links">
-                    <p class="mega__heading">{{ $item['label'] }}</p>
+                    <p class="mega__heading">@if (! empty($item['icon']))<span class="mega__heading-icon" aria-hidden="true">{!! \App\Support\MenuIcons::svg($item['icon'], 18) !!}</span>@endif{{ $item['label'] }}</p>
                     <ul class="mega__list{{ count($item['children']) > 4 ? ' mega__list--two' : '' }}">
                         @foreach ($item['children'] as $child)
                             <li>

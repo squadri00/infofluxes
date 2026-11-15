@@ -22,6 +22,14 @@ class MenuIcons
         'star' => ['Star', '<path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1 6.2L12 17.4l-5.5 2.9 1-6.2L3 9.7l6.2-.9L12 3z"/>'],
         'document' => ['Document', '<path d="M7 3h7l5 5v13H7V3zM14 3v5h5M10 13h6M10 17h6"/>'],
         'compass' => ['Compass', '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5 5-2z"/>'],
+        'shield' => ['Shield (defence, wars)', '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/>'],
+        'coins' => ['Coin (money, trade)', '<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M9.5 9.8c0-2 5-2 5 0s-5 1.4-5 3.4 5 2 5 0"/>'],
+        'home' => ['Home (family)', '<path d="M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6"/>'],
+        'columns' => ['Columns (government)', '<path d="M3 10l9-6 9 6H3zM4 21h16M6 10v11M10 10v11M14 10v11M18 10v11"/>'],
+        'flag' => ['Flag', '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>'],
+        'palette' => ['Palette (art)', '<path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2s0-2 1.5-2h2a4 4 0 0 0 4-4A9 9 0 0 0 12 3zM7.5 11h.01M10 7.5h.01M14 7.5h.01"/>'],
+        'graduation' => ['Graduation cap (learning)', '<path d="M2 9l10-5 10 5-10 5L2 9zM6 11v5c3 2.5 9 2.5 12 0v-5"/>'],
+        'chart' => ['Chart (modern times)', '<path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6"/>'],
         'dome' => ['Dome (house of worship)', '<path d="M4 21V11M20 21V11M7 21v-6a5 5 0 0 1 10 0v6M12 3v3M3 21h18"/>'],
     ];
 

@@ -2149,3 +2149,5 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
     .menu--main .menu__sub.mega { grid-template-columns: minmax(0, 1fr); }
     .mega__card { display: none; }
 }
+.mega__heading { display: flex; align-items: center; gap: 8px; }
+.mega__heading-icon { display: inline-flex; color: var(--accent); }
