@@ -14,6 +14,10 @@ return [
     // How easy a written article must be to read (used by the AI import check). Average words in a sentence, and the longest sentence allowed.
     'reading' => ['avg_max' => 18, 'sentence_max' => 35],
 
+    // Backups: where the copies are kept (outside the public folder) and which folder holds the uploaded files.
+    'backup_path' => storage_path('app/backups'),
+    'backup_source' => storage_path('app/public'),
+
     // code => name shown. Only English is switched on at the start.
     'locales' => [
         'en' => 'English',
