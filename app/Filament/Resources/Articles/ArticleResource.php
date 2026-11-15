@@ -304,6 +304,9 @@ class ArticleResource extends Resource
             ])
             ->recordActions([
                 EditAction::make()->label('Modify'),
+                \Filament\Actions\Action::make('write_with_ai')->label('Write with AI help')->icon('heroicon-o-sparkles')->color('gray')
+                    ->visible(fn (Article $record) => \App\Support\IndexEntries::isBlank($record) && (auth()->user()?->canUseScreen('import') ?? false))
+                    ->url(fn (Article $record) => \App\Filament\Pages\AiImport::getUrl(['entry' => $record->id])),
                 ReplicateAction::make()
                     ->label('Clone')
                     ->excludeAttributes(['slug', 'is_featured', 'featured_order'])

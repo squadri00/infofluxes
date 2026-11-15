@@ -32,7 +32,7 @@ class AiImport
     /**
      * @return array<int, array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>}>
      */
-    public static function parse(string $text, bool $checkLinks = false): array
+    public static function parse(string $text, bool $checkLinks = false, ?int $entryId = null): array
     {
         $text = str_replace(["\r\n", "\r"], "\n", mb_substr($text, 0, self::MAX_CHARS));
         // A chat often wraps the answer in a code box. The fence lines are not part of the answer.
@@ -45,14 +45,28 @@ class AiImport
                 $items[] = ['kind' => 'article', 'title' => '(too many)', 'errors' => ['Only '.self::MAX_ITEMS.' items can be checked at one time. Paste the rest again after saving these.'], 'warnings' => [], 'data' => []];
                 break;
             }
-            $items[] = static::parseBlock($block, $checkLinks);
+            $items[] = static::parseBlock($block, $checkLinks, $entryId);
+        }
+
+        // One index entry takes one article. The other articles of the same paste are held back.
+        if ($entryId) {
+            $seen = false;
+            foreach ($items as $i => $item) {
+                if (! in_array($item['kind'], ['article', 'fact'], true)) {
+                    continue;
+                }
+                if ($seen) {
+                    $items[$i]['errors'][] = 'An index entry can hold only one article. Paste this one again on its own, with its own index entry (or with no entry).';
+                }
+                $seen = true;
+            }
         }
 
         return $items;
     }
 
     /** @return array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>} */
-    private static function parseBlock(string $block, bool $checkLinks = false): array
+    private static function parseBlock(string $block, bool $checkLinks = false, ?int $entryId = null): array
     {
         $fields = [];
         $current = null;
@@ -102,11 +116,11 @@ class AiImport
             $fields['__title_from_type'] = '1';
         }
 
-        return static::checkArticle($kind, $fields, $checkLinks);
+        return static::checkArticle($kind, $fields, $checkLinks, $entryId);
     }
 
     /** @param array<string, string> $f */
-    private static function checkArticle(string $kind, array $f, bool $checkLinks = false): array
+    private static function checkArticle(string $kind, array $f, bool $checkLinks = false, ?int $entryId = null): array
     {
         $errors = [];
         $warnings = [];
@@ -301,9 +315,34 @@ class AiImport
             }
         }
 
+        // The index entry this article was written for (chosen on the form): it takes the entry's category and keeps its index ID.
+        $entry = null;
+        if ($entryId) {
+            $entry = Article::query()->find($entryId);
+            if (! $entry || ! IndexEntries::isBlank($entry)) {
+                $errors[] = 'The index entry you chose is not blank any more, or it does not exist. Choose another entry, or choose no entry.';
+                $entry = null;
+            } else {
+                if ($category && $category->id !== $entry->category_id) {
+                    $warnings[] = 'The CATEGORY in the answer is not the category of the index entry. The category of the entry ('.IndexEntries::label($entry).') is used.';
+                }
+                $category = $entry->category;
+                $errors = array_values(array_filter($errors, fn ($e) => ! str_starts_with($e, 'CATEGORY')));
+            }
+        }
+
+        // A blank index entry about the same subject: offer to fill it instead of making a second article.
+        $suggestions = [];
+        if (! $entry && $kind === 'article' && $category && $title !== '') {
+            $suggestions = IndexEntries::suggest($title, $category->id);
+            foreach ($suggestions as $sg) {
+                $warnings[] = 'This looks like the blank index entry '.$sg['code'].' "'.$sg['title'].'". Use that entry instead of making a second article about the same subject.';
+            }
+        }
+
         // The same title in the same category is not made twice.
         if ($category && $title !== '') {
-            $same = Article::withTrashed()->where('category_id', $category->id)->get()->first(fn ($a) => mb_strtolower($a->mainTitle()) === mb_strtolower($title));
+            $same = Article::withTrashed()->where('category_id', $category->id)->get()->first(fn ($a) => mb_strtolower($a->mainTitle()) === mb_strtolower($title) && (! $entry || $a->id !== $entry->id));
             if ($same) {
                 $errors[] = 'An article with this title is already in that category ('.$same->code.').';
             }
@@ -333,6 +372,7 @@ class AiImport
                 'title' => $title, 'short' => $short, 'long' => $long, 'source' => $source !== '' ? $source : null,
                 'category_id' => $category?->id, 'category_label' => $category ? Category::choices()[$category->id] ?? $category->code : null,
                 'extra_ids' => array_keys($extra), 'words' => $words->all(), 'videos' => $videos,
+                'entry_id' => $entry?->id, 'entry_label' => $entry ? IndexEntries::label($entry).' · '.$entry->mainTitle() : null, 'index_suggestions' => $suggestions,
                 'quotes' => $blocks, 'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
         ];
@@ -561,6 +601,12 @@ class AiImport
             }
 
             $d = $item['data'];
+            if (! empty($d['entry_id']) && ($entry = Article::find($d['entry_id'])) && IndexEntries::isBlank($entry)) {
+                IndexEntries::fill($entry, $d, $user);
+                $made['articles'][] = $entry->id;
+
+                continue;
+            }
             $article = Article::create([
                 'title' => [$locale => $d['title']],
                 'slug' => Article::uniqueSlug($d['title']),

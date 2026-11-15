@@ -38,7 +38,7 @@ class Prompts
     /**
      * The prompt for a researched article: master rules + specialist prompt + the form values + the answer shape.
      *
-     * @param  array{topic?: string, category_id?: int|null, specialist?: string|null, words?: int|null, depth?: string|null, comments?: string|null}  $in
+     * @param  array{topic?: string, category_id?: int|null, specialist?: string|null, words?: int|null, depth?: string|null, comments?: string|null, entry?: string|null}  $in
      */
     public static function research(array $in): string
     {
@@ -48,6 +48,9 @@ class Prompts
         $words = max(300, min(8000, (int) ($in['words'] ?? 1500)));
         $depth = self::DEPTHS[$in['depth'] ?? 'normal'] ?? self::DEPTHS['normal'];
         $comments = trim(preg_replace('/[ \t]+/', ' ', (string) ($in['comments'] ?? '')));
+        if (filled($in['entry'] ?? null)) {
+            $comments = trim('This text is for the planned index subject "'.$in['entry'].'". Write about exactly this subject and do not widen it. '.$comments);
+        }
         $parts = '';
         if ($words > self::PARTS_ABOVE) {
             $parts = "\nThis is a long article. Do it in parts so that no rule is lost: first answer ONLY with the outline (the headings and one line for each), and wait. Then I will say \"write part 1\", \"write part 2\" and so on, and you write those headings in full. When the last part is done I will ask for the whole answer in the shape below.\n";

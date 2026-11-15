@@ -24,6 +24,11 @@ class ReferenceController extends Controller
             if ($article) {
                 return redirect()->route('article.show', $article->slug, 301);
             }
+            // An article that was moved into an index entry (A-4026) leads to that entry.
+            $moved = Article::onlyTrashed()->find($id);
+            if ($moved && ($target = Article::published()->find((int) ($moved->custom_data['moved_to_article'] ?? 0)))) {
+                return redirect()->route('article.show', $target->slug, 301);
+            }
             // An article that became a visual story keeps its old code: A-4008 goes to its story.
             $story = Story::published()->where('custom_data->old_article_id', $id)->first();
             abort_unless($story, 404);

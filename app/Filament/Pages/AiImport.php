@@ -3,6 +3,8 @@
 namespace App\Filament\Pages;
 
 use App\Models\AiPrompt;
+use App\Models\Article;
+use App\Support\IndexEntries;
 use App\Models\Category;
 use App\Models\ImportLog;
 use App\Support\AiImport as Importer;
@@ -46,7 +48,64 @@ class AiImport extends Page
     public string $depth = 'normal';
 
     public string $comments = '';
-    public string $paste = '';
+
+    /** The blank index entry this article fills (chosen on the form, or opened from the Articles list). */
+    public ?int $entryId = null;
+
+    public string $entryQuery = '';
+
+    public function mount(): void
+    {
+        $id = (int) request()->query('entry');
+        if ($id > 0 && ($entry = Article::find($id)) && IndexEntries::isBlank($entry)) {
+            $this->chooseEntry($entry);
+        }
+    }
+
+    /** The entry chosen, as an Article (or null). */
+    public function entry(): ?Article
+    {
+        $entry = $this->entryId ? Article::query()->with('category')->find($this->entryId) : null;
+
+        return $entry && IndexEntries::isBlank($entry) ? $entry : null;
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Article> */
+    public function entryResults()
+    {
+        return trim($this->entryQuery) === '' ? collect() : IndexEntries::search($this->entryQuery, $this->categoryId);
+    }
+
+    public function selectEntry(int $id): void
+    {
+        $entry = Article::find($id);
+        if ($entry && IndexEntries::isBlank($entry)) {
+            $this->chooseEntry($entry);
+        }
+        $this->entryQuery = '';
+    }
+
+    public function clearEntry(): void
+    {
+        $this->entryId = null;
+    }
+
+    /** From a suggestion in the result: fill that entry instead, and check again. */
+    public function useEntry(int $id): void
+    {
+        $this->selectEntry($id);
+        $this->check();
+    }
+
+    private function chooseEntry(Article $entry): void
+    {
+        $this->entryId = $entry->id;
+        $this->categoryId = $entry->category_id;
+        if (trim($this->topic) === '') {
+            $this->topic = $entry->mainTitle();
+        }
+        $this->specialist = AiPrompt::suggestFor($entry->category) ?? $this->specialist;
+    }    public string $paste = '';
 
     /** @var array<int, array<string, mixed>> */
     public array $items = [];
@@ -67,6 +126,7 @@ class AiImport extends Page
             return Prompts::research([
                 'topic' => $this->topic, 'category_id' => $this->categoryId, 'specialist' => $this->specialist ?: null,
                 'words' => $this->words, 'depth' => $this->depth, 'comments' => $this->comments,
+                'entry' => ($e = $this->entry()) ? IndexEntries::label($e).' '.$e->mainTitle() : null,
             ]);
         }
 
@@ -118,14 +178,14 @@ class AiImport extends Page
 
             return;
         }
-        $this->items = Importer::parse($this->paste, true);
+        $this->items = Importer::parse($this->paste, true, $this->entryId);
         $this->checked = true;
     }
 
     public function save(): void
     {
         // The pasted text is read again here, so what is saved is never what a browser claims it checked.
-        $items = Importer::parse($this->paste, true);
+        $items = Importer::parse($this->paste, true, $this->entryId);
         $user = auth()->user();
 
         if (collect($items)->contains(fn ($i) => $i['kind'] === 'categories' && $i['errors'] === []) && ! $user->canUseScreen('categories')) {
@@ -142,6 +202,7 @@ class AiImport extends Page
 
         $made = Importer::commit($items, $this->paste, $user);
         $this->done = $made;
+        $this->entryId = null;       // the entry is filled now; the next article starts fresh
         $this->paste = '';
         $this->items = [];
         $this->checked = false;

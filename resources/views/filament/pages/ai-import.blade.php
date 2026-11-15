@@ -30,6 +30,30 @@
             </label>
             @if ($kind === 'research')
                 @php $box = 'width:100%;padding:.5rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent'; @endphp
+                {{-- A blank index entry to fill (optional): the article goes into that entry and keeps its index ID. --}}
+                <div>
+                    <strong>Index entry to fill</strong> <span style="opacity:.7">(optional: the article is saved into a blank entry of your index and keeps its index ID)</span><br>
+                    @if ($this->entry())
+                        @php $chosen = $this->entry(); @endphp
+                        <div style="display:flex;gap:.5rem;align-items:center;margin:.3rem 0;padding:.45rem .6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem">
+                            <span style="flex:1"><strong>{{ \App\Support\IndexEntries::label($chosen) }}</strong> &middot; {{ $chosen->mainTitle() }} <span style="opacity:.7">({{ $chosen->category?->mainName() }})</span></span>
+                            <button type="button" wire:click="clearEntry" style="cursor:pointer;border:1px solid rgba(128,128,128,.6);border-radius:.3rem;padding:.1rem .5rem">No entry</button>
+                        </div>
+                    @else
+                        <input type="text" wire:model.live.debounce.400ms="entryQuery" autocomplete="off" placeholder="Type an index ID (AL-2.1.001), a code (A-723) or words of the title" style="{{ $box }}">
+                        @if (trim($entryQuery) !== '')
+                            <div class="ai-cat-list" style="max-height:14rem;overflow-y:auto;margin-top:.2rem;border:1px solid rgba(128,128,128,.6);border-radius:.4rem">
+                                @forelse ($this->entryResults() as $found)
+                                    <button type="button" wire:click="selectEntry({{ $found->id }})" wire:key="entry-{{ $found->id }}" style="display:block;width:100%;text-align:left;padding:.45rem .7rem;cursor:pointer;border:0;border-bottom:1px solid rgba(128,128,128,.25);background:transparent;color:inherit;font-size:.9rem">
+                                        <strong>{{ \App\Support\IndexEntries::label($found) }}</strong> &middot; {{ $found->mainTitle() }} <span style="opacity:.7">({{ $found->category?->mainName() }})</span>
+                                    </button>
+                                @empty
+                                    <div style="padding:.6rem .7rem;opacity:.7">No blank index entry matches. (An entry that already has text is not offered.)</div>
+                                @endforelse
+                            </div>
+                        @endif
+                    @endif
+                </div>
                 {{-- A search box with a short scrolling list: the list of categories is very long, so a plain drop-down would not fit the screen. --}}
                 <div x-data="{
                         options: @js(collect($this->categoryChoices())->map(fn ($label, $id) => ['id' => $id, 'label' => $label])->values()),
@@ -118,6 +142,15 @@
                 @foreach ($items as $i => $item)
                     <div wire:key="item-{{ $i }}" style="padding:.7rem .9rem;border:1px solid {{ $item['errors'] ? '#d92d20' : ($item['warnings'] ? '#dc9b00' : '#2d9d5a') }};border-radius:.5rem">
                         <strong>{{ $item['errors'] ? '✗' : '✓' }} {{ ['article' => 'Article', 'fact' => 'Fact', 'categories' => 'Categories'][$item['kind']] ?? $item['kind'] }}: {{ $item['title'] }}</strong>
+                        @if (! empty($item['data']['entry_label']))
+                            <div style="margin:.2rem 0;padding:.35rem .6rem;border-radius:.4rem;background:rgba(45,157,90,.15)">Will fill the index entry: <strong>{{ $item['data']['entry_label'] }}</strong></div>
+                        @endif
+                        @foreach (($item['data']['index_suggestions'] ?? []) as $sg)
+                            <div style="margin:.3rem 0;padding:.45rem .6rem;border:1px dashed #dc9b00;border-radius:.4rem">
+                                A blank index entry looks like this subject: <strong>{{ $sg['code'] }}</strong> &middot; {{ $sg['title'] }}
+                                <button type="button" wire:click="useEntry({{ $sg['id'] }})" style="margin-left:.5rem;cursor:pointer;border:1px solid rgba(128,128,128,.6);border-radius:.3rem;padding:.1rem .6rem">Fill this entry instead</button>
+                            </div>
+                        @endforeach
                         @if (! empty($item['data']['category_label']))
                             <div style="opacity:.75">In: {{ $item['data']['category_label'] }}</div>
                         @endif
