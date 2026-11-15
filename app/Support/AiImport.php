@@ -291,8 +291,9 @@ class AiImport
             [$category, $problem] = static::findCategory($categoryText);
             if ($problem) {
                 $errors[] = 'CATEGORY: '.$problem;
-            }
-        }
+            } elseif ($category && ! $category->isLeaf()) {
+                $errors[] = 'CATEGORY: '.static::notLastLevel($category);
+            }        }
         // ALSO IN is only a help. A name that does not fit is left out with a note; it never stops the article from being saved.
         $extra = [];
         foreach (array_filter(array_map('trim', preg_split('/[;\n]/', (string) ($f['ALSO IN'] ?? '')))) as $text) {
@@ -309,6 +310,8 @@ class AiImport
             foreach ($tries as [$o, $p, $piece]) {
                 if ($p) {
                     $warnings[] = 'ALSO IN: "'.mb_substr($piece, 0, 60).'" was left out. '.$p;
+                } elseif ($o && ! $o->isLeaf()) {
+                    $warnings[] = 'ALSO IN: "'.mb_substr($o->mainName(), 0, 60).'" was left out. '.static::notLastLevel($o);
                 } elseif ($o && (! $category || $o->id !== $category->id)) {
                     $extra[$o->id] = $o;
                 }
@@ -376,6 +379,15 @@ class AiImport
                 'quotes' => $blocks, 'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
         ];
+    }
+
+    /** The message for a category that has sub-categories: an article cannot be placed there. */
+    private static function notLastLevel(Category $category): string
+    {
+        $examples = $category->leafExamples();
+
+        return '"'.$category->mainName().'" has sub-categories, so an article cannot be placed in it. Use a last-level category'
+            .($examples ? ', for example: '.implode('; ', $examples) : '').'.';
     }
 
     /**
@@ -536,6 +548,9 @@ class AiImport
                 $found = Category::query()->where('parent_id', $parent?->id)->get()->first(fn ($c) => mb_strtolower($c->mainName()) === mb_strtolower($name));
                 if (! $found) {
                     $exists = false;
+                    if ($parent && $parent->holdsArticles()) {
+                        $errors[] = '"'.$parent->mainName().'" already holds articles, so it cannot get sub-categories yet. Move its articles into its Overview category first: '.mb_substr($pathText, 0, 80);
+                    }
                     break;
                 }
                 $parent = $found;

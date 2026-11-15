@@ -78,6 +78,12 @@ class CategoryResource extends Resource
                     ->label('Sits inside')
                     ->placeholder('Top level (a main menu heading)')
                     ->options(fn (?Category $record) => Category::choices($record?->id))
+                    ->rules(fn (?Category $record) => [function (string $attribute, $value, \Closure $fail) use ($record) {
+                        // An article sits only in a last-level category. A category that holds articles cannot get sub-categories until they are moved.
+                        if ($value && (int) $value !== (int) $record?->parent_id && ($parent = Category::find($value)) && $parent->holdsArticles()) {
+                            $fail('"'.$parent->mainName().'" already holds articles, so it cannot get sub-categories yet. Move its articles into an Overview category first.');
+                        }
+                    }])
                     ->searchable(),
                 TextInput::make('slug')
                     ->label('Web address (short name)')

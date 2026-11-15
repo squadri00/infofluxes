@@ -148,7 +148,7 @@ class AiImport extends Page
     /** @return array<int, string> */
     public function categoryChoices(): array
     {
-        return Category::choices();
+        return Category::leafChoices();
     }
 
     /** @return array<string, string> */

@@ -35,12 +35,13 @@ class Step09Test extends TestCase
         $pop = $this->cat('Popular Shows', $shows);
         $blogs = $this->cat('Blogs');
 
-        $this->assertSame([$shows->id, $pop->id], array_keys(ArticleResource::searchCategories('shows')));
+        // an article sits only in a last-level category, so "Shows" (it has a sub-category) is not offered
+        $this->assertSame([$pop->id], array_keys(ArticleResource::searchCategories('shows')));
         $this->assertSame([$blogs->id], array_keys(ArticleResource::searchCategories($blogs->code)), 'by code');
         $this->assertSame([$blogs->id], array_keys(ArticleResource::searchCategories(strtolower($blogs->code))));
         $this->assertSame([$pop->id], array_keys(ArticleResource::searchCategories('popular  shows')), 'several words, in any spacing');
         $this->assertSame([], ArticleResource::searchCategories('nothing like this'));
-        $this->assertCount(3, ArticleResource::searchCategories(''), 'an empty search lists the first ones');
+        $this->assertCount(2, ArticleResource::searchCategories(''), 'an empty search lists the first last-level ones');
     }
 
     public function test_a_code_with_a_dash_does_not_break_the_search_and_the_list_is_cut_at_fifty(): void

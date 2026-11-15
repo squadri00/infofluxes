@@ -98,7 +98,7 @@ class ArticleResource extends Resource
     {
         $words = array_filter(preg_split('/\s+/u', mb_strtolower(trim($search))));
         $found = [];
-        foreach (Category::choices() as $id => $label) {
+        foreach (Category::leafChoices() as $id => $label) {
             $text = mb_strtolower($label);
             if (collect($words)->every(fn ($w) => str_contains($text, $w))) {
                 $found[$id] = $label;
@@ -130,8 +130,8 @@ class ArticleResource extends Resource
                         TextInput::make('working_name')->label('Working name')->helperText('Only for you. Visitors never see it.')->maxLength(255),
                         Select::make('category_id')
                             ->label('Main category')
-                            ->helperText('The code of each category shows in the list, for example (C-12).')
-                            ->options(fn () => Category::choices())
+                            ->options(fn () => Category::leafChoices())
+                            ->helperText('The code of each category shows in the list, for example (C-12). Only the last categories of the tree are offered. An article sits in a category that has no sub-categories; use its "Overview" category for an overview article.')
                             ->searchable()
                             ->required(),
                         Select::make('extraCategories')
@@ -334,7 +334,7 @@ class ArticleResource extends Resource
                         ->visible(fn () => (bool) auth()->user()?->canPublish())
                         ->label('Assign to a category')
                         ->icon('heroicon-o-folder-plus')
-                        ->schema([Select::make('category_id')->label('Add these articles also to')->options(fn () => Category::choices())->searchable()->required()])
+                        ->schema([Select::make('category_id')->label('Add these articles also to')->options(fn () => Category::leafChoices())->searchable()->required()])
                         ->action(function ($records, array $data) {
                             foreach ($records as $article) {
                                 if ($article->category_id !== (int) $data['category_id']) {

@@ -27,7 +27,7 @@ class AccountController extends Controller
     {
         abort_unless(auth()->user()->isActive(), 403);
 
-        return view('account.submit', ['article' => null, 'categories' => Category::publicChoices()]);
+        return view('account.submit', ['article' => null, 'categories' => Category::publicLeafChoices()]);
     }
 
     public function store(Request $request)
@@ -54,7 +54,7 @@ class AccountController extends Controller
     {
         $this->authorizeOwn($article);
 
-        return view('account.submit', ['article' => $article, 'categories' => Category::publicChoices()]);
+        return view('account.submit', ['article' => $article, 'categories' => Category::publicLeafChoices()]);
     }
 
     public function update(Request $request, Article $article)
@@ -86,7 +86,7 @@ class AccountController extends Controller
     {
         return $request->validate([
             'title' => ['required', 'string', 'max:200'],
-            'category_id' => ['required', 'integer', Rule::in(array_keys(Category::publicChoices()))],
+            'category_id' => ['required', 'integer', Rule::in(array_keys(Category::publicLeafChoices()))],
             'short_detail' => ['nullable', 'string', 'max:600'],
             'long_detail' => ['nullable', 'string', 'max:30000'],
             'source_line' => ['nullable', 'string', 'max:500'],

@@ -150,6 +150,51 @@ class Category extends Model
         return implode(' > ', $names);
     }
 
+    /** A last-level category: nothing sits below it. An article may only be placed in one of these. */
+    public function isLeaf(): bool
+    {
+        return ! static::query()->where('parent_id', $this->id)->exists();
+    }
+
+    /** Does an article sit directly in this category (as its main or an additional category)? Trashed articles do not count. */
+    public function holdsArticles(): bool
+    {
+        return Article::query()->where('category_id', $this->id)->exists()
+            || Article::query()->whereHas('extraCategories', fn ($q) => $q->where('categories.id', $this->id))->exists();
+    }
+
+    /** @return list<int> ids of the last-level categories */
+    public static function leafIds(): array
+    {
+        $parents = static::query()->whereNotNull('parent_id')->pluck('parent_id')->unique()->all();
+
+        return static::query()->whereNotIn('id', $parents)->pluck('id')->all();
+    }
+
+    /** [id => "About Islam > Allah (SWT) Index > ... (C-12)"] of the last-level categories only: where an article may be placed. */
+    public static function leafChoices(): array
+    {
+        return array_intersect_key(static::choices(), array_flip(static::leafIds()));
+    }
+
+    /** The same for the visitors' forms: only visible last-level categories, without the code. */
+    public static function publicLeafChoices(): array
+    {
+        return array_intersect_key(static::publicChoices(), array_flip(static::leafIds()));
+    }
+
+    /**
+     * Some last-level categories below this one, as text for a message ("A > B (C-12); A > C (C-13)").
+     *
+     * @return list<string>
+     */
+    public function leafExamples(int $limit = 6): array
+    {
+        $ids = array_values(array_diff($this->descendantIds(), [$this->id]));
+
+        return array_slice(array_values(array_intersect_key(static::leafChoices(), array_flip($ids))), 0, $limit);
+    }
+
     /** [id => "Shows > Popular Shows"] for the visitors' search box: only categories that are visible and sit inside visible ones. */
     public static function publicChoices(?int $maxDepth = null): array
     {

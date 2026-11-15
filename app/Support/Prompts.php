@@ -67,7 +67,7 @@ class Prompts
     /** One line for each category: "Shows > Popular Shows (C-2)". Long lists are cut, with a note. */
     public static function categoryList(int $max = 300): string
     {
-        $choices = Category::choices();
+        $choices = Category::leafChoices();   // an article is only ever placed in a last-level category
         if ($choices === []) {
             return '(there are no categories yet)';
         }
