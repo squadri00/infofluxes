@@ -24,6 +24,8 @@ SHORT: (the answer in one or two sentences, at most 600 letters)
 LONG:
 (how it is counted or known: a few short paragraphs, at most 1,500 letters in all)
 KEYWORDS: (words people would search for, separated by commas)
+META TITLE: (the title for Google, at most 60 letters, plain words, without the site name)
+META DESCRIPTION: (one sentence for Google that makes a reader want to open the page, 120 to 155 letters, no quotes, no promises the page cannot keep)
 VIDEOS:
 SOURCE: (one line)
 END

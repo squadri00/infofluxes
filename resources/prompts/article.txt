@@ -23,6 +23,8 @@ SHORT: (one or two sentences, at most 600 letters)
 LONG:
 (the article: several short paragraphs, with an empty line between paragraphs)
 KEYWORDS: (words people would search for, separated by commas)
+META TITLE: (the title for Google, at most 60 letters, plain words, without the site name)
+META DESCRIPTION: (one sentence for Google that makes a reader want to open the page, 120 to 155 letters, no quotes, no promises the page cannot keep)
 VIDEOS: (YouTube addresses you are sure exist, separated by commas, or leave empty)
 SOURCE: (one line)
 END

@@ -171,6 +171,20 @@
                         @foreach ($item['warnings'] as $warning)
                             <div style="color:#b07800">Note: {{ $warning }}</div>
                         @endforeach
+                        @if (in_array($item['kind'], ['article', 'fact'], true) && $item['title'] !== '(no title)')
+                            @php
+                                $pvTitle = $item['data']['meta_title'] ?? ($item['data']['title'] ?? $item['title']);
+                                $pvText = $item['data']['meta_description'] ?? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags((string) ($item['data']['short'] ?: $item['data']['long'] ?? '')))), 160);
+                                $own = ! empty($item['data']['meta_title']) || ! empty($item['data']['meta_description']);
+                            @endphp
+                            <details style="margin-top:.5rem"><summary style="cursor:pointer">How it will look in Google @if (! $own)<span style="opacity:.7">(no META lines: the page uses its own title and short text)</span>@endif</summary>
+                                <div style="margin-top:.4rem;padding:.6rem .8rem;border:1px solid rgba(128,128,128,.35);border-radius:.5rem;max-width:40rem">
+                                    <div style="opacity:.7;font-size:.8rem">{{ url('/') }} &rsaquo; ...</div>
+                                    <div style="color:#1a0dab;font-size:1.1rem;line-height:1.3">{{ \Illuminate\Support\Str::limit($pvTitle, 60, '…') }}</div>
+                                    <div style="font-size:.9rem;opacity:.85">{{ \Illuminate\Support\Str::limit($pvText, 160, '…') }}</div>
+                                </div>
+                            </details>
+                        @endif
                         @if (! empty($item['data']['outline']))
                             <details style="margin-top:.5rem"><summary style="cursor:pointer">Parts of the article ({{ count($item['data']['outline']) }})</summary>
                                 <ul style="margin:.3rem 0 0 1.2rem;list-style:disc">

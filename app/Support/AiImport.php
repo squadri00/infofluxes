@@ -27,7 +27,7 @@ class AiImport
 
     public const MAX_CATEGORY_LINES = 300;
 
-    private const KEYS = ['TYPE', 'CATEGORY', 'ALSO IN', 'TITLE', 'SHORT', 'LONG', 'KEYWORDS', 'VIDEOS', 'SOURCES', 'SOURCE', 'EXPLAINERS', 'PLEASE CHECK', 'REVIEWER'];
+    private const KEYS = ['TYPE', 'CATEGORY', 'ALSO IN', 'TITLE', 'SHORT', 'LONG', 'KEYWORDS', 'META TITLE', 'META DESCRIPTION', 'VIDEOS', 'SOURCES', 'SOURCE', 'EXPLAINERS', 'PLEASE CHECK', 'REVIEWER'];
 
     /**
      * @return array<int, array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>}>
@@ -392,6 +392,22 @@ class AiImport
             $warnings[] = 'More than 20 KEYWORDS. Only the first 20 are kept.';
             $words = $words->take(20)->values();
         }
+        // What Google shows: the title and the description in the search results (both optional; the page has fallbacks).
+        $oneLine = fn ($t) => trim(preg_replace('/\s+/u', ' ', strip_tags((string) $t)));
+        $metaTitle = $oneLine($f['META TITLE'] ?? '');
+        $metaDescription = $oneLine($f['META DESCRIPTION'] ?? '');
+        if (mb_strlen($metaTitle) > 120) {
+            $errors[] = 'META TITLE is longer than 120 letters. It should be at most 60.';
+        } elseif (mb_strlen($metaTitle) > 60) {
+            $warnings[] = 'META TITLE is '.mb_strlen($metaTitle).' letters. Google shows about 60, the rest is cut.';
+        }
+        if (mb_strlen($metaDescription) > 320) {
+            $errors[] = 'META DESCRIPTION is longer than 320 letters. It should be at most 160.';
+        } elseif (mb_strlen($metaDescription) > 160) {
+            $warnings[] = 'META DESCRIPTION is '.mb_strlen($metaDescription).' letters. Google shows about 155 to 160, the rest is cut.';
+        } elseif ($metaDescription !== '' && mb_strlen($metaDescription) < 70) {
+            $warnings[] = 'META DESCRIPTION is very short ('.mb_strlen($metaDescription).' letters). 120 to 155 works best.';
+        }
         $videos = [];
         foreach (array_filter(array_map('trim', preg_split('/[\s,]+/', (string) ($f['VIDEOS'] ?? '')))) as $url) {
             if (YouTube::id($url) === null) {
@@ -410,6 +426,7 @@ class AiImport
                 'title' => $title, 'short' => $short, 'long' => $long, 'source' => $source !== '' ? $source : null,
                 'category_id' => $category?->id, 'category_label' => $category ? Category::choices()[$category->id] ?? $category->code : null,
                 'extra_ids' => array_keys($extra), 'words' => $words->all(), 'videos' => $videos,
+                'meta_title' => $metaTitle !== '' ? $metaTitle : null, 'meta_description' => $metaDescription !== '' ? $metaDescription : null,
                 'entry_id' => $entry?->id, 'entry_label' => $entry ? IndexEntries::label($entry).' · '.$entry->mainTitle() : null, 'index_suggestions' => $suggestions,
                 'explainers' => $notes,
                 'quotes' => $blocks, 'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
@@ -666,6 +683,8 @@ class AiImport
                 'short_detail' => [$locale => $d['short']],
                 'long_detail' => [$locale => Explainers::applyNotes(Html::fromMarked($d['long']), $d['explainers'] ?? [])],
                 'search_words' => $d['words'] ?: null,
+                'page_title' => ! empty($d['meta_title']) ? [$locale => $d['meta_title']] : null,
+                'meta_description' => ! empty($d['meta_description']) ? [$locale => $d['meta_description']] : null,
                 'source_line' => $d['source'],
                 'author_id' => $user?->id,
                 'status' => 'written',   // text is in, a person has not reviewed it yet

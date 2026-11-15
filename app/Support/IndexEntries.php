@@ -138,6 +138,12 @@ class IndexEntries
         $entry->setTranslation('long_detail', $locale, Explainers::applyNotes(Html::fromMarked($d['long']), $d['explainers'] ?? []));
         $entry->slug = Article::uniqueSlug($d['title']);
         $entry->search_words = ($d['words'] ?? []) ?: null;
+        if (! empty($d['meta_title'])) {
+            $entry->setTranslation('page_title', $locale, $d['meta_title']);
+        }
+        if (! empty($d['meta_description'])) {
+            $entry->setTranslation('meta_description', $locale, $d['meta_description']);
+        }
         $entry->source_line = $d['source'] ?? null;
         $entry->ai_assisted = true;
         $entry->status = $entry->status === 'draft' ? 'written' : $entry->status;   // it has text now; a person has not reviewed it yet
