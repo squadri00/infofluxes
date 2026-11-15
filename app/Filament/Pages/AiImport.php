@@ -49,6 +49,9 @@ class AiImport extends Page
 
     public string $comments = '';
 
+    /** Also ask the AI for word notes (explainers) for the hard words of the article. */
+    public bool $explainers = true;
+
     /** The blank index entry this article fills (chosen on the form, or opened from the Articles list). */
     public ?int $entryId = null;
 
@@ -125,7 +128,7 @@ class AiImport extends Page
         if ($this->kind === 'research') {
             return Prompts::research([
                 'topic' => $this->topic, 'category_id' => $this->categoryId, 'specialist' => $this->specialist ?: null,
-                'words' => $this->words, 'depth' => $this->depth, 'comments' => $this->comments,
+                'words' => $this->words, 'depth' => $this->depth, 'comments' => $this->comments, 'explainers' => $this->explainers,
                 'entry' => ($e = $this->entry()) ? IndexEntries::label($e).' '.$e->mainTitle() : null,
             ]);
         }

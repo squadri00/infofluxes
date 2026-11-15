@@ -27,7 +27,7 @@ class AiImport
 
     public const MAX_CATEGORY_LINES = 300;
 
-    private const KEYS = ['TYPE', 'CATEGORY', 'ALSO IN', 'TITLE', 'SHORT', 'LONG', 'KEYWORDS', 'VIDEOS', 'SOURCES', 'SOURCE', 'PLEASE CHECK', 'REVIEWER'];
+    private const KEYS = ['TYPE', 'CATEGORY', 'ALSO IN', 'TITLE', 'SHORT', 'LONG', 'KEYWORDS', 'VIDEOS', 'SOURCES', 'SOURCE', 'EXPLAINERS', 'PLEASE CHECK', 'REVIEWER'];
 
     /**
      * @return array<int, array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>}>
@@ -219,6 +219,41 @@ class AiImport
             }
         }
 
+        // Word notes (explainers): read, checked, and each one marked in the text when the article is saved.
+        $answer = Explainers::readAnswer((string) ($f['EXPLAINERS'] ?? ''));
+        $notes = $answer['notes'];
+        foreach ($answer['problems'] as $p) {
+            $warnings[] = $p;
+        }
+        if (count($notes) > Explainers::MAX_PER_ARTICLE) {
+            $warnings[] = 'More than '.Explainers::MAX_PER_ARTICLE.' word notes. Only the first '.Explainers::MAX_PER_ARTICLE.' are kept.';
+            $notes = array_slice($notes, 0, Explainers::MAX_PER_ARTICLE);
+        }
+        $newNotes = 0;
+        $longHtml = $notes === [] ? '' : Html::fromMarked($long);
+        foreach ($notes as $i => $note) {
+            $existing = Explainers::existing($note);
+            $notes[$i]['exists'] = $existing ? $existing->code.' '.$existing->mainTerm() : null;
+            $marked = Explainers::mark($longHtml, [['term' => $note['term'], 'aliases' => $note['aliases']]]);
+            $notes[$i]['found'] = $marked['missing'] === [];
+            if (mb_strlen($note['text']) > 500) {
+                $notes[$i]['text'] = mb_substr($note['text'], 0, 500);
+                $warnings[] = 'The note for "'.$note['term'].'" was longer than 500 letters and was cut.';
+            }
+            if (! $notes[$i]['found']) {
+                $warnings[] = 'The word "'.$note['term'].'" is not in the article text, so it will not be marked there.';
+            }
+            if (! $existing) {
+                $newNotes++;
+                if ($note['source'] === null) {
+                    $auto[] = 'The word note for "'.$note['term'].'" has no source. Read it somewhere reliable before you publish the note.';
+                }
+            }
+        }
+        if ($newNotes > 0) {
+            $auto[] = $newNotes.' new word note(s) will be made as drafts. Readers do not see them until you read and publish them in Content > Explainers.';
+        }
+
         // Quran references: only that the surah and verse exist.
         $quran = QuranRefs::find($long."\n".($f['SOURCES'] ?? ''));
         foreach ($quran as $q) {
@@ -376,6 +411,7 @@ class AiImport
                 'category_id' => $category?->id, 'category_label' => $category ? Category::choices()[$category->id] ?? $category->code : null,
                 'extra_ids' => array_keys($extra), 'words' => $words->all(), 'videos' => $videos,
                 'entry_id' => $entry?->id, 'entry_label' => $entry ? IndexEntries::label($entry).' · '.$entry->mainTitle() : null, 'index_suggestions' => $suggestions,
+                'explainers' => $notes,
                 'quotes' => $blocks, 'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
         ];
@@ -618,6 +654,7 @@ class AiImport
             $d = $item['data'];
             if (! empty($d['entry_id']) && ($entry = Article::find($d['entry_id'])) && IndexEntries::isBlank($entry)) {
                 IndexEntries::fill($entry, $d, $user);
+                Explainers::createDrafts($d['explainers'] ?? [], $user);
                 $made['articles'][] = $entry->id;
 
                 continue;
@@ -627,7 +664,7 @@ class AiImport
                 'slug' => Article::uniqueSlug($d['title']),
                 'category_id' => $d['category_id'],
                 'short_detail' => [$locale => $d['short']],
-                'long_detail' => [$locale => Html::fromMarked($d['long'])],
+                'long_detail' => [$locale => Explainers::applyNotes(Html::fromMarked($d['long']), $d['explainers'] ?? [])],
                 'search_words' => $d['words'] ?: null,
                 'source_line' => $d['source'],
                 'author_id' => $user?->id,
@@ -645,6 +682,7 @@ class AiImport
             foreach ($d['videos'] as $i => $url) {
                 $article->videos()->create(['url' => $url, 'sort_order' => $i + 1]);
             }
+            Explainers::createDrafts($d['explainers'] ?? [], $user);
             $made['articles'][] = $article->id;
         }
 

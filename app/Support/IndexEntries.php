@@ -135,7 +135,7 @@ class IndexEntries
 
         $entry->setTranslation('title', $locale, $d['title']);
         $entry->setTranslation('short_detail', $locale, $d['short']);
-        $entry->setTranslation('long_detail', $locale, Html::fromMarked($d['long']));
+        $entry->setTranslation('long_detail', $locale, Explainers::applyNotes(Html::fromMarked($d['long']), $d['explainers'] ?? []));
         $entry->slug = Article::uniqueSlug($d['title']);
         $entry->search_words = ($d['words'] ?? []) ?: null;
         $entry->source_line = $d['source'] ?? null;

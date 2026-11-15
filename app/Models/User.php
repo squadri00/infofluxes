@@ -67,11 +67,12 @@ class User extends Authenticatable implements FilamentUser
         'people' => 'Contributors',
         'newsletter' => 'Send newsletter',
         'facts' => 'Did You Know?',
+        'explainers' => 'Explainers',
     ];
 
     /** The screens a role has when no screens are ticked for the person. */
     public const ROLE_SCREENS = [
-        'moderator' => ['articles', 'stories', 'categories', 'comments'],
+        'moderator' => ['articles', 'stories', 'categories', 'comments', 'explainers'],
         'author' => ['articles', 'stories'],
     ];
 

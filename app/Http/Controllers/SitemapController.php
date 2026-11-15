@@ -13,6 +13,9 @@ class SitemapController extends Controller
         if (\App\Models\DidYouKnow::published()->whereNotNull('source')->exists()) {
             $urls[] = [route('did-you-know'), \Illuminate\Support\Carbon::parse(\App\Models\DidYouKnow::published()->max('updated_at'))];
         }
+        if (\App\Models\Explainer::published()->exists()) {
+            $urls[] = [route('words'), \Illuminate\Support\Carbon::parse(\App\Models\Explainer::published()->max('updated_at'))];
+        }
         foreach (Category::where('is_visible', true)->orderBy('tree_path')->get() as $c) {
             $urls[] = [route('category.show', $c->slug), $c->updated_at];
         }

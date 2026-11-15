@@ -1920,3 +1920,23 @@ a.view-toggle__btn { text-decoration: none; color: inherit; }
 .engage__hint { margin: .5rem 0 0; font-size: .88rem; color: var(--muted); }
 
 .search__also { margin: .3rem 0 .6rem; color: var(--muted); font-size: .92rem; }
+
+
+/* Word notes (explainers) */
+button.exp { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: help; text-decoration: underline dotted var(--accent); text-underline-offset: .22em; text-decoration-thickness: 2px; }
+button.exp:hover, button.exp[aria-expanded="true"] { color: var(--accent); }
+button.exp:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+.exp-pop { position: absolute; z-index: 60; box-sizing: border-box; padding: .8rem 2.2rem .9rem 1rem; border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); color: var(--text); box-shadow: 0 10px 30px rgba(0, 0, 0, .3); }
+.exp-pop__term { font-weight: 700; margin-bottom: .25rem; }
+.exp-pop__body { font-size: .95rem; line-height: 1.5; }
+.exp-pop__close { position: absolute; top: .3rem; right: .45rem; border: 0; background: none; color: var(--muted); font-size: 1.4rem; line-height: 1; cursor: pointer; }
+.exp-cards { margin: 1.5rem 0; }
+.exp-cards__list, .words__list { margin: 0; display: grid; gap: .6rem; }
+.exp-card, .words__item { padding: .6rem .9rem; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px; background: var(--surface); }
+.exp-card__term, .words__item dt { font-weight: 700; }
+.exp-card__body, .words__item dd { margin: .15rem 0 0; }
+.words__kind { margin-left: .4rem; padding: .05rem .45rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: .72rem; font-weight: 600; vertical-align: middle; }
+.words__source { display: block; margin-top: .2rem; color: var(--muted); font-size: .85rem; }
+.words__letters { display: flex; flex-wrap: wrap; gap: .4rem; margin: 1rem 0; }
+.words__letters a { padding: .2rem .6rem; border: 1px solid var(--line); border-radius: 6px; text-decoration: none; font-weight: 600; }
+.exp-cards__more { margin-top: .5rem; }

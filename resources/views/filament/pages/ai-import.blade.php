@@ -107,6 +107,10 @@
                     <strong>Comments for the AI</strong> <span style="opacity:.7">(optional: a point to cover, a view to include, a source to use)</span><br>
                     <textarea wire:model.live.debounce.600ms="comments" rows="3" maxlength="1500" style="{{ $box }}"></textarea>
                 </label>
+                <label style="display:flex;gap:.5rem;align-items:flex-start">
+                    <input type="checkbox" wire:model.live="explainers" style="margin-top:.3rem">
+                    <span><strong>Also ask for word notes</strong> <span style="opacity:.7">(explainers: the AI picks 3 to 8 hard words, names or places and writes a short note for each. They are saved as drafts and shown to readers only after you publish them.)</span></span>
+                </label>
                 @if ($words > \App\Support\Prompts::PARTS_ABOVE)
                     <div style="opacity:.8">A long article is written in parts: the AI first gives an outline, then you ask it for each part.</div>
                 @endif
@@ -188,6 +192,21 @@
                                             @else <span style="opacity:.7">no link</span> @endif
                                             · {{ ucfirst($src['type']) }}: {{ $src['ref'] }}
                                             @if (! empty($src['url'])) <span style="opacity:.7">({{ \Illuminate\Support\Str::limit($src['url'], 70) }})</span> @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </details>
+                        @endif
+                        @if (! empty($item['data']['explainers']))
+                            <details style="margin-top:.4rem"><summary style="cursor:pointer">Word notes ({{ count($item['data']['explainers']) }})</summary>
+                                <ul style="margin:.3rem 0 0 1.2rem;list-style:disc">
+                                    @foreach ($item['data']['explainers'] as $note)
+                                        <li>
+                                            <strong>{{ $note['term'] }}</strong> <span style="opacity:.7">({{ $note['kind'] }})</span>
+                                            @if (! empty($note['exists'])) <span style="color:#b07800">already exists: {{ $note['exists'] }}, it is reused</span>
+                                            @elseif ($note['found']) <span style="color:#2d9d5a">found in the text, a new draft note</span>
+                                            @else <span style="color:#b07800">not in the text, a new draft note</span> @endif
+                                            <div style="opacity:.85">{{ $note['text'] }}</div>
                                         </li>
                                     @endforeach
                                 </ul>

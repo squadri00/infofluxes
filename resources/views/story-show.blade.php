@@ -8,6 +8,7 @@
     $siteTitle = \App\Models\Setting::get('site_name', config('app.name'));
     $date = $story->publish_date ?: $story->created_at;
     $body = \App\Support\Html::clean((string) $story->long_detail);
+    $explained = \App\Support\Explainers::render($body);   // @[word] becomes a tappable word
     $others = $story->extraCategories->filter(fn ($c) => $c->is_visible);
     $listenTracks = \App\Support\Listen::tracks($story, $storyItems ?? []);
 @endphp
@@ -89,8 +90,10 @@
     @include('partials.engage', ['item' => $story])
 
     @if ($body !== '')
-        <div class="article__body">{!! $body !!}</div>
+        <div class="article__body">{!! $explained['html'] !!}</div>
     @endif
+
+    @include('partials.explainer-cards', ['used' => $explained['used']])
 
     @if (filled($story->source_line))
         <p class="topic__source"><strong>{{ __('site.source') }}:</strong> {{ $story->source_line }}</p>
@@ -124,6 +127,12 @@
         </section>
     @endif
 </article>
+
+@if (! empty($explained['used']))
+    @push('scripts')
+        <script src="{{ asset('js/explainers.js') }}?v={{ @filemtime(public_path('js/explainers.js')) ?: 1 }}" defer></script>
+    @endpush
+@endif
 
 @push('scripts')
     <script src="{{ asset('js/share.js') }}?v={{ @filemtime(public_path('js/share.js')) ?: 1 }}" defer></script>

@@ -6,7 +6,8 @@
     $siteTitle = \App\Models\Setting::get('site_name', config('app.name'));
     $date = $article->publish_date ?: $article->created_at;
     $body = \App\Support\Html::clean((string) $article->long_detail);
-    $bodyShown = ! empty($article->custom_data['accordion']) ? \App\Support\Html::accordion($body) : $body;
+    $explained = \App\Support\Explainers::render($body);   // @[word] becomes a tappable word
+    $bodyShown = ! empty($article->custom_data['accordion']) ? \App\Support\Html::accordion($explained['html']) : $explained['html'];
     $sources = collect((array) ($article->custom_data['sources'] ?? []))->filter(fn ($x) => filled($x['ref'] ?? null))->values();
     $videos = $article->videos->filter(fn ($v) => filled($v->youtube_id));
     $others = $article->extraCategories->filter(fn ($c) => $c->is_visible);
@@ -88,6 +89,8 @@
         @endif
         <div class="article__body">{!! $bodyShown !!}</div>
     @endif
+
+    @include('partials.explainer-cards', ['used' => $explained['used']])
 
     @if ($videos->isNotEmpty())
         <section class="article__videos" aria-label="{{ __('site.videos') }}">
@@ -177,6 +180,9 @@
 @if (\App\Support\Listen::visible($listenTracks))
     @push('scripts')
         <script src="{{ asset('js/listen.js') }}?v={{ @filemtime(public_path('js/listen.js')) ?: 1 }}" defer></script>
+        @if (! empty($explained['used']))
+            <script src="{{ asset('js/explainers.js') }}?v={{ @filemtime(public_path('js/explainers.js')) ?: 1 }}" defer></script>
+        @endif
         <script src="{{ asset('js/share.js') }}?v={{ @filemtime(public_path('js/share.js')) ?: 1 }}" defer></script>
         <script src="{{ asset('js/accordion.js') }}?v={{ @filemtime(public_path('js/accordion.js')) ?: 1 }}" defer></script>
     @endpush

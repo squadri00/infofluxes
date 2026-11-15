@@ -14,6 +14,11 @@ class ReferenceController extends Controller
         $kind = strtoupper($code[0]);
         $id = (int) substr($code, 2);
 
+        if ($kind === 'E') {
+            \App\Models\Explainer::published()->findOrFail($id);
+
+            return redirect(route('words').'#word-'.$id, 301);
+        }
         if ($kind === 'S') {
             $story = Story::published()->findOrFail($id);
 

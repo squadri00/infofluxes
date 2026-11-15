@@ -57,6 +57,9 @@
                     @if (\App\Models\Story::published()->exists())
                         <li><a href="{{ route('stories') }}">{{ __('site.stories_title') }}</a></li>
                     @endif
+                    @if (\App\Models\Explainer::query()->published()->exists())
+                        <li><a href="{{ route('words') }}">{{ __('site.words_title') }}</a></li>
+                    @endif
                     @if (\App\Models\DidYouKnow::query()->published()->whereNotNull('source')->exists())
                         <li><a href="{{ route('did-you-know') }}">{{ __('site.dyk_title') }}</a></li>
                     @endif
