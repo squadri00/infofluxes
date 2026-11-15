@@ -77,6 +77,7 @@ class Step61Test extends TestCase
 
     public function test_tracking_never_runs_on_localhost_and_uses_the_standard_snippets_on_the_real_site(): void
     {
+        Setting::put('consent_on', false);
         Setting::put('seo_gtm_id', 'GTM-M57JT9XJ');
         $this->get('/')->assertDontSee('GTM-M57JT9XJ', false);
 
@@ -89,6 +90,7 @@ class Step61Test extends TestCase
 
     public function test_analytics_alone_is_used_only_without_tag_manager_and_a_bad_id_is_ignored(): void
     {
+        Setting::put('consent_on', false);
         Setting::put('seo_ga4_id', 'G-ABC123DEF4');
         $this->assertStringContainsString("gtag('config','G-ABC123DEF4')", $this->get('https://infofluxes.com/')->getContent());
 
@@ -104,6 +106,7 @@ class Step61Test extends TestCase
 
     public function test_staff_are_not_tracked_unless_switched_on(): void
     {
+        Setting::put('consent_on', false);
         Setting::put('seo_gtm_id', 'GTM-M57JT9XJ');
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
         $this->get('https://infofluxes.com/')->assertDontSee('GTM-M57JT9XJ', false);
@@ -137,5 +140,44 @@ class Step61Test extends TestCase
         $this->assertSame('GTM-M57JT9XJ', Setting::get('seo_gtm_id'));
         $this->assertSame('abc', Setting::get('seo_google_verification'));
         $this->assertTrue((bool) filter_var(Setting::get('seo_noindex_site'), FILTER_VALIDATE_BOOLEAN));
+    }
+
+    public function test_with_the_cookie_notice_on_counting_is_held_back_until_the_visitor_agrees(): void
+    {
+        Setting::put('seo_gtm_id', 'GTM-M57JT9XJ');
+        $html = $this->get('https://infofluxes.com/')->getContent();
+
+        $this->assertStringContainsString('data-consent-banner', $html);
+        $this->assertStringContainsString('js/consent.js', $html);
+        $this->assertStringContainsString('Cookie settings', $html);
+        $this->assertStringContainsString('<script type="text/plain" data-consent="analytics">', $html, 'held back, not run');
+        $this->assertStringNotContainsString('<script>(function(w,d,s,l,i)', $html);
+        $this->assertStringNotContainsString('ns.html?id=', $html);
+    }
+
+    public function test_the_notice_can_be_switched_off_and_it_is_on_by_default(): void
+    {
+        $this->assertTrue(Seo::consentOn());
+        $this->get('/')->assertSee('data-consent-banner', false);
+
+        Setting::put('consent_on', false);
+        $this->get('/')->assertDontSee('data-consent-banner', false)->assertDontSee('Cookie settings');
+    }
+
+    public function test_google_analytics_alone_is_also_held_back(): void
+    {
+        Setting::put('seo_ga4_id', 'G-ABC123DEF4');
+        $html = $this->get('https://infofluxes.com/')->getContent();
+        $this->assertStringContainsString('data-src="https://www.googletagmanager.com/gtag/js?id=G-ABC123DEF4"', $html);
+        $this->assertStringNotContainsString('<script async src=', $html);
+    }
+
+    public function test_the_notice_script_exists_and_has_both_buttons(): void
+    {
+        $js = file_get_contents(public_path('js/consent.js'));
+        $this->assertStringContainsString('data-consent-accept', $js);
+        $this->assertStringContainsString('data-consent-reject', $js);
+        $this->assertStringContainsString('if_consent', $js);
+        $this->get('/')->assertSee('data-consent-accept', false)->assertSee('data-consent-reject', false);
     }
 }

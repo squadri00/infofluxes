@@ -109,6 +109,24 @@ class Seo
         return true;
     }
 
+    /** Is the cookie notice on? Then counting waits for the visitor's OK. (On unless the super user switches it off.) */
+    public static function consentOn(): bool
+    {
+        $v = Setting::get('consent_on');
+
+        return $v === null || $v === '' ? true : (bool) filter_var($v, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /** One piece of counting code: with the cookie notice on it is held back (type text/plain) until the visitor says OK. */
+    private static function piece(string $code, ?string $src = null): string
+    {
+        if (! static::consentOn()) {
+            return $src ? "<script async src=\"{$src}\"></script>\n    " : "<script>{$code}</script>\n    ";
+        }
+
+        return '<script type="text/plain" data-consent="analytics"'.($src ? " data-src=\"{$src}\"" : '').'>'.($src ? '' : $code)."</script>\n    ";
+    }
+
     /** Google Tag Manager (or, if only that is set, Google Analytics) for the head. */
     public static function trackingHead(): string
     {
@@ -116,19 +134,20 @@ class Seo
             return '';
         }
         if ($gtm = static::gtmId()) {
-            return "<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{$gtm}');</script>\n";
+            return static::piece("(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{$gtm}');");
         }
         if ($ga = static::ga4Id()) {
-            return "<script async src=\"https://www.googletagmanager.com/gtag/js?id={$ga}\"></script>\n    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{$ga}');</script>\n";
+            return static::piece('', "https://www.googletagmanager.com/gtag/js?id={$ga}")
+                .static::piece("window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{$ga}');");
         }
 
         return '';
     }
 
-    /** The part of Google Tag Manager that goes straight after the opening body tag. */
+    /** The part of Google Tag Manager that goes straight after the opening body tag. (Left out when the cookie notice is on: it cannot ask for an OK without scripts.) */
     public static function trackingBody(): string
     {
-        if (! static::trackingAllowed() || ! ($gtm = static::gtmId())) {
+        if (! static::trackingAllowed() || ! ($gtm = static::gtmId()) || static::consentOn()) {
             return '';
         }
 

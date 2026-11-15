@@ -85,7 +85,11 @@
         </div>
 
         <div class="site-footer__bar">
-            <p class="site-footer__copy">{{ $copyright }}</p>
+            <p class="site-footer__copy">{{ $copyright }}
+                @if (\App\Support\Seo::consentOn())
+                    &middot; <button type="button" class="linklike" style="padding:0" data-consent-open>{{ __('consent.footer_button') }}</button>
+                @endif
+            </p>
         </div>
     </div>
 </footer>

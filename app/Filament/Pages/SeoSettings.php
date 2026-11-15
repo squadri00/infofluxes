@@ -51,12 +51,12 @@ class SeoSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['seo_noindex_site', 'seo_home_title', 'seo_title_pattern', 'seo_default_description', 'seo_og_image', 'seo_google_verification', 'seo_bing_verification', 'seo_facebook_verification', 'seo_robots_extra', 'seo_gtm_id', 'seo_ga4_id', 'seo_track_staff', 'seo_code_head', 'seo_code_body_start', 'seo_code_body_end'];
+        return ['seo_noindex_site', 'seo_home_title', 'seo_title_pattern', 'seo_default_description', 'seo_og_image', 'seo_google_verification', 'seo_bing_verification', 'seo_facebook_verification', 'seo_robots_extra', 'seo_gtm_id', 'seo_ga4_id', 'seo_track_staff', 'consent_on', 'consent_policy_url', 'seo_code_head', 'seo_code_body_start', 'seo_code_body_end'];
     }
 
     private static function switches(): array
     {
-        return ['seo_noindex_site', 'seo_track_staff'];
+        return ['seo_noindex_site', 'seo_track_staff', 'consent_on'];
     }
 
     /** @return array<string, mixed> */
@@ -66,7 +66,7 @@ class SeoSettings extends Page
         foreach (static::keys() as $key) {
             $value = Setting::all_()[$key] ?? null;
             if (in_array($key, static::switches(), true)) {
-                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                $value = ($key === 'consent_on' && ($value === null || $value === '')) ? true : filter_var($value, FILTER_VALIDATE_BOOLEAN);
             }
             $out[$key] = $value;
         }
@@ -113,6 +113,13 @@ class SeoSettings extends Page
                         TextInput::make('seo_ga4_id')->label('Google Analytics 4 ID (only if you do not use Tag Manager)')->placeholder('G-XXXXXXXXXX')->maxLength(20)
                             ->helperText('If both are set, only Tag Manager is used, so visits are never counted twice.'),
                         Toggle::make('seo_track_staff')->label('Also count visits of the team (logged-in staff)')->columnSpanFull(),
+                    ])->columns(2),
+                Section::make('Cookie notice')
+                    ->description('A small notice at the bottom of the page. Counting visits (Tag Manager / Analytics above) starts only after the visitor presses OK. Visitors can change their mind with "Cookie settings" in the footer. Custom code below is NOT held back, so do not put counting code there.')
+                    ->schema([
+                        Toggle::make('consent_on')->label('Show the cookie notice')->helperText('Keep it ON if you have visitors from the EU, the UK or other places with cookie laws.'),
+                        TextInput::make('consent_policy_url')->label('Address of your privacy page')->placeholder('/privacy')->maxLength(200)
+                            ->helperText('Shown as a link in the notice. Use a page of the site, for example /privacy. Left empty, no link is shown.'),
                     ])->columns(2),
                 Section::make('Custom code')
                     ->description('Careful: this code is printed exactly as you type it, on every page. A mistake can break the site, and code from a stranger can do harm. Only paste code from a source you trust.')

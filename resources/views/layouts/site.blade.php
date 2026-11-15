@@ -77,6 +77,10 @@
     <script src="{{ $ver('js/view-toggle.js') }}"></script>
     <script src="{{ $ver('js/theme.js') }}"></script>
     @stack('scripts')
+    @if (\App\Support\Seo::consentOn())
+        @include('partials.consent-banner')
+        <script src="{{ $ver('js/consent.js') }}"></script>
+    @endif
     {!! \App\Support\Seo::custom('body_end') !!}
 </body>
 </html>

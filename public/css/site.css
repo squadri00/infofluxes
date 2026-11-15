@@ -1973,3 +1973,10 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .field textarea, .field input[type="file"] { width: 100%; }
 .field small { color: var(--muted); }
 .comment__avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-inline-end: 6px; }
+
+/* Cookie notice */
+.consent { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 60; max-width: 60rem; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; padding: 14px 18px; background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0, 0, 0, .28); font-size: .92rem; }
+.consent[hidden] { display: none; }
+.consent__text { flex: 1 1 22rem; display: grid; gap: 2px; }
+.consent__buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn--ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
