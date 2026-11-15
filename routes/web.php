@@ -23,6 +23,7 @@ use App\Http\Controllers\StoryBookController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\WordsController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -34,6 +35,8 @@ Route::get('/category/{slug}', CategoryController::class)->name('category.show')
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::get('/login/{provider}', [SocialAuthController::class, 'redirect'])->where('provider', 'google|facebook')->middleware('throttle:20,1')->name('social.redirect');
+    Route::get('/login/{provider}/callback', [SocialAuthController::class, 'callback'])->where('provider', 'google|facebook')->middleware('throttle:20,1')->name('social.callback');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 });

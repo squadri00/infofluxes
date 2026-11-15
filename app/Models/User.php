@@ -76,6 +76,11 @@ class User extends Authenticatable implements FilamentUser
         'author' => ['articles', 'stories'],
     ];
 
+    public function socialAccounts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
     public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Comment::class);

@@ -22,6 +22,7 @@
         <label class="field"><span>{{ __('site.password_again') }}</span><input type="password" name="password_confirmation" required minlength="10" autocomplete="new-password"></label>
         <button class="btn btn--small" type="submit">{{ __('site.signup') }}</button>
     </form>
+    @include('auth.social-buttons')
     <p class="auth-form__other">{{ __('site.have_account') }} <a href="{{ route('login') }}">{{ __('site.login') }}</a></p>
 </div>
 @endsection

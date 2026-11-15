@@ -17,6 +17,7 @@
         <label class="field field--check"><input type="checkbox" name="remember" value="1"> <span>{{ __('site.remember') }}</span></label>
         <button class="btn btn--small" type="submit">{{ __('site.login') }}</button>
     </form>
+    @include('auth.social-buttons')
     @if ((bool) \App\Models\Setting::get('signups_open', true))
         <p class="auth-form__other">{{ __('site.no_account') }} <a href="{{ route('register') }}">{{ __('site.signup') }}</a></p>
     @endif
