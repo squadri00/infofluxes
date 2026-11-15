@@ -28,7 +28,7 @@ class Translated
     /** @return array<int, RichEditor> a text editor (bold, lists, links, headings) for each language */
     public static function rich(string $field, string $label, bool $required = false, ?string $help = null): array
     {
-        return static::boxes($field, $label, $required, fn (string $name, string $text, bool $must) => RichEditor::make($name)->label($text)->required($must)->helperText($help)->columnSpanFull());
+        return static::boxes($field, $label, $required, fn (string $name, string $text, bool $must) => Editor::make($name)->label($text)->required($must)->helperText($help)->columnSpanFull());
     }
 
     private static function boxes(string $field, string $label, bool $required, \Closure $make): array

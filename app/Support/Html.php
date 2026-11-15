@@ -9,10 +9,12 @@ namespace App\Support;
 class Html
 {
     private const TAGS = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'ul', 'ol', 'li', 'a', 'h2', 'h3', 'h4', 'blockquote', 'hr', 'code', 'pre', 'sub', 'sup',
-        'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption', 'cite'];
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption', 'cite',
+        // from the editor: highlight, small print, a folding box, a coloured word, a picture inside the text
+        'mark', 'small', 'details', 'summary', 'span', 'img'];
 
     /** The only class names that survive (used by the verse and hadith blocks). */
-    private const CLASSES = ['quote', 'quote--quran', 'quote--hadith', 'quote__ar', 'quote__text', 'quote__ref'];
+    private const CLASSES = ['quote', 'quote--quran', 'quote--hadith', 'quote__ar', 'quote__text', 'quote__ref', 'lead'];
 
     public static function clean(?string $html): string
     {
@@ -310,6 +312,31 @@ class Html
                         $keep = true;
                     }
                 }
+                // the text colour from the editor: a span with the class "color"
+                if ($name === 'span' && $attr->name === 'class' && in_array('color', preg_split('/\s+/', trim($attr->value)), true)) {
+                    $attr->value = 'color';
+                    $keep = true;
+                }
+                // alignment, a text colour and a highlight: only a short list of safe style parts
+                if ($attr->name === 'style' && in_array($name, ['p', 'h2', 'h3', 'h4', 'li', 'span', 'mark', 'td', 'th'], true)) {
+                    $safe = static::safeStyle($name, $attr->value);
+                    if ($safe !== '') {
+                        $attr->value = $safe;
+                        $keep = true;
+                    }
+                }
+                // a picture: only from this site's own storage; size as whole numbers
+                if ($name === 'img') {
+                    if ($attr->name === 'src' && static::safeImage($attr->value)) {
+                        $keep = true;
+                    }
+                    if ($attr->name === 'alt') {
+                        $keep = true;
+                    }
+                    if (in_array($attr->name, ['width', 'height'], true) && preg_match('/^[0-9]{1,4}$/', trim($attr->value))) {
+                        $keep = true;
+                    }
+                }
                 if ($name === 'p' && (($attr->name === 'dir' && $attr->value === 'rtl') || ($attr->name === 'lang' && $attr->value === 'ar'))) {
                     $keep = true;
                 }
@@ -320,8 +347,58 @@ class Html
             if ($name === 'a') {
                 $child->setAttribute('rel', 'nofollow noopener');
             }
+            if ($name === 'img') {
+                if (! $child->hasAttribute('src')) {
+                    $node->removeChild($child);
+
+                    continue;
+                }
+                $child->setAttribute('loading', 'lazy');
+            }
             static::walk($child);
         }
+    }
+
+    /** Only the style parts the editor makes: text-align, the colour of a word (--color, --dark-color), and the highlight. */
+    private static function safeStyle(string $tag, string $style): string
+    {
+        $colour = '/^(#[0-9a-f]{3,8}|(?:rgb|rgba|hsl|hsla|oklch|oklab)\([0-9a-z .,%\/-]{1,60}\)|[a-z]{3,20})$/i';
+        $out = [];
+        foreach (explode(';', $style) as $declaration) {
+            if (! str_contains($declaration, ':')) {
+                continue;
+            }
+            [$property, $value] = array_map('trim', explode(':', $declaration, 2));
+            $property = strtolower($property);
+            if ($property === 'text-align' && in_array(strtolower($value), ['left', 'right', 'center', 'justify', 'start', 'end'], true)) {
+                $out[] = 'text-align: '.strtolower($value);
+            } elseif (in_array($property, ['--color', '--dark-color'], true) && $tag === 'span' && preg_match($colour, $value)) {
+                $out[] = $property.': '.$value;
+            } elseif ($property === 'background-color' && $tag === 'mark' && preg_match($colour, $value)) {
+                $out[] = 'background-color: '.$value;
+            } elseif ($property === 'color' && $tag === 'mark' && strtolower($value) === 'inherit') {
+                $out[] = 'color: inherit';
+            }
+        }
+
+        return implode('; ', $out);
+    }
+
+    /** A picture address that points into this site's own storage folder (a full address on this host, or one that starts with a slash). */
+    private static function safeImage(string $src): bool
+    {
+        $src = trim($src);
+        if ($src === '' || str_contains($src, '..') || str_contains($src, '\\')) {
+            return false;
+        }
+        if (preg_match('~^https?://([^/]+)(/.*)$~i', $src, $m)) {
+            if (strcasecmp($m[1], request()->getHttpHost()) !== 0) {
+                return false;
+            }
+            $src = $m[2];
+        }
+
+        return (bool) preg_match('~^/(?:[A-Za-z0-9_.-]+/)*storage/[A-Za-z0-9_./-]+\.(?:webp|jpe?g|png|gif)$~', $src);
     }
 
     private static function safeHref(string $href): bool
