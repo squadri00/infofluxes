@@ -216,6 +216,18 @@ class Seo
         return static::script($data);
     }
 
+    /** For the FAQ page: Google can show the questions and answers in the results. @param \Illuminate\Support\Collection $items rows with question and answer (html) */
+    public static function faqJsonLd($items): string
+    {
+        $entities = $items->map(fn ($i) => [
+            '@type' => 'Question',
+            'name' => $i['question'],
+            'acceptedAnswer' => ['@type' => 'Answer', 'text' => trim(preg_replace('/\s+/u', ' ', strip_tags((string) $i['answer'])))],
+        ])->values()->all();
+
+        return $entities === [] ? '' : static::script(['@context' => 'https://schema.org', '@type' => 'FAQPage', 'mainEntity' => $entities]);
+    }
+
     /** The robots.txt text: private parts closed, the sitemap named, and the lines the super user added. */
     public static function robotsTxt(): string
     {

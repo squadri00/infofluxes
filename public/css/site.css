@@ -1997,3 +1997,11 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .article__body img { max-width: 100%; height: auto; border-radius: 8px; }
 .article__body pre { overflow-x: auto; padding: .8em 1em; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: .9em; }
 .article__body hr { border: 0; border-top: 1px solid var(--line); margin: 1.6em 0; }
+
+/* FAQ page */
+.faq__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 14px 0 18px; }
+.faq__search { flex: 1 1 18rem; max-width: 28rem; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; }
+.faq__search:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+.faq { max-width: 52rem; }
+.faq__group { margin: 0 0 22px; }
+.faq__item[hidden], .faq__group[hidden] { display: none; }

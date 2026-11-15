@@ -321,6 +321,12 @@ return [
         'tips' => ['Tracking never runs on localhost and, by default, not for logged-in staff.', 'robots.txt and sitemap.xml are made by themselves. Open /robots.txt on the live site to see them.', 'Articles and stories already carry structured data (JSON-LD) for Google.'],
     ],
     [
+        'key' => 'faq', 'title' => 'FAQ', 'group' => 'Content', 'classes' => [\App\Filament\Resources\Faqs\FaqResource::class], 'access' => 'pages',
+        'what' => 'The questions and answers of the FAQ page (/faq). Each question opens like an accordion. Readers can search the questions and open one with a link such as /faq#q-3.',
+        'steps' => ['"New question" adds one. Write the question, the answer, and (if you want) a heading to list it under.', 'Drag the rows to change the order. Questions with the same heading are listed together.', 'Switch "Shown" off to hide a question without deleting it.'],
+        'tips' => ['Google can show the questions and answers directly in its results, so write each answer in two or three clear sentences.', 'The old FAQ page text was moved here, question by question, and the old page was hidden (not deleted).'],
+    ],
+    [
         'key' => 'site-controls', 'title' => 'Site controls', 'group' => 'Settings', 'classes' => [\App\Filament\Pages\SiteControlsPage::class], 'access' => 'superuser',
         'what' => 'One page of On/Off switches for the parts of the public site that make it look busy: likes, counts, share buttons, recently viewed, social buttons, related articles, and the useful extras like Listen, Save for later and the language button.',
         'steps' => ['Turn a switch on to show a part, off to hide it, then press Save.', '"Quiet look" switches off all the noisy parts at once. "Normal look" brings them back. The useful extras are never touched by either.', '"All settings (advanced)" opens Site settings.'],

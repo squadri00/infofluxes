@@ -99,6 +99,9 @@ Route::prefix('quiz')->middleware('throttle:quiz')->group(function () {
     Route::post('order/try', [OrderQuizController::class, 'tryTile'])->name('order.try');
 });
 
+// The FAQ: questions and answers as an accordion.
+Route::get('/faq', \App\Http\Controllers\FaqController::class)->name('faq');
+
 // Did You Know?: the short facts, listed like a FAQ.
 Route::get('/did-you-know', [DidYouKnowController::class, 'index'])->name('did-you-know');
 Route::get('/did-you-know/{slug}', [DidYouKnowController::class, 'show'])->where('slug', '[a-z0-9][a-z0-9-]*')->name('did-you-know.show');
