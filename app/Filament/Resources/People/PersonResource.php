@@ -94,7 +94,7 @@ class PersonResource extends Resource
                     }
                 }]),
             Toggle::make('show_page')->label('Give them a public page and list them on the Contributors page')->default(false),
-            RichEditor::make('page_body')->label('Text of their page (optional)')->columnSpanFull(),
+            \App\Filament\Support\Editor::make('page_body')->label('Text of their page (optional)')->columnSpanFull(),
         ])->columns(1);
     }
 

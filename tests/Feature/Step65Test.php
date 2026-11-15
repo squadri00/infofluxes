@@ -82,4 +82,15 @@ class Step65Test extends TestCase
         $this->assertSame(2, substr_count($out, '<img'));
     }
 
+
+    public function test_the_contributor_page_text_uses_the_same_editor_and_shows_its_output(): void
+    {
+        $this->actingAs(\App\Models\User::factory()->create(['role' => 'superuser', 'status' => 'active']));
+        $html = strtolower($this->get('/admin/people')->assertOk()->getContent());
+        $this->assertStringContainsString('people', $html);
+
+        $person = \App\Models\Person::create(['name' => 'Dr Writer', 'slug' => 'dr-writer', 'show_page' => true, 'page_body' => '<p class="lead">Big</p><p>Hi <span class="color" style="--color: #dc2626">red</span></p>']);
+        $this->get('/people/dr-writer')->assertOk()->assertSee('class="lead"', false)->assertSee('--color: #dc2626', false);
+        $this->assertNotNull($person->fresh());
+    }
 }
