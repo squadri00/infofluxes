@@ -3,40 +3,58 @@
     $locale = app()->getLocale();
     $rtl = \App\Support\Languages::isRtl($locale);
     $ver = fn (string $file) => asset($file).'?v='.(@filemtime(public_path($file)) ?: 1);
+    // The title, description and share picture: each page gives its own; the SEO settings fill what is missing.
+    $pageTitle = \App\Support\Seo::title((string) $__env->yieldContent('title'));
+    $pageDescription = \App\Support\Seo::description((string) $__env->yieldContent('description'));
+    $pageImage = \App\Support\Seo::ogImage((string) $__env->yieldContent('og_image'));
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $locale }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', $siteName)</title>
-    @hasSection('description')
-        <meta name="description" content="@yield('description')">
-        <meta property="og:description" content="@yield('description')">
-        <meta name="twitter:description" content="@yield('description')">
+    {!! \App\Support\Seo::trackingHead() !!}
+    <title>{{ $pageTitle }}</title>
+    @if ($pageDescription !== '')
+        <meta name="description" content="{{ $pageDescription }}">
+        <meta property="og:description" content="{{ $pageDescription }}">
+        <meta name="twitter:description" content="{{ $pageDescription }}">
     @endif
-    <meta property="og:title" content="@yield('title', $siteName)">
+    <meta property="og:title" content="{{ $pageTitle }}">
     <meta property="og:site_name" content="{{ $siteName }}">
     <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:locale" content="{{ str_replace('-', '_', $locale) }}">
     @hasSection('canonical')
         <link rel="canonical" href="@yield('canonical')">
         <meta property="og:url" content="@yield('canonical')">
     @endif
-    @hasSection('og_image')
-        <meta property="og:image" content="@yield('og_image')">
+    @if ($pageImage !== '')
+        <meta property="og:image" content="{{ $pageImage }}">
         <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" content="{{ $pageImage }}">
     @else
         <meta name="twitter:card" content="summary">
     @endif
-    @yield('robots')
+    @hasSection('robots')
+        @yield('robots')
+    @elseif (\App\Support\Seo::siteHidden())
+        <meta name="robots" content="noindex, nofollow">
+    @endif
+    {!! \App\Support\Seo::verificationTags() !!}
+    @if (request()->routeIs('home'))
+        {!! \App\Support\Seo::homeJsonLd() !!}
+    @endif
     @stack('jsonld')
     {{-- Put the chosen light / dark mode on before the page is drawn, so it does not flash. --}}
     <script>try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
     <script>try{if(localStorage.getItem('infofluxes.view')==='list'){document.documentElement.setAttribute('data-view','list');}}catch(e){}</script>
     <link rel="stylesheet" href="{{ $ver('css/site.css') }}">
     {!! \App\Support\CardPictures::css() !!}
+    {!! \App\Support\Seo::custom('head') !!}
 </head>
 <body>
+    {!! \App\Support\Seo::trackingBody() !!}
+    {!! \App\Support\Seo::custom('body_start') !!}
     <a class="skip-link" href="#content">{{ __('site.skip_to_content') }}</a>
 
     @include('partials.site-header')
@@ -59,5 +77,6 @@
     <script src="{{ $ver('js/view-toggle.js') }}"></script>
     <script src="{{ $ver('js/theme.js') }}"></script>
     @stack('scripts')
+    {!! \App\Support\Seo::custom('body_end') !!}
 </body>
 </html>

@@ -26,6 +26,10 @@
     @endsection
 @endif
 
+@push('jsonld')
+    {!! \App\Support\Seo::articleJsonLd($story, $story->url(), \Illuminate\Support\Str::limit($summary ?: trim(preg_replace('/\s+/', ' ', strip_tags($body))), 160)) !!}
+@endpush
+
 @section('content')
 @if ($preview)
     <div class="preview-banner"><div class="wrap">{{ __('site.draft_notice') }}</div></div>

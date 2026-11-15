@@ -26,6 +26,10 @@
     @endsection
 @endif
 
+@push('jsonld')
+    {!! \App\Support\Seo::articleJsonLd($article, route('article.show', $article->slug), \Illuminate\Support\Str::limit($summary ?: trim(preg_replace('/\s+/', ' ', strip_tags($body))), 160)) !!}
+@endpush
+
 @php $listenTracks = \App\Support\Listen::tracks($article, []); @endphp
 @section('content')
 @if ($preview)

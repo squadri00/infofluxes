@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::get('/search', SearchController::class)->name('search');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/robots.txt', \App\Http\Controllers\RobotsController::class)->name('robots');
 Route::get('/language/{code}', LanguageController::class)->name('language.switch');
 Route::get('/category/{slug}', CategoryController::class)->name('category.show');
 // People: log in, sign up, log out, my account, submit an article, post a comment.

@@ -314,6 +314,12 @@ return [
         'tips' => ['The words of the site (buttons, menus) go in a folder lang/<code>/site.php. Without it English words are shown.', 'The main language cannot be switched off or deleted.'],
     ],
     [
+        'key' => 'seo', 'title' => 'SEO and tracking', 'group' => 'Settings', 'classes' => [\App\Filament\Pages\SeoSettings::class], 'access' => 'superuser',
+        'what' => 'How the site appears in Google and when a link is shared, plus Google Tag Manager / Analytics and your own code for the head and the body.',
+        'steps' => ['While the site is being built, switch "Hide the whole site from search engines" ON. On launch day switch it OFF.', 'Set the home page title, the title pattern, a default description and a share picture.', 'Paste the verification codes from Google Search Console, Bing and Facebook.', 'Paste the Google Tag Manager ID (GTM-...). The head and body parts are added for you. Put Google Analytics inside Tag Manager.', 'Custom code boxes print your code exactly as typed: before </head>, after <body>, and before </body>.'],
+        'tips' => ['Tracking never runs on localhost and, by default, not for logged-in staff.', 'robots.txt and sitemap.xml are made by themselves. Open /robots.txt on the live site to see them.', 'Articles and stories already carry structured data (JSON-LD) for Google.'],
+    ],
+    [
         'key' => 'move-old-site', 'title' => 'Move from the old site', 'group' => 'Settings', 'classes' => [MoveFromOldSite::class], 'access' => 'superuser',
         'what' => 'Brings content from the old InfoFluxes into this one. It is only there on the computer that still has the old database.',
         'steps' => ['Always press Check first. It shows what would be moved and saves nothing.', 'Then press Move. Take a backup before.'],
