@@ -7,6 +7,7 @@ use App\Models\Setting;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -50,7 +51,7 @@ class SiteSettings extends Page
         foreach (static::keys() as $key) {
             $value = Setting::all_()[$key] ?? null;
             // The two switches are on until the super user turns them off.
-            if (in_array($key, ['signups_open', 'comments_open', 'newsletter_on'], true)) {
+            if (in_array($key, ['signups_open', 'comments_open', 'newsletter_on', 'card_stats_on'], true)) {
                 $value = $value === null ? true : filter_var($value, FILTER_VALIDATE_BOOLEAN);
             }
             $out[$key] = $value;
@@ -62,7 +63,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
+        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'newsletter_on', 'card_stats_on', 'card_image_fit', 'card_image_focus', 'card_image_saturation', 'card_image_contrast', 'card_image_brightness', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
     }
 
     public function form(Schema $schema): Schema
@@ -100,6 +101,15 @@ class SiteSettings extends Page
                         TextInput::make('image_max_width')->label('Widest saved picture (pixels)')->helperText('A wider picture is made narrower. A narrower one is never made bigger.')->numeric()->minValue(400)->maxValue(6000)->placeholder('2400'),
                         TextInput::make('image_quality')->label('Best quality tried first (40 to 95)')->helperText('85 is a good balance. It goes down from here until the picture fits.')->numeric()->minValue(40)->maxValue(95)->placeholder('85'),
                     ])->columns(4),
+                Section::make('How pictures look on cards')
+                    ->description('For the pictures on the home page, the category tiles and the story cards. This changes only how they are shown; the saved pictures stay as they are. If the colours look too strong, lower Colour strength a little (85 or 90 is often enough).')
+                    ->schema([
+                        Select::make('card_image_fit')->label('How a picture fits its box')->options(\App\Support\CardPictures::FITS)->native(true)->placeholder('Fill the box (usual)'),
+                        Select::make('card_image_focus')->label('If the edges are cut, keep')->options(\App\Support\CardPictures::FOCUS)->native(true)->placeholder('Middle (usual)'),
+                        TextInput::make('card_image_saturation')->label('Colour strength (%)')->helperText('100 is the picture as it is. Lower is calmer.')->numeric()->minValue(30)->maxValue(130)->placeholder('100'),
+                        TextInput::make('card_image_contrast')->label('Contrast (%)')->numeric()->minValue(70)->maxValue(120)->placeholder('100'),
+                        TextInput::make('card_image_brightness')->label('Brightness (%)')->numeric()->minValue(70)->maxValue(130)->placeholder('100'),
+                    ])->columns(3),
                 Section::make('Newsletter')
                     ->description('People type their email, get a 6-digit code by email, and type it back. Only then are they on the list (Content > Newsletter).')
                     ->schema([
@@ -137,6 +147,15 @@ class SiteSettings extends Page
             // How long a newsletter code works, in minutes (an empty box means the usual 15).
             if ($key === 'newsletter_code_minutes') {
                 $value = is_numeric($value) ? max(1, min(120, (int) $value)) : null;
+            }
+            if (in_array($key, ['card_image_saturation', 'card_image_contrast', 'card_image_brightness'], true)) {
+                $value = is_numeric($value) ? max(30, min(130, (int) $value)) : null;
+            }
+            if ($key === 'card_image_fit' && ! array_key_exists((string) $value, \App\Support\CardPictures::FITS)) {
+                $value = null;
+            }
+            if ($key === 'card_image_focus' && ! array_key_exists((string) $value, \App\Support\CardPictures::FOCUS)) {
+                $value = null;
             }
             if ($key === 'newsletter_per_run') {
                 $value = is_numeric($value) ? max(1, min(500, (int) $value)) : null;

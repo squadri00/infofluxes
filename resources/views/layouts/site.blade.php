@@ -34,6 +34,7 @@
     <script>try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}</script>
     <script>try{if(localStorage.getItem('infofluxes.view')==='list'){document.documentElement.setAttribute('data-view','list');}}catch(e){}</script>
     <link rel="stylesheet" href="{{ $ver('css/site.css') }}">
+    {!! \App\Support\CardPictures::css() !!}
 </head>
 <body>
     <a class="skip-link" href="#content">{{ __('site.skip_to_content') }}</a>

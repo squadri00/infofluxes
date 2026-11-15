@@ -96,4 +96,30 @@ class Step59Test extends TestCase
         $this->assertSame('1.2K', ViewCounter::short(1234));
         $this->assertSame('2.5M', ViewCounter::short(2500000));
     }
+
+    public function test_card_picture_look_is_off_until_set_and_only_accepts_safe_values(): void
+    {
+        $this->assertSame('', \App\Support\CardPictures::css());
+        $this->get('/')->assertDontSee('--card-filter', false);
+
+        Setting::put('card_image_saturation', 85);
+        Setting::put('card_image_fit', 'contain');
+        Setting::put('card_image_focus', 'top');
+        $this->get('/')->assertSee('--card-filter:saturate(85%) contrast(100%) brightness(100%)', false)->assertSee('--card-fit:contain', false)->assertSee('--card-pos:center top', false);
+
+        Setting::put('card_image_fit', '};alert(1)');
+        Setting::put('card_image_saturation', 9999);
+        $css = \App\Support\CardPictures::css();
+        $this->assertStringNotContainsString('alert', $css);
+        $this->assertStringContainsString('saturate(130%)', $css);
+    }
+
+    public function test_the_card_stats_switch_is_saved_by_site_settings(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'superuser', 'status' => 'active']));
+        \Livewire\Livewire::test(\App\Filament\Pages\SiteSettings::class)
+            ->fillForm(['card_stats_on' => false, 'card_image_saturation' => 80])->call('save')->assertHasNoFormErrors();
+        $this->assertFalse((bool) filter_var(Setting::get('card_stats_on', true), FILTER_VALIDATE_BOOLEAN));
+        $this->assertSame(80, (int) Setting::get('card_image_saturation'));
+    }
 }
