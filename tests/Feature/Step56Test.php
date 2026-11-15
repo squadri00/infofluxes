@@ -42,7 +42,7 @@ class Step56Test extends TestCase
         foreach (Guide::all() as $e) {
             $this->assertNotSame('', trim($e['title']), $e['key']);
             $this->assertNotSame('', trim($e['what']), $e['key'].' says nothing');
-            $this->assertContains($e['group'], ['General', 'Content', 'Challenge yourself', 'Settings'], $e['key']);
+            $this->assertContains($e['group'], ['General', 'Content', 'Challenge yourself', 'Reports', 'Settings'], $e['key']);
             $this->assertTrue(in_array($e['access'], [null, 'publish', 'superuser'], true) || isset(User::SCREENS[$e['access']]), $e['key'].' has an unknown access: '.$e['access']);
             $this->assertNotContains($e['key'], $keys, 'a key is used twice: '.$e['key']);
             $keys[] = $e['key'];

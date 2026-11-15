@@ -38,7 +38,7 @@ class Guide
                 $groups[$entry['group']][] = $entry;
             }
         }
-        $order = ['General' => 0, 'Content' => 1, 'Challenge yourself' => 2, 'Settings' => 3];
+        $order = ['General' => 0, 'Content' => 1, 'Challenge yourself' => 2, 'Reports' => 3, 'Settings' => 4];
         uksort($groups, fn ($a, $b) => ($order[$a] ?? 9) <=> ($order[$b] ?? 9));
 
         return $groups;

@@ -320,6 +320,12 @@ return [
         'tips' => ['Tracking never runs on localhost and, by default, not for logged-in staff.', 'robots.txt and sitemap.xml are made by themselves. Open /robots.txt on the live site to see them.', 'Articles and stories already carry structured data (JSON-LD) for Google.'],
     ],
     [
+        'key' => 'analytics', 'title' => 'Analytics', 'group' => 'Reports', 'classes' => [\App\Filament\Pages\AnalyticsDashboard::class], 'access' => 'superuser',
+        'what' => 'What is going on at the site, read from your Google Analytics: visitors, pages read, where people come from, countries, devices, and who is on the site right now.',
+        'steps' => ['First time: follow the five steps on the page (switch on the Data API, make a service account and a JSON key, add its email as Viewer in Google Analytics, copy the Property ID, upload the key here).', 'Choose Last 7, 28 or 90 days. Every number is compared with the same number of days before (green arrow up, red arrow down).', 'Press Refresh to ask Google again. Numbers are kept for 10 minutes.'],
+        'tips' => ['This page only reads. It can never change anything in Google Analytics.', 'The key file is stored on the server, never shown and never in the public folder. You can delete it here at any time.', 'Visitors who choose "Only what is needed" in the cookie notice are not counted.'],
+    ],
+    [
         'key' => 'move-old-site', 'title' => 'Move from the old site', 'group' => 'Settings', 'classes' => [MoveFromOldSite::class], 'access' => 'superuser',
         'what' => 'Brings content from the old InfoFluxes into this one. It is only there on the computer that still has the old database.',
         'steps' => ['Always press Check first. It shows what would be moved and saves nothing.', 'Then press Move. Take a backup before.'],
