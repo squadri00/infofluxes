@@ -2005,3 +2005,51 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .faq { max-width: 52rem; }
 .faq__group { margin: 0 0 22px; }
 .faq__item[hidden], .faq__group[hidden] { display: none; }
+
+/* Small screens: the top bar on one line, a tidy search, and a hero that does not overlap itself */
+@media (max-width: 900px) {
+    .site-header__top .site-header__tagline { display: none; }
+    .site-header__top-inner { display: flex; justify-content: space-between; align-items: center; gap: 6px; min-height: 54px; }
+    .site-header__top .site-header__name--top { margin-right: auto; padding: 4px 0; }
+    .site-header__top .site-header__name--top .site-header__logo { height: 34px; }
+    .site-header__top .site-header__tools { flex-wrap: nowrap; width: auto; justify-content: flex-end; gap: 0 2px; }
+    .site-header__tools .menu__item--challenge { display: none; }
+    .site-header__tools .menu__item > a, .site-header__tools .menu__drop > summary, .site-header__tools .linklike { padding: 9px 8px; white-space: nowrap; min-height: 40px; display: inline-flex; align-items: center; }
+    .lang-menu { position: relative; }
+    .lang-menu__list { right: 0; left: auto; min-width: 200px; max-width: calc(100vw - 24px); }
+}
+@media (max-width: 480px) {
+    .lang-menu .lang-code { display: none; }
+    .site-header__tools .menu__item > a, .site-header__tools .linklike { padding-left: 6px; padding-right: 6px; font-size: .86rem; }
+    .site-header__top .site-header__name--top { font-size: 1.15rem; }
+}
+@media (max-width: 520px) {
+    .header-search { display: grid; grid-template-columns: minmax(0, 1fr) 54px; border-radius: 24px; }
+    .header-search__input { grid-column: 1; grid-row: 1; padding: 12px 16px; }
+    .header-search__button { grid-column: 2; grid-row: 1; width: 54px; }
+    .header-search__select { grid-column: 1 / -1; grid-row: 2; max-width: none; width: 100%; border-left: 0; border-top: 1px solid var(--line); padding: 11px 16px; }
+}
+@media (max-width: 700px) {
+    /* The banner with the words over the picture becomes: words first, then the picture with its own caption. */
+    .hero--full { display: grid; gap: 16px; }
+    .hero--full .hero__text { position: static; max-width: none; padding: 0; pointer-events: auto; }
+    .hero--full .hero__title { color: var(--text); text-shadow: none; }
+    .hero--full .hero__description { color: var(--muted); text-shadow: none; }
+    .hero--full .hero__subtitle { color: var(--accent); border-left-color: var(--accent); text-shadow: none; }
+    .hero--full .hero__slide::before { display: none; }
+    .hero--full .hero__media { height: clamp(300px, 88vw, 460px); }
+}
+
+/* Small screens: easier to tap in the footer and the cookie notice */
+@media (max-width: 760px) {
+    .site-footer__list a { display: inline-block; padding: 7px 0; }
+    .consent { left: 8px; right: 8px; bottom: 8px; padding: 12px 14px; }
+    .consent__buttons { width: 100%; }
+    .consent__buttons .btn { flex: 1 1 0; text-align: center; padding: 10px 8px; }
+}
+
+/* Very narrow phones (320 to 360 px): a little smaller so that everything still fits in the top bar. */
+@media (max-width: 360px) {
+    .site-header__top .site-header__name--top { font-size: 1.05rem; }
+    .site-header__top-inner { gap: 2px; }
+}

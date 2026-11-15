@@ -23,7 +23,7 @@
             </a>
             <ul class="site-header__tools">
                 @if (\App\Support\Challenge::anyOn())
-                    <li class="menu__item"><a href="{{ route('challenge') }}" @if (request()->routeIs('challenge*')) aria-current="page" @endif>{{ __('site.challenge') }}</a></li>
+                    <li class="menu__item menu__item--challenge"><a href="{{ route('challenge') }}" @if (request()->routeIs('challenge*')) aria-current="page" @endif>{{ __('site.challenge') }}</a></li>
                 @endif
                 @if (count($locales) >= 1 && \App\Support\SiteControls::on('language'))
                     @php $current = collect($locales)->firstWhere('code', app()->getLocale()) ?? $locales[0]; @endphp
