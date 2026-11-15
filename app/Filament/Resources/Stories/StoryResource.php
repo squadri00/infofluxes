@@ -241,9 +241,10 @@ class StoryResource extends Resource
 
                 Section::make('Search engines (optional)')
                     ->collapsed()
-                    ->description('Leave empty and the title and short detail are used.')
+                    ->description('Leave empty and the title and short detail are used. The meta title and description are what Google shows; the AI import fills them. The page title, if you write one, is used in the browser tab instead.')
                     ->schema([
                         ...Translated::text('page_title', 'Page title'),
+                        ...Translated::text('meta_title', 'Meta title (for Google, up to 60 letters)'),
                         ...Translated::textarea('meta_description', 'Meta description', rows: 2),
                     ]),
             ]);

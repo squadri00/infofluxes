@@ -61,6 +61,7 @@ class StoryMover
                     'featured_order' => $article->featured_order,
                     'status' => $article->status,
                     'page_title' => $article->getTranslations('page_title') ?: null,
+                    'meta_title' => $article->getTranslations('meta_title') ?: null,
                     'meta_description' => $article->getTranslations('meta_description') ?: null,
                     'sort_order' => $article->sort_order,
                     'custom_data' => array_merge((array) $article->custom_data, ['old_article_id' => $article->id, 'old_article_code' => $article->code, 'old_slug' => $article->slug] + (filled($article->working_name) ? ['old_id' => $article->working_name] : [])),

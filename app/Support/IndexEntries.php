@@ -139,7 +139,7 @@ class IndexEntries
         $entry->slug = Article::uniqueSlug($d['title']);
         $entry->search_words = ($d['words'] ?? []) ?: null;
         if (! empty($d['meta_title'])) {
-            $entry->setTranslation('page_title', $locale, $d['meta_title']);
+            $entry->setTranslation('meta_title', $locale, $d['meta_title']);
         }
         if (! empty($d['meta_description'])) {
             $entry->setTranslation('meta_description', $locale, $d['meta_description']);

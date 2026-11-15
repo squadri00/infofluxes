@@ -683,7 +683,7 @@ class AiImport
                 'short_detail' => [$locale => $d['short']],
                 'long_detail' => [$locale => Explainers::applyNotes(Html::fromMarked($d['long']), $d['explainers'] ?? [])],
                 'search_words' => $d['words'] ?: null,
-                'page_title' => ! empty($d['meta_title']) ? [$locale => $d['meta_title']] : null,
+                'meta_title' => ! empty($d['meta_title']) ? [$locale => $d['meta_title']] : null,
                 'meta_description' => ! empty($d['meta_description']) ? [$locale => $d['meta_description']] : null,
                 'source_line' => $d['source'],
                 'author_id' => $user?->id,

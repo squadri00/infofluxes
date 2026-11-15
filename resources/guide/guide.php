@@ -193,7 +193,7 @@ return [
             'Step 1 builds the prompt from your choices. Step 2 is where you paste the AI answer and press Check. Step 3 shows what was found.',
             'Check saves nothing. It tests the format, the category, the sources (does each link open?), every Quran reference, how easy the text is to read, and the verse and hadith blocks.',
             'Save as drafts makes the article with the status "Written, waiting for review". Nothing is published from here.',
-            'The answer also carries META TITLE (at most 60 letters) and META DESCRIPTION (120 to 155 letters): what Google shows. They are saved in the Page title and Meta description boxes of the article. "How it will look in Google" shows a preview. Without these two lines the page uses its own title and short text, so nothing breaks.',
+            'The answer also carries META TITLE (at most 60 letters) and META DESCRIPTION (120 to 155 letters): what Google shows. They are saved in the Meta title and Meta description boxes of the article (the Page title box is left as it is). "How it will look in Google" shows a preview. Without these two lines the page uses its own title and short text, so nothing breaks.',
             '"Also ask for word notes" makes the AI suggest hard words. They are saved as draft notes in Explainers.',
         ],
         'tips' => ['If the AI changes the shape of the answer, ask it again with: "Answer in the exact shape of the prompt".', 'Copy the answer from the code box with its Copy button, so the ## marks are kept.'],

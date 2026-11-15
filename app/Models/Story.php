@@ -36,7 +36,7 @@ class Story extends Model
         'archived' => 'Archived',
     ];
 
-    public array $translatable = ['title', 'short_detail', 'long_detail', 'main_image_alt', 'page_title', 'meta_description'];
+    public array $translatable = ['title', 'short_detail', 'long_detail', 'main_image_alt', 'page_title', 'meta_title', 'meta_description'];
 
     protected static function booted(): void
     {

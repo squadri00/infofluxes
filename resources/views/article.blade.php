@@ -13,7 +13,7 @@
     $others = $article->extraCategories->filter(fn ($c) => $c->is_visible);
 @endphp
 
-@section('title', $article->page_title ?: $title.' | '.$siteTitle)
+@section('title', $article->page_title ?: $article->meta_title ?: $title.' | '.$siteTitle)
 @section('description', $article->meta_description ?: \Illuminate\Support\Str::limit($summary ?: trim(preg_replace('/\s+/', ' ', strip_tags($body))), 160))
 @section('og_type', 'article')
 @if ($article->main_image)

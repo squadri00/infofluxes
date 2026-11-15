@@ -13,7 +13,7 @@
     $listenTracks = \App\Support\Listen::tracks($story, $storyItems ?? []);
 @endphp
 
-@section('title', $story->page_title ?: $title.' | '.$siteTitle)
+@section('title', $story->page_title ?: $story->meta_title ?: $title.' | '.$siteTitle)
 @section('description', $story->meta_description ?: \Illuminate\Support\Str::limit($summary ?: trim(preg_replace('/\s+/', ' ', strip_tags($body))), 160))
 @section('og_type', 'article')
 @if ($story->main_image)

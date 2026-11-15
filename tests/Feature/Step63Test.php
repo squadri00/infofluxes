@@ -83,13 +83,14 @@ class Step63Test extends TestCase
         $this->assertSame('The moon x matters', $item['data']['meta_title']);
     }
 
-    public function test_saving_puts_them_in_the_page_title_and_meta_description_boxes_and_the_page_uses_them(): void
+    public function test_saving_puts_them_in_the_meta_title_and_meta_description_boxes_and_the_page_uses_them(): void
     {
         $items = Importer::parse($this->answer());
         Importer::commit($items, 'raw', User::factory()->create(['role' => 'superuser', 'status' => 'active']));
 
         $a = Article::where('slug', 'why-the-moon-matters')->firstOrFail();
-        $this->assertSame('Why the moon matters in the calendar', $a->page_title);
+        $this->assertSame('Why the moon matters in the calendar', $a->meta_title);
+        $this->assertNull($a->page_title, 'the Page title is not touched');
         $this->assertStringStartsWith('How the new moon sets', $a->meta_description);
 
         $a->update(['status' => 'published', 'publish_date' => now()->subDay()]);

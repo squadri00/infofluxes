@@ -53,7 +53,7 @@ class IndexMerger
             $fromCustom['moved_to_article'] = $entry->id;
             $from->forceFill(['slug' => $slug.'-moved-'.$from->id, 'custom_data' => $fromCustom])->save();
 
-            foreach (['title', 'short_detail', 'long_detail', 'main_image_alt', 'page_title', 'meta_description'] as $field) {
+            foreach (['title', 'short_detail', 'long_detail', 'main_image_alt', 'page_title', 'meta_title', 'meta_description'] as $field) {
                 $entry->setTranslations($field, $from->getTranslations($field));
             }
             foreach (['search_words', 'source_line', 'main_image', 'main_image_credit', 'main_image_licence', 'audio', 'audio_state', 'cover_audio', 'cover_audio_state',
