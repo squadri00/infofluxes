@@ -35,7 +35,7 @@ class OverviewMaker
             $row = ['id' => $heading->id, 'name' => $heading->mainName(), 'overview' => null, 'main' => $main, 'extra' => $extra];
 
             if ($apply) {
-                DB::transaction(function () use ($heading, &$row) {
+                DB::transaction(function () use ($heading, &$row, $live) {
                     $overview = Category::query()->where('parent_id', $heading->id)->get()->first(fn ($c) => mb_strtolower($c->mainName()) === mb_strtolower(self::NAME) && $c->isLeaf());
                     $overview ??= Category::create([
                         'name' => [config('infofluxes.default_locale') => self::NAME],
