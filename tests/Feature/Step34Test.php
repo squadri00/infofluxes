@@ -90,6 +90,18 @@ class Step34Test extends TestCase
         $this->assertSame('specialist', AiPrompt::where('title', 'Sufism')->value('kind'));
     }
 
+    public function test_only_the_super_user_may_open_and_change_the_prompts_even_with_the_import_screen_ticked(): void
+    {
+        foreach (['moderator', 'author'] as $role) {
+            $this->actingAs(User::factory()->create(['role' => $role, 'status' => 'active', 'admin_screens' => ['articles', 'import']]));
+            $this->get('/admin/ai-prompts')->assertForbidden();
+            $this->get('/admin/ai-import')->assertOk();   // using the import is still allowed
+        }
+
+        $this->actingAs(User::factory()->create(['role' => 'superuser', 'status' => 'active']));
+        $this->get('/admin/ai-prompts')->assertOk();
+    }
+
     public function test_a_plain_member_cannot_open_the_screen(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'member', 'status' => 'active']));

@@ -38,7 +38,9 @@ class AiPromptResource extends Resource
 
     private static function allowed(): bool
     {
-        return auth()->user()?->canUseScreen('import') ?? false;
+        // The prompts are the rules every AI-written article follows, so only the super user may read and change them here.
+        // Anyone who may use the AI import still uses them (the Copy button builds the prompt from them).
+        return auth()->user()?->isSuperuser() ?? false;
     }
 
     public static function canViewAny(): bool
