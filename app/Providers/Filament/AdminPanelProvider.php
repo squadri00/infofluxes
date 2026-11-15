@@ -29,6 +29,8 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             // The admin lists use the whole width: long names scroll inside their own cell instead of pushing the other columns away.
             ->renderHook(\Filament\View\PanelsRenderHook::HEAD_END, fn () => new \Illuminate\Support\HtmlString('<style>.if-scroll{overflow-x:auto;white-space:nowrap;scrollbar-width:thin;padding-bottom:3px}.if-scroll--name{max-width:20rem}.if-scroll--path{max-width:15rem}.if-scroll--title{max-width:15rem}.if-scroll--cats{max-width:14rem}.fi-ta-text-input{max-width:5rem}.fi-ta-actions{flex-wrap:nowrap;white-space:nowrap}.fi-ta-content{overflow-x:auto}.fi-ta-table{min-width:0}</style>'))
+            // A Help button at the top of every screen, for staff.
+            ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn () => auth()->user()?->isStaff() ? new \Illuminate\Support\HtmlString('<a href="'.e(\App\Filament\Pages\Help::getUrl()).'" style="display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .8rem;border:1px solid rgba(128,128,128,.5);border-radius:999px;font-weight:600;font-size:.9rem;text-decoration:none;color:inherit">&#63; Help</a>') : '')
             ->brandName(fn () => config('app.name'))
             ->colors([
                 'primary' => Color::Amber,

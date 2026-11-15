@@ -1,0 +1,316 @@
+<?php
+
+/**
+ * The Help guide of the admin. One entry for each admin screen, and a few general topics.
+ *
+ * - 'classes': the screen(s) this entry explains (a test makes sure every screen of the admin has an entry, so the guide cannot fall behind).
+ * - 'access': who sees the entry: null = every staff person, a screen key (articles, import, ...) = a person who may use that screen,
+ *             'publish' = a moderator or the super user, 'superuser' = the super user only.
+ * Write in simple English. When a screen changes, change its entry here.
+ */
+
+use App\Filament\Pages\AiImport;
+use App\Filament\Pages\Backups;
+use App\Filament\Pages\ChallengeSettings;
+use App\Filament\Pages\LinkCheckerPage;
+use App\Filament\Pages\MoveFromOldSite;
+use App\Filament\Pages\SiteSettings;
+use App\Filament\Pages\SlideViewerSettings;
+use App\Filament\Resources\AiPrompts\AiPromptResource;
+use App\Filament\Resources\Articles\ArticleResource;
+use App\Filament\Resources\Categories\CategoryResource;
+use App\Filament\Resources\Challenge\FactStatementResource;
+use App\Filament\Resources\Challenge\QuizPassageResource;
+use App\Filament\Resources\Challenge\QuotePassageResource;
+use App\Filament\Resources\Challenge\QuranChapterResource;
+use App\Filament\Resources\Challenge\ScripturePassageResource;
+use App\Filament\Resources\Comments\CommentResource;
+use App\Filament\Resources\DidYouKnow\DidYouKnowResource;
+use App\Filament\Resources\Explainers\ExplainerResource;
+use App\Filament\Resources\History\ActivityResource;
+use App\Filament\Resources\Newsletter\NewsletterIssueResource;
+use App\Filament\Resources\Newsletter\NewsletterSubscriberResource;
+use App\Filament\Resources\Pages\PageResource;
+use App\Filament\Resources\People\PersonResource;
+use App\Filament\Resources\Redirects\RedirectResource;
+use App\Filament\Resources\SearchSynonyms\SearchSynonymResource;
+use App\Filament\Resources\Social\SocialLinkResource;
+use App\Filament\Resources\Stories\StoryResource;
+use App\Filament\Resources\Users\UserResource;
+
+return [
+    // ================= General topics =================
+    [
+        'key' => 'start', 'title' => 'Start here', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'The admin is where you write, check and publish the content of InfoFluxes. The menu on the left has three parts: Content (what visitors read), Challenge yourself (the tests), and Settings (how the site works). You only see the screens your role may use.',
+        'steps' => [
+            'Open the Dashboard first. "Waiting for you" shows what needs a decision. "Needs attention" shows problems.',
+            'To add an article, the fastest way is the AI import. See "From idea to published article" below.',
+            'When you are not sure, look in this Help. Press the Help button at the top of any screen.',
+        ],
+        'tips' => ['Nothing you change is lost easily: deleted items go to the Trash, and the super user can see and undo changes in History.'],
+    ],
+    [
+        'key' => 'daily-work', 'title' => 'From idea to published article', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'The usual way to make an article with the help of an AI chat. A person always checks it before it goes live.',
+        'steps' => [
+            'Go to AI import. Choose "A researched article".',
+            'To fill a planned index entry: type its index ID (for example AL-2.1.001) in "Index entry to fill", or press "Write with AI help" on the entry in the Articles list.',
+            'Write the title or question, check the category, the number of words and how detailed it should be. Press "Copy the prompt".',
+            'Open a new chat in an AI (ChatGPT, Gemini or Claude) with web search on. Paste the prompt. Do not add anything.',
+            'Copy the AI answer from its code box (use the Copy button of the box). Paste it into Step 2 and press Check.',
+            'Read the result. Fix any red problem and press Check again. Amber notes and the "Please check" list are things to look at.',
+            'Press "Save as drafts". The article gets the status "Written, waiting for review".',
+            'Open it in Articles. In "Review before publishing", check every verse, hadith, source and quotation yourself, then tick each box.',
+            'Write your name in "Reviewer name", set the status to Published and save. Only a moderator or the super user can publish.',
+        ],
+        'tips' => [
+            'If the answer is rejected, the message says why. Paste it again after the AI fixes it, or ask the AI: "Answer in the exact shape of the prompt".',
+            'The word notes the AI suggested are saved as drafts. Read them in Explainers and publish the good ones.',
+        ],
+    ],
+    [
+        'key' => 'statuses', 'title' => 'Statuses explained', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'Every article has a status. It tells where it is on the way to the reader.',
+        'steps' => [
+            'Draft: not finished. A blank index entry is a Draft. Visitors do not see it.',
+            'Written, waiting for review: the text came from the AI import and a person has not checked it yet. Visitors do not see it.',
+            'In review: an article sent in from the site, waiting for a moderator.',
+            'Published: visitors can read it. An AI-written article needs a reviewer name and all review boxes ticked first.',
+            'Archived: hidden from visitors, kept for the record.',
+        ],
+        'tips' => ['A date in the future in "Publish date" keeps a published article hidden until that day.'],
+    ],
+    [
+        'key' => 'ids', 'title' => 'Codes and IDs', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'Everything has a short permanent code. It never changes, so you can use it to search or to talk about an item.',
+        'steps' => [
+            'A- article, S- visual story, D- Did You Know?, E- explainer, C- category, K- contributor, P- page.',
+            'An index ID such as AL-2.1.001 is the place of an article in your subject index. It stays with the article when the AI text is saved into it.',
+            'Type a code in the site search box (for example A-42) to go straight to it. The address /id/A-42 also works.',
+        ],
+        'tips' => [],
+    ],
+    [
+        'key' => 'roles', 'title' => 'Who can do what', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'There are four roles. The super user can also tick extra screens for a person.',
+        'steps' => [
+            'Super user: everything, including People, Site settings, Backups, History and Redirects.',
+            'Moderator: Articles, Visual Stories, Categories, Comments and Explainers (and more if ticked). A moderator can publish, archive and feature items.',
+            'Author: Articles and Visual Stories, only their own. An author can save drafts and send them for review, but cannot publish.',
+            'Member: no admin. A member signs in on the site, comments, likes, saves and can send in an article.',
+        ],
+        'tips' => ['Only the super user can open AI prompts, because they are the rules every AI article follows.'],
+    ],
+    [
+        'key' => 'verses', 'title' => 'Verses and hadith in an article', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'A Quran verse shows in a blue block and a hadith in a green block, with the Arabic, the English and a reference line.',
+        'steps' => [
+            'The AI import makes these blocks by itself from the [QURAN] and [HADITH] parts of the AI answer.',
+            'Check each block against Quran.com or Sunnah.com: the surah and verse, the words, the translation, the hadith number and grade.',
+            'Never change a quotation. If a word is wrong, find the right text instead of editing it by feel.',
+        ],
+        'tips' => ['If you save an article in the editor, the blocks keep their colours: the site puts the style back by itself.'],
+    ],
+    [
+        'key' => 'word-notes', 'title' => 'Word notes: @[word]', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'A word note explains a hard word, person or place. In an article, write @[Taghut] where the word should be tappable. A reader taps it and sees the note.',
+        'steps' => [
+            'Make the note once in Explainers, and publish it.',
+            'In the article text, write @[the word]. To show different words than the note\'s word, write @[the word|the words to show].',
+            'Only the first time a word appears on a page is tappable. A word with no published note just shows its words.',
+        ],
+        'tips' => ['The AI import marks the words for you and makes the notes as drafts.'],
+    ],
+    [
+        'key' => 'safety', 'title' => 'If something goes wrong', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'Mistakes can be put right.',
+        'steps' => [
+            'Deleted something? Open its list, set the filter to Trash and restore it.',
+            'Changed words by mistake? The super user opens History, finds the line and presses "Put the old words back".',
+            'Renamed an address and a link broke? Old addresses keep working by themselves. The super user can see them in Redirects.',
+            'Something big went wrong? The super user can download a backup in Backups. Ask for help before restoring.',
+        ],
+        'tips' => ['A backup is made every night if the scheduled task is set up.'],
+    ],
+    [
+        'key' => 'plain-language', 'title' => 'Writing for ordinary readers', 'group' => 'General', 'classes' => [], 'access' => null,
+        'what' => 'InfoFluxes is for ordinary people, not for scholars. Texts must be easy to read but never less than accurate.',
+        'steps' => [
+            'Short sentences (about 15 words), everyday words, every hard word explained the first time.',
+            'Say who holds a belief: "Muslims believe", "historians say". Do not turn a belief into a fact.',
+            'Salutations after names: ﷺ after Prophet Muhammad, (AS) after other prophets, (RA) after companions, (SWT) after Allah.',
+            'Every claim needs a source you opened. The AI import warns about long sentences and missing sources.',
+        ],
+        'tips' => [],
+    ],
+
+    // ================= Content =================
+    [
+        'key' => 'articles', 'title' => 'Articles', 'group' => 'Content', 'classes' => [ArticleResource::class], 'access' => 'articles',
+        'what' => 'All articles, including the blank index entries. A moderator sees all; an author sees only their own.',
+        'steps' => [
+            'Use the filters: Status (try "Written, waiting for review"), In category (it includes everything below the category), Featured, Has broken sources.',
+            '"New article" writes one by hand. For AI text use AI import instead.',
+            '"Write with AI help" on a blank index entry opens the AI import for that entry.',
+            '"Check source links" tests the links of one article now.',
+            'An article must be placed in a last-level category (one with no sub-categories). Use the Overview category of a heading for an overview article.',
+        ],
+        'tips' => ['The "Review before publishing" part appears on articles written with AI help.', '"Clone" makes a copy as a draft.'],
+    ],
+    [
+        'key' => 'stories', 'title' => 'Visual Stories', 'group' => 'Content', 'classes' => [StoryResource::class], 'access' => 'stories',
+        'what' => 'Stories told in pictures: chapters made of slides, each with a picture and words.',
+        'steps' => ['Press "New", add a cover picture, then chapters, then slides.', 'Slides can have audio for the Listen button (it plays only when approved).', 'A story has its own code, S-.'],
+        'tips' => ['Pictures are made small and fast by the site (WebP, under 300 KB).'],
+    ],
+    [
+        'key' => 'categories', 'title' => 'Categories', 'group' => 'Content', 'classes' => [CategoryResource::class], 'access' => 'categories',
+        'what' => 'The tree of the site. Top-level categories are the main menu. Articles go only in the last level of the tree.',
+        'steps' => [
+            '"Sits inside" puts a category below another one. A category that already holds articles cannot get sub-categories until its articles are moved.',
+            'Hide a category with "Show on the site" off.',
+            'Changing the web address makes a redirect by itself.',
+        ],
+        'tips' => ['Moving articles out of a heading: the Overview category is made for them.'],
+    ],
+    [
+        'key' => 'comments', 'title' => 'Comments', 'group' => 'Content', 'classes' => [CommentResource::class], 'access' => 'comments',
+        'what' => 'The discussion under articles. A member\'s comment waits here until you approve it.',
+        'steps' => ['The list opens on "Waiting for approval". Read, then approve or hide.', 'Replies by staff are shown at once.'],
+        'tips' => [],
+    ],
+    [
+        'key' => 'dyk', 'title' => 'Did You Know?', 'group' => 'Content', 'classes' => [DidYouKnowResource::class], 'access' => 'facts',
+        'what' => 'Short facts, like an FAQ. Each one needs a source to be shown.',
+        'steps' => ['Write a short title and the fact in plain words.', 'Add the source. Without a source the fact is not shown.', 'Publish it. Visitors see all published facts on one page.'],
+        'tips' => [],
+    ],
+    [
+        'key' => 'ai-import', 'title' => 'AI import', 'group' => 'Content', 'classes' => [AiImport::class], 'access' => 'import',
+        'what' => 'Turns the answer of an AI chat into a draft article, with its sections, sources, verse blocks and word notes.',
+        'steps' => [
+            'Step 1 builds the prompt from your choices. Step 2 is where you paste the AI answer and press Check. Step 3 shows what was found.',
+            'Check saves nothing. It tests the format, the category, the sources (does each link open?), every Quran reference, how easy the text is to read, and the verse and hadith blocks.',
+            'Save as drafts makes the article with the status "Written, waiting for review". Nothing is published from here.',
+            '"Also ask for word notes" makes the AI suggest hard words. They are saved as draft notes in Explainers.',
+        ],
+        'tips' => ['If the AI changes the shape of the answer, ask it again with: "Answer in the exact shape of the prompt".', 'Copy the answer from the code box with its Copy button, so the ## marks are kept.'],
+    ],
+    [
+        'key' => 'ai-prompts', 'title' => 'AI prompts', 'group' => 'Content', 'classes' => [AiPromptResource::class], 'access' => 'superuser',
+        'what' => 'The rules the AI must follow: the Master rules for every article and one specialist prompt for each kind of subject.',
+        'steps' => ['Modify the words of a prompt. "Reset to the original" brings back the first version.', 'Each specialist has "Match words": when a category path holds one of them, that prompt is suggested.'],
+        'tips' => ['Only the super user can change them. Change them carefully: every new AI article follows them.'],
+    ],
+    [
+        'key' => 'link-checker', 'title' => 'Link checker', 'group' => 'Content', 'classes' => [LinkCheckerPage::class], 'access' => 'publish',
+        'what' => 'Checks that the source links of all articles still open. A few are checked every hour by themselves.',
+        'steps' => [
+            '"Check all links now" checks every link, a few at a time. Keep the page open.',
+            'Broken: find a new link and fix the article. Blocked: the website refuses automatic checks. Open the link yourself, and if it is fine, press "I opened it: it is fine".',
+            '"Ignore" hides a link you do not want to hear about.',
+        ],
+        'tips' => ['A broken link never hides an article.'],
+    ],
+    [
+        'key' => 'search-synonyms', 'title' => 'Search synonyms', 'group' => 'Content', 'classes' => [SearchSynonymResource::class], 'access' => 'publish',
+        'what' => 'Words the search treats as the same, so a visitor who types "Koran" also finds "Quran".',
+        'steps' => ['"New group of words" needs at least two words.', '"Try a search" shows what the search would also look for.', 'Groups marked off are suggestions (such as Musa and Moses). Switch one on only if the two words mean the same thing to you.'],
+        'tips' => ['A word added from a group must have at least 4 letters.'],
+    ],
+    [
+        'key' => 'explainers', 'title' => 'Explainers', 'group' => 'Content', 'classes' => [ExplainerResource::class], 'access' => 'explainers',
+        'what' => 'Short notes about words, people, places and events, shown when a reader taps the word in an article.',
+        'steps' => [
+            'Write the word, what it is, the note (one or two plain sentences) and a source.',
+            'Notes made by the AI import are Draft. Read each one, then publish. The bulk button "Checked: publish" publishes the selected ones with your name as reviewer.',
+            'Use a note in an article by writing @[the word].',
+        ],
+        'tips' => ['The page "Words explained" lists every published note A to Z.'],
+    ],
+    [
+        'key' => 'pages', 'title' => 'Pages', 'group' => 'Content', 'classes' => [PageResource::class], 'access' => 'pages',
+        'what' => 'Pages such as About, Privacy and Contact. Pages in the footer show in the footer.',
+        'steps' => ['Write the page and choose whether it shows in the footer.', 'Changing its web address makes a redirect by itself.'],
+        'tips' => [],
+    ],
+    [
+        'key' => 'sliders', 'title' => 'Sliders', 'group' => 'Content', 'classes' => [SlideViewerSettings::class], 'access' => 'superuser',
+        'what' => 'The settings of the picture slider of Visual Stories and of the home page banner.',
+        'steps' => ['Change a setting and save. "Reset to the usual" brings back the usual values.'],
+        'tips' => ['Pictures are cut to the shape set here and saved small.'],
+    ],
+    [
+        'key' => 'contributors', 'title' => 'Contributors', 'group' => 'Content', 'classes' => [PersonResource::class], 'access' => 'people',
+        'what' => 'The people who are credited on articles. A contributor is not a login account.',
+        'steps' => ['Write the name, role, a short bio and a photo.', '"Give them a public page" adds a page that lists their articles.', 'Choose a contributor in the Publishing part of an article to credit them.'],
+        'tips' => [],
+    ],
+    [
+        'key' => 'newsletter-issues', 'title' => 'Send newsletter', 'group' => 'Content', 'classes' => [NewsletterIssueResource::class], 'access' => 'newsletter',
+        'what' => 'Write a newsletter and send it to the people who subscribed, a batch at a time.',
+        'steps' => ['Write it, then use the send action. It sends in small batches so the mail server is not overloaded.', 'Everyone gets an unsubscribe link.'],
+        'tips' => ['Sending needs the email settings of the site to be correct.'],
+    ],
+    [
+        'key' => 'newsletter-subscribers', 'title' => 'Newsletter (subscribers)', 'group' => 'Content', 'classes' => [NewsletterSubscriberResource::class], 'access' => 'superuser',
+        'what' => 'The list of people who asked for the newsletter.',
+        'steps' => ['Look people up, remove one, or export the list.'],
+        'tips' => ['Keep this list private.'],
+    ],
+
+    // ================= Challenge yourself =================
+    [
+        'key' => 'challenge', 'title' => 'Challenge yourself (the tests)', 'group' => 'Challenge yourself',
+        'classes' => [ChallengeSettings::class, FactStatementResource::class, QuizPassageResource::class, QuotePassageResource::class, QuranChapterResource::class, ScripturePassageResource::class],
+        'access' => 'tests',
+        'what' => 'The five tests visitors can play: a Quran-style test, Which scripture?, Fact or myth?, Who said it? and an order test with the 114 chapters.',
+        'steps' => ['Test settings: switch each test on or off and set how many questions it asks.', 'The other screens hold the passages and facts that the tests use. Add or correct them there.'],
+        'tips' => ['A test shows on the site only when it is switched on and has enough material.'],
+    ],
+
+    // ================= Settings =================
+    [
+        'key' => 'site-settings', 'title' => 'Site settings', 'group' => 'Settings', 'classes' => [SiteSettings::class], 'access' => 'superuser',
+        'what' => 'The name, taglines, home page parts, Listen, comments and sign-up switches of the site.',
+        'steps' => ['Change what you need and save. Most settings take effect at once.', 'Sign-ups open: switch off to stop new members (Google and Facebook sign-up follows this too).'],
+        'tips' => [],
+    ],
+    [
+        'key' => 'social', 'title' => 'Social media', 'group' => 'Settings', 'classes' => [SocialLinkResource::class], 'access' => 'superuser',
+        'what' => 'The site\'s own accounts, shown as round buttons in the footer.',
+        'steps' => ['Add the web address of each account. Drag to change the order. Switch one off to hide it.'],
+        'tips' => ['This is not the same as signing in with Google or Facebook. That needs keys in the .env file.'],
+    ],
+    [
+        'key' => 'users', 'title' => 'People', 'group' => 'Settings', 'classes' => [UserResource::class], 'access' => 'superuser',
+        'what' => 'The accounts of everyone who can sign in: super users, moderators, authors and members.',
+        'steps' => ['Choose a role and a status. Switched off people cannot sign in.', 'For a moderator or author you can tick the admin screens they may use. Leave all unticked for the usual screens of the role.'],
+        'tips' => ['An author who needs the AI import needs "AI import" ticked.'],
+    ],
+    [
+        'key' => 'backups', 'title' => 'Backups', 'group' => 'Settings', 'classes' => [Backups::class], 'access' => 'superuser',
+        'what' => 'Safe copies of the database and of the uploaded pictures.',
+        'steps' => ['Press "Back up the database now" or the files button, then Download.', 'Copies older than the keep time (14 days) are removed by themselves.', 'The page shows how to set up the nightly backup on this computer or on the web host.'],
+        'tips' => ['Download a copy now and then and keep it somewhere else.'],
+    ],
+    [
+        'key' => 'history', 'title' => 'History', 'group' => 'Settings', 'classes' => [ActivityResource::class], 'access' => 'superuser',
+        'what' => 'Who changed what and when. A change to a text can be put back.',
+        'steps' => ['Filter by kind, person, date or search a name.', '"Details" shows before and after. "Put the old words back" restores the chosen fields.', '"How long to keep the history" sets how many months are kept.'],
+        'tips' => ['Status, category and user role cannot be put back this way.'],
+    ],
+    [
+        'key' => 'redirects', 'title' => 'Redirects', 'group' => 'Settings', 'classes' => [RedirectResource::class], 'access' => 'superuser',
+        'what' => 'An old web address that leads to a new one. They are made by themselves when an address changes.',
+        'steps' => ['"New redirect" adds one by hand (to a page of the site, or to another website).', 'Switch one off or delete it when it is not needed.'],
+        'tips' => ['A redirect is used only when nothing lives at the old address.'],
+    ],
+    [
+        'key' => 'move-old-site', 'title' => 'Move from the old site', 'group' => 'Settings', 'classes' => [MoveFromOldSite::class], 'access' => 'superuser',
+        'what' => 'Brings content from the old InfoFluxes into this one. It is only there on the computer that still has the old database.',
+        'steps' => ['Always press Check first. It shows what would be moved and saves nothing.', 'Then press Move. Take a backup before.'],
+        'tips' => [],
+    ],
+];
