@@ -732,6 +732,7 @@ html[data-view="list"] .pcard__meta { margin-top: 2px !important; }
 .lang-menu__list { min-width: 220px; right: 0; }
 .lang-menu__list a { display: flex; align-items: center; gap: 10px; }
 .lang-menu__list a[aria-current="true"] { background: var(--accent-soft); font-weight: 600; }
+.lang-soon { display: flex; align-items: center; gap: 10px; padding: 8px 14px; opacity: .6; cursor: default; }
 .lang-english { color: var(--muted); font-size: .85rem; margin-left: auto; }
 .language-notice { background: var(--info-soft); border-bottom: 1px solid var(--line); color: var(--text); font-size: .92rem; padding: 8px 0; }
 /* Back to top */

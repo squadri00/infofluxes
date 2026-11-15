@@ -6,7 +6,7 @@
     $searchCategories = \App\Models\Category::publicChoices(1);
     $chosenCategory = request()->routeIs('search') ? (int) request('category') : 0;
     $staff = auth()->check() && auth()->user()->canAccessPanel(\Filament\Facades\Filament::getPanel('admin'));
-    $locales = config('infofluxes.locales');
+    $locales = \App\Support\Languages::menu();
 @endphp
 <header class="site-header" data-site-header>
     {{-- Row 1: the tagline on the left, small tools on the right --}}
@@ -26,12 +26,19 @@
                     <li class="menu__item"><a href="{{ route('challenge') }}" @if (request()->routeIs('challenge*')) aria-current="page" @endif>{{ __('site.challenge') }}</a></li>
                 @endif
                 @if (count($locales) >= 1)
+                    @php $current = collect($locales)->firstWhere('code', app()->getLocale()) ?? $locales[0]; @endphp
                     <li class="menu__item">
                         <details class="menu__drop lang-menu">
-                            <summary aria-label="{{ __('site.language') }}"><span class="lang-code">{{ strtoupper(app()->getLocale()) }}</span></summary>
+                            <summary aria-label="{{ __('site.language') }}"><img class="lang-flag" src="{{ \App\Support\Languages::flagUrl($current['flag']) }}" alt="" width="22" height="15"><span class="lang-code">{{ strtoupper($current['code']) }}</span></summary>
                             <ul class="menu__sub lang-menu__list">
-                                @foreach ($locales as $code => $name)
-                                    <li><a href="{{ route('language.switch', $code) }}" lang="{{ $code }}" @if ($code === app()->getLocale()) aria-current="true" @endif><span class="lang-name">{{ $name }}</span></a></li>
+                                @foreach ($locales as $l)
+                                    <li>
+                                        @if ($l['status'] === 'active')
+                                            <a href="{{ route('language.switch', $l['code']) }}" lang="{{ $l['code'] }}" @if ($l['code'] === app()->getLocale()) aria-current="true" @endif><img class="lang-flag" src="{{ \App\Support\Languages::flagUrl($l['flag']) }}" alt="" width="22" height="15"><span class="lang-name">{{ $l['native_name'] }}</span></a>
+                                        @else
+                                            <span class="lang-soon" lang="{{ $l['code'] }}" aria-disabled="true"><img class="lang-flag" src="{{ \App\Support\Languages::flagUrl($l['flag']) }}" alt="" width="22" height="15"><span class="lang-name">{{ $l['native_name'] }}</span><span class="lang-english">{{ __('site.language_soon') }}</span></span>
+                                        @endif
+                                    </li>
                                 @endforeach
                             </ul>
                         </details>

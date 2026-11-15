@@ -33,7 +33,7 @@ class Translated
 
     private static function boxes(string $field, string $label, bool $required, \Closure $make): array
     {
-        $locales = config('infofluxes.locales');
+        $locales = \App\Support\Languages::forEditors();
         $main = config('infofluxes.default_locale');
         $out = [];
         foreach ($locales as $code => $name) {

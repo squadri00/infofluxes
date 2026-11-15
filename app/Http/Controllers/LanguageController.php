@@ -9,7 +9,7 @@ class LanguageController extends Controller
     /** Remember the language the visitor chose, then go back where they were. */
     public function __invoke(Request $request, string $code)
     {
-        if (array_key_exists($code, config('infofluxes.locales'))) {
+        if (array_key_exists($code, \App\Support\Languages::active())) {
             $request->session()->put('locale', $code);
         }
         $back = url()->previous();

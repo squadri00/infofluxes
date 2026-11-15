@@ -1,7 +1,7 @@
 @php
     $siteName = \App\Models\Setting::get('site_name', config('app.name'));
     $locale = app()->getLocale();
-    $rtl = in_array($locale, config('infofluxes.rtl_locales'), true);
+    $rtl = \App\Support\Languages::isRtl($locale);
     $ver = fn (string $file) => asset($file).'?v='.(@filemtime(public_path($file)) ?: 1);
 @endphp
 <!DOCTYPE html>

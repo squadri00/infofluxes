@@ -308,6 +308,12 @@ return [
         'tips' => ['A redirect is used only when nothing lives at the old address.'],
     ],
     [
+        'key' => 'languages', 'title' => 'Languages', 'group' => 'Settings', 'classes' => [\App\Filament\Resources\Languages\LanguageResource::class], 'access' => 'superuser',
+        'what' => 'The list in the language button at the top of the site, each language with its flag. English is the main language and is always on.',
+        'steps' => ['"Add a language" lets you pick from a list (name, flag and writing direction are filled in for you).', 'Keep it on "Coming soon" while the texts are being translated: visitors see it greyed out with the word "Soon".', 'Switch it to "On" when it is ready. Then visitors can choose it.', 'Once a language is Coming soon or On, a box for it appears beside every title and text in the admin.'],
+        'tips' => ['The words of the site (buttons, menus) go in a folder lang/<code>/site.php. Without it English words are shown.', 'The main language cannot be switched off or deleted.'],
+    ],
+    [
         'key' => 'move-old-site', 'title' => 'Move from the old site', 'group' => 'Settings', 'classes' => [MoveFromOldSite::class], 'access' => 'superuser',
         'what' => 'Brings content from the old InfoFluxes into this one. It is only there on the computer that still has the old database.',
         'steps' => ['Always press Check first. It shows what would be moved and saves nothing.', 'Then press Move. Take a backup before.'],

@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * Flags and the list of languages to choose from when a language is added.
+ * 'flags': the pictures in public/flags (free, MIT licence, see public/flags/LICENSE.txt). A flag is a choice for a language, not a claim:
+ * many languages are spoken in many countries, so the owner picks the flag that fits their readers.
+ * 'catalog': code => [English name, name in the language itself, flag, right to left?].
+ */
+return [
+    'flags' => [
+        'gb' => 'United Kingdom', 'us' => 'United States', 'ca' => 'Canada', 'au' => 'Australia', 'za' => 'South Africa',
+        'sa' => 'Saudi Arabia', 'eg' => 'Egypt', 'ae' => 'United Arab Emirates', 'ma' => 'Morocco', 'dz' => 'Algeria', 'tn' => 'Tunisia', 'ly' => 'Libya',
+        'iq' => 'Iraq', 'jo' => 'Jordan', 'lb' => 'Lebanon', 'sy' => 'Syria', 'ye' => 'Yemen', 'sd' => 'Sudan', 'kw' => 'Kuwait', 'qa' => 'Qatar', 'om' => 'Oman', 'bh' => 'Bahrain', 'ps' => 'Palestine',
+        'pk' => 'Pakistan', 'in' => 'India', 'bd' => 'Bangladesh', 'lk' => 'Sri Lanka', 'np' => 'Nepal', 'af' => 'Afghanistan', 'mv' => 'Maldives',
+        'ir' => 'Iran', 'tr' => 'Turkey', 'az' => 'Azerbaijan', 'uz' => 'Uzbekistan', 'kz' => 'Kazakhstan', 'tj' => 'Tajikistan', 'kg' => 'Kyrgyzstan', 'tm' => 'Turkmenistan',
+        'id' => 'Indonesia', 'my' => 'Malaysia', 'sg' => 'Singapore', 'bn' => 'Brunei', 'ph' => 'Philippines', 'th' => 'Thailand', 'vn' => 'Vietnam',
+        'cn' => 'China', 'jp' => 'Japan', 'kr' => 'South Korea',
+        'ru' => 'Russia', 'ua' => 'Ukraine', 'pl' => 'Poland', 'de' => 'Germany', 'fr' => 'France', 'es' => 'Spain', 'pt' => 'Portugal', 'br' => 'Brazil', 'it' => 'Italy',
+        'nl' => 'Netherlands', 'se' => 'Sweden', 'no' => 'Norway', 'dk' => 'Denmark', 'fi' => 'Finland', 'gr' => 'Greece', 'ro' => 'Romania', 'bg' => 'Bulgaria',
+        'rs' => 'Serbia', 'ba' => 'Bosnia and Herzegovina', 'al' => 'Albania', 'mk' => 'North Macedonia', 'xk' => 'Kosovo', 'il' => 'Israel',
+        'ke' => 'Kenya', 'tz' => 'Tanzania', 'ng' => 'Nigeria', 'et' => 'Ethiopia', 'so' => 'Somalia', 'sn' => 'Senegal', 'gh' => 'Ghana', 'ml' => 'Mali', 'ne' => 'Niger', 'cm' => 'Cameroon',
+        'un' => 'No country (a neutral flag)',
+    ],
+    'catalog' => [
+        'en' => ['English', 'English', 'gb', false],
+        'ar' => ['Arabic', 'العربية', 'sa', true],
+        'ur' => ['Urdu', 'اردو', 'pk', true],
+        'fa' => ['Persian', 'فارسی', 'ir', true],
+        'ps' => ['Pashto', 'پښتو', 'af', true],
+        'he' => ['Hebrew', 'עברית', 'il', true],
+        'tr' => ['Turkish', 'Türkçe', 'tr', false],
+        'id' => ['Indonesian', 'Bahasa Indonesia', 'id', false],
+        'ms' => ['Malay', 'Bahasa Melayu', 'my', false],
+        'bn' => ['Bengali', 'বাংলা', 'bd', false],
+        'hi' => ['Hindi', 'हिन्दी', 'in', false],
+        'ta' => ['Tamil', 'தமிழ்', 'lk', false],
+        'si' => ['Sinhala', 'සිංහල', 'lk', false],
+        'ne' => ['Nepali', 'नेपाली', 'np', false],
+        'fr' => ['French', 'Français', 'fr', false],
+        'es' => ['Spanish', 'Español', 'es', false],
+        'pt' => ['Portuguese', 'Português', 'pt', false],
+        'de' => ['German', 'Deutsch', 'de', false],
+        'it' => ['Italian', 'Italiano', 'it', false],
+        'nl' => ['Dutch', 'Nederlands', 'nl', false],
+        'sv' => ['Swedish', 'Svenska', 'se', false],
+        'pl' => ['Polish', 'Polski', 'pl', false],
+        'ru' => ['Russian', 'Русский', 'ru', false],
+        'uk' => ['Ukrainian', 'Українська', 'ua', false],
+        'sq' => ['Albanian', 'Shqip', 'al', false],
+        'bs' => ['Bosnian', 'Bosanski', 'ba', false],
+        'uz' => ['Uzbek', 'Oʻzbekcha', 'uz', false],
+        'kk' => ['Kazakh', 'Қазақша', 'kz', false],
+        'az' => ['Azerbaijani', 'Azərbaycanca', 'az', false],
+        'zh' => ['Chinese', '中文', 'cn', false],
+        'ja' => ['Japanese', '日本語', 'jp', false],
+        'ko' => ['Korean', '한국어', 'kr', false],
+        'th' => ['Thai', 'ไทย', 'th', false],
+        'vi' => ['Vietnamese', 'Tiếng Việt', 'vn', false],
+        'tl' => ['Filipino', 'Filipino', 'ph', false],
+        'sw' => ['Swahili', 'Kiswahili', 'ke', false],
+        'ha' => ['Hausa', 'Hausa', 'ng', false],
+        'so' => ['Somali', 'Soomaali', 'so', false],
+        'am' => ['Amharic', 'አማርኛ', 'et', false],
+    ],
+];

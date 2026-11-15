@@ -195,13 +195,13 @@ class Step04Test extends TestCase
     {
         $this->get('/')->assertSee('lang-menu', false)->assertSee('English')->assertDontSee('Arabic');
 
-        config(['infofluxes.locales' => ['en' => 'English', 'ar' => 'Arabic']]);
+        \App\Models\Language::create(['code' => 'ar', 'name' => 'Arabic', 'native_name' => 'Arabic', 'flag' => 'sa', 'is_rtl' => true, 'status' => 'active']);
         $this->get('/')->assertSee('lang-menu', false)->assertSee('Arabic');
     }
 
     public function test_a_visitor_can_choose_a_language_and_the_text_follows(): void
     {
-        config(['infofluxes.locales' => ['en' => 'English', 'ar' => 'Arabic'], 'infofluxes.rtl_locales' => ['ar']]);
+        \App\Models\Language::create(['code' => 'ar', 'name' => 'Arabic', 'native_name' => 'Arabic', 'flag' => 'sa', 'is_rtl' => true, 'status' => 'active']);
         $shows = $this->cat('Shows');
         $a = $this->article('English title', $shows);
         $a->setTranslation('title', 'ar', 'عنوان عربي')->save();
@@ -216,7 +216,7 @@ class Step04Test extends TestCase
 
     public function test_a_missing_translation_falls_back_to_english(): void
     {
-        config(['infofluxes.locales' => ['en' => 'English', 'ar' => 'Arabic']]);
+        \App\Models\Language::create(['code' => 'ar', 'name' => 'Arabic', 'native_name' => 'Arabic', 'flag' => 'sa', 'is_rtl' => true, 'status' => 'active']);
         $this->article('Only English', $this->cat('Shows'));
 
         $this->withSession(['locale' => 'ar'])->get('/only-english')->assertOk()->assertSee('Only English');

@@ -24,6 +24,7 @@ return [
     'theme_to_dark' => 'Switch to dark mode',
     'theme_to_light' => 'Switch to light mode',
     'language' => 'Language',
+    'language_soon' => 'Soon',
     'login' => 'Log in',
     'logout' => 'Log out',
     'admin' => 'Admin',

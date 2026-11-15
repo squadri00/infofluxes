@@ -10,7 +10,7 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
-        $locales = array_keys(config('infofluxes.locales'));
+        $locales = array_keys(\App\Support\Languages::active());
         $chosen = $request->session()->get('locale');
         $locale = in_array($chosen, $locales, true) ? $chosen : config('infofluxes.default_locale');
         app()->setLocale($locale);
