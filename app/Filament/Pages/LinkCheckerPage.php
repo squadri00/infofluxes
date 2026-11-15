@@ -29,7 +29,7 @@ class LinkCheckerPage extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLink;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Tools';
 
     protected static ?string $navigationLabel = 'Link checker';
 
@@ -37,7 +37,7 @@ class LinkCheckerPage extends Page implements HasTable
 
     protected static ?string $slug = 'link-checker';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 3;
 
     protected string $view = 'filament.pages.link-checker';
 

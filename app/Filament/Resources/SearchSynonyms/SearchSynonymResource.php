@@ -31,7 +31,7 @@ class SearchSynonymResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMagnifyingGlassPlus;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Tools';
 
     protected static ?string $navigationLabel = 'Search synonyms';
 
@@ -41,7 +41,7 @@ class SearchSynonymResource extends Resource
 
     protected static ?string $slug = 'search-synonyms';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 4;
 
     private static function allowed(): bool
     {

@@ -25,6 +25,12 @@ class Help extends Page
 
     protected string $view = 'filament.pages.help';
 
+    /** Help has its own button at the top of every screen, so it is not repeated in the side menu. */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public static function canAccess(): bool
     {
         return auth()->user()?->isStaff() ?? false;

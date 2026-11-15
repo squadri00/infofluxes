@@ -32,6 +32,15 @@ class AdminPanelProvider extends PanelProvider
             // A Help button at the top of every screen, for staff.
             ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn () => auth()->user()?->isStaff() ? new \Illuminate\Support\HtmlString('<a href="'.e(\App\Filament\Pages\Help::getUrl()).'" style="display:inline-flex;align-items:center;gap:.35rem;padding:.35rem .8rem;border:1px solid rgba(128,128,128,.5);border-radius:999px;font-weight:600;font-size:.9rem;text-decoration:none;color:inherit">&#63; Help</a>') : '')
             ->brandName(fn () => config('app.name'))
+            // The side menu: the groups in this order. The rarely used ones start closed (they open by themselves when you are inside one).
+            ->navigationGroups([
+                \Filament\Navigation\NavigationGroup::make('Content'),
+                \Filament\Navigation\NavigationGroup::make('Community'),
+                \Filament\Navigation\NavigationGroup::make('Tools')->collapsed(),
+                \Filament\Navigation\NavigationGroup::make('Challenge yourself')->collapsed(),
+                \Filament\Navigation\NavigationGroup::make('Settings'),
+                \Filament\Navigation\NavigationGroup::make('System')->collapsed(),
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])

@@ -31,7 +31,7 @@ class AnalyticsDashboard extends Page
 
     protected static ?string $slug = 'analytics';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
 
     protected string $view = 'filament.pages.analytics';
 

@@ -34,7 +34,7 @@ class SocialLinkResource extends Resource
 
     protected static ?string $modelLabel = 'social account';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
     private static function allowed(): bool
     {

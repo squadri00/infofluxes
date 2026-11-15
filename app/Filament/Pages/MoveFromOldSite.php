@@ -18,7 +18,9 @@ class MoveFromOldSite extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowDownTray;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'System';
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'Move from the old site';
 

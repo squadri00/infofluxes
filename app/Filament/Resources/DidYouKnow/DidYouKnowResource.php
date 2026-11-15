@@ -41,7 +41,7 @@ class DidYouKnowResource extends Resource
 
     protected static ?string $modelLabel = 'fact';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 5;
 
     private static function allowed(): bool
     {

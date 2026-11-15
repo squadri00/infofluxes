@@ -23,13 +23,13 @@ class NewsletterSubscriberResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Community';
 
     protected static ?string $navigationLabel = 'Newsletter';
 
     protected static ?string $modelLabel = 'subscriber';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 3;
 
     private static function allowed(): bool
     {

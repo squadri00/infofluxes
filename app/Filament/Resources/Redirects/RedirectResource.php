@@ -30,13 +30,13 @@ class RedirectResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowUturnRight;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'Tools';
 
     protected static ?string $navigationLabel = 'Redirects';
 
     protected static ?string $modelLabel = 'redirect';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 5;
 
     private static function allowed(): bool
     {

@@ -33,7 +33,7 @@ class SeoSettings extends Page
 
     protected static ?string $title = 'SEO and tracking';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
 
     /** @var array<string, mixed> */
     public ?array $data = [];

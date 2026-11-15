@@ -31,13 +31,13 @@ class NewsletterIssueResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPaperAirplane;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Community';
 
     protected static ?string $navigationLabel = 'Send newsletter';
 
     protected static ?string $modelLabel = 'issue';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 4;
 
     private static function allowed(): bool
     {

@@ -44,7 +44,7 @@ class ExplainerResource extends Resource
 
     protected static ?string $modelLabel = 'explainer';
 
-    protected static ?int $navigationSort = 9;
+    protected static ?int $navigationSort = 6;
 
     private static function allowed(): bool
     {

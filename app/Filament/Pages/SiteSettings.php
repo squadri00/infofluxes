@@ -27,6 +27,8 @@ class SiteSettings extends Page
 
     protected static string|UnitEnum|null $navigationGroup = 'Settings';
 
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $navigationLabel = 'Site settings';
 
     protected static ?string $title = 'Site settings';

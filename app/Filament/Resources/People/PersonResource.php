@@ -39,7 +39,7 @@ class PersonResource extends Resource
 
     protected static ?string $modelLabel = 'contributor';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 7;
 
     private static function allowed(): bool
     {

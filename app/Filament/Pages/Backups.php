@@ -18,13 +18,13 @@ class Backups extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCircleStack;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'System';
 
     protected static ?string $navigationLabel = 'Backups';
 
     protected static ?string $title = 'Backups';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 1;
 
     protected string $view = 'filament.pages.backups';
 

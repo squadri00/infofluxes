@@ -29,7 +29,7 @@ class ActivityResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'System';
 
     protected static ?string $navigationLabel = 'History';
 
@@ -37,7 +37,7 @@ class ActivityResource extends Resource
 
     protected static ?string $slug = 'history';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 2;
 
     public static function canViewAny(): bool
     {

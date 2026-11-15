@@ -35,13 +35,30 @@ class Guide
         $groups = [];
         foreach (static::all() as $entry) {
             if (static::visibleTo($entry, $user)) {
-                $groups[$entry['group']][] = $entry;
+                $groups[static::groupOf($entry)][] = $entry;
             }
         }
-        $order = ['General' => 0, 'Content' => 1, 'Challenge yourself' => 2, 'Reports' => 3, 'Settings' => 4];
+        $order = ['General' => 0, 'Reports' => 1, 'Content' => 2, 'Community' => 3, 'Tools' => 4, 'Challenge yourself' => 5, 'Settings' => 6, 'System' => 7];
         uksort($groups, fn ($a, $b) => ($order[$a] ?? 9) <=> ($order[$b] ?? 9));
 
         return $groups;
+    }
+
+    /** The group of an entry in the Help: the same as the group of its screen in the side menu (so the two never disagree). */
+    public static function groupOf(array $entry): string
+    {
+        $class = $entry['classes'][0] ?? null;
+        if ($class && method_exists($class, 'getNavigationGroup')) {
+            try {
+                $group = $class::getNavigationGroup();
+                if (is_string($group) && $group !== '') {
+                    return $group;
+                }
+            } catch (\Throwable) {
+            }
+        }
+
+        return $entry['group'];
     }
 
     /** The address of the first screen of an entry that this person may open, or null. */

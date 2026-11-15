@@ -189,7 +189,7 @@ class Step14Test extends TestCase
 
     // ---------- the one admin screen ----------
 
-    public function test_the_screen_is_called_sliders_it_is_in_the_content_menu_and_only_the_super_user_opens_it(): void
+    public function test_the_screen_is_called_sliders_it_is_in_the_settings_menu_and_only_the_super_user_opens_it(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'moderator', 'status' => 'active']));
         $this->get('/admin/sliders')->assertForbidden();
@@ -197,7 +197,7 @@ class Step14Test extends TestCase
         $this->superuser();
         $this->get('/admin/sliders')->assertOk()->assertSee('Sliders')->assertSee('Home page slider')->assertSee('Story slider');
         $this->assertSame('Sliders', SlideViewerSettings::getNavigationLabel());
-        $this->assertSame('Content', SlideViewerSettings::getNavigationGroup());
+        $this->assertSame('Settings', SlideViewerSettings::getNavigationGroup());
     }
 
     public function test_the_screen_shows_what_is_there_now_for_both_sliders(): void

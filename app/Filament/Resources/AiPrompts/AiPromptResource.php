@@ -28,13 +28,13 @@ class AiPromptResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCommandLine;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Tools';
 
     protected static ?string $navigationLabel = 'AI prompts';
 
     protected static ?string $modelLabel = 'AI prompt';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
 
     private static function allowed(): bool
     {
