@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'status', 'admin_screens', 'custom_data'])]
+#[Fillable(['name', 'email', 'bio', 'photo', 'password', 'role', 'status', 'admin_screens', 'custom_data'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser, \Illuminate\Contracts\Auth\MustVerifyEmail
 {
@@ -43,6 +43,17 @@ class User extends Authenticatable implements FilamentUser, \Illuminate\Contract
             'admin_screens' => 'array',
             'custom_data' => 'array',
         ];
+    }
+
+    /** False for a person who joined with Google or Facebook and has not set a password (the stored one is random and unknown). */
+    public function hasOwnPassword(): bool
+    {
+        return ! (bool) ($this->custom_data['no_password'] ?? false);
+    }
+
+    public function photoUrl(): ?string
+    {
+        return $this->photo ? asset('storage/'.$this->photo) : null;
     }
 
     public function isActive(): bool

@@ -14,6 +14,7 @@
     @foreach ($comments as $comment)
         <article class="comment" id="comment-{{ $comment->id }}">
             <header class="comment__head">
+                @if ($comment->user?->photoUrl())<img class="comment__avatar" src="{{ $comment->user->photoUrl() }}" alt="" width="28" height="28" loading="lazy">@endif
                 <strong>{{ $comment->user?->name ?? '—' }}</strong>
                 @if ($comment->user?->isStaff())<span class="comment__badge">{{ __('site.staff') }}</span>@endif
                 <time datetime="{{ $comment->created_at->toDateString() }}">{{ $comment->created_at->format('j M Y') }}</time>
@@ -24,6 +25,7 @@
             @foreach ($comment->replies as $reply)
                 <article class="comment comment--reply" id="comment-{{ $reply->id }}">
                     <header class="comment__head">
+                        @if ($reply->user?->photoUrl())<img class="comment__avatar" src="{{ $reply->user->photoUrl() }}" alt="" width="28" height="28" loading="lazy">@endif
                         <strong>{{ $reply->user?->name ?? '—' }}</strong>
                         @if ($reply->user?->isStaff())<span class="comment__badge">{{ __('site.staff') }}</span>@endif
                         <time datetime="{{ $reply->created_at->toDateString() }}">{{ $reply->created_at->format('j M Y') }}</time>

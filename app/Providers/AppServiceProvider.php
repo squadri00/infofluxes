@@ -35,6 +35,20 @@ class AppServiceProvider extends ServiceProvider
                 ->line('If you did not sign up, you can ignore this email.')
                 ->salutation('The '.$site.' team');
         });
+        // The email with the link to choose a new password.
+        \Illuminate\Auth\Notifications\ResetPassword::toMailUsing(function ($notifiable, string $token) {
+            $site = (string) \App\Models\Setting::get('site_name', config('app.name'));
+            $minutes = (int) config('auth.passwords.users.expire', 60);
+            $url = route('password.reset', ['token' => $token, 'email' => $notifiable->getEmailForPasswordReset()]);
+
+            return (new \Illuminate\Notifications\Messages\MailMessage)
+                ->subject(str_replace(':site', $site, __('account.reset_mail_subject')))
+                ->greeting('Hello '.$notifiable->name.',')
+                ->line(__('account.reset_mail_line1'))
+                ->action(__('account.reset_mail_action'), $url)
+                ->line(str_replace(':minutes', (string) $minutes, __('account.reset_mail_line2')))
+                ->salutation('The '.$site.' team');
+        });
         // Names kept in the database for likes and saves (so a class can be renamed without breaking them).
         \Illuminate\Database\Eloquent\Relations\Relation::morphMap(['article' => \App\Models\Article::class, 'story' => \App\Models\Story::class]);
 

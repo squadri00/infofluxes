@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\FactQuizController;
 use App\Http\Controllers\OrderQuizController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\ScriptureQuizController;
 use App\Http\Controllers\WhoQuizController;
@@ -40,10 +42,25 @@ Route::middleware('guest')->group(function () {
     Route::get('/login/{provider}/callback', [SocialAuthController::class, 'callback'])->where('provider', 'google|facebook')->middleware('throttle:20,1')->name('social.callback');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+    // Forgotten password.
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgot'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendLink'])->middleware('throttle:5,1')->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:10,1')->name('password.update');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/account', [AccountController::class, 'index'])->name('account');
+    // My profile, sign-in and security, privacy.
+    Route::get('/account/profile', [ProfileController::class, 'profile'])->name('account.profile');
+    Route::post('/account/profile', [ProfileController::class, 'saveProfile'])->middleware('throttle:20,1');
+    Route::get('/account/security', [ProfileController::class, 'security'])->name('account.security');
+    Route::post('/account/password', [ProfileController::class, 'changePassword'])->middleware('throttle:10,1')->name('account.password');
+    Route::post('/account/email', [ProfileController::class, 'changeEmail'])->middleware('throttle:6,1')->name('account.email');
+    Route::post('/account/sign-ins/{provider}/unlink', [ProfileController::class, 'unlink'])->where('provider', 'google|facebook')->name('account.unlink');
+    Route::get('/account/privacy', [ProfileController::class, 'privacy'])->name('account.privacy');
+    Route::get('/account/my-data', [ProfileController::class, 'download'])->middleware('throttle:6,1')->name('account.data');
+    Route::post('/account/delete', [ProfileController::class, 'destroy'])->middleware('throttle:5,1')->name('account.delete');
     // Confirming the email address of a new member.
     Route::get('/email/verify', [VerifyEmailController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['signed', 'throttle:12,1'])->name('verification.verify');

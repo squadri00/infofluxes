@@ -78,6 +78,7 @@ class SocialAuthController extends Controller
                 'password' => Str::random(48),   // nobody knows it; the person signs in with Google or Facebook
                 'role' => 'member',
                 'status' => 'active',
+                'custom_data' => ['no_password' => true],
             ]);
         }
         if (! $user->email_verified_at) {

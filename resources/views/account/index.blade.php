@@ -7,8 +7,8 @@
 
 @section('content')
 <div class="wrap">
-    <h1 class="topic__title">{{ __('site.my_account') }}</h1>
-    <p class="topic__hook">{{ auth()->user()->name }} &middot; {{ auth()->user()->email }}</p>
+    @include('account._nav', ['active' => 'account'])
+    @if (auth()->user()->bio)<p>{{ auth()->user()->bio }}</p>@endif
 
     @unless (auth()->user()->hasVerifiedEmail())
         <div class="notice" role="status">

@@ -1957,3 +1957,19 @@ button.exp:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px
 .cstats__i { display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
 .cstats svg { opacity: .8; }
 html[data-view="list"] .cstats { margin-top: 2px !important; }
+
+/* Account area: sub-menu, profile picture, comment avatar */
+.account-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 20px; padding: 0; list-style: none; }
+.account-nav a { display: inline-block; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; font-size: .92rem; }
+.account-nav a[aria-current="page"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+.account-head { display: flex; align-items: center; gap: 14px; }
+.avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex: none; background: var(--gray-soft); }
+.avatar--blank { display: inline-flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: 700; color: #fff; background: var(--accent); }
+.avatar--big { width: 96px; height: 96px; font-size: 2.2rem; }
+.account-card { max-width: 40rem; margin: 0 0 26px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.account-card h2 { margin-top: 0; font-size: 1.1rem; }
+.account-card--danger { border-color: #c0392b; }
+.account-card .auth-form { margin: 10px 0 0; max-width: none; }
+.field textarea, .field input[type="file"] { width: 100%; }
+.field small { color: var(--muted); }
+.comment__avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-inline-end: 6px; }
