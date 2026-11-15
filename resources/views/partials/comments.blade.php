@@ -52,6 +52,8 @@
         <p class="empty">{{ __('site.comments_closed') }}</p>
     @elseif (! $me)
         <p><a href="{{ route('login') }}">{{ __('site.comment_login') }}</a></p>
+    @elseif (! $me->hasVerifiedEmail())
+        <p><a href="{{ route('verification.notice') }}">{{ __('site.verify_needed') }}</a></p>
     @else
         <form method="post" action="{{ route('comments.store') }}" class="auth-form auth-form--wide">
             @csrf

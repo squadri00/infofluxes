@@ -62,7 +62,10 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('account')->with('status', __('site.saved_notice'));
+        // The member confirms their email address before they can comment, like, save or send in an article.
+        VerifyEmailController::sendTo($user);
+
+        return redirect()->route('verification.notice');
     }
 
     public function logout(Request $request)

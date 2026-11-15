@@ -98,7 +98,7 @@ return [
             'Super user: everything, including People, Site settings, Backups, History and Redirects.',
             'Moderator: Articles, Visual Stories, Categories, Comments and Explainers (and more if ticked). A moderator can publish, archive and feature items.',
             'Author: Articles and Visual Stories, only their own. An author can save drafts and send them for review, but cannot publish.',
-            'Member: no admin. A member signs in on the site, comments, likes, saves and can send in an article.',
+            'Member: no admin. A member signs in on the site (or with Google or Facebook). After signing up a member must confirm their email address with a link we send. Then they can comment, like, save and send in an article. Until then they can only read.',
         ],
         'tips' => ['Only the super user can open AI prompts, because they are the rules every AI article follows.'],
     ],
@@ -287,7 +287,7 @@ return [
         'key' => 'users', 'title' => 'People', 'group' => 'Settings', 'classes' => [UserResource::class], 'access' => 'superuser',
         'what' => 'The accounts of everyone who can sign in: super users, moderators, authors and members.',
         'steps' => ['Choose a role and a status. Switched off people cannot sign in.', 'For a moderator or author you can tick the admin screens they may use. Leave all unticked for the usual screens of the role.'],
-        'tips' => ['An author who needs the AI import needs "AI import" ticked.'],
+        'tips' => ['An author who needs the AI import needs "AI import" ticked.', 'A person you add here is counted as confirmed. A member who signs up on the site must confirm their own email address.'],
     ],
     [
         'key' => 'backups', 'title' => 'Backups', 'group' => 'Settings', 'classes' => [Backups::class], 'access' => 'superuser',

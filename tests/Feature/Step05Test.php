@@ -216,7 +216,7 @@ class Step05Test extends TestCase
     public function test_a_visitor_can_sign_up_and_becomes_an_active_member(): void
     {
         $this->post('/register', ['name' => 'Sam Reader', 'email' => 'sam@example.org', 'password' => 'a-long-password-1', 'password_confirmation' => 'a-long-password-1'])
-            ->assertRedirect(route('account'));
+            ->assertRedirect(route('verification.notice'));   // a new member confirms their email address first
 
         $sam = User::where('email', 'sam@example.org')->first();
         $this->assertSame('member', $sam->role);

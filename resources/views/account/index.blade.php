@@ -10,6 +10,14 @@
     <h1 class="topic__title">{{ __('site.my_account') }}</h1>
     <p class="topic__hook">{{ auth()->user()->name }} &middot; {{ auth()->user()->email }}</p>
 
+    @unless (auth()->user()->hasVerifiedEmail())
+        <div class="notice" role="status">
+            {{ str_replace(':email', auth()->user()->email, __('site.verify_banner')) }}
+            <form method="post" action="{{ route('verification.send') }}" style="display:inline">@csrf <button type="submit" class="btn btn--small">{{ __('site.verify_resend') }}</button></form>
+            @error('email')<span class="field__error">{{ $message }}</span>@enderror
+        </div>
+    @endunless
+
     <p>
         <a class="btn btn--small" href="{{ route('submit') }}">{{ __('site.submit_article') }}</a>
         @if ($staff)<a class="btn btn--small" href="{{ url('/admin') }}">{{ __('site.admin_area') }}</a>@endif

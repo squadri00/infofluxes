@@ -21,6 +21,7 @@ use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StoryBookController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\VerifyEmailController;
 use App\Http\Controllers\WordsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SocialAuthController;
@@ -43,6 +44,13 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/account', [AccountController::class, 'index'])->name('account');
+    // Confirming the email address of a new member.
+    Route::get('/email/verify', [VerifyEmailController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['signed', 'throttle:12,1'])->name('verification.verify');
+    Route::post('/email/verification-notification', [VerifyEmailController::class, 'send'])->middleware('throttle:6,1')->name('verification.send');
+});
+// What needs a confirmed email address.
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/submit', [AccountController::class, 'create'])->name('submit');
     Route::post('/submit', [AccountController::class, 'store'])->middleware('throttle:10,1');
     Route::get('/submit/{article}', [AccountController::class, 'edit'])->whereNumber('article')->name('submit.edit');

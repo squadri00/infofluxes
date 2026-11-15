@@ -51,6 +51,11 @@
             </div>
         </details>
     </div>
+    @auth
+        @unless (auth()->user()->hasVerifiedEmail())
+            <p class="engage__hint"><a href="{{ route('verification.notice') }}">{{ __('site.verify_needed') }}</a></p>
+        @endunless
+    @endauth
     @guest
         <p class="engage__hint"><a href="{{ route('login') }}">{{ __('engage.log_in') }}</a> {{ __('engage.log_in_to') }}</p>
     @endguest
