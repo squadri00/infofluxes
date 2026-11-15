@@ -31,6 +31,10 @@ class StoryController extends Controller
         $story = Story::query()->where('slug', $slug)->when(! $preview, fn ($q) => $q->published())
             ->with(['category', 'extraCategories', 'author', 'contributor', 'chapters.slides'])->firstOrFail();
 
+        if (! $preview) {
+            \App\Support\ViewCounter::count($story);
+        }
+
         $category = $story->category;
         $trail = $category ? CategoryController::trail($category) : collect();
 

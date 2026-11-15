@@ -1950,3 +1950,9 @@ button.exp:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px
 .social-btn { display: flex; align-items: center; justify-content: center; gap: .6rem; padding: .6rem 1rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font-weight: 600; text-decoration: none; }
 .social-btn:hover { border-color: var(--accent); color: var(--accent); }
 .social-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Likes, dislikes and views under a card */
+.cstats { display: flex; align-items: center; gap: 14px; margin: 6px 0 0 !important; font-size: .78rem; color: var(--muted); line-height: 1; }
+.cstats__i { display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
+.cstats svg { opacity: .8; }
+html[data-view="list"] .cstats { margin-top: 2px !important; }

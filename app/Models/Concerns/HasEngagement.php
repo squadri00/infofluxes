@@ -27,6 +27,15 @@ trait HasEngagement
         return $this->morphMany(SavedItem::class, 'saveable');
     }
 
+    /** Adds likes_count and dislikes_count to a list in one go (so a card can show them without one query each). */
+    public function scopeWithEngagement($query)
+    {
+        return $query->withCount([
+            'reactions as likes_count' => fn ($q) => $q->where('value', Reaction::LIKE),
+            'reactions as dislikes_count' => fn ($q) => $q->where('value', Reaction::DISLIKE),
+        ]);
+    }
+
     public function likesCount(): int
     {
         return $this->reactions()->where('value', Reaction::LIKE)->count();

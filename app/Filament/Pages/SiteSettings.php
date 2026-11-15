@@ -84,6 +84,7 @@ class SiteSettings extends Page
                     ->schema([
                         TextInput::make('home_featured_count')->label('Featured: how many')->numeric()->minValue(0)->maxValue(24)->placeholder('6'),
                         TextInput::make('home_latest_count')->label('Latest: how many')->numeric()->minValue(0)->maxValue(24)->placeholder('8'),
+                        Toggle::make('card_stats_on')->label('Show likes, dislikes and views on the home page cards')->helperText('A small row under each story and article card. Off: the row is hidden.')->columnSpanFull(),
                         TextInput::make('home_stories_count')->label('Stories in pictures: how many')->helperText('Featured stories first, then the newest. 0 hides the part.')->numeric()->minValue(0)->maxValue(12)->placeholder('4'),
                     ])->columns(2),
                 Section::make('People and discussion')

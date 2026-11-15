@@ -17,6 +17,7 @@
     <div class="scard__body">
         <h3 class="scard__title"><a href="{{ $story->url() }}">{{ $story->title }}</a> @include('partials.id-tag', ['code' => $story->code])</h3>
         @if ($summary !== '')<p class="scard__hook">{{ \Illuminate\Support\Str::limit($summary, 140) }}</p>@endif
+        @include('partials.card-stats', ['item' => $story])
         <p class="scard__meta">
             @if ($story->relationLoaded('category') && $story->category)<a href="{{ route('category.show', $story->category->slug) }}">{{ $story->category->name }}</a> &middot; @endif
             <a class="scard__open" href="{{ $story->url() }}">{{ __('site.story_open') }} &rarr;</a>

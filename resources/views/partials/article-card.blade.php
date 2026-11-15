@@ -22,6 +22,7 @@
         @if ($article->relationLoaded('contributor') && $article->contributor)
             @include('partials.byline', ['person' => $article->contributor, 'class' => 'byline--card'])
         @endif
+        @include('partials.card-stats', ['item' => $article])
         @if ($firstCategory || $slideCount > 0)
             <p class="pcard__meta">
                 @if ($firstCategory)<a href="{{ route('category.show', $firstCategory->slug) }}">{{ $firstCategory->name }}</a>@endif

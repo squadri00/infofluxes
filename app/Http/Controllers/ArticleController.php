@@ -27,6 +27,10 @@ class ArticleController extends Controller
             return app(PageController::class)->show($slug);
         }
 
+        if (! $preview) {
+            \App\Support\ViewCounter::count($article);
+        }
+
         $category = $article->category;
         $trail = $category ? CategoryController::trail($category) : collect();
 
