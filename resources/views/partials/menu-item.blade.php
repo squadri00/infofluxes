@@ -19,6 +19,8 @@
                     </ul>
                     <a class="mega__all" href="{{ $item['url'] }}" data-mega-extra>{{ __('site.mega_see_all') }} {{ $item['label'] }} &rarr;</a>
                 </div>
+                @if (! empty($item['feature']) || ! empty($item['challenge']))
+                <div class="mega__cards">
                 @if (! empty($item['feature']))
                     @php $f = $item['feature']; @endphp
                     <aside class="mega__card">
@@ -29,6 +31,20 @@
                             <a class="mega__card-button" href="{{ $f['url'] }}" data-mega-extra>{{ $f['button'] }} <span aria-hidden="true">&rarr;</span></a>
                         </div>
                     </aside>
+                @endif
+                @if (! empty($item['challenge']))
+                    @php $c = $item['challenge']; @endphp
+                    <aside class="mega__card mega__card--challenge">
+                        <span class="mega__card-icon" aria-hidden="true">{!! \App\Support\MenuIcons::svg('question', 26) !!}</span>
+                        <h3 class="mega__card-title">{{ $c['title'] }}</h3>
+                        <p class="mega__card-text">{{ $c['text'] }}</p>
+                        <ul class="mega__tests">
+                            @foreach ($c['tests'] as $t)<li><a href="{{ $t['url'] }}" data-mega-extra>{{ $t['title'] }}</a></li>@endforeach
+                        </ul>
+                        <a class="mega__card-button" href="{{ $c['url'] }}" data-mega-extra>{{ $c['button'] }} <span aria-hidden="true">&rarr;</span></a>
+                    </aside>
+                @endif
+                </div>
                 @endif
             </div>
         </details>

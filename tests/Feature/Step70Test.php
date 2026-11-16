@@ -123,4 +123,42 @@ class Step70Test extends TestCase
         $this->assertTrue(class_exists(CategoryResource::class));
         $this->assertContains('feature_title', $root->getTranslatableAttributes());
     }
+
+    public function test_a_panel_can_have_a_second_card_for_challenge_yourself_with_the_tests_that_are_on(): void
+    {
+        $this->tree(['custom_data' => ['menu_challenge_card' => true]]);
+        // One test with something to ask: "Fact or myth?" needs a true and a false statement.
+        \App\Models\FactStatement::create(['topic' => 'history', 'statement' => 'A true one', 'is_true' => true, 'explanation' => 'Because']);
+        \App\Models\FactStatement::create(['topic' => 'history', 'statement' => 'A false one', 'is_true' => false, 'explanation' => 'Because']);
+        $html = $this->get('/')->getContent();
+
+        $this->assertStringContainsString('mega__card mega__card--challenge', $html);
+        $this->assertStringContainsString('Test what you know with short tests, then read the answers explained.', $html);
+        $this->assertStringContainsString('Take a test', $html);
+        $this->assertStringContainsString('href="'.route('challenge.show', 'facts').'"', $html);
+        $this->assertStringNotContainsString('href="'.route('challenge.show', 'quran').'"', $html, 'a test with nothing to ask is not listed');
+        $this->assertSame(2, substr_count($html, '<aside class="mega__card'), 'the feature card and the challenge card');
+    }
+
+    public function test_the_challenge_card_is_only_where_it_was_asked_for_and_only_while_a_test_is_on(): void
+    {
+        $this->tree();
+        \App\Models\FactStatement::create(['topic' => 'history', 'statement' => 'A true one', 'is_true' => true, 'explanation' => 'Because']);
+        \App\Models\FactStatement::create(['topic' => 'history', 'statement' => 'A false one', 'is_true' => false, 'explanation' => 'Because']);
+        $this->assertStringNotContainsString('mega__card--challenge', $this->get('/')->getContent(), 'off unless asked for');
+
+        Category::where('slug', 'about-islam')->first()->update(['custom_data' => ['menu_challenge_card' => true]]);
+        $this->assertStringContainsString('mega__card--challenge', $this->get('/')->getContent());
+
+        \App\Models\Setting::put('facts_on', '0');
+        $this->assertNull(SiteMenu::challengeCard());
+        $this->assertStringNotContainsString('mega__card--challenge', $this->get('/')->getContent(), 'no test on: no card');
+    }
+
+    public function test_long_words_and_descriptions_wrap_inside_the_panel(): void
+    {
+        $css = file_get_contents(public_path('css/site.css'));
+        $this->assertStringContainsString('.menu--main .menu__sub.mega, .menu--main .menu__sub.mega * { white-space: normal; overflow-wrap: anywhere; }', $css);
+        $this->assertStringContainsString('.mega__list > li { min-width: 0; }', $css);
+    }
 }

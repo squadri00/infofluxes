@@ -36,6 +36,7 @@ class SiteMenu
                 'icon' => (string) $root->menu_icon,
                 'children' => $children,
                 'feature' => $children ? static::feature($root) : null,
+                'challenge' => $children && ! empty($root->custom_data['menu_challenge_card']) ? static::challengeCard() : null,
             ];
         }
 
@@ -55,6 +56,27 @@ class SiteMenu
             'url' => $own ?: route('category.show', $root->slug),
             'image' => $image ? asset('storage/'.$image) : null,
             'alt' => $root->feature_image ? '' : (string) $root->image_alt,
+        ];
+    }
+
+    /**
+     * A second card for the panel: "Challenge yourself", with the tests that are switched on. Null while no test is on.
+     *
+     * @return array{title: string, text: string, button: string, url: string, tests: list<array{title: string, url: string}>}|null
+     */
+    public static function challengeCard(): ?array
+    {
+        $tests = Challenge::tests()->filter(fn ($t) => $t['on'] && $t['ready']);
+        if ($tests->isEmpty()) {
+            return null;
+        }
+
+        return [
+            'title' => __('site.mega_challenge_title'),
+            'text' => __('site.mega_challenge_text'),
+            'button' => __('site.mega_challenge_button'),
+            'url' => route('challenge'),
+            'tests' => $tests->take(5)->map(fn ($t) => ['title' => $t['title'], 'url' => route('challenge.show', $t['key'])])->values()->all(),
         ];
     }
 

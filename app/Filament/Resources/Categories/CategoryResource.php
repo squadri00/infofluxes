@@ -109,6 +109,7 @@ class CategoryResource extends Resource
                         ...Translated::text('feature_title', 'Card: title', max: 120),
                         ...Translated::textarea('feature_text', 'Card: short text', rows: 2),
                         ...Translated::text('feature_button', 'Card: button words', max: 40, help: 'For example: Start here. Empty: Explore.'),
+                        Toggle::make('custom_data.menu_challenge_card')->label('Also show a "Challenge yourself" card in this panel')->helperText('A second card with the tests that are switched on. It shows only while at least one test is on.')->default(false),
                         \App\Filament\Support\ImageUpload::make('feature_image', 'menu')->label('Card: picture')->helperText('Empty: the picture of this category.'),
                         TextInput::make('feature_url')->label('Card: where the button goes')->maxLength(500)->placeholder('/category/the-quran or https://...')
                             ->helperText('An address of this site (starts with /) or a full web address (https://). Empty: this category.')
