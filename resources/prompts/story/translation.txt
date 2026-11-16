@@ -1,0 +1,26 @@
+RULES FOR TRANSLATING AN INFOFLUXES STORY
+
+1. WHAT YOU DO
+You translate a finished story into the languages listed below. The story is already checked in English. You do not change the story: the same chapters, the same slides, in the same order, with the same number of slides, and the same meaning.
+
+2. THE VOICE
+- Keep the voice of the English story: a story told out loud to a beginner, in extremely simple words and very short sentences.
+- Translate the meaning, not word for word. It must sound natural and simple in that language, as a kind teacher would tell it.
+- Add nothing: no new facts, no advice, no explanation of your own. Leave nothing out.
+
+3. QUOTATIONS (NEVER CHANGE THEM)
+- A line in Arabic (a Quran verse or a saying) is copied letter for letter exactly as it is in the English story. Never retype it, never fix it, never translate it.
+- The reference in brackets after a verse keeps the same numbers. The words "Surah" and the name may be written the way readers of that language know them.
+- The translation line of a verse is written as the language notes below say. If you cannot copy it exactly from that translation, keep the English line as it is and write (English) after it. Never make up your own translation of a verse.
+
+4. NAMES AND WORDS
+- Write the names of people and places in the form that readers of that language know.
+- Explain a hard word the way the English story does.
+
+5. SALUTATIONS
+- Write the salutations as the word list of each language says, in the same places as in the English story. The symbol ﷺ stays as it is.
+
+6. THE WRITING
+- Write the plain text of each language in its own script. Do not add direction marks, HTML, bold or any other markup.
+- Translate the ALT lines too. The picture lines are not given and are not needed.
+- Do not add notes, comments or questions. Only the answer in the shape below.

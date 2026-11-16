@@ -144,7 +144,7 @@
                     <div style="padding:.7rem .9rem;border:1px solid #2d9d5a;border-radius:.5rem">
                         <strong>{{ $done['updated'] ? 'Updated' : 'Saved' }}: the draft story {{ $done['code'] }}, {{ $done['title'] }}</strong>
                         ({{ $done['slides'] }} slides). It is a <strong>draft</strong>: add its pictures, read it, and publish it yourself.
-                        <a href="{{ $done['url'] }}" style="text-decoration:underline;font-weight:600">Open the story &rarr;</a> &middot; <a href="#pictures" style="text-decoration:underline;font-weight:600">Add the pictures (Step 4) &darr;</a>
+                        <a href="{{ $done['url'] }}" style="text-decoration:underline;font-weight:600">Open the story &rarr;</a> &middot; <a href="#pictures" style="text-decoration:underline;font-weight:600">Add the pictures (Step 4) &darr;</a> &middot; <a href="{{ \App\Filament\Pages\StoryTranslations::getUrl(['story' => $run?->story_id ?? $this->run()?->story_id]) }}" style="text-decoration:underline;font-weight:600">Translate it (step 2) &rarr;</a>
                     </div>
                 @else
                     <div>

@@ -296,7 +296,7 @@ class Reader
         $hasArabic = false;
         $keep = [];
         foreach (preg_split('/\n+/', $body) as $line) {
-            if (preg_match('/\p{Arabic}/u', $line)) {
+            if (Arabic::isLine($line)) {
                 $hasArabic = true;
 
                 continue;
