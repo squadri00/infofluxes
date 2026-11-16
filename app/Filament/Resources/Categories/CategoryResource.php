@@ -105,6 +105,7 @@ class CategoryResource extends Resource
                     ->collapsed()
                     ->description('In the main menu a heading with sub-categories opens a wide panel: the sub-categories on the left (each with its icon and the start of its description) and one feature card on the right. The icon shows when this category is listed in a panel. The card boxes are used when this is a main menu heading; leave them empty and the card is made from this category (its picture, name and description).')
                     ->schema([
+                        Select::make('custom_data.menu_style')->label('Shape of the panel (for a main menu heading)')->options(['wide' => 'Wide: across the whole menu bar, with a quiet card', 'compact' => 'Compact: a small panel under the heading, with a bold coloured card'])->default('wide')->native(true),
                         Select::make('menu_icon')->label('Icon in the panel')->options(\App\Support\MenuIcons::options())->placeholder('No icon')->native(false),
                         ...Translated::text('feature_title', 'Card: title', max: 120),
                         ...Translated::textarea('feature_text', 'Card: short text', rows: 2),

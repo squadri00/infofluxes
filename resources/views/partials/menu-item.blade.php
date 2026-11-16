@@ -1,10 +1,11 @@
 {{-- One menu entry. A top item with sub-items becomes a wide panel that works without JavaScript:
      the sub-categories (icon, name, short description) on the left and a feature card on the right. --}}
-<li class="menu__item{{ count($item['children']) ? ' menu__item--mega' : '' }}">
+@php $compact = ($item['style'] ?? 'wide') === 'compact'; @endphp
+<li class="menu__item{{ count($item['children']) ? ' menu__item--mega' : '' }}{{ $compact && count($item['children']) ? ' menu__item--compact' : '' }}">
     @if (count($item['children']))
         <details class="menu__drop menu__drop--mega" data-url="{{ $item['url'] }}">
             <summary>{{ $item['label'] }}</summary>
-            <div class="menu__sub mega">
+            <div class="menu__sub mega{{ $compact ? ' mega--compact' : '' }}">
                 <div class="mega__links">
                     <p class="mega__heading">@if (! empty($item['icon']))<span class="mega__heading-icon" aria-hidden="true">{!! \App\Support\MenuIcons::svg($item['icon'], 18) !!}</span>@endif{{ $item['label'] }}</p>
                     <ul class="mega__list{{ count($item['children']) > 4 ? ' mega__list--two' : '' }}">
@@ -23,7 +24,7 @@
                 <div class="mega__cards">
                 @if (! empty($item['feature']))
                     @php $f = $item['feature']; @endphp
-                    <aside class="mega__card">
+                    <aside class="mega__card{{ $compact ? ' mega__card--bold' : '' }}">
                         @if ($f['image'])<a class="mega__card-img" href="{{ $f['url'] }}" tabindex="-1" aria-hidden="true" data-mega-extra><img src="{{ $f['image'] }}" alt="{{ $f['alt'] }}" loading="lazy"></a>@endif
                         <div class="mega__card-body">
                             <h3 class="mega__card-title">{{ $f['title'] }}</h3>

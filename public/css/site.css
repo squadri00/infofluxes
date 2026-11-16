@@ -2167,3 +2167,13 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .menu--main .mega__tests a:hover { background: var(--accent-soft); }
 .mega__card--challenge .mega__card-button { margin-top: auto; }
 @media (max-width: 1100px) { .mega__cards { display: none; } }
+/* The compact panel: a small panel under its heading (list on the left, a bold coloured card on the right) */
+.menu__item--compact { position: relative; }
+.menu--main .menu__sub.mega.mega--compact { left: 0; right: auto; top: calc(100% + 6px); width: min(780px, calc(100vw - 32px)); grid-template-columns: minmax(0, 1fr) 300px; border-radius: 16px; }
+.mega--compact .mega__list--two { grid-template-columns: minmax(0, 1fr); }
+.mega__card--bold { align-items: center; justify-content: center; text-align: center; border-left: 0; background: linear-gradient(160deg, #5b17eb 0%, #3b0ca6 100%); color: #fff; }
+.mega__card--bold .mega__card-title { color: #fff; font-size: 1.4rem; }
+.mega__card--bold .mega__card-text { color: rgba(255, 255, 255, .85); }
+.mega__card--bold .mega__card-img { width: 100%; }
+.menu--main a.mega__card--bold .mega__card-button, .menu--main .mega__card--bold a.mega__card-button { align-self: center; background: #fff; color: #111827; }
+@media (max-width: 1100px) { .menu--main .menu__sub.mega.mega--compact { width: min(480px, calc(100vw - 32px)); grid-template-columns: minmax(0, 1fr); } }

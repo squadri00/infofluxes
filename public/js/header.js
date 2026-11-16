@@ -182,11 +182,20 @@
         allDrops().forEach(function (d) { if (d !== except) { d.removeAttribute('open'); } });
     }
 
+    // A small panel opens under its heading. Near the right edge it is moved left so that it stays in the window.
+    function keepInside(drop) {
+        var panel = drop.querySelector('.mega--compact');
+        if (!panel) { return; }
+        panel.style.left = '';
+        var over = panel.getBoundingClientRect().right - (window.innerWidth - 16);
+        if (over > 0) { panel.style.left = (-over) + 'px'; }
+    }
+
     function wireDrop(drop) {
         var timer = null;
 
         drop.addEventListener('toggle', function () {
-            if (drop.open) { closeAll(drop); }
+            if (drop.open) { closeAll(drop); keepInside(drop); }
         });
 
         if (canHover()) {

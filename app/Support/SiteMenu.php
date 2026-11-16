@@ -34,6 +34,7 @@ class SiteMenu
                 'label' => $root->name,
                 'url' => route('category.show', $root->slug),
                 'icon' => (string) $root->menu_icon,
+                'style' => ($root->custom_data['menu_style'] ?? 'wide') === 'compact' ? 'compact' : 'wide',
                 'children' => $children,
                 'feature' => $children ? static::feature($root) : null,
                 'challenge' => $children && ! empty($root->custom_data['menu_challenge_card']) ? static::challengeCard() : null,

@@ -161,4 +161,35 @@ class Step70Test extends TestCase
         $this->assertStringContainsString('.menu--main .menu__sub.mega, .menu--main .menu__sub.mega * { white-space: normal; overflow-wrap: anywhere; }', $css);
         $this->assertStringContainsString('.mega__list > li { min-width: 0; }', $css);
     }
+
+    public function test_a_heading_can_have_a_compact_panel_with_a_bold_card(): void
+    {
+        $this->tree(['custom_data' => ['menu_style' => 'compact']]);
+        $html = $this->get('/')->getContent();
+
+        $this->assertStringContainsString('menu__item menu__item--mega menu__item--compact', $html);
+        $this->assertStringContainsString('menu__sub mega mega--compact', $html);
+        $this->assertStringContainsString('<aside class="mega__card mega__card--bold">', $html);
+    }
+
+    public function test_the_wide_panel_stays_the_usual_one_and_a_wrong_style_falls_back_to_wide(): void
+    {
+        $this->tree();
+        $html = $this->get('/')->getContent();
+        $this->assertStringNotContainsString('mega--compact', $html);
+        $this->assertStringNotContainsString('mega__card--bold', $html);
+
+        Category::where('slug', 'about-islam')->first()->update(['custom_data' => ['menu_style' => 'weird']]);
+        $this->assertSame('wide', SiteMenu::header()[0]['style']);
+    }
+
+    public function test_a_compact_panel_is_kept_inside_the_window_by_the_menu_script(): void
+    {
+        $js = file_get_contents(public_path('js/header.js'));
+        $this->assertStringContainsString('function keepInside', $js);
+        $this->assertStringContainsString('.mega--compact', $js);
+        $css = file_get_contents(public_path('css/site.css'));
+        $this->assertStringContainsString('.menu__item--compact { position: relative; }', $css);
+        $this->assertStringContainsString('.mega__card--bold', $css);
+    }
 }
