@@ -5,7 +5,7 @@ THE STORY TO WRITE
 
 Subject (the title or the idea): {{TOPIC}}
 Category: {{CATEGORY}}
-Size: exactly {{SLIDES}} slides in all, closing slides included (never fewer than 5, never more than 10).
+Size: exactly {{SLIDES}} slides in all, closing slides included.
 {{NOTES}}
 How to work:
 1. Read reliable sources first. Open and read them. Use only what you really opened.

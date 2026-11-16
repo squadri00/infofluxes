@@ -25,7 +25,7 @@ class Reader
     public const SENTENCE_MAX = 22;
 
     /** @return array{errors: list<string>, warnings: list<string>, check: list<string>, story: array<string, mixed>} */
-    public static function read(string $answer, ?int $ownStoryId = null): array
+    public static function read(string $answer, ?int $ownStoryId = null, ?int $askedSlides = null): array
     {
         $errors = [];
         $warnings = [];
@@ -55,13 +55,13 @@ class Reader
 
         // The size of the story
         $slideCount = array_sum(array_map(fn ($c) => count($c['slides']), $chapters));
-        if ($slideCount < Prompt::MIN_SLIDES) {
-            $errors[] = 'The story has '.$slideCount.' slide(s). It needs at least '.Prompt::MIN_SLIDES.'.';
-        } elseif ($slideCount > Prompt::MAX_SLIDES) {
-            $errors[] = 'The story has '.$slideCount.' slides. It can have at most '.Prompt::MAX_SLIDES.'.';
+        if ($slideCount < 1) {
+            $errors[] = 'The story has no slides.';
+        } elseif ($askedSlides !== null && $slideCount !== $askedSlides) {
+            $warnings[] = 'You asked for '.$askedSlides.' slides and the answer has '.$slideCount.'. That is fine if you like the story as it is.';
         }
-        if (count($chapters) < 3 || count($chapters) > 5) {
-            $warnings[] = 'The story has '.count($chapters).' chapter(s). 3 to 5 is best.';
+        if (count($chapters) === 1 && $slideCount > 0) {
+            $warnings[] = 'The story has only one chapter. A story needs at least an opening and a closing chapter.';
         }
         $last = end($chapters);
         if ($last && ! str_contains(mb_strtolower($last['title']), 'closing')) {

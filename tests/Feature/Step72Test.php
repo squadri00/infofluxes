@@ -80,10 +80,14 @@ class Step72Test extends TestCase
         $this->assertStringNotContainsString('{{', $text, 'every blank is filled');
     }
 
-    public function test_the_number_of_slides_stays_between_5_and_10_and_an_empty_subject_has_a_hint(): void
+    public function test_the_number_of_slides_is_free_and_an_empty_subject_has_a_hint(): void
     {
-        $this->assertStringContainsString('exactly 5 slides', Prompt::english(['slides' => 1]));
-        $this->assertStringContainsString('exactly 10 slides', Prompt::english(['slides' => 99]));
+        $this->assertStringContainsString('exactly 3 slides', Prompt::english(['slides' => 3]));
+        $this->assertStringContainsString('exactly 25 slides', Prompt::english(['slides' => 25]));
+        $this->assertStringContainsString('exactly 60 slides', Prompt::english(['slides' => 5000]), 'only a typing mistake is stopped');
+        $this->assertStringContainsString('exactly 1 slides', Prompt::english(['slides' => 0]));
+        $this->assertStringNotContainsString('never fewer than 5', Prompt::english(['slides' => 8]));
+        $this->assertStringNotContainsString('no more than 10', Prompt::english(['slides' => 8]));
         $this->assertStringContainsString('(write your subject here)', Prompt::english([]));
     }
 
@@ -125,12 +129,22 @@ class Step72Test extends TestCase
         $this->assertSame('The opening', $r['story']['chapters'][0]['title']);
     }
 
-    public function test_the_size_of_the_story_must_be_5_to_10_slides(): void
+    public function test_any_number_of_slides_is_allowed_but_none_is_a_problem_and_a_different_number_than_asked_is_a_note(): void
     {
-        $this->assertStringContainsString('at least 5', implode(' ', Reader::read($this->answer(4))['errors']));
-        $this->assertStringContainsString('at most 10', implode(' ', Reader::read($this->answer(11))['errors']));
-        $this->assertSame([], Reader::read($this->answer(5))['errors']);
-        $this->assertSame([], Reader::read($this->answer(10))['errors']);
+        foreach ([2, 4, 11, 24] as $n) {
+            $this->assertSame([], Reader::read($this->answer($n))['errors'], $n.' slides');
+        }
+        $this->assertSame(24, Reader::read($this->answer(24))['story']['slide_count']);
+
+        $none = Reader::read("TYPE: story
+TITLE: Nothing
+SHORT: s
+CHAPTER: One
+END");
+        $this->assertStringContainsString('has no slides', implode(' ', $none['errors']));
+
+        $this->assertStringContainsString('You asked for 8 slides and the answer has 6', implode(' ', Reader::read($this->answer(6), null, 8)['warnings']));
+        $this->assertSame([], array_filter(Reader::read($this->answer(8), null, 8)['warnings'], fn ($w) => str_contains($w, 'asked for')));
     }
 
     public function test_missing_parts_are_problems(): void
@@ -301,7 +315,8 @@ class Step72Test extends TestCase
     public function test_a_story_with_problems_is_not_saved_and_without_a_category_it_is_not_saved_either(): void
     {
         $this->superuser();
-        Livewire::test(StoryMaker::class)->set('categoryId', $this->cat->id)->set('paste', $this->answer(3))->call('saveStory');
+        Livewire::test(StoryMaker::class)->set('categoryId', $this->cat->id)->set('paste', str_replace("TITLE: The Walk to the Hill
+", '', $this->answer(8)))->call('saveStory');
         $this->assertSame(0, Story::count());
 
         Livewire::test(StoryMaker::class)->set('paste', $this->answer(8))->call('saveStory');

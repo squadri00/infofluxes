@@ -33,8 +33,8 @@ After the name of Prophet Muhammad write ﷺ. After the name of any other prophe
 Describe each belief the way its own followers describe it. Say what kind of thing each statement is: a belief, a tradition, historical evidence, or an opinion. Where respected scholars disagree, say so in a simple way.
 
 7. THE SHAPE OF THE STORY
-- The whole story has no fewer than 5 slides and no more than 10. Use only as many as the story needs.
-- Use 3 to 5 chapters. The first chapter is the opening. The last chapter is always called exactly "Closing and final remarks" and has 1 or 2 slides: end the story, say in simple words what it means, and give any last remarks. If references are needed, this is the only place for a short plain list of them.
+- The task below says how many slides the story has. Use exactly that number, closing slides included.
+- Use as many chapters as the story needs, usually 3 to 5, and never just one. The first chapter is the opening. The last chapter is always called exactly "Closing and final remarks" and has 1 or 2 slides: end the story, say in simple words what it means, and give any last remarks. If references are needed, this is the only place for a short plain list of them.
 - Every slide has: a HEADING (a few plain words), a BODY (2 to 4 short sentences, about 25 to 45 words, one idea), a PICTURE line and an ALT line.
 - The story is not an article. Do not explain everything. Tell one clear story from start to end.
 

@@ -7,9 +7,10 @@ use App\Models\Category;
 /** Makes the prompt for step 1 of the Story maker: the story in English. */
 class Prompt
 {
-    public const MIN_SLIDES = 5;
+    /** There is no rule about how many slides a story has. These two numbers only keep a typing mistake out of the prompt. */
+    public const MIN_SLIDES = 1;
 
-    public const MAX_SLIDES = 10;
+    public const MAX_SLIDES = 60;
 
     /**
      * @param  array{topic?: string, category_id?: int|null, slides?: int|null, notes?: string|null, style?: string|null}  $in

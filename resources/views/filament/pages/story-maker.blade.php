@@ -58,7 +58,7 @@
 
             <div style="display:grid;grid-template-columns:minmax(8rem,12rem) 1fr;gap:.9rem">
                 <label>
-                    <strong>Slides</strong> <span style="opacity:.7">({{ \App\Support\StoryMaker\Prompt::MIN_SLIDES }} to {{ \App\Support\StoryMaker\Prompt::MAX_SLIDES }})</span><br>
+                    <strong>Slides</strong> <span style="opacity:.7">(as many as the story needs)</span><br>
                     <input type="number" wire:model.live.debounce.600ms="slides" min="{{ \App\Support\StoryMaker\Prompt::MIN_SLIDES }}" max="{{ \App\Support\StoryMaker\Prompt::MAX_SLIDES }}" style="{{ $box }}">
                 </label>
                 <label>
@@ -144,7 +144,7 @@
                     <div style="padding:.7rem .9rem;border:1px solid #2d9d5a;border-radius:.5rem">
                         <strong>{{ $done['updated'] ? 'Updated' : 'Saved' }}: the draft story {{ $done['code'] }}, {{ $done['title'] }}</strong>
                         ({{ $done['slides'] }} slides). It is a <strong>draft</strong>: add its pictures, read it, and publish it yourself.
-                        <a href="{{ $done['url'] }}" style="text-decoration:underline;font-weight:600">Open the story &rarr;</a>
+                        <a href="{{ $done['url'] }}" style="text-decoration:underline;font-weight:600">Open the story &rarr;</a> &middot; <a href="#pictures" style="text-decoration:underline;font-weight:600">Add the pictures (Step 4) &darr;</a>
                     </div>
                 @else
                     <div>
@@ -160,6 +160,103 @@
         </x-filament::section>
     @endif
 
+    {{-- Step 4: the pictures of the story (bulk upload) --}}
+    @php
+        $pictureStory = $this->pictureStory();
+    @endphp
+    @if ($pictureStory)
+        @php
+            $plan = $this->picturePlan();
+            $files = $this->orderedPictures();
+            $slots = \App\Support\StoryMaker\Pictures::slots($pictureStory);
+            $haveCount = collect($slots)->where('has', true)->count();
+        @endphp
+        <div id="pictures">
+        <x-filament::section>
+            <x-slot name="heading">Step 4. Pictures for {{ $pictureStory->code }}: {{ $pictureStory->mainTitle() }}</x-slot>
+            <div style="display:grid;gap:.9rem;max-width:60rem">
+                <div style="opacity:.85">
+                    The story has a cover and {{ count($slots) - 1 }} slide(s). {{ $haveCount }} of {{ count($slots) }} already have a picture.
+                    Choose <strong>all the pictures at once</strong>. They are put in order by file name (so name them 01, 02, 03 …, or let your image maker number them), and each goes to its place below.
+                    <a href="{{ \App\Filament\Resources\Stories\StoryResource::getUrl('edit', ['record' => $pictureStory]) }}" style="text-decoration:underline">Open the story</a>
+                    &middot; <button type="button" wire:click="closePictures" style="{{ $mini }}">Close</button>
+                </div>
+
+                <div x-data="{ copied: false }">
+                    <strong>Picture lines to give to your image maker</strong>
+                    <textarea x-ref="lines" readonly rows="6" style="width:100%;margin-top:.3rem;padding:.6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent;font-size:.85rem">{{ $this->pictureLines() }}</textarea>
+                    <button type="button" class="fi-btn" style="margin-top:.4rem;padding:.35rem .8rem;border:1px solid rgba(128,128,128,.6);border-radius:.4rem;cursor:pointer"
+                            x-on:click="navigator.clipboard.writeText($refs.lines.value).then(() => { copied = true; setTimeout(() => copied = false, 2500) })">
+                        <span x-show="!copied">Copy the picture lines</span><span x-show="copied" x-cloak>Copied</span>
+                    </button>
+                    <span style="opacity:.7;margin-left:.5rem">The cover has no line: use any picture that shows the whole story.</span>
+                </div>
+
+                <div style="padding:.7rem .9rem;border:1px dashed rgba(128,128,128,.6);border-radius:.5rem;display:grid;gap:.6rem">
+                    <label><strong>Choose the pictures</strong> <span style="opacity:.7">(JPG, PNG, WebP or GIF, each up to 12 MB; they are made light and cut to the shape of the story)</span><br>
+                        <input type="file" wire:model="pictures" multiple accept="image/jpeg,image/png,image/webp,image/gif" style="margin-top:.3rem">
+                    </label>
+                    <div wire:loading wire:target="pictures" style="opacity:.8">Uploading the pictures …</div>
+                    @if ($pictureError = collect($this->getErrorBag()->all())->first())<div style="color:#d92d20">{{ $pictureError }}</div>@endif
+                    <label style="display:flex;gap:.5rem;align-items:flex-start"><input type="checkbox" wire:model.live="firstIsCover" style="margin-top:.3rem"> <span>The <strong>first</strong> picture is the cover.</span></label>
+                    <label style="display:flex;gap:.5rem;align-items:flex-start"><input type="checkbox" wire:model.live="replacePictures" style="margin-top:.3rem"> <span>Also replace the pictures that are already on the slides. <span style="opacity:.7">(Off: the pictures go to the slides that have none, in order.)</span></span></label>
+                </div>
+
+                @if ($plan)
+                    <div>
+                        <strong>Where each picture goes</strong> <span style="opacity:.7">({{ count($files) }} picture(s) chosen)</span>
+                        <div style="margin-top:.4rem;display:grid;gap:.35rem">
+                            @foreach ($plan['rows'] as $row)
+                                @php $file = $row['file'] !== null ? ($files[$row['file']] ?? null) : null; @endphp
+                                <div wire:key="row-{{ $loop->index }}" style="display:flex;gap:.7rem;align-items:center;padding:.35rem .5rem;border:1px solid rgba(128,128,128,.3);border-radius:.4rem">
+                                    <strong style="min-width:5rem">{{ $row['label'] }}</strong>
+                                    @if ($file)
+                                        @php try { $thumb = $file->temporaryUrl(); } catch (\Throwable $e) { $thumb = null; } @endphp
+                                        @if ($thumb)<img src="{{ $thumb }}" alt="" style="width:64px;height:40px;object-fit:cover;border-radius:.3rem">@endif
+                                        <span style="flex:1;min-width:8rem">{{ $file->getClientOriginalName() }}
+                                            <span style="opacity:.65">{{ $row['state'] === 'replace' ? '(replaces its picture)' : '' }}</span></span>
+                                        <button type="button" wire:click="movePicture({{ $row['file'] }}, -1)" style="{{ $mini }}" title="Move up" @disabled($row['file'] === 0)>↑</button>
+                                        <button type="button" wire:click="movePicture({{ $row['file'] }}, 1)" style="{{ $mini }}" title="Move down" @disabled($row['file'] === count($files) - 1)>↓</button>
+                                        <button type="button" wire:click="removePicture({{ $row['file'] }})" style="{{ $mini }}" title="Take this picture out">✕</button>
+                                    @elseif ($row['state'] === 'kept')
+                                        <span style="opacity:.7;flex:1">keeps its picture</span>
+                                    @elseif ($row['state'] === 'skip')
+                                        <span style="opacity:.7;flex:1">{{ $row['has'] ? 'keeps its cover' : 'no cover picture' }}</span>
+                                    @else
+                                        <span style="color:#b07800;flex:1">no picture yet</span>
+                                    @endif
+                                    @if ($row['type'] === 'slide' && $row['picture'] !== '')<span style="opacity:.55;font-size:.82rem;max-width:22rem">{{ \Illuminate\Support\Str::limit($row['picture'], 70) }}</span>@endif
+                                </div>
+                            @endforeach
+                        </div>
+                        @if ($plan['extra'])
+                            <div style="margin-top:.4rem;color:#b07800">{{ count($plan['extra']) }} picture(s) have no place and are not used: {{ collect($plan['extra'])->map(fn ($i) => $files[$i]->getClientOriginalName())->take(6)->implode(', ') }}{{ count($plan['extra']) > 6 ? ' …' : '' }}</div>
+                        @endif
+                        @if ($files && $plan['empty'])
+                            <div style="margin-top:.4rem;color:#b07800">No picture for: {{ implode(', ', $plan['empty']) }}. You can add them later.</div>
+                        @endif
+                    </div>
+                    <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+                        <x-filament::button wire:click="applyPictures" wire:loading.attr="disabled" wire:target="applyPictures" :disabled="count($files) === 0">Put the pictures on the story</x-filament::button>
+                        @if ($files)<x-filament::button color="gray" wire:click="clearPictures">Clear the choice</x-filament::button>@endif
+                        <span wire:loading wire:target="applyPictures" style="opacity:.8">Making the pictures … this can take a little while.</span>
+                    </div>
+                @endif
+
+                @if ($pictureReport)
+                    <div style="padding:.7rem .9rem;border:1px solid {{ $pictureReport['problems'] ? '#dc9b00' : '#2d9d5a' }};border-radius:.5rem">
+                        <strong>Done.</strong>
+                        {{ $pictureReport['cover'] ? 'The cover is set. ' : '' }}{{ $pictureReport['slides'] }} slide picture(s) were added{{ $pictureReport['replaced'] ? ' ('.$pictureReport['replaced'].' replaced)' : '' }}.
+                        @foreach ($pictureReport['problems'] as $problem)<div style="color:#b07800">Problem: {{ $problem }}</div>@endforeach
+                        @if ($pictureReport['extra'])<div style="color:#b07800">Not used (no place): {{ implode(', ', $pictureReport['extra']) }}</div>@endif
+                        @if ($pictureReport['empty'])<div style="color:#b07800">Still without a picture: {{ implode(', ', $pictureReport['empty']) }}</div>@endif
+                        <div style="margin-top:.3rem"><a href="{{ \App\Filament\Resources\Stories\StoryResource::getUrl('edit', ['record' => $pictureStory]) }}" style="text-decoration:underline;font-weight:600">Open the story to look at it &rarr;</a></div>
+                    </div>
+                @endif
+            </div>
+        </x-filament::section>
+        </div>
+    @endif
     {{-- Saved runs --}}
     <div id="saved-runs">
         <x-filament::section :collapsed="$runId !== null || $paste !== ''" collapsible>
@@ -170,6 +267,7 @@
                         <span style="flex:1;min-width:12rem"><strong>{{ $r->topic !== '' ? \Illuminate\Support\Str::limit($r->topic, 80) : '(no subject)' }}</strong>
                             <span style="opacity:.7"> &middot; {{ \App\Models\StoryRun::STATUSES[$r->status] ?? $r->status }} &middot; {{ $r->updated_at->diffForHumans() }}@if ($r->story) &middot; {{ $r->story->code }}@endif</span></span>
                         <button type="button" wire:click="openRun({{ $r->id }})" style="{{ $mini }}">Open</button>
+                        @if ($r->story)<button type="button" wire:click="openPictures({{ $r->id }})" style="{{ $mini }}">Pictures</button>@endif
                         <button type="button" wire:click="deleteRun({{ $r->id }})" wire:confirm="Delete this saved run? The story it made (if any) is not deleted." style="{{ $mini }}">Delete</button>
                     </div>
                 @empty

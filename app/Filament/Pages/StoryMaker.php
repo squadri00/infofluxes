@@ -4,7 +4,9 @@ namespace App\Filament\Pages;
 
 use App\Filament\Resources\Stories\StoryResource;
 use App\Models\Category;
+use App\Models\Story;
 use App\Models\StoryRun;
+use App\Support\StoryMaker\Pictures;
 use App\Support\StoryMaker\Prompt;
 use App\Support\StoryMaker\Reader;
 use App\Support\StoryMaker\Rules;
@@ -13,6 +15,7 @@ use BackedEnum;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
+use Livewire\WithFileUploads;
 use UnitEnum;
 
 /**
@@ -22,6 +25,8 @@ use UnitEnum;
  */
 class StoryMaker extends Page
 {
+    use WithFileUploads;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
 
     protected static string|UnitEnum|null $navigationGroup = 'Content';
@@ -61,6 +66,24 @@ class StoryMaker extends Page
     public string $ruleText = '';
 
     public string $ruleStyle = '';
+
+    // ---------- the pictures (bulk upload) ----------
+
+    /** The story whose pictures are being added. */
+    public ?int $pictureStoryId = null;
+
+    /** @var array<int, \Livewire\Features\SupportFileUploads\TemporaryUploadedFile> */
+    public array $pictures = [];
+
+    public bool $firstIsCover = true;
+
+    public bool $replacePictures = false;
+
+    /** name = by file name (the usual); chosen = the order set with the arrows */
+    public string $pictureOrder = 'name';
+
+    /** @var array<string, mixed>|null what the last upload did */
+    public ?array $pictureReport = null;
 
     public static function canAccess(): bool
     {
@@ -143,7 +166,7 @@ class StoryMaker extends Page
 
             return;
         }
-        $this->result = Reader::read($this->paste, $this->run()?->story_id);
+        $this->result = Reader::read($this->paste, $this->run()?->story_id, $this->slides);
         $this->checked = true;
         $this->persist('checked');
     }
@@ -151,7 +174,7 @@ class StoryMaker extends Page
     public function saveStory(): void
     {
         // The pasted text is read again here, so what is saved is never what a browser claims it checked.
-        $read = Reader::read($this->paste, $this->run()?->story_id);
+        $read = Reader::read($this->paste, $this->run()?->story_id, $this->slides);
         $this->result = $read;
         $this->checked = true;
 
@@ -176,6 +199,7 @@ class StoryMaker extends Page
             return;
         }
         $run->update(['story_id' => $story->id, 'status' => 'saved', 'result' => $read]);
+        $this->openPicturesOf($story);
         $this->done = [
             'code' => $story->code, 'title' => $story->mainTitle(), 'updated' => $updating,
             'url' => StoryResource::getUrl('edit', ['record' => $story]),
@@ -223,6 +247,115 @@ class StoryMaker extends Page
         $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done']);
         $this->slides = 8;
         $this->style = Rules::style();
+    }
+
+    // ---------- the pictures ----------
+
+    public function pictureStory(): ?Story
+    {
+        return $this->pictureStoryId ? Story::query()->with('chapters.slides')->find($this->pictureStoryId) : null;
+    }
+
+    private function openPicturesOf(Story $story): void
+    {
+        $this->pictureStoryId = $story->id;
+        $this->pictures = [];
+        $this->pictureReport = null;
+        $this->pictureOrder = 'name';
+        $this->replacePictures = false;
+        $this->firstIsCover = blank($story->main_image);   // the first picture is the cover while the story has none
+    }
+
+    public function openPictures(int $runId): void
+    {
+        $story = StoryRun::query()->find($runId)?->story;
+        if ($story) {
+            $this->openPicturesOf($story);
+        }
+    }
+
+    public function closePictures(): void
+    {
+        $this->pictureStoryId = null;
+        $this->pictures = [];
+        $this->pictureReport = null;
+    }
+
+    /** The files in the order they will be used. */
+    public function orderedPictures(): array
+    {
+        return Pictures::order($this->pictures, $this->pictureOrder);
+    }
+
+    public function picturePlan(): ?array
+    {
+        $story = $this->pictureStory();
+
+        return $story ? Pictures::plan($story, count($this->pictures), $this->firstIsCover, $this->replacePictures) : null;
+    }
+
+    public function updatedPictures(): void
+    {
+        $this->pictureReport = null;
+        $this->pictureOrder = 'name';
+        if (count($this->pictures) > Pictures::MAX_FILES) {
+            $this->pictures = array_slice($this->pictures, 0, Pictures::MAX_FILES);
+            Notification::make()->warning()->title('Only the first '.Pictures::MAX_FILES.' pictures are used.')->send();
+        }
+    }
+
+    public function movePicture(int $index, int $step): void
+    {
+        $files = $this->orderedPictures();
+        $to = $index + $step;
+        if (! isset($files[$index], $files[$to])) {
+            return;
+        }
+        [$files[$index], $files[$to]] = [$files[$to], $files[$index]];
+        $this->pictures = $files;
+        $this->pictureOrder = 'chosen';
+    }
+
+    public function removePicture(int $index): void
+    {
+        $files = $this->orderedPictures();
+        unset($files[$index]);
+        $this->pictures = array_values($files);
+        $this->pictureOrder = 'chosen';
+    }
+
+    public function clearPictures(): void
+    {
+        $this->pictures = [];
+        $this->pictureReport = null;
+    }
+
+    public function applyPictures(): void
+    {
+        $story = $this->pictureStory();
+        if (! $story) {
+            return;
+        }
+        if ($this->pictures === []) {
+            Notification::make()->warning()->title('Choose the pictures first.')->send();
+
+            return;
+        }
+        $this->validate(['pictures.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:12288']], [], ['pictures.*' => 'picture']);
+
+        $this->pictureReport = Pictures::apply($story, $this->orderedPictures(), $this->firstIsCover, $this->replacePictures);
+        $this->pictures = [];
+        $this->pictureOrder = 'name';
+        $story->refresh();
+        $this->firstIsCover = blank($story->main_image);
+        Notification::make()->success()->title('The pictures are on the story.')->send();
+    }
+
+    public function pictureLines(): string
+    {
+        $story = $this->pictureStory();
+
+        return $story ? Pictures::lines($story, (string) ($story->custom_data['picture_style'] ?? Rules::style())) : '';
     }
 
     // ---------- the rules (the super user only) ----------
