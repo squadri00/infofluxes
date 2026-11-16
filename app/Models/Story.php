@@ -124,6 +124,18 @@ class Story extends Model
         return route('story.show', $this->slug);
     }
 
+    /** The page of this story in another language: /ur/stories/name. */
+    public function urlIn(string $code): string
+    {
+        return route('story.show.lang', ['lang' => $code, 'slug' => $this->slug]);
+    }
+
+    /** The page in this language if the story has it and it is switched on, otherwise the English page. */
+    public function urlFor(?string $code): string
+    {
+        return $code && in_array($code, \App\Support\StoryMaker\Translations::shown($this), true) ? $this->urlIn($code) : $this->url();
+    }
+
     /** The title in the main language (used in admin lists). */
     public function mainTitle(): string
     {

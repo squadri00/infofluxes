@@ -11,6 +11,12 @@
     $explained = \App\Support\Explainers::render($body);   // @[word] becomes a tappable word
     $others = $story->extraCategories->filter(fn ($c) => $c->is_visible);
     $listenTracks = \App\Support\Listen::tracks($story, $storyItems ?? []);
+    $storyLang = $storyLang ?? null;                  // set on /ur/stories/name and the like
+    $storyRtl = $storyRtl ?? false;
+    $languageLinks = $languageLinks ?? [];
+    $hreflangs = $hreflangs ?? [];
+    $hiddenLanguage = $hiddenLanguage ?? false;
+    $showListen = ! $storyLang;                        // Listen and the PDF book are for English only
 @endphp
 
 @section('title', $story->page_title ?: $story->meta_title ?: $title.' | '.$siteTitle)
@@ -19,23 +25,38 @@
 @if ($story->main_image)
     @section('og_image', asset('storage/'.$story->main_image))
 @endif
-@section('canonical', $story->url())
-@if ($preview)
+@section('canonical', $storyLang ? $story->urlIn($storyLang) : $story->url())
+@if ($storyLang)
+    @section('shell_ltr', '1')
+@endif
+@if ($preview || $hiddenLanguage)
     @section('robots')
         <meta name="robots" content="noindex">
     @endsection
 @endif
 
+@if (count($hreflangs) > 1)
+    @push('head_links')
+        @foreach ($hreflangs as $h)
+            <link rel="alternate" hreflang="{{ $h['code'] }}" href="{{ $h['url'] }}">
+        @endforeach
+        <link rel="alternate" hreflang="x-default" href="{{ $story->url() }}">
+    @endpush
+@endif
+
 @push('jsonld')
-    {!! \App\Support\Seo::articleJsonLd($story, $story->url(), \Illuminate\Support\Str::limit($summary ?: trim(preg_replace('/\s+/', ' ', strip_tags($body))), 160)) !!}
+    {!! \App\Support\Seo::articleJsonLd($story, $storyLang ? $story->urlIn($storyLang) : $story->url(), \Illuminate\Support\Str::limit($summary ?: trim(preg_replace('/\s+/', ' ', strip_tags($body))), 160)) !!}
 @endpush
 
 @section('content')
 @if ($preview)
     <div class="preview-banner"><div class="wrap">{{ __('site.draft_notice') }}</div></div>
 @endif
+@if ($hiddenLanguage)
+    <div class="preview-banner"><div class="wrap">This language is hidden. Only people who work on the site can see it. Switch it on in Story translations.</div></div>
+@endif
 
-<article class="wrap topic">
+<article class="wrap topic"@if ($storyLang) lang="{{ $storyLang }}" dir="{{ $storyRtl ? 'rtl' : 'ltr' }}"@endif>
     <nav class="path" aria-label="Path">
         <ol>
             <li><a href="{{ route('home') }}">{{ __('site.home') }}</a></li>
@@ -48,14 +69,23 @@
         </ol>
     </nav>
 
+    @if ($languageLinks)
+        <nav class="story-langs" aria-label="{{ __('site.story_read_in') }}">
+            <span class="story-langs__label">{{ __('site.story_read_in') }}:</span>
+            @foreach ($languageLinks as $link)
+                <a class="story-langs__link" href="{{ $link['url'] }}" lang="{{ $link['code'] }}" hreflang="{{ $link['code'] }}"@if ($link['current']) aria-current="true"@endif>{{ $link['native'] }}@if ($link['hidden']) <small>(hidden)</small>@endif</a>
+            @endforeach
+        </nav>
+    @endif
+
     {{-- The slide viewer comes first, above the text. Its cover shows the title and the cover picture. --}}
     @if (! empty($storyItems))
         <div class="story {{ \App\Support\ViewerStyle::widthClass(true) }}" style="--v-box: {{ \App\Support\ViewerStyle::boxWidth() }}px" data-story data-total="{{ count($storyItems) }}">
             @include('partials.story-viewer', ['article' => $story, 'items' => $storyItems])
-            @if (\App\Support\StoryBook::enabled())
+            @if ($showListen && \App\Support\StoryBook::enabled())
                 <p class="story__pdf"><a class="btn btn--small" href="{{ route('story.book', $story->slug) }}" rel="nofollow">{{ __('site.story_book_button') }}</a></p>
             @endif
-            @include('partials.listen')
+            @if ($showListen)@include('partials.listen')@endif
         </div>
         <script>window.STORY_LABELS = {!! json_encode(['goto' => __('site.story_goto')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) !!};</script>
         <script src="{{ asset('js/story.js') }}?v={{ @filemtime(public_path('js/story.js')) ?: 1 }}" defer></script>
@@ -84,7 +114,7 @@
                 @endif
             </figure>
         @endif
-        @include('partials.listen')
+        @if ($showListen)@include('partials.listen')@endif
     @endif
 
     @if ($summary !== '')
@@ -118,8 +148,8 @@
     @if ($previous || $next)
         <nav class="topic-nav" aria-label="Previous and next">
             <div class="topic-nav__row">
-                @if ($previous)<a class="topic-nav__link" href="{{ $previous->url() }}" rel="prev"><span class="topic-nav__dir">&larr; {{ __('site.previous') }}</span><span class="topic-nav__title">{{ $previous->title }}</span></a>@endif
-                @if ($next)<a class="topic-nav__link topic-nav__link--next" href="{{ $next->url() }}" rel="next"><span class="topic-nav__dir">{{ __('site.next') }} &rarr;</span><span class="topic-nav__title">{{ $next->title }}</span></a>@endif
+                @if ($previous)<a class="topic-nav__link" href="{{ $previous->urlFor($storyLang) }}" rel="prev"><span class="topic-nav__dir">&larr; {{ __('site.previous') }}</span><span class="topic-nav__title">{{ $previous->title }}</span></a>@endif
+                @if ($next)<a class="topic-nav__link topic-nav__link--next" href="{{ $next->urlFor($storyLang) }}" rel="next"><span class="topic-nav__dir">{{ __('site.next') }} &rarr;</span><span class="topic-nav__title">{{ $next->title }}</span></a>@endif
             </div>
         </nav>
     @endif
@@ -142,7 +172,7 @@
     <script src="{{ asset('js/share.js') }}?v={{ @filemtime(public_path('js/share.js')) ?: 1 }}" defer></script>
 @endpush
 
-@if (\App\Support\Listen::visible($listenTracks))
+@if ($showListen && \App\Support\Listen::visible($listenTracks))
     @push('scripts')
         <script src="{{ asset('js/listen.js') }}?v={{ @filemtime(public_path('js/listen.js')) ?: 1 }}" defer></script>
     @endpush

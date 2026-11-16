@@ -1,7 +1,10 @@
 @php
     $siteName = \App\Models\Setting::get('site_name', config('app.name'));
     $locale = app()->getLocale();
-    $rtl = \App\Support\Languages::isRtl($locale);
+    // On a translated story only the story is in another language: the header and the footer stay English and left to right.
+    $shellLtr = trim((string) $__env->yieldContent('shell_ltr')) !== '';
+    $rtl = ! $shellLtr && \App\Support\Languages::isRtl($locale);
+    $htmlLang = $shellLtr ? config('infofluxes.default_locale', 'en') : $locale;
     $ver = fn (string $file) => asset($file).'?v='.(@filemtime(public_path($file)) ?: 1);
     // The title, description and share picture: each page gives its own; the SEO settings fill what is missing.
     $pageTitle = \App\Support\Seo::title((string) $__env->yieldContent('title'));
@@ -9,7 +12,7 @@
     $pageImage = \App\Support\Seo::ogImage((string) $__env->yieldContent('og_image'));
 @endphp
 <!DOCTYPE html>
-<html lang="{{ $locale }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
+<html lang="{{ $htmlLang }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,6 +34,7 @@
         <link rel="canonical" href="@yield('canonical')">
         <meta property="og:url" content="@yield('canonical')">
     @endif
+    @stack('head_links')
     @if ($pageImage !== '')
         <meta property="og:image" content="{{ $pageImage }}">
         <meta name="twitter:card" content="summary_large_image">

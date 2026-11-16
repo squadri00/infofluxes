@@ -1,7 +1,7 @@
 {{-- Like, dislike, save and share. $item is an Article or a Story. Like, dislike and save need a log in; share is for everyone. --}}
 @php
     $type = $item instanceof \App\Models\Story ? 'story' : 'article';
-    $itemUrl = $type === 'story' ? $item->url() : route('article.show', $item->slug);
+    $itemUrl = $type === 'story' ? $item->urlFor($storyLang ?? null) : route('article.show', $item->slug);
     $itemTitle = $title ?? $item->mainTitle();
     $me = auth()->user();
     $likes = $item->likesCount();

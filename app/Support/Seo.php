@@ -204,6 +204,7 @@ class Seo
             'headline' => mb_substr((string) $model->mainTitle(), 0, 110),
             'description' => $description,
             'mainEntityOfPage' => $url,
+            'inLanguage' => app()->getLocale(),
             'datePublished' => ($model->publish_date ?: $model->created_at)?->toIso8601String(),
             'dateModified' => ($model->updated_at ?: $model->created_at)?->toIso8601String(),
             'author' => ($model->relationLoaded('contributor') && $model->contributor) ? ['@type' => 'Person', 'name' => $model->contributor->name] : ['@type' => 'Organization', 'name' => static::site()],

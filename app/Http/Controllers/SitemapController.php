@@ -25,8 +25,11 @@ class SitemapController extends Controller
         if (\App\Models\Story::published()->exists()) {
             $urls[] = [route('stories'), \Illuminate\Support\Carbon::parse(\App\Models\Story::published()->max('updated_at'))];
         }
-        foreach (\App\Models\Story::published()->orderByDesc('id')->limit(5000)->get(['slug', 'updated_at']) as $st) {
+        foreach (\App\Models\Story::published()->orderByDesc('id')->limit(5000)->get(['slug', 'updated_at', 'custom_data']) as $st) {
             $urls[] = [route('story.show', $st->slug), $st->updated_at];
+            foreach (\App\Support\StoryMaker\Translations::shown($st) as $code) {
+                $urls[] = [$st->urlIn($code), $st->updated_at];
+            }
         }
         foreach (\App\Models\DidYouKnow::visible()->ordered()->get(['slug', 'updated_at']) as $d) {
             $urls[] = [route('did-you-know.show', $d->slug), $d->updated_at];

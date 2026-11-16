@@ -124,6 +124,7 @@ Route::get('/words', WordsController::class)->name('words');
 // Visual Stories: the gallery, one story, and its PDF book. (The old address of an article that became a story, /name/book, sends visitors on.)
 Route::get('/stories', [StoryController::class, 'index'])->name('stories');
 Route::get('/stories/{slug}', [StoryController::class, 'show'])->where('slug', '[A-Za-z0-9][A-Za-z0-9_-]*')->name('story.show');
+Route::get('/{lang}/stories/{slug}', [StoryController::class, 'showIn'])->where(['lang' => implode('|', array_keys(\App\Support\StoryMaker\Rules::languageDefaults())), 'slug' => '[A-Za-z0-9][A-Za-z0-9_-]*'])->name('story.show.lang');
 Route::get('/stories/{slug}/book', StoryBookController::class)->where('slug', '[A-Za-z0-9][A-Za-z0-9_-]*')->middleware('throttle:6,1')->name('story.book');
 Route::get('/{slug}/book', [StoryBookController::class, 'old'])->where('slug', '[A-Za-z0-9][A-Za-z0-9_-]*')->name('article.book');
 

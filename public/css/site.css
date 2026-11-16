@@ -2185,3 +2185,10 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .hero__slide video { display: block; width: 100%; height: 100%; object-fit: cover; background: #000; pointer-events: none; }
 .hero__slide video::-webkit-media-controls { display: none !important; }
 .hero__slide video::-webkit-media-controls-start-playback-button { display: none !important; }
+/* The row "Read in: English · اردو · …" above a story that has other languages */
+.story-langs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 6px 0 14px; font-size: .95rem; }
+.story-langs__label { color: var(--muted); font-weight: 600; }
+.story-langs__link { display: inline-block; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--text); text-decoration: none; background: var(--surface); }
+.story-langs__link:hover { border-color: var(--accent); }
+.story-langs__link[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+.story-langs__link small { opacity: .7; }
