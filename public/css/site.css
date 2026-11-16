@@ -2177,3 +2177,7 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .mega__card--bold .mega__card-img { width: 100%; }
 .menu--main a.mega__card--bold .mega__card-button, .menu--main .mega__card--bold a.mega__card-button { align-self: center; background: #fff; color: #111827; }
 @media (max-width: 1100px) { .menu--main .menu__sub.mega.mega--compact { width: min(480px, calc(100vw - 32px)); grid-template-columns: minmax(0, 1fr); } }
+/* The Challenge card: a picture on top like the other card; no list of tests */
+.mega__card--challenge .mega__card-img { display: block; }
+.mega__card--challenge .mega__card-body { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.mega__card--challenge .mega__card-button { margin-top: auto; }

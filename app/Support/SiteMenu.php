@@ -37,7 +37,7 @@ class SiteMenu
                 'style' => ($root->custom_data['menu_style'] ?? 'wide') === 'compact' ? 'compact' : 'wide',
                 'children' => $children,
                 'feature' => $children ? static::feature($root) : null,
-                'challenge' => $children && ! empty($root->custom_data['menu_challenge_card']) ? static::challengeCard() : null,
+                'challenge' => $children && ! empty($root->custom_data['menu_challenge_card']) ? static::challengeCard($root) : null,
             ];
         }
 
@@ -61,23 +61,24 @@ class SiteMenu
     }
 
     /**
-     * A second card for the panel: "Challenge yourself", with the tests that are switched on. Null while no test is on.
+     * A second card for the panel: "Challenge yourself", with a picture. The button leads to the Challenge page, where the tests are.
+     * Null while no test is on or ready.
      *
-     * @return array{title: string, text: string, button: string, url: string, tests: list<array{title: string, url: string}>}|null
+     * @return array{title: string, text: string, button: string, url: string, image: string|null}|null
      */
-    public static function challengeCard(): ?array
+    public static function challengeCard(?Category $root = null): ?array
     {
-        $tests = Challenge::tests()->filter(fn ($t) => $t['on'] && $t['ready']);
-        if ($tests->isEmpty()) {
+        if (! Challenge::tests()->contains(fn ($t) => $t['on'] && $t['ready'])) {
             return null;
         }
+        $image = $root ? (string) ($root->custom_data['menu_challenge_image'] ?? '') : '';
 
         return [
             'title' => __('site.mega_challenge_title'),
             'text' => __('site.mega_challenge_text'),
             'button' => __('site.mega_challenge_button'),
             'url' => route('challenge'),
-            'tests' => $tests->take(5)->map(fn ($t) => ['title' => $t['title'], 'url' => route('challenge.show', $t['key'])])->values()->all(),
+            'image' => $image !== '' ? asset('storage/'.$image) : null,
         ];
     }
 

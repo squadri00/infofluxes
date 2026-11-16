@@ -135,8 +135,10 @@ class Step70Test extends TestCase
         $this->assertStringContainsString('mega__card mega__card--challenge', $html);
         $this->assertStringContainsString('Test what you know with short tests, then read the answers explained.', $html);
         $this->assertStringContainsString('Take a test', $html);
-        $this->assertStringContainsString('href="'.route('challenge.show', 'facts').'"', $html);
-        $this->assertStringNotContainsString('href="'.route('challenge.show', 'quran').'"', $html, 'a test with nothing to ask is not listed');
+        $this->assertStringContainsString('href="'.route('challenge').'"', $html);
+        $this->assertStringNotContainsString('mega__tests', $html, 'no list of tests: the button leads to the Challenge page');
+        $this->assertStringNotContainsString('href="'.route('challenge.show', 'facts').'"', $html);
+        $this->assertStringContainsString('mega__card-icon', $html, 'no picture chosen: a small icon');
         $this->assertSame(2, substr_count($html, '<aside class="mega__card'), 'the feature card and the challenge card');
     }
 
@@ -191,5 +193,17 @@ class Step70Test extends TestCase
         $css = file_get_contents(public_path('css/site.css'));
         $this->assertStringContainsString('.menu__item--compact { position: relative; }', $css);
         $this->assertStringContainsString('.mega__card--bold', $css);
+    }
+
+    public function test_the_challenge_card_shows_its_chosen_picture(): void
+    {
+        $this->tree(['custom_data' => ['menu_challenge_card' => true, 'menu_challenge_image' => 'menu/challenge.webp']]);
+        \App\Models\FactStatement::create(['topic' => 'history', 'statement' => 'A true one', 'is_true' => true, 'explanation' => 'Because']);
+        \App\Models\FactStatement::create(['topic' => 'history', 'statement' => 'A false one', 'is_true' => false, 'explanation' => 'Because']);
+
+        preg_match('~<aside class="mega__card mega__card--challenge">.*?</aside>~s', $this->get('/')->getContent(), $card);
+        $this->assertStringContainsString('storage/menu/challenge.webp', $card[0]);
+        $this->assertStringNotContainsString('mega__card-icon', $card[0]);
+        $this->assertStringContainsString('Take a test', $card[0]);
     }
 }
