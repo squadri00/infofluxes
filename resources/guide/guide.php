@@ -327,6 +327,12 @@ return [
         'tips' => ['Google can show the questions and answers directly in its results, so write each answer in two or three clear sentences.', 'The old FAQ page text was moved here, question by question, and the old page was hidden (not deleted).'],
     ],
     [
+        'key' => 'story-maker', 'title' => 'Story maker', 'group' => 'Content', 'classes' => [\App\Filament\Pages\StoryMaker::class], 'access' => 'storymaker',
+        'what' => 'Makes stories in pictures with an AI chat: it builds the prompt, checks the answer you paste, and saves it as a draft story. It is separate from the AI import of the articles.',
+        'steps' => ['Write the subject, choose the category, the number of slides (5 to 10) and the look of the pictures. Copy the prompt into an AI chat.', 'Paste the answer of the AI and press Check. It shows the chapters, the slides, the picture line of each slide, and what to look at. Problems must be fixed; notes are only advice.', 'Press "Save as a draft". The story is a draft with no pictures yet: add the pictures, read it, and publish it yourself.', '"Save this run" keeps your choices, the prompt and the pasted answer. Open any run again from "Saved runs": you can check it again and save it again (the same draft is updated while it is still a draft).'],
+        'tips' => ['A story is told in extremely simple words, in 3 to 5 chapters. The last chapter is always "Closing and final remarks".', 'A story does not need sources. If you want references, they go in the closing chapter.', 'A Quran verse keeps its Arabic and its English exactly. Compare every Arabic text with Quran.com before you publish.', 'Only the super user can change the rules of the Story maker.'],
+    ],
+    [
         'key' => 'site-controls', 'title' => 'Site controls', 'group' => 'Settings', 'classes' => [\App\Filament\Pages\SiteControlsPage::class], 'access' => 'superuser',
         'what' => 'One page of On/Off switches for the parts of the public site that make it look busy: likes, counts, share buttons, recently viewed, social buttons, related articles, and the useful extras like Listen, Save for later and the language button.',
         'steps' => ['Turn a switch on to show a part, off to hide it, then press Save.', '"Quiet look" switches off all the noisy parts at once. "Normal look" brings them back. The useful extras are never touched by either.', '"All settings (advanced)" opens Site settings.'],

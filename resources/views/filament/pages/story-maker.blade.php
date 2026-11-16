@@ -1,0 +1,200 @@
+<x-filament-panels::page>
+    <style>
+        .sm-sel, .sm-sel option { background-color: #ffffff !important; color: #111827 !important; }
+        .dark .sm-sel, .dark .sm-sel option { background-color: #18181b !important; color: #f4f4f5 !important; }
+        .sm-cat-list { background: #ffffff; color: #111827; }
+        .dark .sm-cat-list { background: #18181b; color: #f4f4f5; }
+        .sm-cat-list button:hover { background: rgba(31, 95, 139, .18) !important; }
+    </style>
+    @php
+        $box = 'width:100%;padding:.5rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent';
+        $mini = 'cursor:pointer;border:1px solid rgba(128,128,128,.6);border-radius:.3rem;padding:.1rem .6rem';
+    @endphp
+
+    <p style="max-width:52rem">
+        This tool makes <strong>stories in pictures</strong>. 1: build the prompt and copy it into an AI chat. 2: paste the answer here and press <strong>Check</strong>.
+        3: press <strong>Save as a draft</strong>. Then add the pictures, and publish the story yourself. Nothing is published from this screen.
+        Every run is kept under <a href="#saved-runs" style="text-decoration:underline">Saved runs</a>, so you can come back to a prompt or an answer later.
+        This tool is separate from the AI import and the AI prompts of the articles.
+    </p>
+
+    {{-- Step 1: the prompt --}}
+    <x-filament::section>
+        <x-slot name="heading">Step 1. Make the prompt for the story (English)</x-slot>
+        <div style="display:grid;gap:.9rem;max-width:60rem">
+            @if ($runId)
+                <div style="padding:.45rem .7rem;border:1px dashed rgba(128,128,128,.6);border-radius:.4rem">
+                    You are working on a saved run (#{{ $runId }}). <button type="button" wire:click="newRun" style="{{ $mini }}">Start a new story</button>
+                </div>
+            @endif
+            <label>
+                <strong>The subject of the story</strong> <span style="opacity:.7">(the idea or the title, in a few words)</span><br>
+                <input type="text" wire:model.live.debounce.400ms="topic" maxlength="300" style="{{ $box }}" placeholder="For example: The night Prophet Muhammad ﷺ travelled to Jerusalem">
+            </label>
+
+            <div x-data="{
+                    options: @js(collect($this->categoryChoices())->map(fn ($label, $id) => ['id' => $id, 'label' => $label])->values()),
+                    query: '', open: false,
+                    get shown() { const q = this.query.trim().toLowerCase(); const list = q === '' ? this.options : this.options.filter(o => o.label.toLowerCase().includes(q)); return list.slice(0, 60); },
+                    get total() { const q = this.query.trim().toLowerCase(); return q === '' ? this.options.length : this.options.filter(o => o.label.toLowerCase().includes(q)).length; },
+                    pick(o) { this.query = ''; this.open = false; $wire.set('categoryId', o.id); },
+                    clear() { this.query = ''; $wire.set('categoryId', null); },
+                    current() { const id = $wire.categoryId; const o = this.options.find(x => String(x.id) === String(id)); return o ? o.label : ''; }
+                }" x-on:click.outside="open = false" x-on:keydown.escape="open = false" style="position:relative">
+                <strong>Category</strong> <span style="opacity:.7">(where the story will be saved)</span><br>
+                <div x-show="current() !== ''" x-cloak style="display:flex;gap:.5rem;align-items:center;margin:.3rem 0;padding:.45rem .6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem">
+                    <span x-text="current()" style="flex:1"></span>
+                    <button type="button" x-on:click="clear()" style="{{ $mini }}">Change</button>
+                </div>
+                <input type="text" x-show="current() === ''" x-model="query" x-on:focus="open = true" x-on:input="open = true" autocomplete="off" placeholder="Type a word to find the category" style="{{ $box }}">
+                <div class="sm-cat-list" x-show="open && current() === ''" x-cloak style="position:absolute;z-index:30;left:0;right:0;max-height:18rem;overflow-y:auto;margin-top:.2rem;border:1px solid rgba(128,128,128,.6);border-radius:.4rem;box-shadow:0 8px 24px rgba(0,0,0,.35)">
+                    <template x-for="o in shown" :key="o.id">
+                        <button type="button" x-on:click="pick(o)" x-text="o.label" style="display:block;width:100%;text-align:left;padding:.45rem .7rem;cursor:pointer;border:0;border-bottom:1px solid rgba(128,128,128,.25);background:transparent;color:inherit;font-size:.9rem"></button>
+                    </template>
+                    <div x-show="shown.length === 0" style="padding:.6rem .7rem;opacity:.7">No category matches. Try another word.</div>
+                    <div x-show="total > 60" style="padding:.4rem .7rem;opacity:.7;font-size:.85rem" x-text="'Showing 60 of ' + total + '. Type more letters to narrow the list.'"></div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:minmax(8rem,12rem) 1fr;gap:.9rem">
+                <label>
+                    <strong>Slides</strong> <span style="opacity:.7">({{ \App\Support\StoryMaker\Prompt::MIN_SLIDES }} to {{ \App\Support\StoryMaker\Prompt::MAX_SLIDES }})</span><br>
+                    <input type="number" wire:model.live.debounce.600ms="slides" min="{{ \App\Support\StoryMaker\Prompt::MIN_SLIDES }}" max="{{ \App\Support\StoryMaker\Prompt::MAX_SLIDES }}" style="{{ $box }}">
+                </label>
+                <label>
+                    <strong>Look of the pictures</strong> <span style="opacity:.7">(one line, the same for every picture of this story)</span><br>
+                    <input type="text" wire:model.live.debounce.600ms="style" maxlength="400" style="{{ $box }}">
+                </label>
+            </div>
+            <label>
+                <strong>Notes for the AI</strong> <span style="opacity:.7">(optional: a point to include, a part to leave out)</span><br>
+                <textarea wire:model.live.debounce.600ms="notes" rows="3" maxlength="1500" style="{{ $box }}"></textarea>
+            </label>
+
+            <div x-data="{ copied: false }">
+                <textarea x-ref="prompt" readonly rows="10" style="width:100%;padding:.6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent;font-family:monospace;font-size:.85rem">{{ $this->prompt() }}</textarea>
+                <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.5rem">
+                    <button type="button" class="fi-btn" style="padding:.45rem .9rem;border:1px solid rgba(128,128,128,.6);border-radius:.4rem;cursor:pointer"
+                            x-on:click="navigator.clipboard.writeText($refs.prompt.value).then(() => { copied = true; setTimeout(() => copied = false, 2500) })">
+                        <span x-show="!copied">Copy the prompt</span><span x-show="copied" x-cloak>Copied</span>
+                    </button>
+                    <x-filament::button color="gray" wire:click="saveRun">Save this run</x-filament::button>
+                    <span style="opacity:.7">The rules for stories are already inside the prompt. Saving keeps your choices, the prompt and the answer you paste below.</span>
+                </div>
+            </div>
+        </div>
+    </x-filament::section>
+
+    {{-- Step 2: paste --}}
+    <x-filament::section>
+        <x-slot name="heading">Step 2. Paste the answer</x-slot>
+        <div style="max-width:60rem">
+            <textarea wire:model="paste" rows="12" style="width:100%;padding:.6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent;font-family:monospace;font-size:.85rem" placeholder="Paste the whole answer of the AI here"></textarea>
+            <div style="margin-top:.6rem;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+                <x-filament::button wire:click="check" wire:loading.attr="disabled">Check</x-filament::button>
+                <x-filament::button color="gray" wire:click="saveRun">Save my paste for later</x-filament::button>
+                <span style="opacity:.7">Check saves no story, but it keeps this run.</span>
+            </div>
+        </div>
+    </x-filament::section>
+
+    {{-- Step 3: what was found --}}
+    @if ($checked && $result !== [])
+        @php
+            $errors = $result['errors'] ?? [];
+            $warnings = $result['warnings'] ?? [];
+            $story = $result['story'] ?? [];
+        @endphp
+        <x-filament::section>
+            <x-slot name="heading">Step 3. What was found</x-slot>
+            <div style="display:grid;gap:.8rem;max-width:60rem">
+                <div style="padding:.7rem .9rem;border:1px solid {{ $errors ? '#d92d20' : ($warnings ? '#dc9b00' : '#2d9d5a') }};border-radius:.5rem">
+                    <strong>{{ $errors ? '✗' : '✓' }} {{ $story['title'] ?: '(no title)' }}</strong>
+                    <span style="opacity:.75"> &middot; {{ $story['slide_count'] ?? 0 }} slides in {{ count($story['chapters'] ?? []) }} chapters</span>
+                    @foreach ($errors as $error)<div style="color:#d92d20">Problem: {{ $error }}</div>@endforeach
+                    @foreach ($warnings as $warning)<div style="color:#b07800">Note: {{ $warning }}</div>@endforeach
+                    @if (! $errors && ! $warnings)<div style="color:#2d9d5a">Nothing to fix.</div>@endif
+
+                    @if (! empty($story['short']))<p style="margin:.6rem 0 0;opacity:.85">{{ $story['short'] }}</p>@endif
+
+                    @foreach (($story['chapters'] ?? []) as $ci => $chapter)
+                        <details style="margin-top:.5rem" @if ($loop->last) open @endif>
+                            <summary style="cursor:pointer"><strong>Chapter {{ $ci + 1 }}: {{ $chapter['title'] }}</strong> <span style="opacity:.7">({{ count($chapter['slides']) }} slide{{ count($chapter['slides']) === 1 ? '' : 's' }})</span></summary>
+                            <ol style="margin:.3rem 0 0 1.3rem;list-style:decimal;display:grid;gap:.5rem">
+                                @foreach ($chapter['slides'] as $slide)
+                                    <li>
+                                        <strong>{{ $slide['heading'] }}</strong>
+                                        <div style="white-space:pre-line">{{ $slide['body'] }}</div>
+                                        @if ($slide['picture'] !== '')<div style="opacity:.7;font-size:.88rem">Picture: {{ $slide['picture'] }}</div>@endif
+                                    </li>
+                                @endforeach
+                            </ol>
+                        </details>
+                    @endforeach
+
+                    @if (! empty($result['check']))
+                        <details style="margin-top:.6rem" open>
+                            <summary style="cursor:pointer"><strong>Please check ({{ count($result['check']) }})</strong></summary>
+                            <ul style="margin:.3rem 0 0 1.2rem;list-style:disc">@foreach ($result['check'] as $line)<li>{{ $line }}</li>@endforeach</ul>
+                        </details>
+                    @endif
+                </div>
+
+                @if ($done)
+                    <div style="padding:.7rem .9rem;border:1px solid #2d9d5a;border-radius:.5rem">
+                        <strong>{{ $done['updated'] ? 'Updated' : 'Saved' }}: the draft story {{ $done['code'] }}, {{ $done['title'] }}</strong>
+                        ({{ $done['slides'] }} slides). It is a <strong>draft</strong>: add its pictures, read it, and publish it yourself.
+                        <a href="{{ $done['url'] }}" style="text-decoration:underline;font-weight:600">Open the story &rarr;</a>
+                    </div>
+                @else
+                    <div>
+                        <x-filament::button wire:click="saveStory" wire:loading.attr="disabled" :disabled="! empty($errors) || ! $categoryId">Save as a draft</x-filament::button>
+                        <span style="margin-left:.6rem;opacity:.7">
+                            @if ($errors) Fix the problems first.
+                            @elseif (! $categoryId) Choose the category in Step 1 first.
+                            @else Saving again updates the same draft while it is still a draft. @endif
+                        </span>
+                    </div>
+                @endif
+            </div>
+        </x-filament::section>
+    @endif
+
+    {{-- Saved runs --}}
+    <div id="saved-runs">
+        <x-filament::section :collapsed="$runId !== null || $paste !== ''" collapsible>
+            <x-slot name="heading">Saved runs ({{ $this->runs()->count() }})</x-slot>
+            <div style="max-width:60rem;display:grid;gap:.4rem">
+                @forelse ($this->runs() as $r)
+                    <div wire:key="run-{{ $r->id }}" style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;padding:.45rem .6rem;border:1px solid rgba(128,128,128,.35);border-radius:.4rem">
+                        <span style="flex:1;min-width:12rem"><strong>{{ $r->topic !== '' ? \Illuminate\Support\Str::limit($r->topic, 80) : '(no subject)' }}</strong>
+                            <span style="opacity:.7"> &middot; {{ \App\Models\StoryRun::STATUSES[$r->status] ?? $r->status }} &middot; {{ $r->updated_at->diffForHumans() }}@if ($r->story) &middot; {{ $r->story->code }}@endif</span></span>
+                        <button type="button" wire:click="openRun({{ $r->id }})" style="{{ $mini }}">Open</button>
+                        <button type="button" wire:click="deleteRun({{ $r->id }})" wire:confirm="Delete this saved run? The story it made (if any) is not deleted." style="{{ $mini }}">Delete</button>
+                    </div>
+                @empty
+                    <p style="opacity:.7">Nothing yet. A run is saved when you press "Save this run", "Check" or "Save as a draft".</p>
+                @endforelse
+            </div>
+        </x-filament::section>
+    </div>
+
+    {{-- The rules (super user) --}}
+    @if (auth()->user()->isSuperuser())
+        <x-filament::section collapsible collapsed>
+            <x-slot name="heading">Rules of the Story maker (super user)</x-slot>
+            <div style="max-width:60rem;display:grid;gap:.7rem">
+                <p style="margin:0;opacity:.8">These rules are put at the top of every story prompt. They are not the rules of the article prompts. "Reset to the original" brings back the first words.</p>
+                <label><strong>The usual look of the pictures</strong>
+                    <input type="text" wire:model="ruleStyle" maxlength="400" style="{{ $box }}">
+                </label>
+                <textarea wire:model="ruleText" rows="22" style="width:100%;padding:.6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent;font-family:monospace;font-size:.85rem"></textarea>
+                <div style="display:flex;gap:.6rem;align-items:center">
+                    <x-filament::button wire:click="saveRules">Save the rules</x-filament::button>
+                    <x-filament::button color="gray" wire:click="resetRules" wire:confirm="Put the original rules back?">Reset to the original</x-filament::button>
+                    @if (\App\Support\StoryMaker\Rules::isChanged())<span style="opacity:.75">The rules were changed from the original.</span>@endif
+                </div>
+            </div>
+        </x-filament::section>
+    @endif
+</x-filament-panels::page>

@@ -79,6 +79,7 @@ class User extends Authenticatable implements FilamentUser, \Illuminate\Contract
         'newsletter' => 'Send newsletter',
         'facts' => 'Did You Know?',
         'explainers' => 'Explainers',
+        'storymaker' => 'Story maker',
     ];
 
     /** The screens a role has when no screens are ticked for the person. */
