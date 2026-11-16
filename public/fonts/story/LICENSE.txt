@@ -1,0 +1,6 @@
+Fonts for the translated stories (downloaded from Google Fonts, 15 Nov 2026).
+All three are free under the SIL Open Font License 1.1 (https://openfontlicense.org).
+- Noto Nastaliq Urdu (Google / Noto project)  - Urdu
+- Amiri (Khaled Hosny)                         - Arabic
+- Noto Sans Devanagari (Google / Noto project) - Hindi
+Only the Arabic and Devanagari parts of each font are kept here. They load only when a page shows that script.

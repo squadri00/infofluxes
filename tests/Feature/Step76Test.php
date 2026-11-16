@@ -78,4 +78,13 @@ class Step76Test extends TestCase
             $this->assertNotSame('', (string) (require base_path("lang/{$code}/site.php"))['stories_in'], $code);
         }
     }
+    public function test_the_story_fonts_are_on_the_site_and_in_the_style_sheet(): void
+    {
+        $css = file_get_contents(public_path("css/site.css"));
+        foreach (["noto-nastaliq-urdu", "amiri-400", "amiri-700", "noto-sans-devanagari"] as $name) {
+            $this->assertFileExists(public_path("fonts/story/{$name}.woff2"));
+            $this->assertStringContainsString("fonts/story/{$name}.woff2", $css);
+        }
+        $this->assertFileExists(public_path("fonts/story/LICENSE.txt"));
+    }
 }
