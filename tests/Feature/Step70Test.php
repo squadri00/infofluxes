@@ -15,6 +15,12 @@ class Step70Test extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        \App\Models\Setting::forget();   // the settings are remembered between tests otherwise
+    }
+
     private function tree(array $rootExtra = []): Category
     {
         $root = Category::create(array_merge(['name' => ['en' => 'About Islam'], 'slug' => 'about-islam', 'description' => ['en' => '<p>What Islam teaches, in its own words.</p>']], $rootExtra));
