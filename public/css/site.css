@@ -2208,3 +2208,9 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 [lang="hi"] { font-family: "Noto Sans Devanagari", "Mangal", "Nirmala UI", var(--font); }
 .topic[lang="ur"] .slide__body, .topic[lang="ur"] .slide__heading { line-height: 2.3; }
 .topic[lang="ar"] .slide__body { font-size: 1.2em; }
+
+/* A wide viewer inside a right-to-left page is centred with the right margin instead (the left margin is ignored there). */
+.topic[dir="rtl"] .story--embedded { left: auto; right: 50%; margin-left: 0; margin-right: calc(var(--page-w, 100vw) / -2); }
+.topic[dir="rtl"] .story--embedded.story--boxed { margin-left: 0; margin-right: calc(min(var(--page-w, 100vw), var(--v-box, 1300px)) / -2); }
+.topic[dir="rtl"] .story__counter, .topic[dir="rtl"] .story__dots { direction: ltr; unicode-bidi: isolate; }
+@media (min-width: 700px) { .topic[dir="rtl"] .story--js .slide__text { padding-inline: clamp(56px, 6vw, 84px); } }
