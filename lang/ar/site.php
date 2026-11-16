@@ -31,6 +31,7 @@ return [
     'story_open' => 'افتح القصة',
     'story_picture_credit' => 'الصورة:',
     'story_prev' => 'السابق',
+    'stories_in' => 'قصص بلغة',
     'story_read_in' => 'اقرأ بـ',
     'story_slide_label' => 'الشريحة :n من :total',
     'story_slides_count' => ':n شرائح',

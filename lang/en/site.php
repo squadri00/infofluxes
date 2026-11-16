@@ -115,6 +115,7 @@ return [
     'stats_views' => 'Views',
     'story_open' => 'Open the story',
     'story_read_in' => 'Read in',
+    'stories_in' => 'Stories in',
     'dyk_title' => 'Did You Know?',
     'dyk_intro' => 'Short facts, each with the source where you can check it.',
     'dyk_none' => 'No facts are listed yet.',

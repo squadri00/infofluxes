@@ -27,10 +27,40 @@ class StoryController extends Controller
 
     public function index()
     {
-        $stories = Story::published()->with(['category', 'contributor'])->withCount('slides')
-            ->orderByDesc('publish_date')->orderByDesc('id')->paginate(static::PER_PAGE);
+        $query = Story::published()->with(['category', 'contributor'])->withCount('slides')
+            ->orderByDesc('publish_date')->orderByDesc('id');
 
-        return view('stories', ['stories' => $stories]);
+        // "Stories in: English · اردو": a language shows here only when at least one story has it switched on.
+        $names = Rules::languages();
+        $counts = [];
+        foreach ((clone $query)->get() as $one) {
+            foreach (Translations::shown($one) as $code) {
+                $counts[$code] = ($counts[$code] ?? 0) + 1;
+            }
+        }
+        $lang = (string) request()->query('lang');
+        $lang = isset($counts[$lang]) ? $lang : null;
+
+        if ($lang !== null) {
+            $all = $query->get()->filter(fn ($s) => in_array($lang, Translations::shown($s), true))->values();
+            $page = \Illuminate\Pagination\Paginator::resolveCurrentPage();
+            $stories = new \Illuminate\Pagination\LengthAwarePaginator($all->forPage($page, static::PER_PAGE)->values(), $all->count(), static::PER_PAGE, $page, ['path' => request()->url(), 'query' => ['lang' => $lang]]);
+            app()->setLocale($lang);
+        } else {
+            $stories = $query->paginate(static::PER_PAGE);
+        }
+
+        $chips = [];
+        if ($counts !== []) {
+            $chips[] = ['code' => 'en', 'native' => 'English', 'url' => route('stories'), 'current' => $lang === null];
+            foreach ($names as $code => $info) {
+                if (isset($counts[$code])) {
+                    $chips[] = ['code' => $code, 'native' => $info['native'], 'url' => route('stories').'?lang='.$code, 'current' => $lang === $code];
+                }
+            }
+        }
+
+        return view('stories', ['stories' => $stories, 'storyLang' => $lang, 'storyRtl' => $lang !== null && (bool) ($names[$lang]['rtl'] ?? false), 'languageChips' => $chips]);
     }
 
     /** /ur/stories/name: the route gives the language first, the name second. */

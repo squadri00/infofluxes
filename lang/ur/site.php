@@ -31,6 +31,7 @@ return [
     'story_open' => 'کہانی کھولیں',
     'story_picture_credit' => 'تصویر:',
     'story_prev' => 'پچھلا',
+    'stories_in' => 'کہانیاں اس زبان میں',
     'story_read_in' => 'اس زبان میں پڑھیں',
     'story_slide_label' => 'سلائیڈ :n از :total',
     'story_slides_count' => ':n سلائیڈز',

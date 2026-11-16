@@ -31,6 +31,7 @@ return [
     'story_open' => 'Ouvrir l’histoire',
     'story_picture_credit' => 'Image :',
     'story_prev' => 'Précédent',
+    'stories_in' => 'Histoires en',
     'story_read_in' => 'Lire en',
     'story_slide_label' => 'Diapositive :n sur :total',
     'story_slides_count' => ':n diapositives',

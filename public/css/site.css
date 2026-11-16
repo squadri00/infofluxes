@@ -2192,3 +2192,8 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .story-langs__link:hover { border-color: var(--accent); }
 .story-langs__link[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
 .story-langs__link small { opacity: .7; }
+/* Right-to-left stories (Urdu, Arabic): the sliding track keeps its own direction so slides move the right way; only the text turns. */
+.topic[dir="rtl"] .story__track { direction: ltr; }
+.topic[dir="rtl"] .slide__text, .topic[dir="rtl"] .slide__caption, .topic[dir="rtl"] .story__chapters, .topic[dir="rtl"] .story__menu-list { direction: rtl; text-align: start; }
+.topic[dir="rtl"] .slide__body, .topic[dir="rtl"] .slide__heading { line-height: 1.9; }
+[dir="rtl"] .scard__body { text-align: start; }
