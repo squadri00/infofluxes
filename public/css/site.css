@@ -2181,3 +2181,7 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .mega__card--challenge .mega__card-img { display: block; }
 .mega__card--challenge .mega__card-body { display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .mega__card--challenge .mega__card-button { margin-top: auto; }
+/* A video clip in the home page banner: no controls, fills the whole banner, the words stay on top */
+.hero__slide video { display: block; width: 100%; height: 100%; object-fit: cover; background: #000; pointer-events: none; }
+.hero__slide video::-webkit-media-controls { display: none !important; }
+.hero__slide video::-webkit-media-controls-start-playback-button { display: none !important; }

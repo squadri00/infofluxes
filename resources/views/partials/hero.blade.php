@@ -30,7 +30,16 @@
                     <figure class="hero__slide {{ $i === 0 ? 'is-active' : '' }}" data-hero-slide role="group" aria-roledescription="slide"
                         aria-label="{{ str_replace([':n', ':total'], [$i + 1, $total], __('site.hero_slide_of')) }}"
                         @if ($i > 0) aria-hidden="true" @endif>
-                        <img src="{{ ($hero['layout'] ?? 'split') === 'full' ? \App\Support\Hero::bannerUrl($slide) : asset('storage/'.$slide->image) }}" alt="{{ $slide->image_alt }}" @if ($i > 0) loading="lazy" @endif>
+                        @php $still = filled($slide->image) ? (($hero['layout'] ?? 'split') === 'full' ? \App\Support\Hero::bannerUrl($slide) : asset('storage/'.$slide->image)) : null; @endphp
+                        @if ($slide->isVideo())
+                            {{-- A clip: it plays by itself, without sound, in a loop, with no controls, and fills the whole banner. The words stay on top. --}}
+                            <video class="hero__video" data-hero-video muted loop playsinline disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1"
+                                preload="{{ $i === 0 ? 'auto' : 'none' }}" @if ($i === 0) autoplay @endif @if ($still) poster="{{ $still }}" @endif>
+                                <source src="{{ asset('storage/'.$slide->video) }}" type="{{ $slide->videoMime() }}">
+                            </video>
+                        @else
+                            <img src="{{ $still }}" alt="{{ $slide->image_alt }}" @if ($i > 0) loading="lazy" @endif>
+                        @endif
                         @if (filled($slide->heading) || filled($slide->text) || ($link && filled($slide->button_label)))
                             <figcaption class="hero__caption">
                                 @if (filled($slide->heading))<h2 class="hero__heading">{{ $slide->heading }}</h2>@endif
@@ -43,7 +52,7 @@
                     </figure>
                 @endforeach
             </div>
-            @if ($total > 1)
+            @if ($total > 1 || $slides->contains(fn ($s) => $s->isVideo()))
                 {{-- Switched on by hero.js. Without it the first picture simply stays. --}}
                 <div class="hero__controls" data-hero-controls hidden></div>
             @endif

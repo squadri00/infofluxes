@@ -109,7 +109,8 @@ class Hero
     /** The active pictures in order. */
     public static function slides(): Collection
     {
-        return HeroSlide::query()->where('is_active', true)->orderBy('sort_order')->orderBy('id')->get();
+        return HeroSlide::query()->where('is_active', true)->orderBy('sort_order')->orderBy('id')->get()
+            ->filter(fn (HeroSlide $s) => $s->isVideo() || filled($s->image))->values();
     }
 
     /** The banner for the home page, or null when it is off or has nothing to show. */

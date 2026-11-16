@@ -239,8 +239,8 @@ return [
     [
         'key' => 'sliders', 'title' => 'Sliders', 'group' => 'Content', 'classes' => [SlideViewerSettings::class], 'access' => 'superuser',
         'what' => 'The settings of the picture slider of Visual Stories and of the home page banner.',
-        'steps' => ['Change a setting and save. "Reset to the usual" brings back the usual values.'],
-        'tips' => ['Pictures are cut to the shape set here and saved small.'],
+        'steps' => ['Change a setting and save. "Reset to the usual" brings back the usual values.', 'In the home page banner, "Add a picture" adds a slide. Choose "A video clip" to use a short video instead: it plays by itself, without sound and without controls, in a loop, and fills the whole banner. The words and the button stay on top.', 'The order of the slides is the order on the page: drag to change it. "Seconds before the next picture" also moves between clips, so set it to about the length of your clips (0 = it never moves by itself).'],
+        'tips' => ['Pictures are cut to the shape set here and saved small.', 'A clip is kept as you upload it (not made smaller): MP4 (H.264) or WebM, up to 12 MB, best under 8 MB and 5 to 20 seconds. Smaller clips load faster on a phone.', 'A visitor who asked their device for less motion, or who uses a data saver, sees the still picture instead of the clip. Add a still picture to each clip.', 'The pause button on the banner also stops the clips.'],
     ],
     [
         'key' => 'contributors', 'title' => 'Contributors', 'group' => 'Content', 'classes' => [PersonResource::class], 'access' => 'people',

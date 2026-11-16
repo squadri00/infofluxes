@@ -84,7 +84,7 @@ class SlideViewerSettings extends Page
             'id' => $m->id, 'title' => $m->getTranslations('title'), 'subtitle' => $m->getTranslations('subtitle'), 'description' => $m->getTranslations('description'), 'is_active' => $m->is_active,
         ])->all();
         $out['slides'] = HeroSlide::query()->orderBy('sort_order')->orderBy('id')->get()->map(fn (HeroSlide $s) => [
-            'id' => $s->id, 'image' => $s->image ? [$s->image] : [], 'image_alt' => $s->getTranslations('image_alt'), 'heading' => $s->getTranslations('heading'), 'text' => $s->getTranslations('text'),
+            'id' => $s->id, 'media_type' => $s->media_type ?: 'image', 'video' => $s->video ? [$s->video] : [], 'image' => $s->image ? [$s->image] : [], 'image_alt' => $s->getTranslations('image_alt'), 'heading' => $s->getTranslations('heading'), 'text' => $s->getTranslations('text'),
             'button_label' => $s->getTranslations('button_label'), 'button_url' => $s->button_url, 'new_tab' => $s->new_tab, 'is_active' => $s->is_active, 'focus' => $s->custom_data['focus'] ?? 'middle',
         ])->all();
 
@@ -154,10 +154,15 @@ class SlideViewerSettings extends Page
                         ->itemLabel(fn (array $state) => ($state['heading'][$main] ?? null) ?: (($state['image_alt'][$main] ?? null) ?: 'Picture'))
                         ->schema([
                             Hidden::make('id'),
-                            \App\Filament\Support\ImageUpload::make('image', 'hero')->label('Picture')->required()
-                                ->helperText(fn () => 'Any picture works, up to '.(\App\Support\ImageStore::maxKb() / 1024).' MB: it is saved lighter, and the site cuts it to the gallery shape (2000 x 920) by itself and keeps it sharp. Use a picture at least 2000 pixels wide for the best result.'),
+                            Select::make('media_type')->label('What this slide shows')->options(['image' => 'A picture', 'video' => 'A video clip (plays by itself, no sound, no controls)'])->default('image')->live()->native(true),
+                            FileUpload::make('video')->label('Video clip')
+                                ->visible(fn (Get $get) => $get('media_type') === 'video')->required(fn (Get $get) => $get('media_type') === 'video')
+                                ->disk('public')->directory('hero/videos')->visibility('public')->acceptedFileTypes(['video/mp4', 'video/webm'])->maxSize(12288)
+                                ->helperText('MP4 (H.264) or WebM, up to 12 MB. Best: 1920 x 1080 or smaller, 5 to 20 seconds, under 8 MB, sound can be left out (it is never played). It plays by itself, in a loop, and fills the whole banner. The words and the button stay on top.'),
+                            \App\Filament\Support\ImageUpload::make('image', 'hero')->label(fn (Get $get) => $get('media_type') === 'video' ? 'Still picture (optional)' : 'Picture')->required(fn (Get $get) => $get('media_type') !== 'video')
+                                ->helperText(fn (Get $get) => $get('media_type') === 'video' ? 'Shown while the clip loads, and for people who have asked their device for less motion. Without one the first moment of the clip is shown.' : 'Any picture works, up to '.(\App\Support\ImageStore::maxKb() / 1024).' MB: it is saved lighter, and the site cuts it to the gallery shape (2000 x 920) by itself and keeps it sharp. Use a picture at least 2000 pixels wide for the best result.'),
                             Select::make('focus')->label('If the picture is cut, keep the')->options(['top' => 'Top part', 'middle' => 'Middle part', 'bottom' => 'Bottom part'])->default('middle')->native(true),
-                            ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)', required: true),
+                            ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)', required: fn (Get $get) => $get('media_type') !== 'video'),
                             ...Translated::text('heading', 'Words over the picture: heading'),
                             ...Translated::text('text', 'Words over the picture: one short line', max: 500),
                             ...Translated::text('button_label', 'Button: the words', help: 'Leave empty for no button.'),
@@ -237,8 +242,11 @@ class SlideViewerSettings extends Page
             'description' => $this->words($m['description'] ?? []),
             'is_active' => (bool) ($m['is_active'] ?? true),
         ]);
+        $clipsBefore = HeroSlide::query()->whereNotNull('video')->pluck('video')->all();
         $this->sync(HeroSlide::class, (array) ($data['slides'] ?? []), fn (array $s) => [
-            'image' => is_array($s['image']) ? (string) (array_values($s['image'])[0] ?? '') : (string) $s['image'],
+            'media_type' => ($s['media_type'] ?? 'image') === 'video' ? 'video' : 'image',
+            'video' => (($s['media_type'] ?? 'image') === 'video') ? (is_array($s['video'] ?? null) ? (array_values($s['video'])[0] ?? null) : ($s['video'] ?? null)) : null,
+            'image' => (is_array($s['image'] ?? null) ? (string) (array_values($s['image'])[0] ?? '') : (string) ($s['image'] ?? '')) ?: null,
             'image_alt' => $this->words($s['image_alt'] ?? []),
             'heading' => $this->words($s['heading'] ?? []),
             'text' => $this->words($s['text'] ?? []),
@@ -248,6 +256,12 @@ class SlideViewerSettings extends Page
             'is_active' => (bool) ($s['is_active'] ?? true),
             'custom_data' => ['focus' => in_array($s['focus'] ?? 'middle', ['top', 'middle', 'bottom'], true) ? $s['focus'] : 'middle'],
         ]);
+
+        // A clip that no slide uses any more is taken off the disk.
+        $clipsNow = HeroSlide::query()->whereNotNull('video')->pluck('video')->all();
+        foreach (array_diff($clipsBefore, $clipsNow) as $gone) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($gone);
+        }
 
         Setting::forget();
         Notification::make()->success()->title('Saved.')->send();
