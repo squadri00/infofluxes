@@ -177,7 +177,7 @@ class TranslationReader
     }
 
     /** One slide: the Arabic lines and the verse numbers must be kept, and the words must really be in the language. */
-    private static function checkBody(int $n, string $source, string $body, array $language, array &$errors, array &$warnings): void
+    public static function checkBody(int $n, string $source, string $body, array $language, array &$errors, array &$warnings): void
     {
         $norm = fn (string $t) => trim(preg_replace('/\s+/u', ' ', $t));
 

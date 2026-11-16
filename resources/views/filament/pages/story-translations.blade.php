@@ -51,6 +51,7 @@
                         <span style="flex:1;min-width:10rem"><strong>{{ $l['name'] }}</strong> <span style="opacity:.7" dir="auto">{{ $l['native'] }}</span></span>
                         @if ($row)
                             <span style="opacity:.8">{{ $row['status'] === 'on' ? 'Shown on the site' : 'Saved, hidden' }}@if ($row['saved_at']) &middot; {{ \Illuminate\Support\Carbon::parse($row['saved_at'])->diffForHumans() }}@endif</span>
+                            <a href="{{ \App\Filament\Pages\StoryTranslationEdit::getUrl(['story' => $story->id, 'lang' => $code]) }}" style="{{ $mini }};text-decoration:none;color:inherit">Edit the text</a>
                             @if ($row['status'] === 'on')
                                 <button type="button" wire:click="setStatus('{{ $code }}', 'hidden')" style="{{ $mini }}">Hide</button>
                             @else
