@@ -59,6 +59,7 @@
     @endif
     <link rel="stylesheet" href="{{ $ver('css/site.css') }}">
     {!! \App\Support\CardPictures::css() !!}
+    {!! \App\Support\Fonts::css() !!}
     {!! \App\Support\Seo::custom('head') !!}
 </head>
 <body>

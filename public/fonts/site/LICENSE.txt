@@ -1,0 +1,2 @@
+These fonts are from Google Fonts and are licensed under the SIL Open Font License 1.1 (https://openfontlicense.org), which allows use, copying and self-hosting.
+Files hold the Latin set (Arabic set for the two Arabic fonts). The list in Site settings > Fonts shows a font only when its file is here.

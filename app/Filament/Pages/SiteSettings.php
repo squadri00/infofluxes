@@ -10,6 +10,8 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -65,7 +67,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'logo_with_name', 'newsletter_on', 'newsletter_popup_delay', 'newsletter_popup_days', 'card_stats_on', 'card_image_fit', 'card_image_focus', 'card_image_saturation', 'card_image_contrast', 'card_image_brightness', 'newsletter_code_minutes', 'newsletter_per_run', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
+        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'logo_with_name', 'newsletter_on', 'newsletter_popup_delay', 'newsletter_popup_days', 'card_stats_on', 'card_image_fit', 'card_image_focus', 'card_image_saturation', 'card_image_contrast', 'card_image_brightness', 'newsletter_code_minutes', 'newsletter_per_run', 'font_heading', 'font_body', 'font_arabic', 'font_size', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
     }
 
     public function form(Schema $schema): Schema
@@ -95,6 +97,15 @@ class SiteSettings extends Page
                     ->schema([
                         Toggle::make('signups_open')->label('New people can sign up')->helperText('Off: the Sign up page is closed. People who already have an account can still log in.'),
                         Toggle::make('comments_open')->label('Comments are open')->helperText('Off: nobody can post a new comment. The ones already shown stay.'),
+                    ])->columns(2),
+                Section::make('Fonts')
+                    ->description('The letters of the site. Left empty, the usual font is used. A font marked "device" is already on the visitor\'s phone or computer; the others are served from this site. More fonts: put a .woff2 file in public/fonts/site (the list shows it once the file is there).')
+                    ->schema([
+                        Select::make('font_heading')->label('Heading font')->options(\App\Support\Fonts::options())->native(true)->live()->placeholder('System default (usual)'),
+                        Select::make('font_body')->label('Body text font')->options(\App\Support\Fonts::options())->native(true)->live()->placeholder('System default (usual)'),
+                        Select::make('font_arabic')->label('Arabic font')->helperText('For the Quran lines and other Arabic text.')->options(\App\Support\Fonts::arabicOptions())->native(true)->live()->placeholder('Amiri (usual)'),
+                        Select::make('font_size')->label('Text size')->helperText('Makes all text on the site a little smaller or larger.')->options(\App\Support\Fonts::SIZE_LABELS)->native(true)->placeholder('Normal (usual)'),
+                        TextEntry::make('font_preview')->label('Preview')->state(fn (Get $get) => \App\Support\Fonts::preview($get('font_heading'), $get('font_body'), $get('font_arabic')))->html()->columnSpanFull(),
                     ])->columns(2),
                 Section::make('Pictures')
                     ->description('Every picture you upload is saved as a WebP that is no heavier than the size below, so the site loads fast, also on a phone. The quality is lowered a little first; only if that is not enough is the picture made narrower. Story pictures have their own settings in Sliders.')
@@ -183,6 +194,16 @@ class SiteSettings extends Page
             }
             if ($key === 'image_quality') {
                 $value = is_numeric($value) ? max(40, min(95, (int) $value)) : null;
+            }
+            // Fonts: only a font that is really available is kept; the usual one is stored as "nothing".
+            if ($key === 'font_heading' || $key === 'font_body') {
+                $value = array_key_exists((string) $value, \App\Support\Fonts::available()) && $value !== 'system' ? $value : null;
+            }
+            if ($key === 'font_arabic') {
+                $value = array_key_exists((string) $value, \App\Support\Fonts::arabic()) && $value !== 'amiri' ? $value : null;
+            }
+            if ($key === 'font_size') {
+                $value = array_key_exists((string) $value, \App\Support\Fonts::SIZES) && $value !== 'normal' ? $value : null;
             }
             Setting::put($key, $value === [] ? null : $value);
         }
