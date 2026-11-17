@@ -2522,3 +2522,7 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .fb-zoom-view .slide__media { position: relative; display: inline-block; width: auto; height: auto; max-width: 96vw; max-height: 86vh; margin: 0; aspect-ratio: auto; background: none; box-shadow: 0 10px 40px rgba(0, 0, 0, .6); }
 .fb-zoom-view .slide__media img { display: block; width: auto; height: auto; max-width: 96vw; max-height: 86vh; object-fit: contain; }
 .fb-zoom-view__hint { margin: 0; color: #9aa4b6; font-size: .9rem; }
+
+/* Book: the contents links are dark ink on the paper, so they are easy to read (also in the dark theme, because the paper stays light) */
+.viewer--book .slide__index a, .viewer--book .slide__index-sub a, .page-flip-page .slide__index a, .page-flip-page .slide__index-sub a { color: #1d3d63; text-decoration-color: rgba(29, 61, 99, .55); }
+.viewer--book .slide__index a:hover, .viewer--book .slide__index-sub a:hover, .page-flip-page .slide__index a:hover, .page-flip-page .slide__index-sub a:hover { color: #0b2342; }
