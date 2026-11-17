@@ -53,7 +53,10 @@ class StoryMaker extends Page
     public bool $rewrite = false;
 
     /** How long each slide is: short, story or extra (see Rules::lengths()). */
-    public string $length = 'short';
+    public string $length = 'story';
+
+    /** On: the AI decides the length of each slide and the number of slides, so the story can flow freely. */
+    public bool $openFlow = false;
 
     public string $notes = '';
 
@@ -220,10 +223,10 @@ class StoryMaker extends Page
     public function prompt(): string
     {
         if ($story = $this->rewriteStory()) {
-            return Prompt::rewrite($story, ['notes' => $this->notes, 'style' => $this->style, 'length' => $this->length]);
+            return Prompt::rewrite($story, ['notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
         }
 
-        return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length]);
+        return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
     }
 
     public function updatedSlides(): void
@@ -252,7 +255,7 @@ class StoryMaker extends Page
         $run->fill([
             'topic' => mb_substr(trim($this->topic), 0, 300),
             'category_id' => $this->categoryId,
-            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite],
+            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite, 'open' => $this->openFlow],
             'prompt' => $this->prompt(),
             'answer' => $this->paste !== '' ? $this->paste : null,
             'result' => $this->checked ? $this->result : null,
@@ -284,7 +287,7 @@ class StoryMaker extends Page
 
             return;
         }
-        $this->result = Reader::read($this->paste, $this->run()?->story_id, $this->slides, $this->length);
+        $this->result = Reader::read($this->paste, $this->run()?->story_id, $this->slides, $this->length, $this->openFlow);
         $this->checked = true;
         $this->persist('checked');
     }
@@ -292,7 +295,7 @@ class StoryMaker extends Page
     public function saveStory(): void
     {
         // The pasted text is read again here, so what is saved is never what a browser claims it checked.
-        $read = Reader::read($this->paste, $this->run()?->story_id, $this->slides, $this->length);
+        $read = Reader::read($this->paste, $this->run()?->story_id, $this->slides, $this->length, $this->openFlow);
         $this->result = $read;
         $this->checked = true;
 
@@ -350,7 +353,8 @@ class StoryMaker extends Page
         $this->topic = (string) $run->topic;
         $this->categoryId = $run->category_id;
         $this->slides = (int) ($o['slides'] ?? 8);
-        $this->length = isset(Rules::lengths()[(string) ($o['length'] ?? '')]) ? (string) $o['length'] : 'short';
+        $this->length = isset(Rules::lengths()[(string) ($o['length'] ?? '')]) ? (string) $o['length'] : 'story';
+        $this->openFlow = (bool) ($o['open'] ?? false);
         $this->notes = (string) ($o['notes'] ?? '');
         $this->rewrite = (bool) ($o['rewrite'] ?? false);
         $this->style = (string) ($o['style'] ?? '') ?: Rules::style();
@@ -373,9 +377,9 @@ class StoryMaker extends Page
 
     public function newRun(): void
     {
-        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened', 'rewrite']);
+        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened', 'rewrite', 'openFlow']);
         $this->slides = 8;
-        $this->length = 'short';
+        $this->length = 'story';
         $this->style = Rules::style();
     }
 

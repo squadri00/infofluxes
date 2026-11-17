@@ -5,7 +5,7 @@ THE STORY TO WRITE
 
 Subject (the title or the idea): {{TOPIC}}
 Category: {{CATEGORY}}
-Size: exactly {{SLIDES}} slides in all, closing slides included.
+Size: {{SLIDES}}
 Length of each slide: {{LENGTH}}
 {{NOTES}}
 How to work:

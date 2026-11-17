@@ -165,7 +165,7 @@ class Step84Test extends TestCase
         $run = StoryRun::first();
         $this->assertSame('story', $run->options['length']);
 
-        $page->call('newRun')->assertSet('length', 'short');
+        $page->call('newRun')->assertSet('length', 'story');
         $page->call('openRun', $run->id)->assertSet('length', 'story');
     }
 

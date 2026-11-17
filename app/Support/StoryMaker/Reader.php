@@ -25,13 +25,20 @@ class Reader
     public const SENTENCE_MAX = 22;
 
     /** @return array{errors: list<string>, warnings: list<string>, check: list<string>, story: array<string, mixed>} */
-    public static function read(string $answer, ?int $ownStoryId = null, ?int $askedSlides = null, ?string $length = null): array
+    public static function read(string $answer, ?int $ownStoryId = null, ?int $askedSlides = null, ?string $length = null, bool $open = false): array
     {
         // The length of a slide depends on the level chosen in step 1 (short, story, story + extra). Without a level the usual numbers are used.
         $level = Rules::length($length);
         $bodyLow = $length === null ? self::BODY_MIN : max(self::BODY_MIN, (int) floor($level['min'] * 0.5));
         $bodyHigh = $length === null ? self::BODY_MAX : (int) round($level['max'] * 1.55);
         $bodyBest = $level['min'].' to '.$level['max'];
+        if ($open) {
+            // The AI decides: only a very thin or a very long slide is noted.
+            $bodyLow = self::BODY_MIN;
+            $bodyHigh = 220;
+            $bodyBest = \App\Support\StoryMaker\Prompt::OPEN_WORDS;
+            $askedSlides = null;
+        }
         $errors = [];
         $warnings = [];
         $check = [];

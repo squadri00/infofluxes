@@ -13,6 +13,13 @@ class Prompt
 
     public const MAX_SLIDES = 60;
 
+    /** When the AI decides the length and the number of slides ("open flow"). */
+    public const OPEN_SLIDES = 'as many slides as the story needs, closing slides included (usually 6 to 14). You decide: let the story set the number, not a count.';
+
+    public const OPEN_WORDS = '50 to 130';
+
+    public const OPEN_SENTENCES = '4 to 12';
+
     /**
      * @param  array{topic?: string, category_id?: int|null, slides?: int|null, notes?: string|null, style?: string|null, length?: string|null}  $in
      */
@@ -21,11 +28,12 @@ class Prompt
         $text = (string) file_get_contents(resource_path('prompts/story/english.txt'));
         $topic = trim((string) ($in['topic'] ?? '')) !== '' ? trim(preg_replace('/\s+/', ' ', $in['topic'])) : '(write your subject here)';
         $category = ! empty($in['category_id']) ? (Category::choices()[(int) $in['category_id']] ?? null) : null;
-        $slides = max(self::MIN_SLIDES, min(self::MAX_SLIDES, (int) ($in['slides'] ?? 8)));
+        $open = ! empty($in['open']);
+        $slides = $open ? self::OPEN_SLIDES : 'exactly '.max(self::MIN_SLIDES, min(self::MAX_SLIDES, (int) ($in['slides'] ?? 8))).' slides in all, closing slides included.';
         $style = trim(preg_replace('/\s+/', ' ', (string) ($in['style'] ?? ''))) ?: Rules::style();
         $notes = trim(preg_replace('/[ \t]+/', ' ', (string) ($in['notes'] ?? '')));
-        [$words, $sentences, $lengthText] = static::lengthParts($in['length'] ?? null);
-        $rules = str_replace(['{{BODY_WORDS}}', '{{BODY_SENTENCES}}'], [$words, $sentences], Rules::master());
+        [$words, $sentences, $lengthText] = static::lengthParts($in['length'] ?? null, $open);
+        $rules = static::rules($words, $sentences, $open);
 
         return str_replace(
             ['{{RULES}}', '{{TOPIC}}', '{{CATEGORY}}', '{{SLIDES}}', '{{LENGTH}}', '{{STYLE}}', '{{NOTES}}', '{{BODY_WORDS}}', '{{BODY_SENTENCES}}'],
@@ -46,8 +54,8 @@ class Prompt
         $story->loadMissing('chapters.slides', 'category');
         $style = trim(preg_replace('/\s+/', ' ', (string) ($in['style'] ?? ''))) ?: Rules::style();
         $notes = trim(preg_replace('/[ \t]+/', ' ', (string) ($in['notes'] ?? '')));
-        [$words, $sentences, $lengthText] = static::lengthParts($in['length'] ?? null);
-        $rules = str_replace(['{{BODY_WORDS}}', '{{BODY_SENTENCES}}'], [$words, $sentences], Rules::master());
+        [$words, $sentences, $lengthText] = static::lengthParts($in['length'] ?? null, ! empty($in['open']));
+        $rules = static::rules($words, $sentences, false);
         $chapters = $story->chapters->filter(fn ($c) => $c->slides->isNotEmpty());
         $category = $story->category ? ($story->category->mainName() ?? $story->category->name) : '(choose a category)';
 
@@ -79,8 +87,11 @@ class Prompt
     }
 
     /** How long each slide is: the words, the sentences and the sentence of the prompt. @return array{0: string, 1: string, 2: string} */
-    private static function lengthParts(?string $code): array
+    private static function lengthParts(?string $code, bool $open = false): array
     {
+        if ($open) {
+            return [self::OPEN_WORDS, self::OPEN_SENTENCES, 'you decide how long each slide is: as long as its scene needs, usually '.self::OPEN_WORDS.' words ('.self::OPEN_SENTENCES.' short sentences, joined into one flowing paragraph). The flow of the story is more important than the number of words.'];
+        }
         $length = Rules::length($code);
         $words = $length['min'].' to '.$length['max'];
         $sentences = Rules::sentenceRange($length['min'], $length['max']);
@@ -90,6 +101,14 @@ class Prompt
         }
 
         return [$words, $sentences, $text];
+    }
+
+    /** The rules with the numbers of the length filled in. When the AI decides the number of slides, the rule about the exact number is replaced. */
+    private static function rules(string $words, string $sentences, bool $open): string
+    {
+        $rules = str_replace(['{{BODY_WORDS}}', '{{BODY_SENTENCES}}'], [$words, $sentences], Rules::master());
+
+        return $open ? str_replace('The task below says how many slides the story has. Use exactly that number, closing slides included.', 'You decide how many slides the story needs, closing slides included. Let the story decide, not a number.', $rules) : $rules;
     }
 
     private static function notesLine(string $notes): string

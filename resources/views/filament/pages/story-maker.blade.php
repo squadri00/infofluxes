@@ -62,17 +62,22 @@
                 </div>
             </div>
 
+            <label style="display:flex;gap:.6rem;align-items:flex-start;padding:.55rem .7rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;cursor:pointer">
+                <input type="checkbox" wire:model.live="openFlow" style="margin-top:.3rem">
+                <span><strong>Let the AI decide the length and the number of slides</strong> <span style="opacity:.75">(open flow). The story is told as long as it needs, so it can flow freely. The check only notes a very thin or a very long slide.</span></span>
+            </label>
+
             <div style="display:grid;grid-template-columns:minmax(8rem,12rem) 1fr;gap:.9rem">
-                <label>
+                <label @if ($openFlow) style="opacity:.45" @endif>
                     <strong>Slides</strong> <span style="opacity:.7">(as many as the story needs)</span><br>
-                    <input type="number" wire:model.live.debounce.600ms="slides" min="{{ \App\Support\StoryMaker\Prompt::MIN_SLIDES }}" max="{{ \App\Support\StoryMaker\Prompt::MAX_SLIDES }}" style="{{ $box }}">
+                    <input type="number" wire:model.live.debounce.600ms="slides" min="{{ \App\Support\StoryMaker\Prompt::MIN_SLIDES }}" max="{{ \App\Support\StoryMaker\Prompt::MAX_SLIDES }}" style="{{ $box }}" @disabled($openFlow)>
                 </label>
                 <label>
                     <strong>Look of the pictures</strong> <span style="opacity:.7">(one line, the same for every picture of this story)</span><br>
                     <input type="text" wire:model.live.debounce.600ms="style" maxlength="400" style="{{ $box }}">
                 </label>
             </div>
-            <div>
+            <div @if ($openFlow) style="opacity:.45;pointer-events:none" @endif>
                 <strong>How long should each slide be?</strong> <span style="opacity:.7">(the words in the text of a slide)</span>
                 <div style="display:grid;gap:.4rem;margin-top:.3rem">
                     @foreach ($this->lengths() as $code => $l)
