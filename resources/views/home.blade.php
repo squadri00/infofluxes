@@ -34,6 +34,10 @@
         </section>
     @endif
 
+    @if (\App\Support\SiteControls::on('recent_menu'))
+        @include('partials.recent-strip')
+    @endif
+
     <div class="view-bar">@include('partials.view-toggle')</div>
 
     @if ($stories->isNotEmpty())

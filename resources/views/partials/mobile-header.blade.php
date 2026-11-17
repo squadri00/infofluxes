@@ -63,6 +63,10 @@
             @endauth
         </ul>
 
+        @if (\App\Support\SiteControls::on('recent_menu'))
+            @include('partials.recent-menu', ['mode' => 'drawer'])
+        @endif
+
         @if (\App\Support\SiteControls::on('language') && count($mLangs) >= 1)
             <details class="m-drawer__group m-drawer__lang">
                 <summary>

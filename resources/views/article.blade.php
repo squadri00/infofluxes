@@ -20,6 +20,8 @@
     @section('og_image', asset('storage/'.$article->main_image))
 @endif
 @section('canonical', route('article.show', $article->slug))
+@section('recent_title', $title)
+@section('recent_url', route('article.show', $article->slug))
 @if ($preview)
     @section('robots')
         <meta name="robots" content="noindex">
@@ -37,7 +39,7 @@
 @endif
 
 @php $sidebars = (bool) $sideTree; @endphp
-<div class="{{ $sidebars ? 'wrap wrap--wide reading' : 'wrap topic' }}{{ $sidebars && ! \App\Support\SiteControls::on('recent') ? ' reading--two' : '' }}">
+<div class="{{ $sidebars ? 'wrap wrap--wide reading reading--two' : 'wrap topic' }}">
 @if ($sidebars)
     <aside class="reading__side reading__side--left" aria-label="{{ __('site.related_topics') }}">
         @include('partials.side-tree', ['root' => $sideRoot, 'tree' => $sideTree, 'current' => $article, 'sideFacts' => $sideFacts])
@@ -192,10 +194,5 @@
     @endpush
 @endif
 </article>
-@if ($sidebars && \App\Support\SiteControls::on('recent'))
-    <aside class="reading__side reading__side--right" aria-label="{{ __('site.recent_title') }}">
-        @include('partials.recent-box', ['article' => $article, 'title' => $title])
-    </aside>
-@endif
 </div>
 @endsection

@@ -2226,3 +2226,68 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .menu--main .menu__item > a[aria-current="page"] { background: var(--accent); color: var(--accent-text); text-decoration: none; }
 .menu--main .menu__list, .site-header.nav-below .menu--main .menu__list { gap: 8px; }
 .site-header.is-compact .menu--main .menu__item > a, .site-header.is-compact .menu--main .menu__drop > summary { padding: 5px 13px; }
+
+/* Recent: the header drop-down, the phone-menu group and the home-page strip. */
+.recent-menu > summary { display: inline-flex; align-items: center; gap: 6px; }
+.recent-menu__panel { min-width: 260px; max-width: min(360px, calc(100vw - 24px)); right: 0; padding: 10px 12px; }
+.recent-menu__panel--drawer { padding: 4px 14px 10px; }
+.recent-menu__title { margin: 0 0 6px; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.recent-menu__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.recent-menu__list a { padding: 6px 8px 7px; border-radius: 8px; line-height: 1.4; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.recent-menu__list a:hover { background: var(--accent-soft); }
+.recent-menu .recent__none { margin: 4px 0; color: var(--muted); font-size: .9rem; }
+.recent-menu__clear { background: none; border: 0; padding: 4px 0; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; font-size: .85rem; }
+.recent-menu__clear:hover { color: var(--text); }
+.recent-strip { margin-top: 18px; }
+.recent-strip__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.recent-strip__title { margin: 0; font-size: 1.05rem; }
+.recent-strip__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.recent-strip__list a { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--text); text-decoration: none; font-weight: 600; line-height: 1.45; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.recent-strip__list a:hover { background: var(--accent-soft); }
+.recent-strip__list li { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 12px 14px; }
+.recent-strip__list li:hover { background: var(--accent-soft); }
+.recent-strip__list a { padding: 0; border: 0; background: none; }
+.recent-strip__list a:hover { background: none; }
+
+/* The Recent tab stuck to the right edge of the window. Closed: only the tab shows. Open: the card slides out. */
+.recent-tab { --recent-w: min(340px, 86vw); position: fixed; right: 0; top: clamp(210px, 36vh, 380px); z-index: 35; display: flex; align-items: flex-start; transform: translate(var(--recent-w), 0); transition: transform .3s ease; }
+.recent-tab.is-open { transform: translate(0, 0); }
+.recent-tab__btn { order: -1; display: inline-flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 8px; background: var(--surface); color: var(--text); border: 1px solid var(--line); border-right: 0; border-radius: 12px 0 0 12px; box-shadow: -4px 4px 14px rgba(0, 0, 0, .18); cursor: pointer; font: inherit; font-size: .85rem; font-weight: 600; }
+.recent-tab__btn:hover, .recent-tab__btn:focus-visible { background: var(--accent-soft); }
+.recent-tab__btn:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.recent-tab__label { writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .04em; }
+.recent-tab__card { width: var(--recent-w); box-sizing: border-box; max-height: 52vh; overflow-y: auto; padding: 12px 14px; background: var(--surface); border: 1px solid var(--line); border-right: 0; border-radius: 0 0 0 12px; box-shadow: -8px 8px 24px rgba(0, 0, 0, .22); visibility: hidden; transition: visibility 0s .3s; }
+.recent-tab.is-open .recent-tab__card { visibility: visible; transition-delay: 0s; }
+.recent-tab__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.recent-tab__head .recent-menu__title { margin: 0; }
+.recent-tab__close { background: none; border: 0; color: var(--muted); font-size: 1.5rem; line-height: 1; padding: 0 6px; cursor: pointer; }
+.recent-tab__close:hover { color: var(--text); }
+@media (max-width: 700px) {
+    .recent-tab { --recent-w: min(300px, 84vw); }
+    .recent-tab__btn { padding: 10px 6px; }
+    .recent-tab__label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .recent-tab, .recent-tab__card { transition: none; } }
+@media print { .recent-tab { display: none; } }
+.recent-tab__card a { color: var(--text); text-decoration: none; }
+.recent-tab__card a:hover { text-decoration: underline; }
+
+/* Breadcrumb straight under the header on wide pages (categories, galleries): some space above it. Article pages are not touched. */
+.wrap--wide > .path:first-child { padding-top: 22px; }
+
+/* The light/dark button shows ONE icon: the moon while the page is light (press for dark), the sun while it is dark (press for light). */
+.theme-toggle__sun { display: none; }
+:root[data-theme="dark"] .theme-toggle__moon { display: none; }
+:root[data-theme="dark"] .theme-toggle__sun { display: block; }
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .theme-toggle__moon { display: none; }
+    :root:not([data-theme="light"]) .theme-toggle__sun { display: block; }
+}
+
+/* The sound button of the banner: only shown while a video clip is showing. */
+.hero__btn--sound[hidden] { display: none; }
+.hero__btn--sound svg { display: block; }
+
+/* Banner video: the box has the shape of the clips (16:9), so a clip is shown WHOLE, not cropped. It is as tall as its width needs. */
+.hero:not(.hero--full):not(.hero--text-only) .hero__media { aspect-ratio: 16 / 9; min-height: 0; align-self: center; }
+.hero:not(.hero--full) .hero__video { object-fit: contain; background: #000; }

@@ -62,7 +62,7 @@
     {!! \App\Support\Fonts::css() !!}
     {!! \App\Support\Seo::custom('head') !!}
 </head>
-<body>
+<body @if (trim($__env->yieldContent('recent_url')) !== '' && \App\Support\SiteControls::on('recent_menu')) data-recent-url="{{ trim($__env->yieldContent('recent_url')) }}" data-recent-title="{{ trim($__env->yieldContent('recent_title')) }}"@endif>
     {!! \App\Support\Seo::trackingBody() !!}
     {!! \App\Support\Seo::custom('body_start') !!}
     <a class="skip-link" href="#content">{{ __('site.skip_to_content') }}</a>
@@ -82,12 +82,18 @@
     <button type="button" class="to-top" data-to-top hidden aria-label="{{ __('site.back_to_top') }}" title="{{ __('site.back_to_top') }}">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 14l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
+    @if (\App\Support\SiteControls::on('recent_menu'))
+        @include('partials.recent-tab')
+    @endif
     <script src="{{ $ver('js/header.js') }}"></script>
     <script src="{{ $ver('js/mobile-header.js') }}"></script>
     <script src="{{ $ver('js/search-form.js') }}"></script>
     <script src="{{ $ver('js/to-top.js') }}"></script>
     <script src="{{ $ver('js/view-toggle.js') }}"></script>
     <script src="{{ $ver('js/theme.js') }}"></script>
+    @if (\App\Support\SiteControls::on('recent_menu'))
+        <script src="{{ $ver('js/recent.js') }}"></script>
+    @endif
     @stack('scripts')
     @if (\App\Support\Newsletter::enabled() && \App\Support\SiteControls::on('newsletter_popup') && ! request()->routeIs('newsletter.*'))
         @include('partials.newsletter-popup')

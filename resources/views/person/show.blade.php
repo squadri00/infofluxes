@@ -7,6 +7,8 @@
 @endphp
 
 @section('title', $person->name.' | '.$siteName)
+@section('recent_title', $person->name)
+@section('recent_url', route('people.show', $person->slug))
 @if ($description !== '')
     @section('description', $description)
 @endif

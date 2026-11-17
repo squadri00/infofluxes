@@ -65,7 +65,7 @@ class SiteControlsPage extends Page
         return [
             Action::make('quiet')->label('Quiet look')->icon('heroicon-o-speaker-x-mark')
                 ->color(fn () => SiteControls::isQuiet() ? 'primary' : 'gray')
-                ->requiresConfirmation()->modalHeading('Quiet look')->modalDescription('This switches off the noisy parts (likes, counts, share, recently viewed, social buttons, related). Nothing is deleted. The useful extras stay as they are.')
+                ->requiresConfirmation()->modalHeading('Quiet look')->modalDescription('This switches off the noisy parts (likes, counts, share, social buttons, related). Nothing is deleted. The useful extras stay as they are.')
                 ->action(fn () => $this->applyLook(true)),
             Action::make('normal')->label('Normal look')->icon('heroicon-o-speaker-wave')->color('gray')
                 ->action(fn () => $this->applyLook(false)),

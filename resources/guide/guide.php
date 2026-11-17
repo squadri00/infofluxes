@@ -340,7 +340,7 @@ return [
     ],
     [
         'key' => 'site-controls', 'title' => 'Site controls', 'group' => 'Settings', 'classes' => [\App\Filament\Pages\SiteControlsPage::class], 'access' => 'superuser',
-        'what' => 'One page of On/Off switches for the parts of the public site that make it look busy: likes, counts, share buttons, recently viewed, social buttons, related articles, and the useful extras like Listen, Save for later and the language button.',
+        'what' => 'One page of On/Off switches for the parts of the public site that make it look busy: likes, counts, share buttons, social buttons, related articles, and the useful extras like Listen, Save for later, the Recent tab and the language button.',
         'steps' => ['Turn a switch on to show a part, off to hide it, then press Save.', '"Quiet look" switches off all the noisy parts at once. "Normal look" brings them back. The useful extras are never touched by either.', '"All settings (advanced)" opens Site settings.'],
         'tips' => ['Hiding a part never deletes anything: likes, saved items and comments are kept and come back when you switch it on.', 'Some switches are the same ones as in other screens (Listen, newsletter, comments, PDF book), so they always agree.'],
     ],

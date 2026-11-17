@@ -43,9 +43,13 @@ class Step71Test extends TestCase
 
         $this->assertNotEmpty($m, 'the clip is in the banner');
         $video = $m[0];
-        foreach (['data-hero-video', ' muted', ' loop', ' playsinline', ' autoplay', 'disablepictureinpicture'] as $needle) {
+        foreach (['data-hero-video', ' muted', ' playsinline', ' autoplay', 'disablepictureinpicture'] as $needle) {
             $this->assertStringContainsString($needle, $video, $needle);
         }
+        $this->assertStringNotContainsString(' loop', $video, 'a clip plays to its end; only a banner with one slide loops it (hero.js)');
+        $js = (string) file_get_contents(public_path('js/hero.js'));
+        $this->assertStringContainsString('v.loop = single', $js);
+        $this->assertStringContainsString("addEventListener('ended'", $js);
         $this->assertStringNotContainsString('controls', $video);
         $this->assertStringContainsString('<source src="'.asset('storage/hero/videos/a.mp4').'" type="video/mp4">', $video);
         $this->assertStringContainsString('Words on top', $html, 'the words stay on the banner');

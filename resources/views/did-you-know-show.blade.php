@@ -4,13 +4,15 @@
     $site = \App\Models\Setting::get('site_name', config('app.name'));
     $answer = \App\Support\Html::clean((string) $fact->body);
     $full = $fact->article && $fact->article->status === 'published' ? $fact->article : null;
-    // The same page as an article: the branch on the left, "Recently viewed" on the right.
+    // The same page as an article: the branch on the left, the article text on the right.
     $sidebars = (bool) $sideTree;
 @endphp
 
 @section('title', $fact->title.' | '.$site)
 @section('description', $fact->summary(160))
 @section('canonical', $fact->url())
+@section('recent_title', $fact->title)
+@section('recent_url', $fact->url())
 @if ($fact->image)
     @section('og_image', asset('storage/'.$fact->image))
 @endif
@@ -25,7 +27,7 @@
     <div class="preview-banner"><div class="wrap">{{ __('site.draft_notice') }}</div></div>
 @endif
 
-<div class="{{ $sidebars ? 'wrap wrap--wide reading' : 'wrap topic' }}">
+<div class="{{ $sidebars ? 'wrap wrap--wide reading reading--two' : 'wrap topic' }}">
 @if ($sidebars)
     <aside class="reading__side reading__side--left" aria-label="{{ __('site.related_topics') }}">
         @include('partials.side-tree', ['root' => $sideRoot, 'tree' => $sideTree, 'current' => null, 'currentFact' => $fact, 'sideFacts' => $sideFacts])
@@ -73,10 +75,5 @@
         </section>
     @endif
 </article>
-@if ($sidebars)
-    <aside class="reading__side reading__side--right" aria-label="{{ __('site.recent_title') }}">
-        @include('partials.recent-box', ['url' => $fact->url(), 'title' => $fact->title])
-    </aside>
-@endif
 </div>
 @endsection

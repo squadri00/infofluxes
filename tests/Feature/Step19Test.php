@@ -8,7 +8,7 @@ use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** Step 19: the reading page has the branch of topics on the left and "Recently viewed" on the right. */
+/** Step 19: the reading page has the branch of topics on the left and the article beside it. */
 class Step19Test extends TestCase
 {
     use RefreshDatabase;
@@ -68,18 +68,18 @@ class Step19Test extends TestCase
         $this->assertStringNotContainsString('In a hidden place', $html);
     }
 
-    public function test_the_right_side_is_the_recently_viewed_box_for_the_browser_script(): void
+    public function test_the_article_has_no_box_on_the_right_but_remembers_itself_for_the_recent_tab(): void
     {
         [, $one] = $this->tree();
         $this->article('Why we pray', $one);
 
         $html = $this->get('/why-we-pray')->assertOk()->getContent();
 
-        $this->assertStringContainsString('data-recent', $html);
-        $this->assertStringContainsString('data-recent-max="5"', $html, 'five links');
-        $this->assertStringContainsString('data-current-title="Why we pray"', $html);
+        $this->assertStringNotContainsString('data-recent-max="5"', $html, 'no box beside the article any more');
+        $this->assertStringNotContainsString('reading__side--right', $html);
+        $this->assertStringContainsString('reading--two', $html, 'two columns: the branch and the article');
+        $this->assertStringContainsString('data-recent-title="Why we pray"', $html);
         $this->assertStringContainsString('js/recent.js', $html);
-        $this->assertStringContainsString('Recently viewed', $html);
     }
 
     public function test_the_script_keeps_the_list_in_the_browser_only(): void

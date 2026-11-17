@@ -23,7 +23,8 @@
         <div class="hero__media" data-hero data-hero-seconds="{{ $total > 1 ? $hero['seconds'] : 0 }}"
             role="region" aria-roledescription="carousel" aria-label="{{ __('site.hero_region') }}"
             data-label-prev="{{ __('site.hero_prev') }}" data-label-next="{{ __('site.hero_next') }}"
-            data-label-goto="{{ __('site.hero_goto') }}" data-label-pause="{{ __('site.hero_pause') }}" data-label-play="{{ __('site.hero_play') }}">
+            data-label-goto="{{ __('site.hero_goto') }}" data-label-pause="{{ __('site.hero_pause') }}" data-label-play="{{ __('site.hero_play') }}"
+            data-label-sound-on="{{ __('site.hero_sound_on') }}" data-label-sound-off="{{ __('site.hero_sound_off') }}">
             <div class="hero__slides">
                 @foreach ($slides as $i => $slide)
                     @php $link = \App\Support\Hero::link($slide->button_url); @endphp
@@ -32,8 +33,9 @@
                         @if ($i > 0) aria-hidden="true" @endif>
                         @php $still = filled($slide->image) ? (($hero['layout'] ?? 'split') === 'full' ? \App\Support\Hero::bannerUrl($slide) : asset('storage/'.$slide->image)) : null; @endphp
                         @if ($slide->isVideo())
-                            {{-- A clip: it plays by itself, without sound, in a loop, with no controls, and fills the whole banner. The words stay on top. --}}
-                            <video class="hero__video" data-hero-video muted loop playsinline disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1"
+                            {{-- A clip: it plays by itself, without sound, to its end (then the next slide comes; one single slide loops), with no controls, and fills the whole banner. The words stay on top.
+                                 A visitor can turn the sound on with the sound button of the banner (hero.js). --}}
+                            <video class="hero__video" data-hero-video muted playsinline disablepictureinpicture disableremoteplayback aria-hidden="true" tabindex="-1"
                                 preload="{{ $i === 0 ? 'auto' : 'none' }}" @if ($i === 0) autoplay @endif @if ($still) poster="{{ $still }}" @endif>
                                 <source src="{{ asset('storage/'.$slide->video) }}" type="{{ $slide->videoMime() }}">
                             </video>

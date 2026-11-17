@@ -26,6 +26,8 @@
     @section('og_image', asset('storage/'.$story->main_image))
 @endif
 @section('canonical', $storyLang ? $story->urlIn($storyLang) : $story->url())
+@section('recent_title', $title)
+@section('recent_url', $storyLang ? $story->urlIn($storyLang) : $story->url())
 @if ($storyLang)
     @section('shell_ltr', '1')
 @endif

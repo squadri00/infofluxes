@@ -88,7 +88,7 @@ class Step64Test extends TestCase
         $this->get('/')->assertDontSee('lang-menu', false)->assertDontSee('theme-toggle', false)->assertDontSee('data-view-toggle', false)->assertDontSee("localStorage.getItem('infofluxes.view')", false);
     }
 
-    public function test_recently_viewed_and_related_can_be_hidden(): void
+    public function test_related_can_be_hidden(): void
     {
         $this->article();
         Article::create(['title' => ['en' => 'Other one'], 'slug' => 'other-one', 'category_id' => $this->cat->id, 'status' => 'published', 'publish_date' => now()->subDay()]);
@@ -96,10 +96,8 @@ class Step64Test extends TestCase
         $html = $this->get('/moon-article')->getContent();
         $this->assertStringContainsString('Other one', $html);
 
-        SiteControls::set('recent', false);
         SiteControls::set('related', false);
         $html = $this->get('/moon-article')->getContent();
-        $this->assertStringNotContainsString('data-recent', $html);
         $this->assertStringNotContainsString('block__title">Related', $html);
     }
 

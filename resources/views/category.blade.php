@@ -13,6 +13,8 @@
     @section('og_image', asset('storage/'.$category->image))
 @endif
 @section('canonical', route('category.show', $category->slug))
+@section('recent_title', $name)
+@section('recent_url', route('category.show', $category->slug))
 @if ($preview)
     @section('robots')
         <meta name="robots" content="noindex">

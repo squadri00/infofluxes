@@ -1,5 +1,5 @@
 // The hero banner slider: fades from one picture (or video clip) to the next, with arrows, dots and a pause button.
-// A clip plays by itself, without sound, in a loop. It does not play for people who asked their device for less motion
+// A clip plays by itself, without sound, to its end, and then the next slide comes (a visitor can turn the sound on with the sound button). It does not play for people who asked their device for less motion
 // or for a data saver; then its still picture (or its first moment) is shown. The pause button also pauses the clips.
 (function () {
     'use strict';
@@ -17,15 +17,32 @@
         return b;
     }
 
-    function play(video) {
+    // onRefused: called when the browser refuses to play a clip WITH sound (so the clip can go on without sound).
+    function play(video, onRefused) {
         var p = video.play();
-        if (p && p.catch) { p.catch(function () { /* the browser said no: the still picture stays */ }); }
+        if (p && p.catch) {
+            p.catch(function () {
+                if (!video.muted && onRefused) {
+                    onRefused();
+                    var again = video.play();
+                    if (again && again.catch) { again.catch(function () { /* the still picture stays */ }); }
+                }
+                /* otherwise the browser said no: the still picture stays */
+            });
+        }
     }
+
+    var ICON_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
+    var ICON_ON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
 
     function setup(box) {
         var slides = Array.prototype.slice.call(box.querySelectorAll('[data-hero-slide]'));
         var controls = box.querySelector('[data-hero-controls]');
         var hasVideo = !!box.querySelector('[data-hero-video]');
+
+        // A clip plays to its END; then the banner moves on to the next slide. Only when the banner has a single slide does the clip loop.
+        var single = slides.length < 2;
+        Array.prototype.forEach.call(box.querySelectorAll('[data-hero-video]'), function (v) { v.loop = single; });
 
         // Clips that must not play: keep the first moment (or the still picture) and do not download more than needed.
         if (!canPlay) {
@@ -44,15 +61,33 @@
         var paused = false;
         var holding = false;
         var dots = [];
+        var sound = false;          // clips start without sound; a visitor can turn it on with the sound button
+        var soundBtn = null;
+
+        function isVideo(i) { return !!slides[i].querySelector('[data-hero-video]'); }
+
+        // A slide whose clip really plays. Its length decides how long it stays; a picture (or a clip that may not play) uses the seconds.
+        function playsClip(i) { return isVideo(i) && canPlay; }
+
+        function paintSound() {
+            if (!soundBtn) { return; }
+            soundBtn.hidden = !isVideo(current);   // the button is only there while a clip is showing
+            soundBtn.innerHTML = sound ? ICON_ON : ICON_OFF;
+            var label = box.getAttribute(sound ? 'data-label-sound-off' : 'data-label-sound-on');
+            soundBtn.setAttribute('aria-label', label);
+            soundBtn.setAttribute('title', label);
+            soundBtn.setAttribute('aria-pressed', sound ? 'true' : 'false');
+        }
 
         // The clip of the slide that is showing plays; every other clip is stopped (so it does not use the processor or the data).
         function syncVideos() {
             slides.forEach(function (slide, i) {
                 var v = slide.querySelector('[data-hero-video]');
                 if (!v) { return; }
+                v.muted = !(sound && i === current);
                 if (i === current && canPlay && !paused && !document.hidden) {
                     if (v.preload === 'none') { v.preload = 'auto'; }
-                    play(v);
+                    play(v, function () { sound = false; v.muted = true; paintSound(); });
                 } else {
                     v.pause();
                 }
@@ -81,15 +116,19 @@
                 if (v) { try { v.currentTime = 0; } catch (e) { /* not ready yet */ } }
             }
             syncVideos();
+            paintSound();
+            startTimer();
         }
 
-        function stopTimer() { clearInterval(timer); timer = null; }
+        function stopTimer() { clearTimeout(timer); timer = null; }
 
+        // After every change of slide: a picture waits for its seconds, then the next slide comes.
+        // A clip needs no timer: its own end moves the banner on (see the "ended" listeners below).
         function startTimer() {
             stopTimer();
-            if (!seconds || paused || holding) { return; }
-            timer = setInterval(function () {
-                if (!document.hidden) { show(current + 1); }
+            if (!seconds || paused || holding || playsClip(current)) { return; }
+            timer = setTimeout(function () {
+                if (document.hidden) { startTimer(); } else { show(current + 1); }
             }, seconds * 1000);
         }
 
@@ -127,10 +166,46 @@
             controls.appendChild(playBtn);
         }
 
-        // Stay still while someone points at it or uses the keyboard on it (the clips keep playing).
-        box.addEventListener('mouseenter', function () { holding = true; stopTimer(); });
-        box.addEventListener('mouseleave', function () { holding = false; startTimer(); });
-        box.addEventListener('focusin', function () { holding = true; stopTimer(); });
+        // The sound button: a clip plays without sound until a visitor asks for it (browsers only allow sound after a click).
+        if (hasVideo && canPlay && box.getAttribute('data-label-sound-on')) {
+            soundBtn = button('', box.getAttribute('data-label-sound-on'), 'hero__btn--sound');
+            soundBtn.addEventListener('click', function () {
+                sound = !sound;
+                syncVideos();
+                paintSound();
+            });
+            controls.insertBefore(soundBtn, controls.firstChild);
+        }
+
+        // A clip that ends moves the banner on to the next slide. (A clip that cannot load is skipped too.)
+        if (!single) {
+            slides.forEach(function (slide, i) {
+                var v = slide.querySelector('[data-hero-video]');
+                if (!v) { return; }
+                function next() { if (i === current && !paused) { show(current + 1); } }
+                v.addEventListener('ended', next);
+                var src = v.querySelector('source');
+                if (src) { src.addEventListener('error', function () { setTimeout(next, 800); }); }
+            });
+
+            // If the clip on show stops moving for 10 seconds (a slow or broken file), the banner does not wait for ever.
+            var lastTime = -1;
+            var lastMove = Date.now();
+            setInterval(function () {
+                var v = (!paused && !document.hidden && playsClip(current)) ? slides[current].querySelector('[data-hero-video]') : null;
+                if (!v) { lastTime = -1; return; }
+                if (v.currentTime !== lastTime || v.ended) { lastTime = v.currentTime; lastMove = Date.now(); return; }
+                if (Date.now() - lastMove > 10000) { lastMove = Date.now(); lastTime = -1; show(current + 1); }
+            }, 2000);
+        }
+
+        // The banner waits only while someone uses the KEYBOARD on it (and the pause button stops it for everyone).
+        // A mouse resting on the banner, a touch on a phone, or a click on a button must NOT hold it: that made the banner seem stuck.
+        box.addEventListener('focusin', function (e) {
+            var keyboard = true;
+            try { keyboard = e.target.matches(':focus-visible'); } catch (err) { /* older browser: treat as keyboard */ }
+            if (keyboard) { holding = true; stopTimer(); }
+        });
         box.addEventListener('focusout', function () { holding = false; startTimer(); });
 
         box.addEventListener('keydown', function (e) {

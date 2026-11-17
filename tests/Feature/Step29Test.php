@@ -9,7 +9,7 @@ use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/** Step 29: a fact page is the same page as an article: the branch on the left, "Recently viewed" on the right. */
+/** Step 29: a fact page is the same page as an article: the branch on the left and the fact beside it. */
 class Step29Test extends TestCase
 {
     use RefreshDatabase;
@@ -28,7 +28,7 @@ class Step29Test extends TestCase
         ], $extra));
     }
 
-    public function test_a_fact_page_has_the_three_column_reading_layout(): void
+    public function test_a_fact_page_has_the_two_column_reading_layout(): void
     {
         $cat = Category::create(['name' => ['en' => 'Did You Know?'], 'slug' => 'did-you-know']);
         $this->fact('Fact one', $cat);
@@ -37,7 +37,8 @@ class Step29Test extends TestCase
 
         $this->assertStringContainsString('wrap wrap--wide reading', $html);
         $this->assertStringContainsString('reading__side reading__side--left', $html);
-        $this->assertStringContainsString('reading__side reading__side--right', $html);
+        $this->assertStringContainsString('reading--two', $html);
+        $this->assertStringNotContainsString('reading__side--right', $html);
         $this->assertStringContainsString('class="topic reading__main fact"', $html);
     }
 
@@ -61,16 +62,17 @@ class Step29Test extends TestCase
         $this->assertStringContainsString('href="'.route('category.show', ['slug' => 'did-you-know', 'view' => 'index']).'"', $side, 'the link to the full index');
     }
 
-    public function test_the_right_side_remembers_this_fact_in_the_recently_viewed_list(): void
+    public function test_the_fact_page_has_no_box_on_the_right_but_remembers_itself_for_the_recent_tab(): void
     {
         $cat = Category::create(['name' => ['en' => 'Did You Know?'], 'slug' => 'did-you-know']);
         $this->fact('Fact one', $cat);
 
         $html = $this->get(route('did-you-know.show', 'fact-one'))->getContent();
 
-        $this->assertStringContainsString('data-recent', $html);
-        $this->assertStringContainsString('data-current-url="'.route('did-you-know.show', 'fact-one').'"', $html);
-        $this->assertStringContainsString('data-current-title="Fact one"', $html);
+        $this->assertStringNotContainsString('data-recent-max="5"', $html, 'no box beside the fact any more');
+        $this->assertStringNotContainsString('reading__side--right', $html);
+        $this->assertStringContainsString('data-recent-url="'.route('did-you-know.show', 'fact-one').'"', $html);
+        $this->assertStringContainsString('data-recent-title="Fact one"', $html);
         $this->assertStringContainsString('js/recent.js', $html);
     }
 
