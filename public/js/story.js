@@ -53,11 +53,39 @@
     var current = 0;
     var ready = false;
 
-    // The book numbers its PAGES, two for every spread: "3 · 4 / 40". The other viewers count slides: "2 / 20".
-    if (cfg.book) {
-        var totalEl = root.querySelector('[data-story-total]');
-        if (totalEl) { totalEl.textContent = String(total * 2); }
+    // ---------- Spreads ----------
+    // A spread is what is on the two pages at the same time. In the book, two text-only slides that follow each other share ONE spread:
+    // the first on the left page (the page where a picture would be), the next on the right page. A slide with a picture is a whole spread.
+    // In every other viewer a spread is simply one slide.
+    var spreads = [];          // a list of lists of slide numbers
+    var spreadOf = [];         // slide number => spread number
+    var totalEl = root.querySelector('[data-story-total]');
+
+    function isPageSlide(s) { return s.classList.contains('slide--text') && !!s.querySelector(':scope > .slide__text > .slide__body'); }
+
+    function layout() {
+        var paged = cfg.book && window.innerWidth >= 720;
+        spreads = [];
+        spreadOf = [];
+        slides.forEach(function (s) { s.removeAttribute('data-page'); });
+        var i = 0;
+        while (i < total) {
+            var pair = [i];
+            if (paged && isPageSlide(slides[i])) {
+                slides[i].setAttribute('data-page', 'left');
+                if (i + 1 < total && isPageSlide(slides[i + 1])) {      // the next text slide goes on the right page, even when a new chapter starts there
+                    pair.push(i + 1);
+                    slides[i + 1].setAttribute('data-page', 'right');
+                }
+            }
+            spreads.push(pair);
+            pair.forEach(function (k) { spreadOf[k] = spreads.length - 1; });
+            i += pair.length;
+        }
+        // The book numbers its PAGES, two for every spread: "3 · 4 / 40". The other viewers count slides: "2 / 20".
+        if (totalEl) { totalEl.textContent = String(cfg.book ? spreads.length * 2 : total); }
     }
+    layout();
 
     root.classList.add('story--js');
     if (controls) { controls.hidden = false; }
@@ -127,34 +155,34 @@
         flipEl = null;
     }
 
-    // One page: the left or the right half of a copy of a slide.
-    function pageOf(slide, side, W, H, cls) {
+    // One page: the left or the right half of copies of the slides of a spread (one slide, or two text slides side by side).
+    function pageOf(spread, side, W, H, cls) {
         var wrap = document.createElement('div');
         wrap.className = cls;
         var inner = document.createElement('div');
-        inner.className = 'book-page__inner';
+        inner.className = 'book-page__inner story__track';
         inner.style.width = W + 'px';
         inner.style.height = H + 'px';
         if (side === 'right') { inner.style.marginLeft = (-W / 2) + 'px'; }
-        var copy = slide.cloneNode(true);
-        copy.removeAttribute('id');
-        copy.classList.add('is-active', 'book-clone');
-        copy.setAttribute('aria-hidden', 'true');
-        Array.prototype.forEach.call(copy.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
-        Array.prototype.forEach.call(copy.querySelectorAll('a, button'), function (n) { n.tabIndex = -1; });
-        copy.style.width = W + 'px';
-        copy.style.height = H + 'px';
-        inner.appendChild(copy);
+        spreads[spread].forEach(function (k) {
+            var copy = slides[k].cloneNode(true);
+            copy.removeAttribute('id');
+            copy.classList.add('is-active', 'book-clone');
+            copy.setAttribute('aria-hidden', 'true');
+            Array.prototype.forEach.call(copy.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
+            Array.prototype.forEach.call(copy.querySelectorAll('a, button'), function (n) { n.tabIndex = -1; });
+            inner.appendChild(copy);
+        });
         wrap.appendChild(inner);
         return wrap;
     }
 
-    function flip(from, to) {
+    function flip(from, to) {      // from and to are numbers of SPREADS
         endFlip();
-        var a = slides[from];
-        var b = slides[to];
-        var W = a.offsetWidth;
-        var H = a.offsetHeight;
+        var a = from;
+        var b = to;
+        var W = (track || stage).offsetWidth;
+        var H = (track || stage).offsetHeight;
         if (!W || !H) { return; }
         var speed = parseFloat(getComputedStyle(box).getPropertyValue('--v-speed')) || 550;
         var dur = Math.max(650, Math.min(1500, Math.round(speed * 1.5)));
@@ -182,8 +210,10 @@
 
     function show(i, writeHash) {
         if (i < 0 || i >= total) { return; }
-        var from = current;
+        var fromSpread = spreadOf[current];
         current = i;
+        var spreadNow = spreadOf[i];
+        var shown = spreads[spreadNow];       // the slides that are on the two pages now (one, or two text slides in the book)
 
         // The row of slides glides sideways to the chosen one. The first time it is placed without gliding.
         if (track) {
@@ -191,18 +221,18 @@
             track.style.transform = cfg.fade ? '' : 'translateX(' + (-100 * i) + '%)';
         }
         slides.forEach(function (s, n) {
-            var on = n === i;
+            var on = shown.indexOf(n) >= 0;
             s.classList.toggle('is-active', on);
             s.setAttribute('aria-hidden', on ? 'false' : 'true');
             if ('inert' in s) { s.inert = !on; }                    // a slide that is out of sight cannot be reached with the keyboard
-            if (on && ready) {
+            if (on && ready && fromSpread !== spreadNow) {
                 var text = s.querySelector('.slide__text');
                 if (text) { text.scrollTop = 0; }
             }
         });
-        if (from !== i && canFlip()) { flip(from, i); }
+        if (fromSpread !== spreadNow && canFlip()) { flip(fromSpread, spreadNow); }
         dots.forEach(function (d, n) {
-            d.classList.toggle('is-active', n === i);
+            d.classList.toggle('is-active', shown.indexOf(n) >= 0);
             if (n === i) { d.setAttribute('aria-current', 'true'); } else { d.removeAttribute('aria-current'); }
         });
         chapterButtons.forEach(function (b) {
@@ -221,12 +251,14 @@
             homeBtn.classList.toggle('is-active', i === 0);
             if (i === 0) { homeBtn.setAttribute('aria-current', 'true'); } else { homeBtn.removeAttribute('aria-current'); }
         }
-        if (counter) { counter.textContent = cfg.book ? (2 * i + 1) + ' · ' + (2 * i + 2) : String(i + 1); }
+        if (counter) { counter.textContent = cfg.book ? (2 * spreadNow + 1) + ' · ' + (2 * spreadNow + 2) : String(i + 1); }
 
-        muted(prev, !cfg.loop && i === 0);
-        muted(next, !cfg.loop && i === total - 1);
-        muted(arrowPrev, !cfg.loop && i === 0);
-        muted(arrowNext, !cfg.loop && i === total - 1);
+        var firstSpread = spreadNow === 0;
+        var lastSpread = spreadNow === spreads.length - 1;
+        muted(prev, !cfg.loop && firstSpread);
+        muted(next, !cfg.loop && lastSpread);
+        muted(arrowPrev, !cfg.loop && firstSpread);
+        muted(arrowNext, !cfg.loop && lastSpread);
         muted(nextChapter, !hasNextChapter());
 
         if (writeHash && window.history && history.replaceState) {
@@ -247,10 +279,11 @@
         return false;
     }
 
+    // Next and Previous move from spread to spread (in the book that is two text slides at a time).
     function go(step) {
-        var n = current + step;
-        if (cfg.loop) { n = (n + total) % total; }
-        if (n >= 0 && n < total) { show(n, true); }
+        var n = spreadOf[current] + step;
+        if (cfg.loop) { n = (n + spreads.length) % spreads.length; }
+        if (n >= 0 && n < spreads.length) { show(spreads[n][0], true); }
     }
 
     function goNextChapter() {
@@ -317,6 +350,20 @@
     show(first === null ? 0 : first, false);
     // From now on a change glides (unless the person asked their device for less movement: the style then turns it off).
     window.setTimeout(function () { ready = true; if (track) { track.classList.remove('is-instant'); } }, 80);
+
+    // The book groups the text slides in pairs only on a wide screen. When the window crosses that width, the spreads are made again.
+    var wasPaged = cfg.book && window.innerWidth >= 720;
+    window.addEventListener('resize', function () {
+        var paged = cfg.book && window.innerWidth >= 720;
+        if (paged === wasPaged) { return; }
+        wasPaged = paged;
+        var wasReady = ready;
+        ready = false;               // no page turn for this change
+        endFlip();
+        layout();
+        show(current, false);
+        ready = wasReady;
+    });
 
     // Moving by itself (off unless a number of seconds is set; never for people who asked for less movement)
     var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

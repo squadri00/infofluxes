@@ -2376,16 +2376,18 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
     .viewer--book .slide:not(.slide--text) .slide__text { padding-left: 40px; }
 }
 
-/* Book: a slide with NO picture. The text starts on the empty picture page (the left one), under the chapter name and the heading, and goes on to the right page
-   like a printed book. The words keep the normal size. If the two pages are not enough, the next pages are reached with a small scroll bar under the text. */
+/* Book: text-only slides are single PAGES. Two of them (the same chapter) share a spread: the first on the left page (where a picture would be), the next on the right page.
+   Each page has its title and text in the normal size and scrolls by itself if the text is long. story.js sets data-page="left" or "right". */
 @media (min-width: 720px) {
-    .story--js .viewer.viewer--book .slide--text:has(> .slide__text > .slide__body) { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); min-height: min(52vh, 440px); }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) > .slide__text { display: block; align-self: stretch; box-sizing: border-box; width: 100%; max-width: none; margin: 0; padding: 36px 80px;
-        contain: size; overflow-x: auto; overflow-y: hidden; columns: 2; column-gap: 100px; column-fill: auto; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__chapter { margin: 0 0 6px; break-after: avoid; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__heading { margin: 0 0 14px; break-after: avoid; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body { padding: 0; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body p { orphans: 2; widows: 2; }
+    .story--js .viewer.viewer--book .slide[data-page] { width: 50%; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); min-height: min(52vh, 440px); }
+    .viewer--book .slide[data-page="left"] { justify-self: start; }
+    .viewer--book .slide[data-page="right"] { justify-self: end; }
+    .viewer--book .slide[data-page] > .slide__text { display: block; align-self: stretch; box-sizing: border-box; width: 100%; max-width: none; margin: 0; min-height: 0; max-height: none; contain: size; overflow-y: auto; }
+    .viewer--book .slide[data-page="left"] > .slide__text { padding: 36px 52px 36px 80px; }
+    .viewer--book .slide[data-page="right"] > .slide__text { padding: 36px 80px 36px 52px; }
     /* a slide with a picture: the words keep clear of the round arrow on the right */
     .viewer--book .slide:not(.slide--text) .slide__text { padding-right: 80px; }
 }
+
+/* Book: whatever the colour chosen for the viewer, the book itself is paper. An empty page is cream, never white. */
+.story--js .viewer.viewer--book .story__stage, .story--js .viewer.viewer--book .story__track { background: #fbf6e9; }

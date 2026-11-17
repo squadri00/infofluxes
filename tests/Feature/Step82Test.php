@@ -68,27 +68,39 @@ class Step82Test extends TestCase
     {
         $js = (string) file_get_contents(public_path('js/story.js'));
 
-        $this->assertStringContainsString('(2 * i + 1)', $js);
-        $this->assertStringContainsString('(2 * i + 2)', $js);
-        $this->assertStringContainsString('totalEl.textContent = String(total * 2)', $js);
+        $this->assertStringContainsString('(2 * spreadNow + 1)', $js);
+        $this->assertStringContainsString('(2 * spreadNow + 2)', $js);
+        $this->assertStringContainsString('String(cfg.book ? spreads.length * 2 : total)', $js);
     }
 
-    public function test_the_style_sheet_has_the_spiral_and_two_text_pages_for_a_slide_without_a_picture(): void
+    public function test_two_text_only_slides_of_a_chapter_share_a_spread_and_next_moves_by_spreads(): void
+    {
+        $js = (string) file_get_contents(public_path('js/story.js'));
+
+        $this->assertStringContainsString('function layout()', $js);
+        $this->assertStringContainsString("setAttribute('data-page', 'left')", $js);
+        $this->assertStringContainsString("setAttribute('data-page', 'right')", $js);
+        $this->assertStringNotContainsString('chapterOf(i + 1) === chapterOf(i)', $js, 'the next text slide goes on the right page even when a new chapter starts there');
+        $this->assertStringContainsString('var n = spreadOf[current] + step;', $js, 'Next and Previous move from spread to spread');
+        $this->assertStringContainsString('spreads[spread].forEach', $js, 'the turning leaf copies every slide of a spread');
+    }
+
+    public function test_the_style_sheet_has_the_spiral_and_single_text_pages(): void
     {
         $css = (string) file_get_contents(public_path('css/site.css'));
 
         foreach ([
             '.viewer--book .story__stage::before', 'data:image/svg+xml', 'repeat-y center top',
             '.story__bar-right', '.story__bar .story__counter',
-            // a slide without a picture: the text starts on the left page under the chapter name and the heading, goes on to the right page,
-            // and a small scroll bar leads to the next pages when two pages are not enough
-            '.slide--text:has(> .slide__text > .slide__body) > .slide__text { display: block;',
-            'columns: 2; column-gap: 100px; column-fill: auto;',
-            'overflow-x: auto; overflow-y: hidden;',
+            // a text-only slide is one page: left or right, with its own scroll bar
+            '.viewer--book .slide[data-page="left"] { justify-self: start; }',
+            '.viewer--book .slide[data-page="right"] { justify-self: end; }',
+            'contain: size; overflow-y: auto;',
         ] as $needle) {
             $this->assertStringContainsString($needle, $css, $needle);
         }
         $this->assertStringNotContainsString('--book-fs', $css, 'the words keep the normal size');
+        $this->assertStringNotContainsString('column-fill: auto', $css);
     }
 
     public function test_the_script_does_not_change_the_size_of_the_words(): void
