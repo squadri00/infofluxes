@@ -131,6 +131,22 @@ class Rules
         $saved === [] ? Setting::query()->where('key', self::LANGUAGES_KEY)->delete() : Setting::put(self::LANGUAGES_KEY, $saved);
         Setting::forget();
     }
+    // ---------- read the whole story before the draft (optional) ----------
+
+    public const REQUIRE_READ_KEY = 'storymaker_require_read';
+
+    /** When on, "Save as a draft" waits until the whole story was opened in the reading panel. Off unless the super user switches it on. */
+    public static function requireRead(): bool
+    {
+        return (string) Setting::get(self::REQUIRE_READ_KEY, '0') === '1';
+    }
+
+    public static function saveRequireRead(bool $on): void
+    {
+        $on ? Setting::put(self::REQUIRE_READ_KEY, '1') : Setting::query()->where('key', self::REQUIRE_READ_KEY)->delete();
+        Setting::forget();
+    }
+
     // ---------- how long each slide is ----------
 
     public const LENGTHS_KEY = 'storymaker_lengths';

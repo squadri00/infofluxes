@@ -296,6 +296,30 @@ class Reader
         return $f;
     }
     /** The words that are told (verses in Arabic and the reference lines in brackets are left out of the count). @return array{0: string, 1: bool} */
+    /** The words a reader reads in one slide (a Quran verse and a reference in brackets are not counted). */
+    public static function wordCount(string $body): int
+    {
+        [$prose] = static::prose($body);
+
+        return static::words($prose);
+    }
+
+    /**
+     * The notes that start with "Slide 3" belong to that slide. @param  list<string>  $warnings
+     * @return array<int, list<string>>
+     */
+    public static function warningsBySlide(array $warnings): array
+    {
+        $out = [];
+        foreach ($warnings as $w) {
+            if (preg_match('/^Slide (\d+)\b/', (string) $w, $m)) {
+                $out[(int) $m[1]][] = $w;
+            }
+        }
+
+        return $out;
+    }
+
     private static function prose(string $body): array
     {
         $hasArabic = false;

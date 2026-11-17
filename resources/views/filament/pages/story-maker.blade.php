@@ -120,7 +120,7 @@
         <x-filament::section>
             <x-slot name="heading">Step 3. What was found</x-slot>
             <div style="display:grid;gap:.8rem;max-width:60rem">
-                <div style="padding:.7rem .9rem;border:1px solid {{ $errors ? '#d92d20' : ($warnings ? '#dc9b00' : '#2d9d5a') }};border-radius:.5rem">
+                <div data-story-found style="padding:.7rem .9rem;border:1px solid {{ $errors ? '#d92d20' : ($warnings ? '#dc9b00' : '#2d9d5a') }};border-radius:.5rem">
                     <strong>{{ $errors ? '✗' : '✓' }} {{ $story['title'] ?: '(no title)' }}</strong>
                     <span style="opacity:.75"> &middot; {{ $story['slide_count'] ?? 0 }} slides in {{ count($story['chapters'] ?? []) }} chapters</span>
                     @foreach ($errors as $error)<div style="color:#d92d20">Problem: {{ $error }}</div>@endforeach
@@ -128,6 +128,12 @@
                     @if (! $errors && ! $warnings)<div style="color:#2d9d5a">Nothing to fix.</div>@endif
 
                     @if (! empty($story['short']))<p style="margin:.6rem 0 0;opacity:.85">{{ $story['short'] }}</p>@endif
+
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.6rem">
+                        <x-filament::button wire:click="openReading" size="sm" color="gray">Read the whole story</x-filament::button>
+                        <button type="button" style="cursor:pointer;border:1px solid rgba(128,128,128,.6);border-radius:.3rem;padding:.15rem .6rem" onclick="this.closest('[data-story-found]').querySelectorAll('details').forEach(function (d) { d.open = true; })">Open all chapters</button>
+                        <button type="button" style="cursor:pointer;border:1px solid rgba(128,128,128,.6);border-radius:.3rem;padding:.15rem .6rem" onclick="this.closest('[data-story-found]').querySelectorAll('details').forEach(function (d) { d.open = false; })">Close all</button>
+                    </div>
 
                     @foreach (($story['chapters'] ?? []) as $ci => $chapter)
                         <details style="margin-top:.5rem" @if ($loop->last) open @endif>
@@ -152,6 +158,43 @@
                     @endif
                 </div>
 
+                @if ($readOpen)
+                    @php $notes = $this->slideNotes(); $n = 0; @endphp
+                    <div id="read-the-story" style="padding:1rem 1.2rem;border:1px solid rgba(128,128,128,.5);border-radius:.6rem;display:grid;gap:.9rem">
+                        <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+                            <strong style="font-size:1.1rem">The whole story, in order</strong>
+                            <span style="opacity:.7">This is only a reading copy. Nothing is saved by opening it.</span>
+                            <x-filament::button wire:click="closeReading" size="sm" color="gray" style="margin-left:auto">Close</x-filament::button>
+                        </div>
+                        <h2 style="margin:0;font-size:1.5rem;font-weight:700">{{ $story['title'] ?: '(no title)' }}</h2>
+                        @if (! empty($story['short']))<p style="margin:0;font-style:italic;opacity:.85">{{ $story['short'] }}</p>@endif
+                        @foreach (($story['chapters'] ?? []) as $ci => $chapter)
+                            <section wire:key="read-chapter-{{ $ci }}" style="display:grid;gap:.7rem">
+                                <h3 style="margin:.4rem 0 0;font-size:1.15rem;font-weight:700;padding-bottom:.2rem;border-bottom:1px solid rgba(128,128,128,.4)">Chapter {{ $ci + 1 }}: {{ $chapter['title'] }}</h3>
+                                @foreach ($chapter['slides'] as $slide)
+                                    @php $n++; @endphp
+                                    <article wire:key="read-slide-{{ $n }}" style="padding:.6rem .8rem;border-left:3px solid {{ isset($notes[$n]) ? '#dc9b00' : 'rgba(128,128,128,.4)' }};display:grid;gap:.3rem">
+                                        <div style="opacity:.65;font-size:.85rem">Slide {{ $n }} &middot; {{ \App\Support\StoryMaker\Reader::wordCount($slide['body']) }} words</div>
+                                        <strong>{{ $slide['heading'] }}</strong>
+                                        <div>
+                                            @foreach (preg_split('/\n+/', trim($slide['body'])) as $line)
+                                                @if (\App\Support\StoryMaker\Arabic::isLine($line))
+                                                    <div dir="rtl" lang="ar" style="font-size:1.45rem;line-height:2;margin:.2rem 0">{{ $line }}</div>
+                                                @else
+                                                    <p style="margin:.2rem 0">{{ $line }}</p>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        @if ($slide['picture'] !== '')<div style="opacity:.65;font-size:.85rem">Picture: {{ $slide['picture'] }}</div>@endif
+                                        @foreach ($notes[$n] ?? [] as $note)<div style="color:#b07800;font-size:.9rem">Note: {{ $note }}</div>@endforeach
+                                    </article>
+                                @endforeach
+                            </section>
+                        @endforeach
+                        <div><x-filament::button wire:click="closeReading" size="sm" color="gray">Close</x-filament::button></div>
+                    </div>
+                @endif
+
                 @if ($done)
                     <div style="padding:.7rem .9rem;border:1px solid #2d9d5a;border-radius:.5rem">
                         <strong>{{ $done['updated'] ? 'Updated' : 'Saved' }}: the draft story {{ $done['code'] }}, {{ $done['title'] }}</strong>
@@ -159,13 +202,20 @@
                         <a href="{{ $done['url'] }}" style="text-decoration:underline;font-weight:600">Open the story &rarr;</a> &middot; <a href="#pictures" style="text-decoration:underline;font-weight:600">Add the pictures (Step 4) &darr;</a> &middot; <a href="{{ \App\Filament\Pages\StoryTranslations::getUrl(['story' => $run?->story_id ?? $this->run()?->story_id]) }}" style="text-decoration:underline;font-weight:600">Translate it (step 2) &rarr;</a>
                     </div>
                 @else
-                    <div>
-                        <x-filament::button wire:click="saveStory" wire:loading.attr="disabled" :disabled="! empty($errors) || ! $categoryId">Save as a draft</x-filament::button>
-                        <span style="margin-left:.6rem;opacity:.7">
-                            @if ($errors) Fix the problems first.
-                            @elseif (! $categoryId) Choose the category in Step 1 first.
-                            @else Saving again updates the same draft while it is still a draft. @endif
-                        </span>
+                    <div style="display:grid;gap:.5rem">
+                        @if ($updateNote = $this->updateNote())
+                            <div style="padding:.6rem .8rem;border:1px solid #dc9b00;border-radius:.4rem;color:#b07800">{{ $updateNote }}</div>
+                        @endif
+                        @php $mustRead = \App\Support\StoryMaker\Rules::requireRead() && ! $readOpened; @endphp
+                        <div>
+                            <x-filament::button wire:click="saveStory" wire:loading.attr="disabled" :disabled="! empty($errors) || ! $categoryId || $mustRead">Save as a draft</x-filament::button>
+                            <span style="margin-left:.6rem;opacity:.7">
+                                @if ($errors) Fix the problems first.
+                                @elseif (! $categoryId) Choose the category in Step 1 first.
+                                @elseif ($mustRead) Press "Read the whole story" and read it first.
+                                @else Not happy with it? Do not save: change the prompt and ask the AI again. Saving again updates the same draft while it is still a draft. @endif
+                            </span>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -311,6 +361,7 @@
                         @endforeach
                     </div>
                 </div>
+                <label style="display:flex;gap:.5rem;align-items:flex-start"><input type="checkbox" wire:model="ruleRequireRead" style="margin-top:.3rem"> <span><strong>Make people read the whole story first</strong> <span style="opacity:.7">("Save as a draft" waits until the "Read the whole story" panel was opened)</span></span></label>
                 <textarea wire:model="ruleText" rows="22" style="width:100%;padding:.6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent;font-family:monospace;font-size:.85rem"></textarea>
                 <div style="display:flex;gap:.6rem;align-items:center">
                     <x-filament::button wire:click="saveRules">Save the rules</x-filament::button>

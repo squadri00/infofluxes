@@ -50,10 +50,15 @@
                     <div wire:key="have-{{ $code }}" style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;padding:.45rem .6rem;border:1px solid rgba(128,128,128,.3);border-radius:.4rem">
                         <span style="flex:1;min-width:10rem"><strong>{{ $l['name'] }}</strong> <span style="opacity:.7" dir="auto">{{ $l['native'] }}</span></span>
                         @if ($row)
+                            @if ($row['outdated'])
+                                <span style="color:#b07800;font-weight:600">Out of date{{ $row['outdated_at'] ? ': the English text changed '.\Illuminate\Support\Carbon::parse($row['outdated_at'])->diffForHumans() : '' }}. It is hidden.</span>
+                            @endif
                             <span style="opacity:.8">{{ $row['status'] === 'on' ? 'Shown on the site' : 'Saved, hidden' }}@if ($row['saved_at']) &middot; {{ \Illuminate\Support\Carbon::parse($row['saved_at'])->diffForHumans() }}@endif</span>
                             <a href="{{ \App\Filament\Pages\StoryTranslationEdit::getUrl(['story' => $story->id, 'lang' => $code]) }}" style="{{ $mini }};text-decoration:none;color:inherit">Edit the text</a>
                             @if ($row['status'] === 'on')
                                 <button type="button" wire:click="setStatus('{{ $code }}', 'hidden')" style="{{ $mini }}">Hide</button>
+                            @elseif ($row['outdated'])
+                                <span style="opacity:.7;max-width:20rem">Make it again below, or read and fix it with "Edit the text" and save. Then it can be shown.</span>
                             @else
                                 <button type="button" wire:click="setStatus('{{ $code }}', 'on')" style="{{ $mini }}">Show on the site</button>
                             @endif

@@ -247,6 +247,11 @@ class StoryTranslations extends Page
     {
         $story = $this->story();
         if ($story) {
+            if ($status === 'on' && (Translations::all($story)[$code]['outdated'] ?? false)) {
+                Notification::make()->warning()->title('This language is out of date.')->body('The English text changed after it was made. Make it again, or read it with "Edit the text" and save it. Then you can show it.')->send();
+
+                return;
+            }
             Translations::set($story, $code, $status);
         }
     }

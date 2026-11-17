@@ -23,6 +23,8 @@ class Translations
                     'saved_at' => $row['saved_at'] ?? null,
                     'run' => $row['run'] ?? null,
                     'keywords' => (array) ($row['keywords'] ?? []),
+                    'outdated' => (bool) ($row['outdated'] ?? false),
+                    'outdated_at' => $row['outdated_at'] ?? null,
                 ];
             }
         }
@@ -52,6 +54,9 @@ class Translations
         if (! isset($all[$code]) || ! in_array($status, ['hidden', 'on'], true)) {
             return;
         }
+        if ($status === 'on' && ! empty($all[$code]['outdated'])) {
+            return;      // the English text changed after this language was made
+        }
         $all[$code]['status'] = $status;
         static::write($story, $all);
     }
@@ -67,6 +72,37 @@ class Translations
             'keywords' => array_values($keywords),
         ];
         static::write($story, $all);
+    }
+
+    /**
+     * The English text of the story changed, so every saved language no longer matches it: they are hidden and marked "out of date" until they are
+     * made again (or read and saved again). Returns the number of languages that were marked.
+     * $inSave = true when $story is the story that is being saved right now (its attribute is changed, the save follows by itself).
+     */
+    public static function markOutdated(Story $story, bool $inSave = false): int
+    {
+        $all = (array) ($story->custom_data['translations'] ?? []);
+        $n = 0;
+        foreach ($all as $code => $row) {
+            if (is_array($row) && empty($row['outdated'])) {
+                $all[$code]['status'] = 'hidden';
+                $all[$code]['outdated'] = true;
+                $all[$code]['outdated_at'] = now()->toDateTimeString();
+                $n++;
+            }
+        }
+        if ($n === 0) {
+            return 0;
+        }
+        if ($inSave) {
+            $data = (array) $story->custom_data;
+            $data['translations'] = $all;
+            $story->custom_data = $data;
+        } else {
+            static::write($story, $all);
+        }
+
+        return $n;
     }
 
     public static function remove(Story $story, string $code): void

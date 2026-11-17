@@ -63,6 +63,11 @@ class StoryMaker extends Page
 
     public bool $checked = false;
 
+    /** The panel that shows the whole story is open / was opened for this answer (the safety "read it first" needs the second). */
+    public bool $readOpen = false;
+
+    public bool $readOpened = false;
+
     /** @var array<string, mixed>|null */
     public ?array $done = null;
 
@@ -72,6 +77,8 @@ class StoryMaker extends Page
 
     /** @var array<string, array{min: int, max: int}> the words of each length (super user) */
     public array $lengthEdits = [];
+
+    public bool $ruleRequireRead = false;
 
     // ---------- the pictures (bulk upload) ----------
 
@@ -106,6 +113,7 @@ class StoryMaker extends Page
 
     private function loadLengths(): void
     {
+        $this->ruleRequireRead = Rules::requireRead();
         $this->lengthEdits = [];
         foreach (Rules::lengths() as $code => $row) {
             $this->lengthEdits[$code] = ['min' => $row['min'], 'max' => $row['max']];
@@ -116,6 +124,51 @@ class StoryMaker extends Page
     public function lengths(): array
     {
         return Rules::lengths();
+    }
+
+    public function openReading(): void
+    {
+        $this->readOpen = true;
+        $this->readOpened = true;
+    }
+
+    public function closeReading(): void
+    {
+        $this->readOpen = false;
+    }
+
+    /** A new answer is a new thing to read. */
+    public function updatedPaste(): void
+    {
+        $this->readOpen = false;
+        $this->readOpened = false;
+    }
+
+    /** The notes of the check that belong to one slide, by the number of the slide. @return array<int, list<string>> */
+    public function slideNotes(): array
+    {
+        return Reader::warningsBySlide((array) ($this->result['warnings'] ?? []));
+    }
+
+    /**
+     * When this run updates a draft that already has pictures and the new text has other chapters or slides, the pictures (which are kept by their
+     * place) may end up on the wrong slide. Said before saving.
+     */
+    public function updateNote(): ?string
+    {
+        $run = $this->run();
+        $story = $run?->story_id ? Story::query()->with('chapters.slides')->find($run->story_id) : null;
+        if (! $story || $story->status !== 'draft' || ! $story->slides()->whereNotNull('image')->exists()) {
+            return null;
+        }
+        $old = $story->chapters->map(fn ($c) => $c->slides->count())->all();
+        $new = collect((array) ($this->result['story']['chapters'] ?? []))->map(fn ($c) => count((array) ($c['slides'] ?? [])))->all();
+        if ($old === $new) {
+            return null;
+        }
+
+        return 'This run updates the draft '.$story->code.'. It has '.array_sum($old).' slides in '.count($old).' chapters, the new text has '.array_sum($new).' slides in '.count($new)
+            .' chapters. The pictures you added stay in the same places (the first picture stays on the first slide, and so on), so some may no longer fit their slide. Check them after saving.';
     }
 
     /** @return array<int, string> */
@@ -209,6 +262,12 @@ class StoryMaker extends Page
 
             return;
         }
+        if (Rules::requireRead() && ! $this->readOpened) {
+            Notification::make()->warning()->title('Read the whole story first.')->body('Press "Read the whole story" and read it. Then you can save it as a draft.')->send();
+
+            return;
+        }
+        $note = $this->updateNote();
 
         $run = $this->persist('checked');
         $updating = (bool) $run->story_id;
@@ -226,7 +285,8 @@ class StoryMaker extends Page
             'url' => StoryResource::getUrl('edit', ['record' => $story]),
             'slides' => $read['story']['slide_count'],
         ];
-        Notification::make()->success()->title($updating ? 'The draft story '.$story->code.' is updated.' : 'Saved as the draft story '.$story->code.'.')->send();
+        Notification::make()->success()->title($updating ? 'The draft story '.$story->code.' is updated.' : 'Saved as the draft story '.$story->code.'.')
+            ->body($note ?? ($updating && ($n = count(\App\Support\StoryMaker\Translations::all($story))) > 0 ? 'The English text was updated, so its '.$n.' saved language(s) are hidden and marked out of date.' : null))->send();
     }
 
     /** @return \Illuminate\Support\Collection<int, StoryRun> */
@@ -253,6 +313,8 @@ class StoryMaker extends Page
         $this->result = (array) $run->result;
         $this->checked = $this->result !== [];
         $this->done = null;
+        $this->readOpen = false;
+        $this->readOpened = false;
         Notification::make()->success()->title('Run opened. The prompt is made again from the saved choices.')->send();
     }
 
@@ -266,7 +328,7 @@ class StoryMaker extends Page
 
     public function newRun(): void
     {
-        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done']);
+        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened']);
         $this->slides = 8;
         $this->length = 'short';
         $this->style = Rules::style();
@@ -389,6 +451,7 @@ class StoryMaker extends Page
         Rules::save($this->ruleText);
         Rules::saveStyle($this->ruleStyle);
         Rules::saveLengths($this->lengthEdits);
+        Rules::saveRequireRead($this->ruleRequireRead);
         $this->ruleText = Rules::master();
         $this->ruleStyle = Rules::style();
         $this->loadLengths();
@@ -401,6 +464,7 @@ class StoryMaker extends Page
         Rules::reset();
         Rules::saveStyle('');
         Rules::resetLengths();
+        Rules::saveRequireRead(false);
         $this->ruleText = Rules::master();
         $this->ruleStyle = Rules::style();
         $this->loadLengths();
