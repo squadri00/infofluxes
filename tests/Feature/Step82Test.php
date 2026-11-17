@@ -80,14 +80,15 @@ class Step82Test extends TestCase
         foreach ([
             '.viewer--book .story__stage::before', 'data:image/svg+xml', 'repeat-y center top',
             '.story__bar-right', '.story__bar .story__counter',
-            // a slide without a picture: chapter name and heading on the left page, the words on the right page, each page scrolls by itself
-            '.slide--text:has(> .slide__text > .slide__body) .slide__heading { grid-column: 1; grid-row: 2;',
-            '.slide__body { grid-column: 2; grid-row: 1 / -1;',
+            // a slide without a picture: the text starts on the left page under the chapter name and the heading, goes on to the right page,
+            // and a small scroll bar leads to the next pages when two pages are not enough
+            '.slide--text:has(> .slide__text > .slide__body) > .slide__text { display: block;',
+            'columns: 2; column-gap: 100px; column-fill: auto;',
+            'overflow-x: auto; overflow-y: hidden;',
         ] as $needle) {
             $this->assertStringContainsString($needle, $css, $needle);
         }
         $this->assertStringNotContainsString('--book-fs', $css, 'the words keep the normal size');
-        $this->assertStringNotContainsString('column-count: 2', $css);
     }
 
     public function test_the_script_does_not_change_the_size_of_the_words(): void
