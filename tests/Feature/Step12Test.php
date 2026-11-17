@@ -287,7 +287,7 @@ class Step12Test extends TestCase
         $this->assertStringContainsString('data-story data-total="4"', $html);
         $this->assertStringContainsString('Picture: Inforfluxes', $html);
         $this->assertStringContainsString('Picture: AI Generated', $html, 'no credit: the old rule');
-        $this->assertLessThan(strpos($html, 'class="article__body"'), strpos($html, 'data-story'));
+        $this->assertStringNotContainsString('class="article__body"', $html, 'nothing of the story is written outside the viewer');
     }
 
     // ---------- the page and the command ----------

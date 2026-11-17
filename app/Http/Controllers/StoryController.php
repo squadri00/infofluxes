@@ -110,6 +110,15 @@ class StoryController extends Controller
             ->when($category, fn ($q) => $q->where('category_id', $category->id))
             ->with(['category', 'contributor'])->withCount('slides')->orderByDesc('publish_date')->limit(4)->get();
 
+        // The "Audience": approved comments for everyone, plus the visitor's own comments that still wait.
+        $me = auth()->id();
+        $visible = fn ($q) => $q->where(fn ($w) => $w->where('status', 'approved')->when($me, fn ($o) => $o->orWhere(fn ($x) => $x->where('status', 'pending')->where('user_id', $me))));
+        $comments = \App\Models\Comment::query()
+            ->where('story_id', $story->id)->whereNull('parent_id')
+            ->tap($visible)
+            ->with(['user', 'replies' => fn ($q) => $visible($q)->with('user')])
+            ->orderBy('id')->get();
+
         // The row "Read in: English · اردو · …" and the language tags for search engines.
         $names = Rules::languages();
         $languageLinks = [];
@@ -138,6 +147,7 @@ class StoryController extends Controller
             'previous' => $previous,
             'next' => $next,
             'related' => $related,
+            'comments' => $comments,
             'preview' => $preview && $story->status !== 'published',
             'storyLang' => $lang,
             'storyRtl' => $lang !== null && (bool) ($names[$lang]['rtl'] ?? false),

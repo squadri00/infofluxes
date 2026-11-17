@@ -82,6 +82,12 @@ class Story extends Model
         return $this->hasMany(StoryChapter::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    /** The "Audience": comments of readers on this story. */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     public function slides(): HasManyThrough
     {
         return $this->hasManyThrough(StorySlide::class, StoryChapter::class);

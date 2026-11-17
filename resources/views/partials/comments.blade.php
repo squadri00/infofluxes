@@ -1,11 +1,14 @@
-{{-- The discussion under an article. $article and $comments (top-level, each with its replies) are required. --}}
+{{-- The discussion under an article, or the "Audience" under a story. $article (the article or the story) and $comments (top-level, each with its replies) are required.
+     Optional: $heading and $hint (the words above the comments). --}}
 @php
     $open = (bool) \App\Models\Setting::get('comments_open', true);
     $me = auth()->user();
     $bodyOf = fn ($c) => nl2br(e($c->body));
+    $ownerField = $article instanceof \App\Models\Story ? 'story_id' : 'article_id';
 @endphp
 <section class="comments" id="comments" aria-labelledby="comments-title">
-    <h2 class="block__title" id="comments-title">{{ __('site.discussion') }}</h2>
+    <h2 class="block__title" id="comments-title">{{ $heading ?? __('site.discussion') }}</h2>
+    @if (! empty($hint))<p class="comments__hint">{{ $hint }}</p>@endif
 
     @if ($comments->isEmpty())
         <p class="empty">{{ __('site.no_comments') }}</p>
@@ -40,7 +43,7 @@
                     <summary>{{ __('site.reply') }}</summary>
                     <form method="post" action="{{ route('comments.store') }}" class="auth-form">
                         @csrf
-                        <input type="hidden" name="article_id" value="{{ $article->id }}">
+                        <input type="hidden" name="{{ $ownerField }}" value="{{ $article->id }}">
                         <input type="hidden" name="parent_id" value="{{ $comment->id }}">
                         <label class="field"><span class="visually-hidden">{{ __('site.reply') }}</span><textarea name="body" rows="3" maxlength="2000" required></textarea></label>
                         <button class="btn btn--small" type="submit">{{ __('site.post_comment') }}</button>
@@ -59,7 +62,7 @@
     @else
         <form method="post" action="{{ route('comments.store') }}" class="auth-form auth-form--wide">
             @csrf
-            <input type="hidden" name="article_id" value="{{ $article->id }}">
+            <input type="hidden" name="{{ $ownerField }}" value="{{ $article->id }}">
             <label class="field"><span>{{ __('site.write_comment') }}</span><textarea name="body" rows="4" maxlength="2000" required>{{ old('body') }}</textarea></label>
             @error('body')<p class="field__error" role="alert">{{ $message }}</p>@enderror
             <button class="btn btn--small" type="submit">{{ __('site.post_comment') }}</button>

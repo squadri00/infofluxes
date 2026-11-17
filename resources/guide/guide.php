@@ -176,9 +176,9 @@ return [
     ],
     [
         'key' => 'comments', 'title' => 'Comments', 'group' => 'Content', 'classes' => [CommentResource::class], 'access' => 'comments',
-        'what' => 'The discussion under articles. A member\'s comment waits here until you approve it.',
+        'what' => 'The discussion under articles, and the "Audience" under stories. A member\'s comment waits here until you approve it.',
         'steps' => ['The list opens on "Waiting for approval". Read, then approve or hide.', 'Replies by staff are shown at once.'],
-        'tips' => [],
+        'tips' => ['The column "Article or story" says where a comment was written. A story comment shows the word Story under the name.'],
     ],
     [
         'key' => 'dyk', 'title' => 'Did You Know?', 'group' => 'Content', 'classes' => [DidYouKnowResource::class], 'access' => 'facts',

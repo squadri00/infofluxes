@@ -146,7 +146,7 @@ class ProfileController extends Controller
             'made_on' => now()->toIso8601String(),
             'profile' => ['name' => $user->name, 'email' => $user->email, 'about_me' => $user->bio, 'has_picture' => (bool) $user->photo, 'role' => $user->role, 'email_confirmed_at' => $user->email_verified_at?->toIso8601String(), 'joined' => $user->created_at?->toIso8601String()],
             'linked_sign_ins' => SocialAccount::where('user_id', $user->id)->get(['provider', 'email', 'created_at'])->toArray(),
-            'comments' => Comment::where('user_id', $user->id)->with('article')->orderBy('id')->get()->map(fn ($c) => ['on' => $c->article?->mainTitle(), 'written' => $c->created_at?->toIso8601String(), 'status' => $c->status, 'text' => $c->body])->all(),
+            'comments' => Comment::where('user_id', $user->id)->with(['article', 'story'])->orderBy('id')->get()->map(fn ($c) => ['on' => $c->article?->mainTitle() ?? $c->story?->mainTitle(), 'written' => $c->created_at?->toIso8601String(), 'status' => $c->status, 'text' => $c->body])->all(),
             'likes_and_dislikes' => Reaction::where('user_id', $user->id)->with('reactable')->get()->map(fn ($r) => ['on' => $r->reactable?->mainTitle(), 'value' => $r->value === Reaction::LIKE ? 'like' : 'dislike'])->all(),
             'saved' => SavedItem::where('user_id', $user->id)->with('saveable')->get()->map(fn ($s) => ['item' => $s->saveable?->mainTitle()])->all(),
             'articles_sent_in' => Article::where('author_id', $user->id)->get()->map(fn ($a) => ['title' => $a->mainTitle(), 'status' => $a->status, 'code' => $a->code])->all(),

@@ -32,6 +32,7 @@ return [
     'story_picture_credit' => 'الصورة:',
     'story_prev' => 'السابق',
     'stories_in' => 'قصص بلغة',
+    'story_audience' => 'الجمهور',
     'story_read_in' => 'اقرأ بـ',
     'story_slide_label' => 'الشريحة :n من :total',
     'story_slides_count' => ':n شرائح',

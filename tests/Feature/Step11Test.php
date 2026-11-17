@@ -78,8 +78,8 @@ class Step11Test extends TestCase
 
         $this->assertStringContainsString('data-story data-total="4"', $html, 'cover + 3 slides');
         $this->assertStringContainsString('data-viewer', $html);
-        $this->assertLessThan(strpos($html, 'class="article__body"'), strpos($html, 'data-story'), 'the viewer comes first');
-        $this->assertLessThan(strpos($html, 'The text under the viewer.'), strpos($html, 'Slide three'));
+        $this->assertStringNotContainsString('class="article__body"', $html, 'nothing of the story is written outside the viewer');
+        $this->assertStringNotContainsString('The text under the viewer.', $html);
         $this->assertStringContainsString('js/story.js', $html);
         $this->assertStringContainsString('<h1 class="visually-hidden">A picture story', $html, 'the title is in the cover, so the heading is only for readers who use a screen reader');
         $this->assertStringNotContainsString('class="topic__master"', $html, 'the main picture is the cover of the viewer, not shown twice');

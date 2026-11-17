@@ -58,7 +58,7 @@ class Step75Test extends TestCase
 
         $this->assertStringContainsString('[ur] The Walk', $html);
         $this->assertStringContainsString('[ur] The hill', $html);
-        $this->assertStringContainsString('<article class="wrap topic" lang="ur" dir="rtl"', $html, 'the story is right to left');
+        $this->assertStringContainsString('<article class="wrap topic story-page" lang="ur" dir="rtl"', $html, 'the story is right to left');
         $this->assertStringContainsString('<html lang="en" dir="ltr">', $html, 'the header and the footer stay English and left to right');
         $this->assertStringContainsString('<link rel="canonical" href="'.url('/ur/stories/the-walk').'">', $html);
         $this->assertStringContainsString('"inLanguage":"ur"', $html);
@@ -178,11 +178,11 @@ class Step75Test extends TestCase
         $this->story();
 
         $en = $this->get('/stories/the-walk?lang=en')->getContent();
-        $this->assertStringContainsString('class="story__pdf"', $en);
+        $this->assertStringContainsString('story-tools__book', $en);
         $this->assertStringContainsString('data-listen=', $en);
 
         $ur = $this->get('/ur/stories/the-walk')->getContent();
-        $this->assertStringNotContainsString('story__pdf', $ur);
+        $this->assertStringNotContainsString('story-tools__book', $ur);
         $this->assertStringNotContainsString('data-listen=', $ur);
         $this->assertStringNotContainsString('js/listen.js', $ur);
     }

@@ -32,6 +32,7 @@ return [
     'story_picture_credit' => 'चित्र:',
     'story_prev' => 'पिछला',
     'stories_in' => 'कहानियाँ इस भाषा में',
+    'story_audience' => 'दर्शक',
     'story_read_in' => 'इस भाषा में पढ़ें',
     'story_slide_label' => 'स्लाइड :n / :total',
     'story_slides_count' => ':n स्लाइड',
