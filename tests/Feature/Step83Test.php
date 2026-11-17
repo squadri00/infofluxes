@@ -84,21 +84,17 @@ class Step83Test extends TestCase
         }
     }
 
-    public function test_every_page_shows_a_peeled_corner_and_the_spiral_is_gone(): void
+    public function test_the_pages_have_no_drawn_corner_fold_all_four_stars_stay_and_the_spiral_is_gone(): void
     {
         $css = (string) file_get_contents(public_path('css/site.css'));
 
-        // the peeled corner: the corner that is gone, and the folded flap with its shadow; mirrored on a left page
-        foreach ([
-            '.fb-page .fb-page__in::after { background: var(--bg, #14171c); clip-path: polygon(100% 0, 0 100%, 100% 100%); }',
-            'clip-path: polygon(100% 0, 0 100%, 0 0); filter: drop-shadow(',
-            '.fb-page.--left .fb-page__in::before, .fb-page.--left .fb-page__in::after { left: 0; transform: scaleX(-1); }',
-        ] as $needle) {
-            $this->assertStringContainsString($needle, $css, $needle);
-        }
+        // the corner of a page is the library's own (it lifts when the mouse is near; a corner can be dragged), not a drawing on the page
+        $this->assertStringNotContainsString('.fb-page .fb-page__in::after', $css);
+        $this->assertStringNotContainsString('.fb-page .fb-page__in::before', $css);
+        $this->assertStringNotContainsString('scaleX(-1)', $css);
+        $this->assertStringContainsString('background-image: var(--frame-star), var(--frame-star), var(--frame-star), var(--frame-star);', $css, 'a star in each of the four corners');
         $this->assertStringNotContainsString('.viewer--book .story__stage::before', $css, 'the spiral binding is gone');
     }
-
     public function test_the_fullscreen_words_exist(): void
     {
         $this->assertSame('Fullscreen', __('site.story_fullscreen'));

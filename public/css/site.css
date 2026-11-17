@@ -2509,15 +2509,3 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .fb-page--text.--right .fb-page__in > .slide__text { padding-left: 40px; }
 .story--js .fb-page--pic .fb-page__in > .slide__media { right: 44px; }
 .story--js .fb-page--pic.--right .fb-page__in > .slide__media { left: 44px; right: 44px; }
-
-/* ===== A peeled corner on every page, always in sight: the corner is folded back and shows the back of the paper, with a soft shadow. It tells the reader the page can be turned. ===== */
-.fb-page .fb-page__in::before, .fb-page .fb-page__in::after { content: ""; position: absolute; bottom: 0; width: 46px; height: 46px; pointer-events: none; z-index: 6; }
-/* the corner that is gone (the colour of the page behind the book) */
-.fb-page .fb-page__in::after { background: var(--bg, #14171c); clip-path: polygon(100% 0, 0 100%, 100% 100%); }
-/* the flap: the back of the paper, lighter near the fold, with the shadow it casts on the page */
-.fb-page .fb-page__in::before { background: linear-gradient(135deg, #cfba86 0%, #e6d6a6 38%, #f8efd2 49%, #f8efd2 50%); clip-path: polygon(100% 0, 0 100%, 0 0); filter: drop-shadow(-3px -3px 4px rgba(60, 40, 10, .45)); }
-.fb-page.--right .fb-page__in::before, .fb-page.--right .fb-page__in::after { right: 0; }
-.fb-page.--left .fb-page__in::before, .fb-page.--left .fb-page__in::after { left: 0; transform: scaleX(-1); }
-/* the star in the corner that is peeled would be hidden: leave it out there */
-.fb-page.--right::before { background-image: var(--frame-star), var(--frame-star), var(--frame-star); background-position: left 3px top 3px, right 3px top 3px, left 3px bottom 3px; }
-.fb-page.--left::before { background-image: var(--frame-star), var(--frame-star), var(--frame-star); background-position: left 3px top 3px, right 3px top 3px, right 3px bottom 3px; }
