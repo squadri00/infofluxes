@@ -2376,15 +2376,14 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
     .viewer--book .slide:not(.slide--text) .slide__text { padding-left: 40px; }
 }
 
-/* Book: a slide with NO picture fills BOTH pages: the chapter name, the heading and the whole text flow from the left page on to the right page, like a printed book. */
+/* Book: a slide with NO picture. The empty picture page (the left one) carries the chapter name and the heading, the words are on the right page,
+   all in the normal size. Each page scrolls by itself when it needs more room. */
 @media (min-width: 720px) {
-    .story--js .viewer.viewer--book .slide--text:has(> .slide__text > .slide__body) { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) > .slide__text { display: block; align-self: center; box-sizing: border-box; width: 100%; max-width: none; margin: 0; height: auto; max-height: none; overflow: visible; contain: none;
-        column-count: 2; column-gap: 100px; column-fill: balance; padding: 34px 84px; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__chapter { margin: 0 0 6px; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__heading { margin: 0 0 14px; font-size: clamp(1.6rem, 2.4vw, 2.3rem); line-height: 1.15; break-after: avoid; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body { padding: 0; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body p { orphans: 2; widows: 2; }
+    .story--js .viewer.viewer--book .slide--text:has(> .slide__text > .slide__body) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); min-height: min(52vh, 440px); }
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) > .slide__text { display: contents; }
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__chapter { grid-column: 1; grid-row: 1; align-self: end; margin: 0; padding: 36px 32px 6px 80px; }
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__heading { grid-column: 1; grid-row: 2; align-self: start; margin: 0; padding: 0 32px 24px 80px; min-height: 0; overflow-y: auto; }
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body { grid-column: 2; grid-row: 1 / -1; align-self: stretch; min-height: 0; contain: size; overflow-y: auto; padding: 36px 80px 36px 44px; }
     /* a slide with a picture: the words keep clear of the round arrow on the right */
     .viewer--book .slide:not(.slide--text) .slide__text { padding-right: 80px; }
 }

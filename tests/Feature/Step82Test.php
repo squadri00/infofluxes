@@ -73,16 +73,28 @@ class Step82Test extends TestCase
         $this->assertStringContainsString('totalEl.textContent = String(total * 2)', $js);
     }
 
-    public function test_the_style_sheet_has_the_spiral_and_fills_both_pages_of_a_slide_without_a_picture(): void
+    public function test_the_style_sheet_has_the_spiral_and_two_text_pages_for_a_slide_without_a_picture(): void
     {
         $css = (string) file_get_contents(public_path('css/site.css'));
 
         foreach ([
             '.viewer--book .story__stage::before', 'data:image/svg+xml', 'repeat-y center top',
             '.story__bar-right', '.story__bar .story__counter',
-            'column-count: 2', 'column-gap: 100px',
+            // a slide without a picture: chapter name and heading on the left page, the words on the right page, each page scrolls by itself
+            '.slide--text:has(> .slide__text > .slide__body) .slide__heading { grid-column: 1; grid-row: 2;',
+            '.slide__body { grid-column: 2; grid-row: 1 / -1;',
         ] as $needle) {
             $this->assertStringContainsString($needle, $css, $needle);
         }
+        $this->assertStringNotContainsString('--book-fs', $css, 'the words keep the normal size');
+        $this->assertStringNotContainsString('column-count: 2', $css);
+    }
+
+    public function test_the_script_does_not_change_the_size_of_the_words(): void
+    {
+        $js = (string) file_get_contents(public_path('js/story.js'));
+
+        $this->assertStringNotContainsString('fitText', $js);
+        $this->assertStringNotContainsString('--book-fs', $js);
     }
 }
