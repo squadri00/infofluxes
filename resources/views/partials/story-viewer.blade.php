@@ -17,10 +17,8 @@
     ] : null;
 @endphp
 <div class="{{ \App\Support\ViewerStyle::classes() }}" style="{{ \App\Support\ViewerStyle::style() }}" {!! \App\Support\ViewerStyle::data() !!} data-viewer>
-    @if ($total > 0)
-        <p class="story__counter" aria-live="polite" aria-atomic="true"><span data-story-current>1</span> / <span>{{ $total }}</span></p>
-    @endif
-
+    {{-- The top row: Home and the chapters on the left; on the right the language row ("Read in") and the page number. --}}
+    <div class="story__bar">
     @if ($chapters->count() > 0)
         {{-- The chapter buttons are switched on by story.js. Without it, the slides simply follow each other. --}}
         @php $chapterMenu = \App\Support\ViewerStyle::chaptersAsMenu($chapters); @endphp
@@ -48,6 +46,20 @@
             @endif
         </nav>
     @endif
+    <div class="story__bar-right">
+        @if (! empty($languageLinks ?? []))
+            <nav class="story-langs" aria-label="{{ __('site.story_read_in') }}">
+                <span class="story-langs__label">{{ __('site.story_read_in') }}:</span>
+                @foreach ($languageLinks as $link)
+                    <a class="story-langs__link" href="{{ $link['url'] }}" lang="{{ $link['code'] }}" hreflang="{{ $link['code'] }}"@if ($link['current']) aria-current="true"@endif>{{ $link['native'] }}@if ($link['hidden']) <small>(hidden)</small>@endif</a>
+                @endforeach
+            </nav>
+        @endif
+        @if ($total > 0)
+            <p class="story__counter" aria-live="polite" aria-atomic="true"><span data-story-current>1</span> / <span data-story-total>{{ $total }}</span></p>
+        @endif
+    </div>
+    </div>
 
 @if ($total === 0)
     <p class="empty">{{ __('site.story_empty') }}</p>

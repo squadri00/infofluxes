@@ -71,7 +71,8 @@
         </ol>
     </nav>
 
-    @if ($languageLinks)
+    {{-- A story with slides shows this row inside the viewer (top right, with the page number). Without slides it stays here. --}}
+    @if ($languageLinks && empty($storyItems))
         <nav class="story-langs" aria-label="{{ __('site.story_read_in') }}">
             <span class="story-langs__label">{{ __('site.story_read_in') }}:</span>
             @foreach ($languageLinks as $link)

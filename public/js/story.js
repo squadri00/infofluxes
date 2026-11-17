@@ -53,6 +53,12 @@
     var current = 0;
     var ready = false;
 
+    // The book numbers its PAGES, two for every spread: "3 · 4 / 40". The other viewers count slides: "2 / 20".
+    if (cfg.book) {
+        var totalEl = root.querySelector('[data-story-total]');
+        if (totalEl) { totalEl.textContent = String(total * 2); }
+    }
+
     root.classList.add('story--js');
     if (controls) { controls.hidden = false; }
     if (arrowPrev) { arrowPrev.hidden = false; }
@@ -215,7 +221,7 @@
             homeBtn.classList.toggle('is-active', i === 0);
             if (i === 0) { homeBtn.setAttribute('aria-current', 'true'); } else { homeBtn.removeAttribute('aria-current'); }
         }
-        if (counter) { counter.textContent = String(i + 1); }
+        if (counter) { counter.textContent = cfg.book ? (2 * i + 1) + ' · ' + (2 * i + 2) : String(i + 1); }
 
         muted(prev, !cfg.loop && i === 0);
         muted(next, !cfg.loop && i === total - 1);
