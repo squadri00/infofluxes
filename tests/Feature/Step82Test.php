@@ -144,4 +144,18 @@ class Step82Test extends TestCase
             $this->assertStringContainsString($needle, $css, $needle);
         }
     }
+
+    public function test_the_picture_fills_the_framed_page_and_everything_keeps_a_gap_from_the_frame(): void
+    {
+        $css = (string) file_get_contents(public_path('css/site.css'));
+
+        // the picture: the whole page inside the frame (stretched, any ratio), 44px from the top, bottom and left, 56px from the spine side
+        $this->assertStringContainsString('.slide__media { margin: 44px 56px 44px 44px; }', $css);
+        $this->assertStringContainsString('height: auto; aspect-ratio: auto; max-height: none; align-self: stretch;', $css);
+        // the stars are small enough not to cover the picture (28px, and the picture starts at 44px)
+        $this->assertStringContainsString('background-size: 28px 28px;', $css);
+        // the words keep their distance too
+        $this->assertStringContainsString('.slide[data-page="left"] > .slide__text { padding: 58px 56px 58px 80px; }', $css);
+        $this->assertStringContainsString('.slide[data-page="right"] > .slide__text { padding: 58px 80px 58px 56px; }', $css);
+    }
 }

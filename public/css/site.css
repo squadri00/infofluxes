@@ -2447,3 +2447,17 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
     .viewer--book .slide[data-page="left"] > .slide__text { padding: 58px 52px 58px 80px; }
     .viewer--book .slide[data-page="right"] > .slide__text { padding: 58px 80px 58px 52px; }
 }
+
+/* Book frame: the picture fills the whole framed page (the edges may be cropped), and everything keeps an even gap of about 18px from the frame. */
+@media (min-width: 720px) {
+    .story--js .viewer.viewer--book .slide__media { margin: 35px 51px 35px 35px; height: auto; aspect-ratio: auto; max-height: none; align-self: stretch; }
+    .viewer--book .slide:not(.slide--text) .slide__text { padding: 52px 80px 52px 56px; }
+    .viewer--book .slide[data-page="left"] > .slide__text { padding: 58px 56px 58px 80px; }
+    .viewer--book .slide[data-page="right"] > .slide__text { padding: 58px 80px 58px 56px; }
+}
+
+/* Book frame: smaller stars, and the picture starts after them (nothing is covered) */
+@media (min-width: 720px) {
+    .viewer--book .slide::before, .viewer--book .slide::after { background-size: 28px 28px; }
+    .story--js .viewer.viewer--book .slide__media { margin: 44px 56px 44px 44px; }
+}
