@@ -54,7 +54,7 @@ class Step79Test extends TestCase
 
         $this->assertStringContainsString('story-theatre', $html);
         $this->assertStringContainsString('story-theatre__frame', $html);
-        $this->assertStringContainsString('story story--page', $html, 'the stage has the width of the page');
+        $this->assertMatchesRegularExpression('/class="story story--(wide|boxed|embedded)[^"]*" style="--v-box/', $html, 'the stage keeps the full width chosen in the settings');
         $this->assertStringContainsString('story-meta', $html);
         $this->assertStringNotContainsString('topic__hook', $html, 'the short text is not repeated under the stage');
         $this->assertStringNotContainsString('article__body', $html, 'the long text is not written under the stage');

@@ -2295,15 +2295,6 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 /* ===== Story page: one stage, one width. Nothing of the story is written outside the slide viewer. ===== */
 .story-page.wrap { max-width: 1120px; }
 .story-theatre { margin: 4px 0 12px; }
-.story-theatre__frame { background: #0e1219; border-radius: 22px; padding: clamp(10px, 1.8vw, 20px); box-shadow: 0 18px 50px rgba(0, 0, 0, .28), inset 0 0 0 1px rgba(255, 255, 255, .07); }
-.story-theatre__frame .story { margin: 0; padding: 0; max-width: none; width: 100%; }
-.story-theatre__frame .story__counter { color: #c9d1e0; margin: 0 0 8px; }
-.story-theatre__frame .story__chapters { margin-bottom: 10px; }
-.story-theatre__frame .story__chapter { background: rgba(255, 255, 255, .08); color: #e6e9ef; border-color: rgba(255, 255, 255, .22); }
-.story-theatre__frame .story__chapter:hover { background: rgba(255, 255, 255, .16); }
-.story-theatre__frame .story__dots { margin-top: 12px; }
-.story-theatre__frame .story__dot { background: rgba(255, 255, 255, .3); }
-.story-theatre__frame .story__dot.is-current, .story-theatre__frame .story__dot[aria-current="true"] { background: #fff; }
 
 /* The tools under the stage: Listen (opens the player) and the PDF book. */
 .story-tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; margin-top: 12px; }

@@ -84,7 +84,7 @@
     @if (! empty($storyItems))
         <section class="story-theatre" aria-label="{{ $title }}">
             <div class="story-theatre__frame">
-                <div class="story story--page" data-story data-total="{{ count($storyItems) }}">
+                <div class="story {{ \App\Support\ViewerStyle::widthClass(true) }}" style="--v-box: {{ \App\Support\ViewerStyle::boxWidth() }}px" data-story data-total="{{ count($storyItems) }}">
                     @include('partials.story-viewer', ['article' => $story, 'items' => $storyItems])
                 </div>
             </div>
