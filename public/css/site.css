@@ -2382,9 +2382,17 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
     .viewer--book .slide--text:has(> .slide__text > .slide__body) > .slide__text { display: block; align-self: center; box-sizing: border-box; width: 100%; max-width: none; margin: 0; height: auto; max-height: none; overflow: visible; contain: none;
         column-count: 2; column-gap: 100px; column-fill: balance; padding: 34px 84px; }
     .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__chapter { margin: 0 0 6px; }
-    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__heading { margin: 0 0 14px; font-size: clamp(1.6rem, 2.4vw, 2.3rem); line-height: 1.15; break-after: avoid; }
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__heading { margin: 0 0 14px; font-size: calc(var(--book-fs, 1.15rem) * 1.7); line-height: 1.15; break-after: avoid; }
     .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body { padding: 0; }
     .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body p { orphans: 2; widows: 2; }
     /* a slide with a picture: the words keep clear of the round arrow on the right */
     .viewer--book .slide:not(.slide--text) .slide__text { padding-right: 80px; }
+}
+
+/* Book: the size of the words of a slide without a picture is set by story.js (--book-fs) so that the two pages are well filled. */
+@media (min-width: 720px) {
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) > .slide__text { font-size: var(--book-fs, 1.15rem); }
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body { font-size: inherit; line-height: 1.55; }
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__body p { font-size: inherit; margin: 0 0 .8em; }
+    .viewer--book .slide--text:has(> .slide__text > .slide__body) .slide__chapter { font-size: calc(var(--book-fs, 1.15rem) * .55); }
 }
