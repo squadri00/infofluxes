@@ -2366,11 +2366,7 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .story__bar .story__counter { margin: 0; white-space: nowrap; }
 .story__bar .story-langs { margin: 0; }
 
-/* ===== The book is bound with a spiral: silver rings down the middle fold ===== */
 @media (min-width: 720px) {
-    .viewer--book .story__stage::before { content: ""; position: absolute; top: 6px; bottom: 6px; left: 50%; width: 44px; transform: translateX(-50%); z-index: 8; pointer-events: none;
-        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='22' viewBox='0 0 44 22'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fafcfd'/%3E%3Cstop offset='.45' stop-color='%23c3cad2'/%3E%3Cstop offset='1' stop-color='%236b737d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='6.5' cy='11' rx='3.4' ry='4.4' fill='%23241b12' fill-opacity='.9'/%3E%3Cellipse cx='37.5' cy='11' rx='3.4' ry='4.4' fill='%23241b12' fill-opacity='.9'/%3E%3Crect x='2.5' y='7' width='39' height='7.5' rx='3.75' fill='url(%23g)'/%3E%3Crect x='3.5' y='7.8' width='37' height='1.6' rx='.8' fill='%23fff' fill-opacity='.7'/%3E%3C/svg%3E") repeat-y center top / 44px 22px;
-        filter: drop-shadow(0 1px 1px rgba(40, 28, 10, .3)); }
     /* room around the rings: the picture and the words keep away from the fold */
     .viewer--book .slide__media { margin-right: 28px; }
     .viewer--book .slide:not(.slide--text) .slide__text { padding-left: 40px; }
@@ -2505,3 +2501,23 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 
 /* flipbook: pages waiting off to the side (while a corner is lifted) must never widen the page */
 .story--fb .fb, .story--fb .story__stage, .story--fb .viewer { overflow-x: clip; }
+
+/* ===== The spiral is gone: the pages meet at a simple fold, so the frames, the words and the pictures can come a little closer to it ===== */
+.fb-page.--left::before { right: 10px; }
+.fb-page.--right::before { left: 10px; }
+.fb-page--text.--left .fb-page__in > .slide__text { padding-right: 40px; }
+.fb-page--text.--right .fb-page__in > .slide__text { padding-left: 40px; }
+.story--js .fb-page--pic .fb-page__in > .slide__media { right: 44px; }
+.story--js .fb-page--pic.--right .fb-page__in > .slide__media { left: 44px; right: 44px; }
+
+/* ===== A peeled corner on every page, always in sight: the corner is folded back and shows the back of the paper, with a soft shadow. It tells the reader the page can be turned. ===== */
+.fb-page .fb-page__in::before, .fb-page .fb-page__in::after { content: ""; position: absolute; bottom: 0; width: 46px; height: 46px; pointer-events: none; z-index: 6; }
+/* the corner that is gone (the colour of the page behind the book) */
+.fb-page .fb-page__in::after { background: var(--bg, #14171c); clip-path: polygon(100% 0, 0 100%, 100% 100%); }
+/* the flap: the back of the paper, lighter near the fold, with the shadow it casts on the page */
+.fb-page .fb-page__in::before { background: linear-gradient(135deg, #cfba86 0%, #e6d6a6 38%, #f8efd2 49%, #f8efd2 50%); clip-path: polygon(100% 0, 0 100%, 0 0); filter: drop-shadow(-3px -3px 4px rgba(60, 40, 10, .45)); }
+.fb-page.--right .fb-page__in::before, .fb-page.--right .fb-page__in::after { right: 0; }
+.fb-page.--left .fb-page__in::before, .fb-page.--left .fb-page__in::after { left: 0; transform: scaleX(-1); }
+/* the star in the corner that is peeled would be hidden: leave it out there */
+.fb-page.--right::before { background-image: var(--frame-star), var(--frame-star), var(--frame-star); background-position: left 3px top 3px, right 3px top 3px, left 3px bottom 3px; }
+.fb-page.--left::before { background-image: var(--frame-star), var(--frame-star), var(--frame-star); background-position: left 3px top 3px, right 3px top 3px, right 3px bottom 3px; }

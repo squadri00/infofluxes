@@ -85,12 +85,12 @@ class Step82Test extends TestCase
         $this->assertStringContainsString('spreads[spread].forEach', $js, 'the turning leaf copies every slide of a spread');
     }
 
-    public function test_the_style_sheet_has_the_spiral_and_single_text_pages(): void
+    public function test_the_style_sheet_has_single_text_pages_and_no_spiral(): void
     {
         $css = (string) file_get_contents(public_path('css/site.css'));
 
         foreach ([
-            '.viewer--book .story__stage::before', 'data:image/svg+xml', 'repeat-y center top',
+            
             '.story__bar-right', '.story__bar .story__counter',
             // a text-only slide is one page: left or right, with its own scroll bar
             '.viewer--book .slide[data-page="left"] { justify-self: start; }',
@@ -100,6 +100,8 @@ class Step82Test extends TestCase
             $this->assertStringContainsString($needle, $css, $needle);
         }
         $this->assertStringNotContainsString('--book-fs', $css, 'the words keep the normal size');
+        $this->assertStringNotContainsString('.viewer--book .story__stage::before', $css, 'the spiral binding is gone');
+        $this->assertStringNotContainsString('repeat-y center top', $css);
         $this->assertStringNotContainsString('column-fill: auto', $css);
     }
 

@@ -84,6 +84,21 @@ class Step83Test extends TestCase
         }
     }
 
+    public function test_every_page_shows_a_peeled_corner_and_the_spiral_is_gone(): void
+    {
+        $css = (string) file_get_contents(public_path('css/site.css'));
+
+        // the peeled corner: the corner that is gone, and the folded flap with its shadow; mirrored on a left page
+        foreach ([
+            '.fb-page .fb-page__in::after { background: var(--bg, #14171c); clip-path: polygon(100% 0, 0 100%, 100% 100%); }',
+            'clip-path: polygon(100% 0, 0 100%, 0 0); filter: drop-shadow(',
+            '.fb-page.--left .fb-page__in::before, .fb-page.--left .fb-page__in::after { left: 0; transform: scaleX(-1); }',
+        ] as $needle) {
+            $this->assertStringContainsString($needle, $css, $needle);
+        }
+        $this->assertStringNotContainsString('.viewer--book .story__stage::before', $css, 'the spiral binding is gone');
+    }
+
     public function test_the_fullscreen_words_exist(): void
     {
         $this->assertSame('Fullscreen', __('site.story_fullscreen'));
