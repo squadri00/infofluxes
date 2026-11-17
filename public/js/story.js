@@ -226,6 +226,45 @@
 
     function fbWanted() { return cfg.book && !!St && window.innerWidth >= 720; }
 
+    // ---------- The enlarged picture: a click on a picture of the book shows it big, another click (or Escape) goes back ----------
+    var zoomEl = null;
+    var zoomFrom = null;
+
+    function zoomClose() {
+        if (!zoomEl) { return; }
+        if (zoomEl.parentNode) { zoomEl.parentNode.removeChild(zoomEl); }
+        zoomEl = null;
+        if (zoomFrom) { try { zoomFrom.focus(); } catch (e) { /* gone */ } zoomFrom = null; }
+    }
+
+    function zoomOpen(media, trigger) {
+        var picture = media.cloneNode(true);       // the whole figure: the picture, its credit line and the site mark stay with it
+        Array.prototype.forEach.call(picture.querySelectorAll('.fb-zoom'), function (n) { n.parentNode.removeChild(n); });
+        picture.removeAttribute('id');
+        zoomEl = document.createElement('div');
+        zoomEl.className = 'fb-zoom-view';
+        zoomEl.setAttribute('role', 'dialog');
+        zoomEl.setAttribute('aria-modal', 'true');
+        zoomEl.setAttribute('aria-label', labels.zoom || 'Enlarged picture');
+        zoomEl.tabIndex = -1;
+        zoomEl.appendChild(picture);
+        var hint = document.createElement('p');
+        hint.className = 'fb-zoom-view__hint';
+        hint.textContent = labels.zoom_close || 'Click to go back';
+        zoomEl.appendChild(hint);
+        zoomEl.addEventListener('click', zoomClose);
+        zoomEl.addEventListener('contextmenu', function (e) { if (media.classList.contains('is-protected')) { e.preventDefault(); } });
+        document.body.appendChild(zoomEl);
+        zoomFrom = trigger;
+        zoomEl.focus();
+    }
+
+    root.addEventListener('click', function (e) {
+        var z = e.target.closest ? e.target.closest('.fb-zoom') : null;
+        if (z && z.parentNode) { zoomOpen(z.parentNode, z); }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { zoomClose(); } });
+
     function fbCopy(node) {
         var copy = node.cloneNode(true);
         copy.removeAttribute('id');
@@ -252,7 +291,17 @@
             var text = s.querySelector(':scope > .slide__text');
             if (media && pages.length % 2 === 1) { pages.push(fbPage('blank')); fbPageSlide.push(Math.max(k - 1, 0)); }
             fbSlidePage[k] = pages.length;
-            if (media) { pages.push(fbPage('pic', fbCopy(media))); fbPageSlide.push(k); }
+            if (media) {
+                // A click on the picture enlarges it. The button is a "button" on purpose: the page-turning helper leaves clicks on buttons alone (the page does not turn).
+                var mediaCopy = fbCopy(media);
+                var zoomBtn = document.createElement('button');
+                zoomBtn.type = 'button';
+                zoomBtn.className = 'fb-zoom';
+                zoomBtn.setAttribute('aria-label', labels.zoom || 'Enlarge the picture');
+                mediaCopy.appendChild(zoomBtn);
+                pages.push(fbPage('pic', mediaCopy));
+                fbPageSlide.push(k);
+            }
             if (text) { pages.push(fbPage('text', fbCopy(text))); fbPageSlide.push(k); }
         });
         return pages;
@@ -451,7 +500,7 @@
 
     // The arrow keys (not while someone is typing, and not with Ctrl, Alt or Cmd)
     document.addEventListener('keydown', function (e) {
-        if (!cfg.keys || e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) { return; }
+        if (!cfg.keys || zoomEl || e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) { return; }
         var t = e.target;
         if (t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) { return; }
         if (e.key === 'ArrowRight') { go(1); } else if (e.key === 'ArrowLeft') { go(-1); }

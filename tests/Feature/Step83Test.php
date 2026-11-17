@@ -95,6 +95,31 @@ class Step83Test extends TestCase
         $this->assertStringContainsString('background-image: var(--frame-star), var(--frame-star), var(--frame-star), var(--frame-star);', $css, 'a star in each of the four corners');
         $this->assertStringNotContainsString('.viewer--book .story__stage::before', $css, 'the spiral binding is gone');
     }
+    public function test_the_words_scroll_inside_the_frame(): void
+    {
+        $css = (string) file_get_contents(public_path('css/site.css'));
+
+        $this->assertStringContainsString('.story--js .fb-page--text .fb-page__in > .slide__text { inset: 26px; }', $css, 'the scrolling area starts just inside the gold line');
+        $this->assertStringContainsString('.story--js .fb-page--text.--left .fb-page__in > .slide__text { padding: 30px 30px 30px 54px; }', $css);
+        $this->assertStringContainsString('.story--js .fb-page--text.--right .fb-page__in > .slide__text { padding: 30px 54px 30px 30px; }', $css);
+    }
+
+    public function test_a_click_on_a_picture_enlarges_it_and_another_click_goes_back(): void
+    {
+        $js = (string) file_get_contents(public_path('js/story.js'));
+        $css = (string) file_get_contents(public_path('css/site.css'));
+
+        foreach (["zoomBtn.className = 'fb-zoom'", 'function zoomOpen(', 'function zoomClose()', "zoomEl.addEventListener('click', zoomClose)", "e.key === 'Escape'", 'zoomEl ||'] as $needle) {
+            $this->assertStringContainsString($needle, $js, $needle);
+        }
+        $this->assertStringContainsString("zoomBtn.type = 'button'", $js, 'a button, so the page-turning helper does not turn the page');
+        foreach (['.fb-zoom { position: absolute; inset: 0;', '.fb-zoom-view { position: fixed; inset: 0;', 'cursor: zoom-out'] as $needle) {
+            $this->assertStringContainsString($needle, $css, $needle);
+        }
+        $this->assertSame('Enlarge the picture', __('site.story_zoom'));
+        $this->assertSame('Click to go back', __('site.story_zoom_close'));
+    }
+
     public function test_the_fullscreen_words_exist(): void
     {
         $this->assertSame('Fullscreen', __('site.story_fullscreen'));

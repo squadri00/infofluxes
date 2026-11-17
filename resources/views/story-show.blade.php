@@ -110,7 +110,7 @@
                 </div>
             @endif
         </section>
-        <script>window.STORY_LABELS = {!! json_encode(['goto' => __('site.story_goto'), 'prev' => __('site.story_prev'), 'next' => __('site.story_next'), 'fullscreen' => __('site.story_fullscreen'), 'fullscreen_exit' => __('site.story_fullscreen_exit')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) !!};</script>
+        <script>window.STORY_LABELS = {!! json_encode(['goto' => __('site.story_goto'), 'prev' => __('site.story_prev'), 'next' => __('site.story_next'), 'fullscreen' => __('site.story_fullscreen'), 'fullscreen_exit' => __('site.story_fullscreen_exit'), 'zoom' => __('site.story_zoom'), 'zoom_close' => __('site.story_zoom_close')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) !!};</script>
         @if (\App\Support\ViewerStyle::isBook())
             {{-- The page-turning helper of the book (StPageFlip, MIT licence, kept on this site). story.js falls back to its own page turn without it. --}}
             <script src="{{ asset('js/vendor/page-flip.browser.min.js') }}" defer></script>
