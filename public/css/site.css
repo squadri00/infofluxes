@@ -2355,3 +2355,6 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .book-leaf--forward .book-face--back::after { background: linear-gradient(270deg, rgba(60, 40, 10, .22), rgba(60, 40, 10, 0) 30%); }
 .book-leaf--backward .book-face--front::after { background: linear-gradient(270deg, rgba(60, 40, 10, .22), rgba(60, 40, 10, 0) 30%); }
 .book-leaf--backward .book-face--back::after { background: linear-gradient(90deg, rgba(60, 40, 10, .22), rgba(60, 40, 10, 0) 30%); }
+
+/* Book: the picture sits in the middle of its page (not stuck to the top) whatever the shape setting is. */
+@media (min-width: 720px) { .story--js .viewer.viewer--book .slide__media { align-self: center; } }
