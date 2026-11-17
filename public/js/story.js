@@ -45,7 +45,8 @@
         loop: box.getAttribute('data-loop') === '1',
         keys: box.getAttribute('data-keys') !== '0',
         swipe: box.getAttribute('data-swipe') !== '0',
-        fade: box.getAttribute('data-transition') === 'fade'
+        fade: box.getAttribute('data-transition') === 'fade' || box.getAttribute('data-transition') === 'book',   // the book shows one spread at a time, like the fade
+        book: box.getAttribute('data-transition') === 'book'
     };
 
     var total = slides.length;
@@ -102,8 +103,80 @@
         if (yes) { button.setAttribute('aria-disabled', 'true'); } else { button.removeAttribute('aria-disabled'); }
     }
 
+    // ---------- The book: a page turns over like the page of an open book ----------
+    // A slide is a spread (the picture is the left page, the words are the right page). When the reader moves on, a "leaf" lifts from the spine:
+    // its front is the page that was being read, its back is the first page of the next spread. Under it the new spread is already in place.
+    // Copies of the slides are used for the leaf, so the real slides (and Listen, the keys, the dots) are never touched.
+    var flipEl = null;
+    var flipTimer = null;
+
+    function canFlip() {
+        var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        return cfg.book && ready && window.innerWidth >= 720 && !calm;
+    }
+
+    function endFlip() {
+        if (flipTimer) { clearTimeout(flipTimer); flipTimer = null; }
+        if (flipEl && flipEl.parentNode) { flipEl.parentNode.removeChild(flipEl); }
+        flipEl = null;
+    }
+
+    // One page: the left or the right half of a copy of a slide.
+    function pageOf(slide, side, W, H, cls) {
+        var wrap = document.createElement('div');
+        wrap.className = cls;
+        var inner = document.createElement('div');
+        inner.className = 'book-page__inner';
+        inner.style.width = W + 'px';
+        inner.style.height = H + 'px';
+        if (side === 'right') { inner.style.marginLeft = (-W / 2) + 'px'; }
+        var copy = slide.cloneNode(true);
+        copy.removeAttribute('id');
+        copy.classList.add('is-active', 'book-clone');
+        copy.setAttribute('aria-hidden', 'true');
+        Array.prototype.forEach.call(copy.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
+        Array.prototype.forEach.call(copy.querySelectorAll('a, button'), function (n) { n.tabIndex = -1; });
+        copy.style.width = W + 'px';
+        copy.style.height = H + 'px';
+        inner.appendChild(copy);
+        wrap.appendChild(inner);
+        return wrap;
+    }
+
+    function flip(from, to) {
+        endFlip();
+        var a = slides[from];
+        var b = slides[to];
+        var W = a.offsetWidth;
+        var H = a.offsetHeight;
+        if (!W || !H) { return; }
+        var speed = parseFloat(getComputedStyle(box).getPropertyValue('--v-speed')) || 550;
+        var dur = Math.max(650, Math.min(1500, Math.round(speed * 1.5)));
+        var forward = to > from;
+
+        var overlay = document.createElement('div');
+        overlay.className = 'book-flip';
+        overlay.setAttribute('aria-hidden', 'true');
+        // Forward: the right page lifts and lands on the left. Backward: the left page lifts and lands on the right.
+        var under = pageOf(a, forward ? 'left' : 'right', W, H, 'book-under book-under--' + (forward ? 'left' : 'right'));
+        var leaf = document.createElement('div');
+        leaf.className = 'book-leaf book-leaf--' + (forward ? 'forward' : 'backward');
+        leaf.style.transitionDuration = dur + 'ms';
+        leaf.appendChild(pageOf(a, forward ? 'right' : 'left', W, H, 'book-face book-face--front'));
+        leaf.appendChild(pageOf(b, forward ? 'left' : 'right', W, H, 'book-face book-face--back'));
+        overlay.appendChild(under);
+        overlay.appendChild(leaf);
+        stage.appendChild(overlay);
+        flipEl = overlay;
+
+        void leaf.offsetWidth;   // start from where the leaf lies now
+        leaf.style.transform = 'rotateY(' + (forward ? -180 : 180) + 'deg)';
+        flipTimer = setTimeout(endFlip, dur + 80);
+    }
+
     function show(i, writeHash) {
         if (i < 0 || i >= total) { return; }
+        var from = current;
         current = i;
 
         // The row of slides glides sideways to the chosen one. The first time it is placed without gliding.
@@ -121,6 +194,7 @@
                 if (text) { text.scrollTop = 0; }
             }
         });
+        if (from !== i && canFlip()) { flip(from, i); }
         dots.forEach(function (d, n) {
             d.classList.toggle('is-active', n === i);
             if (n === i) { d.setAttribute('aria-current', 'true'); } else { d.removeAttribute('aria-current'); }

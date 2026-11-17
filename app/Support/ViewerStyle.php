@@ -43,7 +43,7 @@ class ViewerStyle
         'viewer_shadow' => ['A soft shadow under the viewer', 'toggle', '0', null],
         'viewer_radius' => ['Round corners, in pixels (0 = the look of the site)', 'number', '0', null],
         // ---- moving
-        'viewer_transition' => ['How one slide gives way to the next', 'select', 'glide', ['glide' => 'Glides sideways', 'fade' => 'Fades', 'none' => 'Changes at once']],
+        'viewer_transition' => ['How one slide gives way to the next', 'select', 'glide', ['glide' => 'Glides sideways', 'fade' => 'Fades', 'none' => 'Changes at once', 'book' => 'Turns like the page of an open book']],
         'viewer_speed' => ['Speed of the change, in milliseconds (100 to 2000)', 'number', '550', null],
         'viewer_autoplay' => ['Move to the next slide by itself every this many seconds (0 = never)', 'number', '0', null],
         'viewer_pause_hover' => ['Stop moving by itself while the mouse is over the viewer', 'toggle', '1', null],
