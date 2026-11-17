@@ -313,37 +313,8 @@
         });
     });
 
-    // The book: the words of a slide with NO picture are made as large as the two pages allow, so the spread does not look empty.
-    // (A short text gets large letters, a long text smaller ones. The size is a CSS variable on the text of each slide.)
-    function fitText() {
-        if (!cfg.book) { return; }
-        var textSlides = slides.filter(function (s) { return s.classList.contains('slide--text') && s.querySelector(':scope > .slide__text > .slide__body'); });
-        textSlides.forEach(function (s) { s.querySelector('.slide__text').style.removeProperty('--book-fs'); });
-        if (window.innerWidth < 720 || textSlides.length === 0) { return; }
-        var ref = Math.max(stage.clientHeight, 420);      // the height of the book with the usual size of words
-        textSlides.forEach(function (s) {
-            var t = s.querySelector('.slide__text');
-            var lo = 17;
-            var hi = 40;
-            var best = 17;
-            for (var k = 0; k < 9; k++) {
-                var mid = (lo + hi) / 2;
-                t.style.setProperty('--book-fs', mid + 'px');
-                if (t.offsetHeight <= ref * 0.82) { best = mid; lo = mid; } else { hi = mid; }
-            }
-            t.style.setProperty('--book-fs', best + 'px');
-        });
-    }
-
     var first = fromHash();
     show(first === null ? 0 : first, false);
-    if (cfg.book) {
-        fitText();
-        window.addEventListener('load', fitText);
-        if (document.fonts && document.fonts.ready) { document.fonts.ready.then(fitText); }
-        var fitTimer = null;
-        window.addEventListener('resize', function () { window.clearTimeout(fitTimer); fitTimer = window.setTimeout(fitText, 150); });
-    }
     // From now on a change glides (unless the person asked their device for less movement: the style then turns it off).
     window.setTimeout(function () { ready = true; if (track) { track.classList.remove('is-instant'); } }, 80);
 

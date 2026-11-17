@@ -73,17 +73,6 @@ class Step82Test extends TestCase
         $this->assertStringContainsString('totalEl.textContent = String(total * 2)', $js);
     }
 
-    public function test_the_words_of_a_slide_without_a_picture_are_sized_to_fill_the_two_pages(): void
-    {
-        $js = (string) file_get_contents(public_path('js/story.js'));
-        $css = (string) file_get_contents(public_path('css/site.css'));
-
-        $this->assertStringContainsString('function fitText()', $js);
-        $this->assertStringContainsString("setProperty('--book-fs'", $js);
-        $this->assertStringContainsString('window.innerWidth < 720', $js, 'not on a phone');
-        $this->assertStringContainsString('font-size: var(--book-fs, 1.15rem)', $css);
-    }
-
     public function test_the_style_sheet_has_the_spiral_and_fills_both_pages_of_a_slide_without_a_picture(): void
     {
         $css = (string) file_get_contents(public_path('css/site.css'));
