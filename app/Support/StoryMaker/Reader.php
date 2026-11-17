@@ -115,6 +115,9 @@ class Reader
                 } elseif ($w > $bodyHigh) {
                     $warnings[] = 'Slide '.$n.' is long ('.$w.' words). About '.$bodyBest.' words is best for this length, so the picture and the words fit together.';
                 }
+                foreach (static::flowProblems($n, $body, $prose) as $flow) {
+                    $warnings[] = $flow;
+                }
                 foreach (static::sentences($prose) as $sentence) {
                     $sw = static::words($sentence);
                     $words += $sw;
@@ -314,6 +317,44 @@ class Reader
         foreach ($warnings as $w) {
             if (preg_match('/^Slide (\d+)\b/', (string) $w, $m)) {
                 $out[(int) $m[1]][] = $w;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Does one slide read like a story, or like a list? Three signs of a choppy telling.
+     *
+     * @return list<string>
+     */
+    public static function flowProblems(int $n, string $body, string $prose): array
+    {
+        $out = [];
+        $lines = [];
+        foreach (preg_split('/\n+/', $body) as $line) {
+            if (trim($line) === '' || Arabic::isLine($line) || (preg_match('/^\s*[(\[].*[)\]]\s*$/u', $line) && preg_match('/\d/', $line))) {
+                continue;
+            }
+            $lines[] = trim($line);
+        }
+        $sentences = static::sentences($prose);
+        $count = count($sentences);
+
+        if (count($lines) >= 4 && $count / count($lines) <= 1.3) {
+            $out[] = 'Slide '.$n.' reads like a list: one short sentence on each line. Ask the AI to join the sentences into one flowing paragraph.';
+        }
+        if ($count >= 5) {
+            $starts = [];
+            foreach ($sentences as $s) {
+                $key = mb_strtolower(implode(' ', array_slice(preg_split('/\s+/u', $s, -1, PREG_SPLIT_NO_EMPTY), 0, 2)));
+                $starts[$key] = ($starts[$key] ?? 0) + 1;
+            }
+            if ($starts !== [] && max($starts) >= 3) {
+                $out[] = 'Slide '.$n.' begins many sentences in the same way ("'.array_search(max($starts), $starts).'…"). Ask the AI to vary the beginnings and to link the sentences.';
+            }
+            if (static::words($prose) / $count < 6) {
+                $out[] = 'Slide '.$n.' has very short sentences ('.round(static::words($prose) / $count, 1).' words on average). Ask the AI to join them so that the story flows.';
             }
         }
 

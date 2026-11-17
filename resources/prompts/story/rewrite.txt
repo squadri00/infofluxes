@@ -1,0 +1,56 @@
+{{RULES}}
+
+==================================================
+THE STORY TO REWRITE
+
+Title now: {{TITLE}}
+Category: {{CATEGORY}}
+Size: exactly {{SLIDES}} slides in {{CHAPTERS}} chapters. Keep the same chapters and the same number of slides, in the same order, because the pictures are already on these slides.
+Length of each slide: {{LENGTH}}
+{{NOTES}}
+What to do:
+1. Below is the text of the story as it is now. Rewrite it as one connected story told in a narrator's voice, as in rule 1b: a kind teacher telling an event that happened long ago.
+2. KEEP EVERY FACT. Keep every Quran verse and every reference exactly as it is (the Arabic, the English and the reference). Keep the names as in rule 5.
+3. ADD NOTHING NEW: no new fact, no new person, no new event, and no invented feeling, thought or dialogue. You may join one thing to the next with a link word ("Then", "So", "But"), but you may not add a reason that the text does not give.
+4. Change only HOW it is told: join the one-line sentences into a flowing paragraph; begin the story with the moment and the place; let each slide continue the one before it; end with the lesson that the text already has.
+5. Keep each PICTURE line and each ALT line as it is, unless the slide really changed.
+6. Finish with a short list "Please check" for the person who will read the story.
+
+THE TEXT AS IT IS NOW
+{{CURRENT}}
+
+==================================================
+Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no other markdown.
+Put the whole answer inside ONE code block (three backticks before it and three after it), so that the line breaks are kept when it is copied.
+
+TYPE: story
+CATEGORY: {{CATEGORY}}
+TITLE: (the title, the same or a better one, at most 80 letters)
+SHORT: (one or two very simple sentences, at most 300 letters: what the story is about)
+STYLE: {{STYLE}}
+CHAPTER: (the title of the first chapter)
+SLIDE
+HEADING: (a few plain words)
+BODY: (one flowing paragraph of {{BODY_SENTENCES}} short sentences, about {{BODY_WORDS}} words, joined so that the story flows. A Quran verse goes on lines of its own: the Arabic, then the English, then the reference in brackets)
+PICTURE: (the same line as now, or a new one if the slide changed)
+ALT: (the same line as now, or a new one if the slide changed)
+SLIDE
+HEADING: ...
+BODY: ...
+PICTURE: ...
+ALT: ...
+CHAPTER: (the next chapter title)
+SLIDE
+...
+CHAPTER: Closing and final remarks
+SLIDE
+HEADING: ...
+BODY: ...
+PICTURE: ...
+ALT: ...
+KEYWORDS: (words people would search for, separated by commas)
+META TITLE: (the title for Google, at most 60 letters, without the site name)
+META DESCRIPTION: (one sentence for Google, 120 to 155 letters)
+PLEASE CHECK:
+- (each point the person must check first)
+END

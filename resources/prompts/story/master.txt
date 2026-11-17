@@ -2,12 +2,24 @@ RULES FOR EVERY INFOFLUXES STORY IN PICTURES
 
 1. THE VOICE (THE MOST IMPORTANT RULE)
 This is a story, told out loud to a beginner. Tell it like a kind teacher telling a story to a child and to an adult who knows nothing about it.
-- Use extremely simple words and very short sentences, about 8 to 10 words each. One idea in each sentence.
+- Use extremely simple words and short sentences, about 8 to 12 words each, one idea in each sentence. Then join the sentences so that they flow (see rule 1b).
 - Tell what happened as a story: who, where, when, what happened next, and why it matters. Use clear scenes. Keep it warm and calm.
 - No lists, no tables, no headings inside the text, no academic words, no long or twisting sentences.
 - If a hard word or an Arabic word must be used, explain it in a few plain words right there.
 - Keep saying who believes a thing: "Muslims believe", "the Quran says", "historians say", "it is reported that". A belief is never told as a proven fact.
 - No preaching, no flattery, no mocking, no arguing. Never say which side is right.
+
+1b. THE FLOW OF THE STORY (VERY IMPORTANT)
+The story must flow like a story told by a kind teacher about something that happened long ago. It must never read like a list of facts or like an article.
+- Begin with a moment and a place, not with a definition. Take the reader there: who is there and what is happening. Say only what the sources say. If the time or the place is not known, say "long ago".
+- Introduce each person the first time they appear, in a few plain words: who they were.
+- Each slide continues from the one before it. Start it where the last one stopped, with a natural link ("Then", "So", "But", "After this", "Next"). The reader must feel that one event leads to the next.
+- Follow the order the sources give (for example: the question, the request, the prayer, the answer, the warning). Show how one thing led to the next, but only with the causes the sources give. Never invent a reason, a feeling or a thought.
+- Conversation: tell what people said as the sources report it ("They said...", "He answered..."). Never invent dialogue. Never tell what someone thought or felt unless the source says it.
+- Build interest with the order of events: let the reader wait a little for the answer. Do not begin sentence after sentence in the same way (not "The Quran tells us..." again and again).
+- Write the BODY of a slide as ONE flowing paragraph of joined sentences, not one sentence on each line. A Quran verse, if there is one, goes on lines of its own inside the slide.
+- End with a meaningful lesson, told as what the Quran teaches or what Muslims take from the story. Do not preach.
+- Read it again as if you were telling it out loud to a child. If it sounds like a list or an article, write it again.
 
 2. NEVER INVENT
 - Never invent a verse, a hadith, a quotation, a date, a name, a place, a book or a web address.
@@ -38,7 +50,7 @@ Describe each belief the way its own followers describe it. Say what kind of thi
 7. THE SHAPE OF THE STORY
 - The task below says how many slides the story has. Use exactly that number, closing slides included.
 - Use as many chapters as the story needs, usually 3 to 5, and never just one. The first chapter is the opening. The last chapter is always called exactly "Closing and final remarks" and has 1 or 2 slides: end the story, say in simple words what it means, and give any last remarks. If references are needed, this is the only place for a short plain list of them.
-- Every slide has: a HEADING (a few plain words), a BODY ({{BODY_SENTENCES}} short sentences, about {{BODY_WORDS}} words, one idea in each sentence), a PICTURE line and an ALT line.
+- Every slide has: a HEADING (a few plain words), a BODY (one flowing paragraph of {{BODY_SENTENCES}} short sentences, about {{BODY_WORDS}} words), a PICTURE line and an ALT line.
 - The story is not an article. Do not explain everything. Tell one clear story from start to end.
 
 8. THE PICTURES

@@ -27,6 +27,12 @@
                     You are working on a saved run (#{{ $runId }}). <button type="button" wire:click="newRun" style="{{ $mini }}">Start a new story</button>
                 </div>
             @endif
+            @if ($this->rewriteStory())
+                <div style="padding:.6rem .8rem;border:2px solid rgba(180,130,0,.7);border-radius:.4rem">
+                    <strong>Rewrite in story voice.</strong> The prompt below carries the text of the draft {{ $this->rewriteStory()->code }} as it is now. It asks the AI to tell the same story again as one connected story, without any new fact. The chapters and slides stay the same, so the pictures stay in place.
+                    <button type="button" wire:click="stopRewrite" style="{{ $mini }}">Back to a normal prompt</button>
+                </div>
+            @endif
             <label>
                 <strong>The subject of the story</strong> <span style="opacity:.7">(the idea or the title, in a few words)</span><br>
                 <input type="text" wire:model.live.debounce.400ms="topic" maxlength="300" style="{{ $box }}" placeholder="For example: The night Prophet Muhammad ﷺ travelled to Jerusalem">
@@ -330,6 +336,7 @@
                             <span style="opacity:.7"> &middot; {{ \App\Models\StoryRun::STATUSES[$r->status] ?? $r->status }} &middot; {{ $r->updated_at->diffForHumans() }}@if ($r->story) &middot; {{ $r->story->code }}@endif</span></span>
                         <button type="button" wire:click="openRun({{ $r->id }})" style="{{ $mini }}">Open</button>
                         @if ($r->story)<button type="button" wire:click="openPictures({{ $r->id }})" style="{{ $mini }}">Pictures</button>@endif
+                        @if ($r->story && $r->story->status === 'draft')<button type="button" wire:click="startRewrite({{ $r->id }})" style="{{ $mini }}">Rewrite in story voice</button>@endif
                         <button type="button" wire:click="deleteRun({{ $r->id }})" wire:confirm="Delete this saved run? The story it made (if any) is not deleted." style="{{ $mini }}">Delete</button>
                     </div>
                 @empty

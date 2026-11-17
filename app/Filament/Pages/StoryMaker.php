@@ -49,6 +49,9 @@ class StoryMaker extends Page
 
     public int $slides = 8;
 
+    /** On when a saved draft is being told again in a story voice (see startRewrite). */
+    public bool $rewrite = false;
+
     /** How long each slide is: short, story or extra (see Rules::lengths()). */
     public string $length = 'short';
 
@@ -177,8 +180,49 @@ class StoryMaker extends Page
         return Category::choices();
     }
 
+    /** The saved draft that is being told again, when the "rewrite in story voice" mode is on. */
+    public function rewriteStory(): ?Story
+    {
+        if (! $this->rewrite) {
+            return null;
+        }
+        $story = $this->run()?->story;
+
+        return $story && $story->status === 'draft' ? $story : null;
+    }
+
+    /** Opens a saved run whose story is still a draft, and makes the prompt that asks the AI to tell the same story again as one connected story. */
+    public function startRewrite(int $runId): void
+    {
+        $run = StoryRun::query()->where('kind', 'story')->with('story')->find($runId);
+        if (! $run?->story || $run->story->status !== 'draft') {
+            Notification::make()->warning()->title('Only a story that is still a draft can be told again.')->send();
+
+            return;
+        }
+        $this->openRun($runId);
+        $this->rewrite = true;
+        $this->paste = '';
+        $this->result = [];
+        $this->checked = false;
+        $this->slides = max(1, (int) $run->story->chapters()->withCount('slides')->get()->sum('slides_count'));
+        $this->persist('prompt');
+    }
+
+    public function stopRewrite(): void
+    {
+        $this->rewrite = false;
+        if ($this->run()) {
+            $this->persist('prompt');
+        }
+    }
+
     public function prompt(): string
     {
+        if ($story = $this->rewriteStory()) {
+            return Prompt::rewrite($story, ['notes' => $this->notes, 'style' => $this->style, 'length' => $this->length]);
+        }
+
         return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length]);
     }
 
@@ -208,7 +252,7 @@ class StoryMaker extends Page
         $run->fill([
             'topic' => mb_substr(trim($this->topic), 0, 300),
             'category_id' => $this->categoryId,
-            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length],
+            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite],
             'prompt' => $this->prompt(),
             'answer' => $this->paste !== '' ? $this->paste : null,
             'result' => $this->checked ? $this->result : null,
@@ -308,6 +352,7 @@ class StoryMaker extends Page
         $this->slides = (int) ($o['slides'] ?? 8);
         $this->length = isset(Rules::lengths()[(string) ($o['length'] ?? '')]) ? (string) $o['length'] : 'short';
         $this->notes = (string) ($o['notes'] ?? '');
+        $this->rewrite = (bool) ($o['rewrite'] ?? false);
         $this->style = (string) ($o['style'] ?? '') ?: Rules::style();
         $this->paste = (string) $run->answer;
         $this->result = (array) $run->result;
@@ -328,7 +373,7 @@ class StoryMaker extends Page
 
     public function newRun(): void
     {
-        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened']);
+        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened', 'rewrite']);
         $this->slides = 8;
         $this->length = 'short';
         $this->style = Rules::style();
