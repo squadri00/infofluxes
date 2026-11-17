@@ -149,6 +149,12 @@ class ViewerStyle
         return implode('; ', array_map(fn ($k, $v) => $k.': '.$v, array_keys($vars), $vars));
     }
 
+    /** Is the viewer set to turn pages like an open book? (Then the page-turning helper is loaded.) */
+    public static function isBook(): bool
+    {
+        return static::choice('viewer_transition') === 'book';
+    }
+
     /** The data-attributes that story.js reads. */
     public static function data(): string
     {

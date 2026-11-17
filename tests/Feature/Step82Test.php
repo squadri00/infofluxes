@@ -70,7 +70,7 @@ class Step82Test extends TestCase
 
         $this->assertStringContainsString('(2 * spreadNow + 1)', $js);
         $this->assertStringContainsString('(2 * spreadNow + 2)', $js);
-        $this->assertStringContainsString('String(cfg.book ? spreads.length * 2 : total)', $js);
+        $this->assertStringContainsString('String(pageNumbers() ? spreads.length * 2 : total)', $js);
     }
 
     public function test_two_text_only_slides_of_a_chapter_share_a_spread_and_next_moves_by_spreads(): void

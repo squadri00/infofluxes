@@ -57,14 +57,18 @@
     // A spread is what is on the two pages at the same time. In the book, two text-only slides that follow each other share ONE spread:
     // the first on the left page (the page where a picture would be), the next on the right page. A slide with a picture is a whole spread.
     // In every other viewer a spread is simply one slide.
+    // The page-turning helper (StPageFlip) gives the book a real page turn: a curl, shadows, and a corner that can be dragged. Without it the book uses the page turn below.
+    var St = window.St && window.St.PageFlip ? window.St : null;
+
     var spreads = [];          // a list of lists of slide numbers
     var spreadOf = [];         // slide number => spread number
     var totalEl = root.querySelector('[data-story-total]');
+    function pageNumbers() { return cfg.book && window.innerWidth >= 720; }      // page numbers (two for every spread) only in the book on a wide screen
 
     function isPageSlide(s) { return s.classList.contains('slide--text') && !!s.querySelector(':scope > .slide__text > .slide__body'); }
 
     function layout() {
-        var paged = cfg.book && window.innerWidth >= 720;
+        var paged = cfg.book && window.innerWidth >= 720 && !St;      // with the page-turning helper the pages are made by fbPages() instead
         spreads = [];
         spreadOf = [];
         slides.forEach(function (s) { s.removeAttribute('data-page'); });
@@ -83,7 +87,7 @@
             i += pair.length;
         }
         // The book numbers its PAGES, two for every spread: "3 · 4 / 40". The other viewers count slides: "2 / 20".
-        if (totalEl) { totalEl.textContent = String(cfg.book ? spreads.length * 2 : total); }
+        if (totalEl) { totalEl.textContent = String(pageNumbers() ? spreads.length * 2 : total); }
     }
     layout();
 
@@ -208,12 +212,158 @@
         flipTimer = setTimeout(endFlip, dur + 80);
     }
 
+    // ---------- The flipbook (StPageFlip) ----------
+    // The slides stay in the page (hidden): Listen and the other scripts read them. The book is made of COPIES of their parts, as single pages:
+    // a slide with a picture is two pages (the picture on the left, the words on the right), a text-only slide is one page.
+    // A blank page is added when a picture would land on a right page. The pages of the book are numbered from the first one.
+    var fb = null;             // the StPageFlip object
+    var fbBox = null;          // the element it lives in
+    var fbBar = null;          // the row under the book: Previous, the page number, Next, Fullscreen
+    var fbBarPage = null;
+    var fbFsBtn = null;
+    var fbPageSlide = [];      // page number => slide number
+    var fbSlidePage = [];      // slide number => its first page number
+
+    function fbWanted() { return cfg.book && !!St && window.innerWidth >= 720; }
+
+    function fbCopy(node) {
+        var copy = node.cloneNode(true);
+        copy.removeAttribute('id');
+        Array.prototype.forEach.call(copy.querySelectorAll('[id]'), function (n) { n.removeAttribute('id'); });
+        return copy;
+    }
+
+    function fbPage(kind, content) {
+        var page = document.createElement('div');
+        page.className = 'fb-page fb-page--' + kind;
+        var inner = document.createElement('div');
+        inner.className = 'fb-page__in';
+        if (content) { inner.appendChild(content); }
+        page.appendChild(inner);
+        return page;
+    }
+
+    function fbPages() {
+        var pages = [];
+        fbPageSlide = [];
+        fbSlidePage = [];
+        slides.forEach(function (s, k) {
+            var media = s.querySelector(':scope > .slide__media');
+            var text = s.querySelector(':scope > .slide__text');
+            if (media && pages.length % 2 === 1) { pages.push(fbPage('blank')); fbPageSlide.push(Math.max(k - 1, 0)); }
+            fbSlidePage[k] = pages.length;
+            if (media) { pages.push(fbPage('pic', fbCopy(media))); fbPageSlide.push(k); }
+            if (text) { pages.push(fbPage('text', fbCopy(text))); fbPageSlide.push(k); }
+        });
+        return pages;
+    }
+
+    function fbSize() {
+        var full = !!document.fullscreenElement;
+        return {
+            W: Math.max(stage.clientWidth || 0, 320),
+            H: full ? Math.round(window.innerHeight * 0.8) : Math.round(Math.max(540, Math.min(700, window.innerHeight * 0.64)))
+        };
+    }
+
+    function fbSpreadLeft(slide) { var p = fbSlidePage[slide] || 0; return p - (p % 2); }
+
+    function fbShown(left) {
+        var set = [];
+        [left, left + 1].forEach(function (p) {
+            if (p < fbPageSlide.length && set.indexOf(fbPageSlide[p]) < 0) { set.push(fbPageSlide[p]); }
+        });
+        return set;
+    }
+
+    // The book was turned (by Next, by the dots, or by a finger or mouse dragging a corner): the rest of the viewer follows.
+    function fbSync(page) {
+        var left = page - (page % 2);
+        if (fbShown(left).indexOf(current) >= 0) { return; }       // the viewer already shows these slides
+        var s = fbPageSlide[left];
+        if (s !== undefined) { show(s, true); }
+    }
+
+    function fbButton(text, fn) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'btn btn--small fb-bar__btn';
+        b.textContent = text;
+        b.addEventListener('click', fn);
+        return b;
+    }
+
+    function fbBuildBar() {
+        fbBar = document.createElement('div');
+        fbBar.className = 'fb-bar';
+        fbBarPage = document.createElement('span');
+        fbBarPage.className = 'fb-bar__page';
+        fbBar.appendChild(fbButton('‹ ' + (labels.prev || 'Previous'), function () { go(-1); }));
+        fbBar.appendChild(fbBarPage);
+        fbBar.appendChild(fbButton((labels.next || 'Next') + ' ›', function () { go(1); }));
+        if (root.requestFullscreen) {
+            fbFsBtn = fbButton(labels.fullscreen || 'Fullscreen', function () {
+                if (document.fullscreenElement) { document.exitFullscreen(); } else { root.requestFullscreen(); }
+            });
+            fbBar.appendChild(fbFsBtn);
+        }
+        box.appendChild(fbBar);
+    }
+
+    function fbBuild(startSlide) {
+        var size = fbSize();
+        var pages = fbPages();
+        root.classList.add('story--fb');
+        fbBox = document.createElement('div');
+        fbBox.className = 'fb';
+        fbBox.style.height = size.H + 'px';
+        stage.appendChild(fbBox);
+        fb = new St.PageFlip(fbBox, {
+            width: Math.round(size.W / 2), height: size.H, size: 'stretch',
+            minWidth: 280, maxWidth: 1800, minHeight: 300, maxHeight: 1400,
+            showCover: false, usePortrait: false, startPage: fbSpreadLeft(startSlide),
+            drawShadow: true, maxShadowOpacity: 0.45, flippingTime: 850,
+            showPageCorners: true, mobileScrollSupport: true, swipeDistance: 30,
+            useMouseEvents: true, clickEventForward: true
+        });
+        fb.loadFromHTML(pages);
+        fb.on('flip', function (e) { fbSync(e.data); });
+        fbBuildBar();
+        if (totalEl) { totalEl.textContent = String(fb.getPageCount()); }
+    }
+
+    function fbDestroy() {
+        if (fb) { try { fb.destroy(); } catch (e) { /* already gone */ } fb = null; }
+        if (fbBox && fbBox.parentNode) { fbBox.parentNode.removeChild(fbBox); }
+        if (fbBar && fbBar.parentNode) { fbBar.parentNode.removeChild(fbBar); }
+        fbBox = null;
+        fbBar = null;
+        fbBarPage = null;
+        fbFsBtn = null;
+        root.classList.remove('story--fb');
+    }
+
+    function fbResize() {
+        if (!fb || !fbBox) { return; }
+        fbBox.style.height = fbSize().H + 'px';
+        try { fb.update(); } catch (e) { /* the next resize will do */ }
+    }
+
     function show(i, writeHash) {
         if (i < 0 || i >= total) { return; }
         var fromSpread = spreadOf[current];
         current = i;
         var spreadNow = spreadOf[i];
         var shown = spreads[spreadNow];       // the slides that are on the two pages now (one, or two text slides in the book)
+        if (fb) {
+            // the flipbook: the spread is the pair of pages the slide starts on
+            var left = fbSpreadLeft(i);
+            spreadNow = left / 2;
+            shown = fbShown(left);
+            if (fb.getCurrentPageIndex() !== left) {
+                if (ready) { fb.flip(left); } else { fb.turnToPage(left); }
+            }
+        }
 
         // The row of slides glides sideways to the chosen one. The first time it is placed without gliding.
         if (track) {
@@ -230,7 +380,7 @@
                 if (text) { text.scrollTop = 0; }
             }
         });
-        if (fromSpread !== spreadNow && canFlip()) { flip(fromSpread, spreadNow); }
+        if (!fb && fromSpread !== spreadNow && canFlip()) { flip(fromSpread, spreadNow); }
         dots.forEach(function (d, n) {
             d.classList.toggle('is-active', shown.indexOf(n) >= 0);
             if (n === i) { d.setAttribute('aria-current', 'true'); } else { d.removeAttribute('aria-current'); }
@@ -251,10 +401,11 @@
             homeBtn.classList.toggle('is-active', i === 0);
             if (i === 0) { homeBtn.setAttribute('aria-current', 'true'); } else { homeBtn.removeAttribute('aria-current'); }
         }
-        if (counter) { counter.textContent = cfg.book ? (2 * spreadNow + 1) + ' · ' + (2 * spreadNow + 2) : String(i + 1); }
+        if (counter) { counter.textContent = pageNumbers() ? (2 * spreadNow + 1) + ' · ' + (2 * spreadNow + 2) : String(i + 1); }
 
+        if (fbBarPage && counter) { fbBarPage.textContent = counter.textContent + ' / ' + (totalEl ? totalEl.textContent : ''); }
         var firstSpread = spreadNow === 0;
-        var lastSpread = spreadNow === spreads.length - 1;
+        var lastSpread = spreadNow === (fb ? Math.ceil(fb.getPageCount() / 2) - 1 : spreads.length - 1);
         muted(prev, !cfg.loop && firstSpread);
         muted(next, !cfg.loop && lastSpread);
         muted(arrowPrev, !cfg.loop && firstSpread);
@@ -281,6 +432,7 @@
 
     // Next and Previous move from spread to spread (in the book that is two text slides at a time).
     function go(step) {
+        if (fb) { if (step > 0) { fb.flipNext(); } else { fb.flipPrev(); } return; }     // the flipbook turns one spread
         var n = spreadOf[current] + step;
         if (cfg.loop) { n = (n + spreads.length) % spreads.length; }
         if (n >= 0 && n < spreads.length) { show(spreads[n][0], true); }
@@ -314,6 +466,7 @@
         startY = e.touches[0].clientY;
     }, { passive: true });
     stage.addEventListener('touchend', function (e) {
+        if (fb) { tracking = false; return; }           // the flipbook handles the finger itself
         if (!tracking || !e.changedTouches.length) { return; }
         tracking = false;
         var dx = e.changedTouches[0].clientX - startX;
@@ -347,22 +500,39 @@
     });
 
     var first = fromHash();
-    show(first === null ? 0 : first, false);
+    var firstSlide = first === null ? 0 : first;
+    if (fbWanted()) {
+        try { fbBuild(firstSlide); } catch (err) { fbDestroy(); St = null; layout(); }       // if the helper fails, the book uses its own page turn
+    }
+    show(firstSlide, false);
     // From now on a change glides (unless the person asked their device for less movement: the style then turns it off).
     window.setTimeout(function () { ready = true; if (track) { track.classList.remove('is-instant'); } }, 80);
 
-    // The book groups the text slides in pairs only on a wide screen. When the window crosses that width, the spreads are made again.
-    var wasPaged = cfg.book && window.innerWidth >= 720;
+    // The book is made again when the window crosses the width of a phone, and the flipbook is fitted to a window that changes size.
+    var wasWide = window.innerWidth >= 720;
+    var fitTimer = null;
     window.addEventListener('resize', function () {
-        var paged = cfg.book && window.innerWidth >= 720;
-        if (paged === wasPaged) { return; }
-        wasPaged = paged;
-        var wasReady = ready;
-        ready = false;               // no page turn for this change
-        endFlip();
-        layout();
-        show(current, false);
-        ready = wasReady;
+        var wide = window.innerWidth >= 720;
+        if (wide !== wasWide) {
+            wasWide = wide;
+            var wasReady = ready;
+            ready = false;               // no page turn for this change
+            endFlip();
+            fbDestroy();
+            layout();
+            if (fbWanted()) {
+                try { fbBuild(current); } catch (err) { fbDestroy(); St = null; layout(); }
+            }
+            show(current, false);
+            ready = wasReady;
+            return;
+        }
+        if (fb) { window.clearTimeout(fitTimer); fitTimer = window.setTimeout(fbResize, 120); }
+    });
+    // Fullscreen changes the size of the book
+    document.addEventListener('fullscreenchange', function () {
+        if (fbFsBtn) { fbFsBtn.textContent = document.fullscreenElement ? (labels.fullscreen_exit || 'Exit fullscreen') : (labels.fullscreen || 'Fullscreen'); }
+        window.setTimeout(fbResize, 150);
     });
 
     // Moving by itself (off unless a number of seconds is set; never for people who asked for less movement)

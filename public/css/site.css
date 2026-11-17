@@ -2461,3 +2461,47 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
     .viewer--book .slide::before, .viewer--book .slide::after { background-size: 28px 28px; }
     .story--js .viewer.viewer--book .slide__media { margin: 44px 56px 44px 44px; }
 }
+
+/* ===== The flipbook (StPageFlip): pages that curl, can be dragged by a corner, and cast soft shadows. story.js builds the pages from copies of the slides. ===== */
+.story--fb .story__track { display: none !important; }
+.story--fb.story--js .viewer.viewer--book .story__stage { background: none; box-shadow: none; border: 0; border-radius: 0; overflow: visible; min-height: 0; height: auto; }
+.story--fb.story--js .viewer.viewer--book .story__stage::after { display: none; }       /* the fold shadow is drawn by the helper */
+.fb { position: relative; width: 100%; }
+.fb .stf__parent { margin: 0 auto; }
+.fb .stf__block { box-shadow: 0 18px 44px rgba(0, 0, 0, .35); }
+
+/* a page: old paper, ink, and the frame */
+.fb-page { box-sizing: border-box; overflow: hidden; color: #2b2218; background-color: var(--paper-color, #f5eace); background-image: var(--paper-img); background-size: var(--paper-size);
+    --text: #2b2218; --muted: #6a5d49; --line: rgba(60, 40, 10, .22); --surface: #f5eace; }
+.fb-page__in { position: absolute; inset: 0; }
+.fb-page::before { content: ""; position: absolute; top: 10px; bottom: 10px; z-index: 3; pointer-events: none; box-sizing: border-box;
+    border: 2px solid var(--frame-teal, #1d5c63); box-shadow: inset 0 0 0 4px transparent, inset 0 0 0 5px var(--frame-gold, #b8923f);
+    background-image: var(--frame-star), var(--frame-star), var(--frame-star), var(--frame-star); background-repeat: no-repeat; background-size: 28px 28px;
+    background-position: left 3px top 3px, right 3px top 3px, left 3px bottom 3px, right 3px bottom 3px; }
+.fb-page.--left::before { left: 10px; right: 26px; }
+.fb-page.--right::before { left: 26px; right: 10px; }
+
+/* the picture fills its page inside the frame; the words fill theirs and scroll by themselves if they are long */
+.fb-page--pic .slide__media { position: absolute; top: 44px; bottom: 44px; left: 44px; right: 56px; margin: 0; width: auto; height: auto; max-height: none; aspect-ratio: auto; }
+.fb-page--pic.--right .slide__media { left: 56px; right: 44px; }
+.fb-page--text .fb-page__in > .slide__text { position: absolute; inset: 0; display: block; box-sizing: border-box; width: auto; max-width: none; height: auto; max-height: none; margin: 0; contain: none; overflow-y: auto; }
+.fb-page--text.--left .fb-page__in > .slide__text { padding: 58px 56px 58px 80px; }
+.fb-page--text.--right .fb-page__in > .slide__text { padding: 58px 80px 58px 56px; }
+
+/* the row under the book: Previous, the page number, Next, Fullscreen */
+.fb-bar { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 14px; margin: 18px 0 4px; }
+.fb-bar__page { min-width: 9em; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--muted); }
+.fb-bar .fb-bar__btn { border: 0; border-radius: 999px; padding: 9px 20px; font-weight: 700; background: var(--frame-gold, #b8923f); color: #1b1408; cursor: pointer; }
+.fb-bar .fb-bar__btn:hover { background: #cfa94f; }
+.fb-bar .fb-bar__btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* fullscreen: the book on a dark background, centred */
+.story:fullscreen { background: #0e1219; display: flex; flex-direction: column; justify-content: center; padding: 18px 28px; overflow: auto; }
+.story:fullscreen .story__counter, .story:fullscreen .fb-bar__page { color: #c9d1e0; }
+
+/* flipbook: the picture fills its page (stronger than the older picture-shape rules) */
+.story--js .fb-page--pic .fb-page__in > .slide__media { position: absolute; top: 44px; bottom: 44px; left: 44px; right: 56px; margin: 0; width: auto; height: auto; max-height: none; aspect-ratio: auto; }
+.story--js .fb-page--pic.--right .fb-page__in > .slide__media { left: 56px; right: 44px; }
+
+/* flipbook: pages waiting off to the side (while a corner is lifted) must never widen the page */
+.story--fb .fb, .story--fb .story__stage, .story--fb .viewer { overflow-x: clip; }

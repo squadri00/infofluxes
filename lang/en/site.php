@@ -234,6 +234,8 @@ return [
     'story_chapters_menu' => 'Chapters',
     'story_home' => 'Home',
     'story_contents' => 'Contents',
+    'story_fullscreen' => 'Fullscreen',
+    'story_fullscreen_exit' => 'Exit fullscreen',
     'story_prev' => 'Previous',
     'story_next' => 'Next',
     'story_next_chapter' => 'Next chapter',
