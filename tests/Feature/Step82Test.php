@@ -110,4 +110,24 @@ class Step82Test extends TestCase
         $this->assertStringNotContainsString('fitText', $js);
         $this->assertStringNotContainsString('--book-fs', $js);
     }
+
+    public function test_the_book_has_an_old_paper_texture_and_the_ink_stays_easy_to_read(): void
+    {
+        $css = (string) file_get_contents(public_path('css/site.css'));
+
+        $this->assertStringContainsString('feTurbulence', $css, 'the grain and the stains are drawn, not downloaded');
+        $this->assertStringContainsString('--paper-img:', $css);
+        $this->assertStringContainsString('.viewer--book .book-face', $css, 'the turning page has the same paper');
+
+        // the ink on the paper: at least 7 : 1 (the level for the clearest text)
+        preg_match('/--paper-color:\s*(#[0-9a-f]{6})/i', $css, $paper);
+        preg_match('/\.viewer--book \.slide__text \{[^}]*color:\s*(#[0-9a-f]{6})/i', $css, $ink);
+        $this->assertNotEmpty($paper);
+        $this->assertNotEmpty($ink);
+        $light = fn (string $hex) => array_sum(array_map(fn ($c, $k) => $k * (($c /= 255) <= .03928 ? $c / 12.92 : (($c + .055) / 1.055) ** 2.4), array_map('hexdec', str_split(ltrim($hex, '#'), 2)), [.2126, .7152, .0722]));
+        $a = $light($paper[1]);
+        $b = $light($ink[1]);
+        $ratio = (max($a, $b) + .05) / (min($a, $b) + .05);
+        $this->assertGreaterThan(7.0, $ratio, 'contrast of the ink on the paper: '.round($ratio, 1));
+    }
 }

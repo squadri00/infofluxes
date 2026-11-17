@@ -2391,3 +2391,19 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 
 /* Book: whatever the colour chosen for the viewer, the book itself is paper. An empty page is cream, never white. */
 .story--js .viewer.viewer--book .story__stage, .story--js .viewer.viewer--book .story__track { background: #fbf6e9; }
+
+/* ===== Book: old paper. A faint grain, soft stains and slightly darker edges on a light parchment. The texture is kept weak so the words stay easy to read:
+   the ink is dark brown (#2b2218) on a light page (about 12 : 1 contrast). All drawn with CSS and two small inline drawings; nothing is downloaded. ===== */
+.viewer--book {
+    --paper-color: #f5eace;
+    --paper-img:
+        radial-gradient(ellipse at 50% 50%, rgba(255, 250, 235, 0) 60%, rgba(140, 100, 42, .14) 100%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cfilter id='s' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.009' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .38 0 0 0 0 .13 0 0 0 .42 -.1'/%3E%3C/filter%3E%3Crect width='520' height='520' filter='url(%23s)'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .08 0 0 0 .4 -.08'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23g)'/%3E%3C/svg%3E");
+    --paper-size: 100% 100%, 520px 520px, 260px 260px;
+}
+.story--js .viewer.viewer--book .story__stage,
+.story--js .viewer.viewer--book .story__track,
+.story--js .viewer.viewer--book .slide,
+.viewer--book .book-face,
+.viewer--book .book-under { background-color: var(--paper-color); background-image: var(--paper-img); background-size: var(--paper-size); }
