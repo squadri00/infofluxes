@@ -2407,3 +2407,43 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .story--js .viewer.viewer--book .slide,
 .viewer--book .book-face,
 .viewer--book .book-under { background-color: var(--paper-color); background-image: var(--paper-img); background-size: var(--paper-size); }
+
+/* ===== Book: the look of an Islamic book. A frame like a Mushaf page around every page (a teal line, a thin gold line inside it, and an eight-pointed star in each corner),
+   and a taller book. Drawn with CSS and one small inline drawing; nothing is downloaded. ===== */
+@media (min-width: 720px) {
+    .viewer--book {
+        --frame-teal: #1d5c63;
+        --frame-gold: #b8923f;
+        --frame-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cg transform='translate(17 17)'%3E%3Crect x='-9' y='-9' width='18' height='18' fill='%23b8923f'/%3E%3Crect x='-9' y='-9' width='18' height='18' transform='rotate(45)' fill='%231d5c63'/%3E%3Ccircle r='4.4' fill='%23f5eace' stroke='%23b8923f' stroke-width='1.3'/%3E%3Ccircle r='1.5' fill='%23b8923f'/%3E%3C/g%3E%3C/svg%3E");
+        --book-h: clamp(540px, 64vh, 700px);
+    }
+
+    /* a taller book */
+    .story--js .viewer.viewer--book .story__stage { min-height: var(--book-h); }
+    .story--js .viewer.viewer--book .story__track { min-height: var(--book-h); }
+
+    /* the frame: one for each page. A slide with a picture is a whole spread (two frames); a text page is one page (one frame). */
+    .viewer--book .slide::before, .viewer--book .slide::after {
+        content: ""; position: absolute; top: 10px; bottom: 10px; width: calc(50% - 36px); z-index: 3; pointer-events: none; box-sizing: border-box;
+        border: 2px solid var(--frame-teal); box-shadow: inset 0 0 0 4px transparent, inset 0 0 0 5px var(--frame-gold);
+        background-image: var(--frame-star), var(--frame-star), var(--frame-star), var(--frame-star);
+        background-repeat: no-repeat;
+        background-size: 34px 34px;
+        background-position: left 3px top 3px, right 3px top 3px, left 3px bottom 3px, right 3px bottom 3px;
+    }
+    .viewer--book .slide::before { left: 10px; }
+    .viewer--book .slide::after { right: 10px; }
+    /* a text page is half the width: one frame that fits it */
+    .viewer--book .slide[data-page="left"]::before { left: 10px; right: 26px; width: auto; }
+    .viewer--book .slide[data-page="right"]::before { left: 26px; right: 10px; width: auto; }
+    .viewer--book .slide[data-page]::after { display: none; }
+
+    /* the picture stays inside the frame, away from the stars in the corners */
+    .viewer--book .slide__media { margin: 44px 50px 44px 34px; }
+}
+
+/* Book frame: the words of a text page start below the stars in the corners and end above the ones at the bottom */
+@media (min-width: 720px) {
+    .viewer--book .slide[data-page="left"] > .slide__text { padding: 58px 52px 58px 80px; }
+    .viewer--book .slide[data-page="right"] > .slide__text { padding: 58px 80px 58px 52px; }
+}

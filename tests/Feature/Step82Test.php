@@ -130,4 +130,18 @@ class Step82Test extends TestCase
         $ratio = (max($a, $b) + .05) / (min($a, $b) + .05);
         $this->assertGreaterThan(7.0, $ratio, 'contrast of the ink on the paper: '.round($ratio, 1));
     }
+
+    public function test_every_page_has_a_mushaf_style_frame_and_the_book_is_taller(): void
+    {
+        $css = (string) file_get_contents(public_path('css/site.css'));
+
+        foreach ([
+            '--frame-teal: #1d5c63;', '--frame-gold: #b8923f;', '--frame-star: url("data:image/svg+xml',
+            '.viewer--book .slide::before, .viewer--book .slide::after {',     // the frame of the left and of the right page
+            '.viewer--book .slide[data-page="left"]::before', '.viewer--book .slide[data-page="right"]::before',
+            '--book-h: clamp(540px, 64vh, 700px);', '.story__stage { min-height: var(--book-h); }',
+        ] as $needle) {
+            $this->assertStringContainsString($needle, $css, $needle);
+        }
+    }
 }
