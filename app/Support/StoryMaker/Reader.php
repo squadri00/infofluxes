@@ -25,8 +25,13 @@ class Reader
     public const SENTENCE_MAX = 22;
 
     /** @return array{errors: list<string>, warnings: list<string>, check: list<string>, story: array<string, mixed>} */
-    public static function read(string $answer, ?int $ownStoryId = null, ?int $askedSlides = null): array
+    public static function read(string $answer, ?int $ownStoryId = null, ?int $askedSlides = null, ?string $length = null): array
     {
+        // The length of a slide depends on the level chosen in step 1 (short, story, story + extra). Without a level the usual numbers are used.
+        $level = Rules::length($length);
+        $bodyLow = $length === null ? self::BODY_MIN : max(self::BODY_MIN, (int) floor($level['min'] * 0.5));
+        $bodyHigh = $length === null ? self::BODY_MAX : (int) round($level['max'] * 1.55);
+        $bodyBest = $level['min'].' to '.$level['max'];
         $errors = [];
         $warnings = [];
         $check = [];
@@ -105,10 +110,10 @@ class Reader
                     $arabic[] = $n;
                 }
                 $w = static::words($prose);
-                if ($w < self::BODY_MIN) {
-                    $warnings[] = 'Slide '.$n.' is very short ('.$w.' words). About 25 to 45 words is best.';
-                } elseif ($w > self::BODY_MAX) {
-                    $warnings[] = 'Slide '.$n.' is long ('.$w.' words). About 25 to 45 words is best, so the picture and the words fit together.';
+                if ($w < $bodyLow) {
+                    $warnings[] = 'Slide '.$n.' is very short ('.$w.' words). About '.$bodyBest.' words is best for this length.';
+                } elseif ($w > $bodyHigh) {
+                    $warnings[] = 'Slide '.$n.' is long ('.$w.' words). About '.$bodyBest.' words is best for this length, so the picture and the words fit together.';
                 }
                 foreach (static::sentences($prose) as $sentence) {
                     $sw = static::words($sentence);
@@ -339,8 +344,49 @@ class Reader
             $out[] = 'Allah is named '.$n.' time(s) without (SWT) after the name.';
         }
         $prophets = 'Adam|Idris|Nuh|Noah|Hud|Salih|Ibrahim|Abraham|Lut|Lot|Ismail|Ishmael|Ishaq|Isaac|Yaqub|Jacob|Yusuf|Joseph|Shuayb|Ayyub|Job|Musa|Moses|Harun|Aaron|Dhul-Kifl|Dawud|David|Sulayman|Solomon|Ilyas|Elijah|Alyasa|Elisha|Yunus|Jonah|Zakariya|Yahya|John|Isa|Jesus';
-        if (($n = $count('/\b('.$prophets.')\b(?!\s*\(AS\))(?![\x{2019}\']s\s*\(AS\))/u')) > 0) {
+        if (($n = $count('/(?<!\()\b('.$prophets.')\b(?!\s*\(AS\))(?![\x{2019}\']s\s*\(AS\))/u')) > 0) {
             $out[] = 'The name of a prophet appears '.$n.' time(s) without (AS) after it. (Check the places: some may be other people with the same name.)';
+        }
+
+        foreach (static::nameProblems($text) as $p) {
+            $out[] = $p;
+        }
+
+        return $out;
+    }
+
+    /** The Bible name of a prophet and the Muslim name the story must use. (Only the names that are surely the same person.) */
+    public const BIBLE_NAMES = [
+        'Moses' => 'Musa', 'Jesus' => 'Isa', 'Abraham' => 'Ibrahim', 'Joseph' => 'Yusuf', 'David' => 'Dawud', 'Solomon' => 'Sulayman', 'Noah' => 'Nuh',
+        'Jacob' => 'Yaqub', 'Isaac' => 'Ishaq', 'Ishmael' => 'Ismail', 'Aaron' => 'Harun', 'Jonah' => 'Yunus', 'Elijah' => 'Ilyas', 'Elisha' => 'Alyasa',
+        'Zechariah' => 'Zakariyya', 'Mary' => 'Maryam',
+    ];
+
+    /**
+     * The prophets are called by the Muslim name; the Bible name stands in brackets (at the first mention).
+     * @return list<string>
+     */
+    private static function nameProblems(string $text): array
+    {
+        $out = [];
+        $alone = [];
+        $missing = [];
+        foreach (self::BIBLE_NAMES as $bible => $muslim) {
+            // the Bible name on its own, not inside brackets
+            $n = preg_match_all('/(?<![(\w])\b'.$bible.'\b(?![\w]*\))/u', preg_replace('/\([^)]*\)/u', '', $text));
+            if ($n > 0) {
+                $alone[] = $bible.' ('.$n.') - use '.$muslim;
+            }
+            // the Muslim name is used but the Bible name is never given in brackets
+            if (preg_match('/\b'.$muslim.'\b/u', $text) && ! preg_match('/\([^)]*\b'.$bible.'\b[^)]*\)/u', $text)) {
+                $missing[] = $muslim.' (the Bible name is '.$bible.')';
+            }
+        }
+        if ($alone !== []) {
+            $out[] = 'A Bible name is used on its own: '.implode('; ', $alone).'. Call the prophet by the Muslim name, with the Bible name in brackets only at the first mention.';
+        }
+        if ($missing !== []) {
+            $out[] = 'The Bible name is missing in brackets at the first mention of: '.implode('; ', $missing).'.';
         }
 
         return $out;

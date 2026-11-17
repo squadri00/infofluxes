@@ -6,11 +6,12 @@ THE STORY TO WRITE
 Subject (the title or the idea): {{TOPIC}}
 Category: {{CATEGORY}}
 Size: exactly {{SLIDES}} slides in all, closing slides included.
+Length of each slide: {{LENGTH}}
 {{NOTES}}
 How to work:
 1. Read reliable sources first. Open and read them. Use only what you really opened.
 2. Plan the chapters and the slides before you write. The first chapter is the opening. The last chapter is "Closing and final remarks".
-3. Tell the story in the voice of the rules: extremely simple, warm, short sentences.
+3. Tell the story in the voice of the rules: extremely simple, warm, short sentences. Call every prophet by the Muslim name, with (AS) and the Bible name in brackets at the first mention only, as in rule 5 (for example Isa (AS) (Jesus)).
 4. Give every slide its picture line and its description line.
 5. Finish with a short list "Please check" for the person who will read the story.
 
@@ -25,7 +26,7 @@ STYLE: {{STYLE}}
 CHAPTER: (the title of the first chapter, the opening)
 SLIDE
 HEADING: (a few plain words)
-BODY: (2 to 4 short sentences, about 25 to 45 words. A Quran verse goes on lines of its own: the Arabic, then the English, then the reference in brackets)
+BODY: ({{BODY_SENTENCES}} short sentences, about {{BODY_WORDS}} words. A Quran verse goes on lines of its own: the Arabic, then the English, then the reference in brackets)
 PICTURE: (what the picture shows, in plain words, with no faces of prophets, companions or angels)
 ALT: (one plain sentence that describes the picture)
 SLIDE

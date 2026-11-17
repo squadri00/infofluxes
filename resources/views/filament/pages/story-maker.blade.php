@@ -66,6 +66,18 @@
                     <input type="text" wire:model.live.debounce.600ms="style" maxlength="400" style="{{ $box }}">
                 </label>
             </div>
+            <div>
+                <strong>How long should each slide be?</strong> <span style="opacity:.7">(the words in the text of a slide)</span>
+                <div style="display:grid;gap:.4rem;margin-top:.3rem">
+                    @foreach ($this->lengths() as $code => $l)
+                        <label wire:key="length-{{ $code }}" style="display:flex;gap:.6rem;align-items:flex-start;padding:.45rem .7rem;border:1px solid rgba(128,128,128,.4);border-radius:.4rem;cursor:pointer">
+                            <input type="radio" wire:model.live="length" value="{{ $code }}" style="margin-top:.3rem">
+                            <span><strong>{{ $l['label'] }}</strong> <span style="opacity:.75">&middot; about {{ $l['min'] }} to {{ $l['max'] }} words &middot; {{ $l['about'] }}</span></span>
+                        </label>
+                    @endforeach
+                </div>
+                <span style="display:block;margin-top:.3rem;opacity:.7;font-size:.88rem">The prompt and the check both follow this choice. The words stay very simple, with short sentences. A saved run remembers it.</span>
+            </div>
             <label>
                 <strong>Notes for the AI</strong> <span style="opacity:.7">(optional: a point to include, a part to leave out)</span><br>
                 <textarea wire:model.live.debounce.600ms="notes" rows="3" maxlength="1500" style="{{ $box }}"></textarea>
@@ -286,6 +298,19 @@
                 <label><strong>The usual look of the pictures</strong>
                     <input type="text" wire:model="ruleStyle" maxlength="400" style="{{ $box }}">
                 </label>
+                <div>
+                    <strong>The words of a slide, for each length</strong> <span style="opacity:.7">(the least and the most; the check warns outside about half and one and a half times these)</span>
+                    <div style="display:grid;gap:.4rem;margin-top:.3rem">
+                        @foreach ($this->lengths() as $code => $l)
+                            <div wire:key="len-edit-{{ $code }}" style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+                                <span style="min-width:9rem"><strong>{{ $l['label'] }}</strong></span>
+                                <label>from <input type="number" wire:model="lengthEdits.{{ $code }}.min" min="10" max="390" style="width:6rem;padding:.3rem;border:1px solid rgba(128,128,128,.5);border-radius:.3rem;background:transparent"></label>
+                                <label>to <input type="number" wire:model="lengthEdits.{{ $code }}.max" min="20" max="400" style="width:6rem;padding:.3rem;border:1px solid rgba(128,128,128,.5);border-radius:.3rem;background:transparent"></label>
+                                <span style="opacity:.7">words</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
                 <textarea wire:model="ruleText" rows="22" style="width:100%;padding:.6rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;background:transparent;font-family:monospace;font-size:.85rem"></textarea>
                 <div style="display:flex;gap:.6rem;align-items:center">
                     <x-filament::button wire:click="saveRules">Save the rules</x-filament::button>

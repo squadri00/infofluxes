@@ -131,6 +131,72 @@ class Rules
         $saved === [] ? Setting::query()->where('key', self::LANGUAGES_KEY)->delete() : Setting::put(self::LANGUAGES_KEY, $saved);
         Setting::forget();
     }
+    // ---------- how long each slide is ----------
+
+    public const LENGTHS_KEY = 'storymaker_lengths';
+
+    /** The three levels and their usual number of words in the BODY of a slide. The super user can change the numbers. */
+    public const LENGTH_DEFAULTS = [
+        'short' => ['label' => 'Short', 'min' => 25, 'max' => 45, 'extra' => false, 'about' => 'quick captions'],
+        'story' => ['label' => 'Story', 'min' => 60, 'max' => 110, 'extra' => false, 'about' => 'a told story, a scene in each slide'],
+        'extra' => ['label' => 'Story + extra', 'min' => 90, 'max' => 150, 'extra' => true, 'about' => 'a told story, plus one short "good to know" line when it helps'],
+    ];
+
+    /** @return array<string, array{label: string, min: int, max: int, extra: bool, about: string}> */
+    public static function lengths(): array
+    {
+        $saved = (array) Setting::get(self::LENGTHS_KEY, []);
+        $out = self::LENGTH_DEFAULTS;
+        foreach ($out as $code => $row) {
+            $min = (int) ($saved[$code]['min'] ?? $row['min']);
+            $max = (int) ($saved[$code]['max'] ?? $row['max']);
+            if ($min >= 10 && $max <= 400 && $max > $min) {
+                $out[$code]['min'] = $min;
+                $out[$code]['max'] = $max;
+            }
+        }
+
+        return $out;
+    }
+
+    /** One level; anything unknown is the short one (the way stories were always made). */
+    public static function length(?string $code): array
+    {
+        $all = static::lengths();
+
+        return ['code' => isset($all[(string) $code]) ? (string) $code : 'short'] + $all[isset($all[(string) $code]) ? (string) $code : 'short'];
+    }
+
+    /** "2 to 4" for 25 to 45 words: about 10 words in a sentence, never fewer than 1 sentence. */
+    public static function sentenceRange(int $min, int $max): string
+    {
+        $low = max(1, (int) round($min / 11));
+        $high = max($low + 1, (int) round($max / 9));
+
+        return $low.' to '.$high;
+    }
+
+    /** @param  array<string, array{min?: mixed, max?: mixed}>  $rows */
+    public static function saveLengths(array $rows): void
+    {
+        $saved = [];
+        foreach (self::LENGTH_DEFAULTS as $code => $row) {
+            $min = (int) ($rows[$code]['min'] ?? $row['min']);
+            $max = (int) ($rows[$code]['max'] ?? $row['max']);
+            if ($min >= 10 && $max <= 400 && $max > $min && ($min !== $row['min'] || $max !== $row['max'])) {
+                $saved[$code] = ['min' => $min, 'max' => $max];
+            }
+        }
+        $saved === [] ? Setting::query()->where('key', self::LENGTHS_KEY)->delete() : Setting::put(self::LENGTHS_KEY, $saved);
+        Setting::forget();
+    }
+
+    public static function resetLengths(): void
+    {
+        Setting::query()->where('key', self::LENGTHS_KEY)->delete();
+        Setting::forget();
+    }
+
     public static function style(): string
     {
         $saved = trim((string) Setting::get(self::STYLE_KEY));

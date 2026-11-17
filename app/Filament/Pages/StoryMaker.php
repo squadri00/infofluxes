@@ -49,6 +49,9 @@ class StoryMaker extends Page
 
     public int $slides = 8;
 
+    /** How long each slide is: short, story or extra (see Rules::lengths()). */
+    public string $length = 'short';
+
     public string $notes = '';
 
     public string $style = '';
@@ -66,6 +69,9 @@ class StoryMaker extends Page
     public string $ruleText = '';
 
     public string $ruleStyle = '';
+
+    /** @var array<string, array{min: int, max: int}> the words of each length (super user) */
+    public array $lengthEdits = [];
 
     // ---------- the pictures (bulk upload) ----------
 
@@ -95,6 +101,21 @@ class StoryMaker extends Page
         $this->style = Rules::style();
         $this->ruleText = Rules::master();
         $this->ruleStyle = Rules::style();
+        $this->loadLengths();
+    }
+
+    private function loadLengths(): void
+    {
+        $this->lengthEdits = [];
+        foreach (Rules::lengths() as $code => $row) {
+            $this->lengthEdits[$code] = ['min' => $row['min'], 'max' => $row['max']];
+        }
+    }
+
+    /** @return array<string, array{label: string, min: int, max: int, extra: bool, about: string}> */
+    public function lengths(): array
+    {
+        return Rules::lengths();
     }
 
     /** @return array<int, string> */
@@ -105,7 +126,7 @@ class StoryMaker extends Page
 
     public function prompt(): string
     {
-        return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style]);
+        return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length]);
     }
 
     public function updatedSlides(): void
@@ -134,7 +155,7 @@ class StoryMaker extends Page
         $run->fill([
             'topic' => mb_substr(trim($this->topic), 0, 300),
             'category_id' => $this->categoryId,
-            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style],
+            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length],
             'prompt' => $this->prompt(),
             'answer' => $this->paste !== '' ? $this->paste : null,
             'result' => $this->checked ? $this->result : null,
@@ -166,7 +187,7 @@ class StoryMaker extends Page
 
             return;
         }
-        $this->result = Reader::read($this->paste, $this->run()?->story_id, $this->slides);
+        $this->result = Reader::read($this->paste, $this->run()?->story_id, $this->slides, $this->length);
         $this->checked = true;
         $this->persist('checked');
     }
@@ -174,7 +195,7 @@ class StoryMaker extends Page
     public function saveStory(): void
     {
         // The pasted text is read again here, so what is saved is never what a browser claims it checked.
-        $read = Reader::read($this->paste, $this->run()?->story_id, $this->slides);
+        $read = Reader::read($this->paste, $this->run()?->story_id, $this->slides, $this->length);
         $this->result = $read;
         $this->checked = true;
 
@@ -225,6 +246,7 @@ class StoryMaker extends Page
         $this->topic = (string) $run->topic;
         $this->categoryId = $run->category_id;
         $this->slides = (int) ($o['slides'] ?? 8);
+        $this->length = isset(Rules::lengths()[(string) ($o['length'] ?? '')]) ? (string) $o['length'] : 'short';
         $this->notes = (string) ($o['notes'] ?? '');
         $this->style = (string) ($o['style'] ?? '') ?: Rules::style();
         $this->paste = (string) $run->answer;
@@ -246,6 +268,7 @@ class StoryMaker extends Page
     {
         $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done']);
         $this->slides = 8;
+        $this->length = 'short';
         $this->style = Rules::style();
     }
 
@@ -365,8 +388,10 @@ class StoryMaker extends Page
         abort_unless(auth()->user()?->isSuperuser(), 403);
         Rules::save($this->ruleText);
         Rules::saveStyle($this->ruleStyle);
+        Rules::saveLengths($this->lengthEdits);
         $this->ruleText = Rules::master();
         $this->ruleStyle = Rules::style();
+        $this->loadLengths();
         Notification::make()->success()->title('The rules of the Story maker are saved.')->send();
     }
 
@@ -375,8 +400,10 @@ class StoryMaker extends Page
         abort_unless(auth()->user()?->isSuperuser(), 403);
         Rules::reset();
         Rules::saveStyle('');
+        Rules::resetLengths();
         $this->ruleText = Rules::master();
         $this->ruleStyle = Rules::style();
+        $this->loadLengths();
         Notification::make()->success()->title('The original rules are back.')->send();
     }
 }

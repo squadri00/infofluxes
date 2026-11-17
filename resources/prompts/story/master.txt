@@ -26,8 +26,11 @@ This is a story, told out loud to a beginner. Tell it like a kind teacher tellin
 - A reference is short and in brackets, right after the sentence it belongs to, for example (Quran 2:255). Use it only when it is really needed.
 - No footnotes, no web addresses and no numbers in small print. A reference must never break the reading.
 
-5. SALUTATIONS (ALWAYS)
+5. SALUTATIONS AND NAMES (ALWAYS)
 After the name of Prophet Muhammad write ﷺ. After the name of any other prophet or messenger write (AS). After the name of a companion or a wife of the Prophet write (RA). After the name of Allah write (SWT). Do this every time the name is written.
+Call every prophet by the name the Quran uses, the Muslim name. The FIRST time a prophet is named in the story, write the Muslim name, then (AS), then the name the Bible uses in brackets: Isa (AS) (Jesus), Musa (AS) (Moses), Ibrahim (AS) (Abraham). After that, write only the Muslim name with (AS). Never write the Bible name on its own.
+- Names to use: Adam (AS) (Adam), Nuh (AS) (Noah), Ibrahim (AS) (Abraham), Lut (AS) (Lot), Ismail (AS) (Ishmael), Ishaq (AS) (Isaac), Yaqub (AS) (Jacob), Yusuf (AS) (Joseph), Ayyub (AS) (Job), Musa (AS) (Moses), Harun (AS) (Aaron), Dawud (AS) (David), Sulayman (AS) (Solomon), Ilyas (AS) (Elijah), Alyasa (AS) (Elisha), Yunus (AS) (Jonah), Zakariyya (AS) (Zechariah), Yahya (AS) (John the Baptist), Isa (AS) (Jesus). The same goes for Maryam (Mary).
+- Some prophets have no name in the Bible (Hud, Salih): write only Hud (AS), Salih (AS). If you are not sure that a Bible name is the same person, leave the brackets out. Never guess.
 
 6. FAIRNESS
 Describe each belief the way its own followers describe it. Say what kind of thing each statement is: a belief, a tradition, historical evidence, or an opinion. Where respected scholars disagree, say so in a simple way.
@@ -35,7 +38,7 @@ Describe each belief the way its own followers describe it. Say what kind of thi
 7. THE SHAPE OF THE STORY
 - The task below says how many slides the story has. Use exactly that number, closing slides included.
 - Use as many chapters as the story needs, usually 3 to 5, and never just one. The first chapter is the opening. The last chapter is always called exactly "Closing and final remarks" and has 1 or 2 slides: end the story, say in simple words what it means, and give any last remarks. If references are needed, this is the only place for a short plain list of them.
-- Every slide has: a HEADING (a few plain words), a BODY (2 to 4 short sentences, about 25 to 45 words, one idea), a PICTURE line and an ALT line.
+- Every slide has: a HEADING (a few plain words), a BODY ({{BODY_SENTENCES}} short sentences, about {{BODY_WORDS}} words, one idea in each sentence), a PICTURE line and an ALT line.
 - The story is not an article. Do not explain everything. Tell one clear story from start to end.
 
 8. THE PICTURES
