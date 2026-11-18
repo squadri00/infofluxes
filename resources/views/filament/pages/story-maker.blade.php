@@ -89,6 +89,15 @@
                 </div>
                 <span style="display:block;margin-top:.3rem;opacity:.7;font-size:.88rem">The prompt and the check both follow this choice. The words stay very simple, with short sentences. A saved run remembers it.</span>
             </div>
+            <details @if (trim($ownText) !== '') open @endif style="border:1px solid rgba(128,128,128,.4);border-radius:.4rem;padding:.5rem .7rem">
+                <summary style="cursor:pointer"><strong>I already have a story text</strong> <span style="opacity:.7">(from my own prompt or my own writing: put it into the shape of the Story maker)</span></summary>
+                <div style="display:grid;gap:.4rem;margin-top:.5rem">
+                    <textarea wire:model.live.debounce.700ms="ownText" rows="6" placeholder="Paste your story text here. The prompt below then asks the AI to put this text into the shape of the Story maker, without changing the facts, the verses or the references." style="{{ $box }}"></textarea>
+                    @if (trim($ownText) !== '')
+                        <span style="opacity:.8">The prompt below is now the "put my text into shape" prompt ({{ number_format(mb_strlen($ownText)) }} letters). <button type="button" wire:click="$set('ownText', '')" style="{{ $mini }}">Clear my text</button></span>
+                    @endif
+                </div>
+            </details>
             <label>
                 <strong>Notes for the AI</strong> <span style="opacity:.7">(optional: a point to include, a part to leave out)</span><br>
                 <textarea wire:model.live.debounce.600ms="notes" rows="3" maxlength="1500" style="{{ $box }}"></textarea>

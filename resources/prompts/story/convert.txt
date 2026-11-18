@@ -1,0 +1,58 @@
+{{RULES}}
+
+==================================================
+THE STORY TO PUT INTO SHAPE
+
+Subject: {{TOPIC}}
+Category: {{CATEGORY}}
+Size: {{SLIDES}}
+Length of each slide: {{LENGTH}}
+{{NOTES}}
+What to do:
+1. Below is a story text that someone already wrote. Put it into the shape at the end of this message, so that it can be saved as a story in pictures. It is a TRANSLATION INTO A SHAPE, not a new story.
+2. KEEP EVERY FACT. Keep every Quran verse, every hadith and every reference exactly as it is (the Arabic, the English and the reference). Never change a quotation. Keep the names as in rule 5.
+3. ADD NOTHING NEW: no new fact, no new person, no new event, no invented feeling, thought or dialogue, and no new source.
+4. Cut the text into chapters and slides in its own order. Tell it as one connected story in a narrator's voice, as in rule 1b, using the words and the facts of the text. Each BODY is one flowing paragraph.
+5. Parts that are not the story itself are NOT put in the slides: lists of sources, notes about recording, editorial recommendations, outlines and questions to the writer. Put the sources that really matter into the last chapter "Closing and final remarks" as a short plain list, and put every note and every doubt into PLEASE CHECK.
+6. Give each slide a PICTURE line (what the picture shows, in plain words, with no faces of prophets, companions or angels) and an ALT line.
+
+THE TEXT TO PUT INTO SHAPE
+{{CURRENT}}
+
+==================================================
+Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no other markdown.
+Put the whole answer inside ONE code block (three backticks before it and three after it), so that the line breaks are kept when it is copied.
+
+TYPE: story
+CATEGORY: {{CATEGORY}}
+TITLE: (a short title for the story, at most 80 letters)
+SHORT: (one or two very simple sentences, at most 300 letters: what the story is about)
+STYLE: {{STYLE}}
+CHAPTER: (the title of the first chapter, the opening)
+SLIDE
+HEADING: (a few plain words)
+BODY: (one flowing paragraph of {{BODY_SENTENCES}} short sentences, about {{BODY_WORDS}} words, joined so that the story flows. A Quran verse goes on lines of its own: the Arabic, then the English, then the reference in brackets)
+PICTURE: (what the picture shows, in plain words, with no faces of prophets, companions or angels)
+ALT: (one plain sentence that describes the picture)
+SLIDE
+HEADING: ...
+BODY: ...
+PICTURE: ...
+ALT: ...
+CHAPTER: (the next chapter title)
+SLIDE
+...
+CHAPTER: Closing and final remarks
+SLIDE
+HEADING: ...
+BODY: ...
+PICTURE: ...
+ALT: ...
+KEYWORDS: (words people would search for, separated by commas)
+META TITLE: (the title for Google, at most 60 letters, without the site name)
+META DESCRIPTION: (one sentence for Google, 120 to 155 letters)
+PLEASE CHECK:
+- (each point the person must check first)
+END
+
+REMEMBER (the last rule): your whole answer is ONE single code block, from TYPE: to END, with nothing before it and nothing after it. Write it directly in the chat. Do not use Python, a tool, a file or a canvas. Do not close the code block in the middle: the Arabic verses and every line stay inside the same block, and no other block, heading or comment is used.

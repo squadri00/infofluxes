@@ -42,6 +42,32 @@ class Prompt
         );
     }
 
+    /** A story text that the person already has (from their own prompt or their own writing) gets a prompt that only puts it into the shape of the Story maker. */
+    public const MAX_OWN_TEXT = 60000;
+
+    /**
+     * @param  array{own_text?: string, topic?: string, category_id?: int|null, slides?: int|null, notes?: string|null, style?: string|null, length?: string|null, open?: bool}  $in
+     */
+    public static function convert(array $in): string
+    {
+        $text = (string) file_get_contents(resource_path('prompts/story/convert.txt'));
+        $open = ! empty($in['open']);
+        $topic = trim((string) ($in['topic'] ?? '')) !== '' ? trim(preg_replace('/\s+/', ' ', $in['topic'])) : '(the subject is in the text)';
+        $category = ! empty($in['category_id']) ? (Category::choices()[(int) $in['category_id']] ?? null) : null;
+        $slides = $open ? self::OPEN_SLIDES : 'exactly '.max(self::MIN_SLIDES, min(self::MAX_SLIDES, (int) ($in['slides'] ?? 8))).' slides in all, closing slides included.';
+        $style = trim(preg_replace('/\s+/', ' ', (string) ($in['style'] ?? ''))) ?: Rules::style();
+        $notes = trim(preg_replace('/[ \t]+/', ' ', (string) ($in['notes'] ?? '')));
+        [$words, $sentences, $lengthText] = static::lengthParts($in['length'] ?? null, $open);
+        $rules = static::rules($words, $sentences, $open);
+        $own = trim(mb_substr((string) ($in['own_text'] ?? ''), 0, self::MAX_OWN_TEXT));
+
+        return str_replace(
+            ['{{RULES}}', '{{TOPIC}}', '{{CATEGORY}}', '{{SLIDES}}', '{{LENGTH}}', '{{STYLE}}', '{{NOTES}}', '{{CURRENT}}', '{{BODY_WORDS}}', '{{BODY_SENTENCES}}'],
+            [$rules, $topic, $category ?? '(choose a category)', $slides, $lengthText, $style, static::notesLine($notes), $own, $words, $sentences],
+            $text,
+        );
+    }
+
     /**
      * The prompt that asks the AI to tell a story that is already saved (a draft) again, as a connected story in a narrator's voice.
      * The text of the story as it is now goes inside the prompt; the chapters and slides stay the same, so the pictures stay on their slides.

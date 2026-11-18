@@ -60,6 +60,9 @@ class StoryMaker extends Page
 
     public string $notes = '';
 
+    /** A story text the person already has. When it is filled, the prompt only puts that text into the shape of the Story maker. */
+    public string $ownText = '';
+
     public string $style = '';
 
     public string $paste = '';
@@ -226,6 +229,10 @@ class StoryMaker extends Page
             return Prompt::rewrite($story, ['notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
         }
 
+        if (trim($this->ownText) !== '') {
+            return Prompt::convert(['own_text' => $this->ownText, 'topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
+        }
+
         return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
     }
 
@@ -255,7 +262,7 @@ class StoryMaker extends Page
         $run->fill([
             'topic' => mb_substr(trim($this->topic), 0, 300),
             'category_id' => $this->categoryId,
-            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite, 'open' => $this->openFlow],
+            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite, 'open' => $this->openFlow, 'own_text' => mb_substr($this->ownText, 0, Prompt::MAX_OWN_TEXT)],
             'prompt' => $this->prompt(),
             'answer' => $this->paste !== '' ? $this->paste : null,
             'result' => $this->checked ? $this->result : null,
@@ -355,6 +362,7 @@ class StoryMaker extends Page
         $this->slides = (int) ($o['slides'] ?? 8);
         $this->length = isset(Rules::lengths()[(string) ($o['length'] ?? '')]) ? (string) $o['length'] : 'story';
         $this->openFlow = (bool) ($o['open'] ?? false);
+        $this->ownText = (string) ($o['own_text'] ?? '');
         $this->notes = (string) ($o['notes'] ?? '');
         $this->rewrite = (bool) ($o['rewrite'] ?? false);
         $this->style = (string) ($o['style'] ?? '') ?: Rules::style();
@@ -377,7 +385,7 @@ class StoryMaker extends Page
 
     public function newRun(): void
     {
-        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened', 'rewrite', 'openFlow']);
+        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened', 'rewrite', 'openFlow', 'ownText']);
         $this->slides = 8;
         $this->length = 'story';
         $this->style = Rules::style();
