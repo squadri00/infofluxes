@@ -97,22 +97,25 @@
     @endif
 
     @if ($topics)
-    <section class="block">
-        <nav class="topic-tabs" aria-label="{{ __('site.topics_label') }}">
+    <section class="block" data-topic-tabs>
+        <nav class="topic-tabs" aria-label="{{ __('site.topics_label') }}" data-topic-nav>
             @foreach ($topics['tabs'] as $tab)
                 <a class="topic-tabs__tab{{ $tab['current'] ? ' is-current' : '' }}" href="{{ $tab['url'] }}" @if ($tab['current']) aria-current="page" @endif>{{ $tab['name'] }} <span class="topic-tabs__count">{{ $tab['count'] }}</span></a>
             @endforeach
         </nav>
-        @if ($topics['current'] && filled(trim(strip_tags((string) $topics['current']->description))))
-            <p class="topic-tabs__about">{{ trim(strip_tags((string) $topics['current']->description)) }}</p>
-        @endif
-        @if ($stories->isNotEmpty())
-            @include('partials.story-grid', ['stories' => $stories])
-            @include('partials.pager', ['paginator' => $topics['stories']])
-        @else
-            <p class="empty">{{ __('site.no_articles') }}</p>
-        @endif
+        <div class="topic-panel" data-topic-panel>
+            @if ($topics['current'] && filled(trim(strip_tags((string) $topics['current']->description))))
+                <p class="topic-tabs__about">{{ trim(strip_tags((string) $topics['current']->description)) }}</p>
+            @endif
+            @if ($stories->isNotEmpty())
+                @include('partials.story-grid', ['stories' => $stories])
+                @include('partials.pager', ['paginator' => $topics['stories']])
+            @else
+                <p class="empty">{{ __('site.no_articles') }}</p>
+            @endif
+        </div>
     </section>
+    <script src="{{ asset('js/topic-tabs.js') }}?v={{ @filemtime(public_path('js/topic-tabs.js')) ?: 1 }}" defer></script>
     @elseif ($stories->isNotEmpty())
     <section class="block">
         <h2 class="block__title">{{ __('site.stories_title') }}</h2>

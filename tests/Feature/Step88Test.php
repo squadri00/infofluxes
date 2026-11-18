@@ -103,4 +103,20 @@ class Step88Test extends TestCase
         \Livewire\Livewire::test(\App\Filament\Resources\Categories\Pages\EditCategory::class, ['record' => $this->root->getRouteKey()])
             ->assertSee('Show its sub-categories as tabs')->assertFormSet(['custom_data.topic_tabs' => true]);
     }
+
+    public function test_the_tabs_change_smoothly_with_a_small_script_and_stay_real_links(): void
+    {
+        $this->story('Old Mecca', $this->history);
+
+        $html = $this->get('/category/stories-in-pictures')->assertOk()->getContent();
+        $this->assertStringContainsString('data-topic-nav', $html);
+        $this->assertStringContainsString('data-topic-panel', $html);
+        $this->assertStringContainsString('js/topic-tabs.js', $html);
+        $this->assertStringContainsString('href="http://localhost/category/stories-in-pictures?topic=history"', $html, 'a tab is a real link, so it works without the script');
+
+        $js = file_get_contents(public_path('js/topic-tabs.js'));
+        $this->assertStringContainsString('prefers-reduced-motion', $js);
+        $this->assertStringContainsString('popstate', $js);
+        $this->assertStringContainsString('.topic-tabs__ink', file_get_contents(public_path('css/site.css')));
+    }
 }
