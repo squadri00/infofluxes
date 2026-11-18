@@ -2543,3 +2543,16 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
     .fb-page--pic::before { display: none; }
     .viewer--book .slide__caption { padding: 22px 16px 12px 16px; }
 }
+
+/* The picture of the book: a click on the picture turns the page. Only the small magnifier in the corner opens the big picture. */
+.fb-zoom {
+    inset: auto; top: 12px; right: 12px; width: 40px; height: 40px; border-radius: 50%; cursor: zoom-in;
+    background-color: rgba(12, 16, 24, .62); border: 1px solid rgba(255, 255, 255, .55);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21M10.5 7.5v6M7.5 10.5h6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: center; transition: opacity .15s, background-color .15s;
+}
+.fb-zoom:hover { background-color: rgba(12, 16, 24, .85); }
+@media (hover: hover) {
+    .fb-zoom { opacity: 0; }
+    .slide__media:hover > .fb-zoom, .fb-zoom:focus-visible { opacity: 1; }
+}
