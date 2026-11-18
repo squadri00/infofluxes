@@ -1,0 +1,47 @@
+{{RULES}}
+
+==================================================
+THE ARTICLE TO PUT INTO SHAPE
+
+Subject (the title or the question): {{TOPIC}}
+Category: {{CATEGORY}}
+Length: keep the length of the text below (about {{WORDS}} words). Do not shorten it and do not add to it.
+{{COMMENTS}}
+What to do:
+1. Below is an article text that the contributor already wrote and checked. Put it into the shape at the end of this message, so that it can be saved as a draft article. This is a CHANGE OF SHAPE, not a new article.
+2. KEEP EVERY FACT AND EVERY WORD OF THE ARGUMENT. Keep every Quran verse and every hadith exactly as it is, each in its [QURAN] or [HADITH] block as in the rules. Never change a quotation. Add no new claim, no new view, no new example and no new source of your own.
+3. Cut the text into parts with "## " for a main heading and "### " for a sub-heading. Choose headings that describe the text below them. Keep the order of the text. Put an empty line between paragraphs.
+4. Sources: list in SOURCES only the sources that the text names or links. Open each one if you can, to find its web address and to check that every quotation was copied exactly, and write "opened: yes" only for a source you really opened. If you cannot open a source, write "opened: no". Never invent a source, a page number or a web address.
+5. Everything that is a doubt, a missing source, a verse you could not check or a place where the text is not clear goes into PLEASE CHECK. Do not repair it yourself.
+6. Write the SHORT line, the KEYWORDS, the META TITLE and the META DESCRIPTION from the text itself.
+{{EXPLAINERS_RULE}}
+THE TEXT TO PUT INTO SHAPE
+{{CURRENT}}
+
+==================================================
+Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no other markdown. Only "## " and "### " for headings and "- " for list lines.
+Put the whole answer inside ONE code block (three backticks before it and three after it), so that the "## " marks and the line breaks are kept when it is copied.
+
+TYPE: article
+CATEGORY: {{CATEGORY}}
+ALSO IN: (leave this line empty)
+TITLE: (a clear title, at most 200 letters)
+SHORT: (the plain answer in one or two simple sentences, at most 600 letters, so the reader knows the point before reading on)
+LONG:
+## (first main heading)
+(short paragraphs, with an empty line between them; every verse and hadith in its [QURAN] or [HADITH] block, as in the rules)
+### (sub-heading, when the part has smaller parts)
+(short paragraphs)
+## (next main heading)
+...
+KEYWORDS: (words people would search for, separated by commas)
+META TITLE: (the title for Google, at most 60 letters, plain words, without the site name)
+META DESCRIPTION: (one sentence for Google that makes a reader want to open the page, 120 to 155 letters, no quotes, no promises the page cannot keep)
+VIDEOS: (YouTube addresses you are sure exist, separated by commas, or leave empty)
+SOURCE: (one line: the one to three main sources)
+SOURCES:
+- PRIMARY | author or scripture, title, chapter or verse or page | web address | opened: yes or no
+- SECONDARY | author, title, publisher, year | web address | opened: yes or no
+{{EXPLAINERS_FIELD}}PLEASE CHECK:
+- (each point the reviewer must check first: a verse number, a hadith grade, a date, a link that did not open, a claim with only one source)
+END

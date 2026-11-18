@@ -49,6 +49,9 @@ class AiImport extends Page
 
     public string $comments = '';
 
+    /** A text the contributor already has: the prompt then only puts it into the shape of an article. */
+    public string $ownText = '';
+
     /** Also ask the AI for word notes (explainers) for the hard words of the article. */
     public bool $explainers = true;
 
@@ -129,6 +132,7 @@ class AiImport extends Page
             return Prompts::research([
                 'topic' => $this->topic, 'category_id' => $this->categoryId, 'specialist' => $this->specialist ?: null,
                 'words' => $this->words, 'depth' => $this->depth, 'comments' => $this->comments, 'explainers' => $this->explainers,
+                'own_text' => $this->ownText,
                 'entry' => ($e = $this->entry()) ? IndexEntries::label($e).' '.$e->mainTitle() : null,
             ]);
         }

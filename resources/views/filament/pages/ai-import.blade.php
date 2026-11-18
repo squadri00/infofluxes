@@ -103,6 +103,15 @@
                         </select>
                     </label>
                 </div>
+                <details @if (trim($ownText) !== '') open @endif style="border:1px solid rgba(128,128,128,.4);border-radius:.4rem;padding:.5rem .7rem">
+                    <summary style="cursor:pointer"><strong>I already have an article text</strong> <span style="opacity:.7">(my own writing, or from my own prompt: put it into the shape of an article)</span></summary>
+                    <div style="display:grid;gap:.4rem;margin-top:.5rem">
+                        <textarea wire:model.live.debounce.700ms="ownText" rows="8" placeholder="Paste your article text here. The prompt below then asks the AI to put this text into the shape of an article (headings, sources, verse blocks) without changing the facts, the verses or the wording." style="{{ $box }}"></textarea>
+                        @if (trim($ownText) !== '')
+                            <span style="opacity:.8">The prompt below is now the "put my text into shape" prompt ({{ number_format(mb_strlen($ownText)) }} letters). <button type="button" wire:click="$set('ownText', '')" style="cursor:pointer;border:1px solid rgba(128,128,128,.6);border-radius:.3rem;padding:.1rem .6rem">Clear my text</button></span>
+                        @endif
+                    </div>
+                </details>
                 <label>
                     <strong>Comments for the AI</strong> <span style="opacity:.7">(optional: a point to cover, a view to include, a source to use)</span><br>
                     <textarea wire:model.live.debounce.600ms="comments" rows="3" maxlength="1500" style="{{ $box }}"></textarea>
