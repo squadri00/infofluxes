@@ -15,7 +15,7 @@
     if (!nav || !panel) { return; }
 
     var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var OUT = reduced ? 0 : 170;
+    var OUT = reduced ? 0 : 300;   // the old cards fade out for 0.3 seconds before the new ones come in
     var busy = false;
     var wanted = null;
 
