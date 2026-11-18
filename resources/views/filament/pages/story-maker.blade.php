@@ -267,10 +267,19 @@
 
                 @if ($this->slidesInOrder()->contains(fn ($s) => filled($s->image)))
                     <div style="padding:.7rem .9rem;border:1px solid rgba(128,128,128,.4);border-radius:.5rem">
-                        <strong>Pictures now on the slides</strong> <span style="opacity:.7">(not in the right order? Press ↑ or ↓ to move a picture to the slide before or after it. Nothing is uploaded again.)</span>
-                        <div style="margin-top:.4rem;display:grid;gap:.35rem">
+                        <strong>Pictures now on the slides</strong> <span style="opacity:.7">(not in the right order? Drag a picture by its ⋮⋮ handle to another slide, or press ↑ or ↓. Nothing is uploaded again.)</span>
+                        <div style="margin-top:.4rem;display:grid;gap:.35rem" x-data="{ from: null, over: null }">
                             @foreach ($this->slidesInOrder() as $slide)
-                                <div wire:key="now-{{ $slide->id }}" style="display:flex;gap:.7rem;align-items:center;padding:.35rem .5rem;border:1px solid rgba(128,128,128,.3);border-radius:.4rem">
+                                <div wire:key="now-{{ $slide->id }}" data-slide-row="{{ $loop->iteration }}"
+                                     x-on:dragover.prevent="over = {{ $loop->iteration }}"
+                                     x-on:dragleave="if (over === {{ $loop->iteration }}) over = null"
+                                     x-on:drop.prevent="if (from !== null && from !== {{ $loop->iteration }}) { $wire.dragSlidePicture(from, {{ $loop->iteration }}) } from = null; over = null"
+                                     x-bind:style="over === {{ $loop->iteration }} && from !== null && from !== {{ $loop->iteration }} ? 'outline:2px solid #3b82f6;background:rgba(59,130,246,.12)' : ''"
+                                     style="display:flex;gap:.7rem;align-items:center;padding:.35rem .5rem;border:1px solid rgba(128,128,128,.3);border-radius:.4rem">
+                                    <span draggable="true" title="Drag this picture to another slide" aria-label="Drag this picture to another slide"
+                                          x-on:dragstart="from = {{ $loop->iteration }}; $event.dataTransfer.effectAllowed = 'move'; $event.dataTransfer.setData('text/plain', '{{ $loop->iteration }}')"
+                                          x-on:dragend="from = null; over = null"
+                                          style="cursor:grab;user-select:none;font-size:1.2rem;line-height:1;padding:.2rem .3rem;opacity:.7">⋮⋮</span>
                                     <strong style="min-width:5rem">Slide {{ $loop->iteration }}</strong>
                                     @if ($slide->imageUrl())<img src="{{ $slide->imageUrl() }}?v={{ md5((string) $slide->image) }}" alt="" style="width:64px;height:40px;object-fit:cover;border-radius:.3rem">@else<span style="width:64px;opacity:.5">none</span>@endif
                                     <span style="flex:1;min-width:8rem">{{ \Illuminate\Support\Str::limit((string) $slide->getTranslation('heading', config('infofluxes.default_locale'), true), 50) }}</span>

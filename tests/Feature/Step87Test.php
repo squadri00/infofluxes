@@ -76,4 +76,26 @@ class Step87Test extends TestCase
         $page->call('moveSlidePicture', $s1->id, -1);   // the first slide has nothing before it: nothing changes
         $this->assertSame('stories/a.webp', $s1->fresh()->image);
     }
+
+    public function test_a_picture_can_be_dragged_to_another_slide_and_the_others_shift(): void
+    {
+        $cat = \App\Models\Category::create(['name' => ['en' => 'Stories'], 'slug' => 'stories']);
+        $story = \App\Models\Story::create(['title' => ['en' => 'The Walk'], 'slug' => 'the-walk', 'category_id' => $cat->id, 'status' => 'draft']);
+        $ch = $story->chapters()->create(['title' => ['en' => 'One'], 'sort_order' => 1]);
+        $ids = [];
+        foreach (['a', 'b', 'c', 'd'] as $i => $k) {
+            $ids[] = $ch->slides()->create(['sort_order' => $i + 1, 'heading' => ['en' => strtoupper($k)], 'body' => ['en' => $k], 'image' => "stories/{$k}.webp"])->id;
+        }
+        $run = \App\Models\StoryRun::create(['kind' => 'story', 'topic' => 'x', 'story_id' => $story->id, 'status' => 'saved', 'options' => []]);
+        $page = Livewire::test(StoryMaker::class)->call('openPictures', $run->id)->assertSeeHtml('draggable="true"');
+        $images = fn () => \App\Models\StorySlide::whereIn('id', $ids)->orderBy('sort_order')->pluck('image')->map(fn ($i) => basename($i, '.webp'))->all();
+
+        $page->call('dragSlidePicture', 4, 1);                  // d goes to the first place
+        $this->assertSame(['d', 'a', 'b', 'c'], $images());
+        $page->call('dragSlidePicture', 1, 3);
+        $this->assertSame(['a', 'b', 'd', 'c'], $images());
+        $page->call('dragSlidePicture', 2, 2)->call('dragSlidePicture', 9, 1)->call('dragSlidePicture', 0, 1);   // nothing to do
+        $this->assertSame(['a', 'b', 'd', 'c'], $images());
+        $this->assertSame(['A', 'B', 'C', 'D'], \App\Models\StorySlide::whereIn('id', $ids)->orderBy('sort_order')->get()->map(fn ($s) => $s->getTranslation('heading', 'en'))->all(), 'the words stay');
+    }
 }

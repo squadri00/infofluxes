@@ -509,6 +509,29 @@ class StoryMaker extends Page
         $this->pictureStory()?->unsetRelation('chapters');
     }
 
+    /**
+     * Drag and drop: the picture of slide number $from (1, 2, 3 …) is taken out and put at slide number $to; the pictures in between move one place.
+     * The words of the slides stay where they are. Nothing is uploaded again.
+     */
+    public function dragSlidePicture(int $from, int $to): void
+    {
+        $slides = $this->slidesInOrder();
+        $n = $slides->count();
+        if ($from === $to || $from < 1 || $to < 1 || $from > $n || $to > $n) {
+            return;
+        }
+        $images = $slides->pluck('image')->all();
+        $moved = array_splice($images, $from - 1, 1);
+        array_splice($images, $to - 1, 0, $moved);
+        foreach ($slides->values() as $i => $slide) {
+            if ($slide->image !== $images[$i]) {
+                $slide->image = $images[$i];
+                $slide->save();
+            }
+        }
+        $this->pictureStory()?->unsetRelation('chapters');
+    }
+
     public function pictureLines(): string
     {
         $story = $this->pictureStory();
