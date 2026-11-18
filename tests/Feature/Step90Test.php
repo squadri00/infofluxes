@@ -61,4 +61,12 @@ class Step90Test extends TestCase
 
         $page->call('$set', 'ownText', '')->assertDontSee('put my text into shape');
     }
+
+    public function test_a_check_result_without_a_short_line_still_shows(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'superuser', 'status' => 'active']));
+        $item = ['kind' => 'article', 'title' => 'A title', 'errors' => ['TITLE is missing.'], 'warnings' => [], 'data' => ['long' => 'Some words here.']];
+
+        Livewire::test(AiImport::class)->set('items', [$item])->set('checked', true)->assertOk()->assertSee('A title')->assertSee('How it will look in Google');
+    }
 }

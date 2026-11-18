@@ -183,7 +183,7 @@
                         @if (in_array($item['kind'], ['article', 'fact'], true) && $item['title'] !== '(no title)')
                             @php
                                 $pvTitle = $item['data']['meta_title'] ?? ($item['data']['title'] ?? $item['title']);
-                                $pvText = $item['data']['meta_description'] ?? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags((string) ($item['data']['short'] ?: $item['data']['long'] ?? '')))), 160);
+                                $pvText = $item['data']['meta_description'] ?? \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags((string) (($item['data']['short'] ?? '') ?: ($item['data']['long'] ?? ''))))), 160);
                                 $own = ! empty($item['data']['meta_title']) || ! empty($item['data']['meta_description']);
                             @endphp
                             <details style="margin-top:.5rem"><summary style="cursor:pointer">How it will look in Google @if (! $own)<span style="opacity:.7">(no META lines: the page uses its own title and short text)</span>@endif</summary>
