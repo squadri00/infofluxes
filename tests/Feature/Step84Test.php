@@ -155,7 +155,7 @@ class Step84Test extends TestCase
         $this->superuser();
         $cat = Category::create(['name' => ['en' => 'Stories'], 'slug' => 'stories']);
 
-        $page = Livewire::test(StoryMaker::class)->set('topic', 'The walk')->set('categoryId', $cat->id)->set('length', 'story');
+        $page = Livewire::test(StoryMaker::class)->set('topic', 'The walk')->set('categoryId', $cat->id)->set('openFlow', false)->set('length', 'story');
         $this->assertStringContainsString('about 60 to 110 words', $page->instance()->prompt());
 
         $page->set('paste', $this->answer($this->words(90)))->call('check');

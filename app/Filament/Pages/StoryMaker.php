@@ -56,7 +56,7 @@ class StoryMaker extends Page
     public string $length = 'story';
 
     /** On: the AI decides the length of each slide and the number of slides, so the story can flow freely. */
-    public bool $openFlow = false;
+    public bool $openFlow = true;
 
     public string $notes = '';
 

@@ -25,7 +25,7 @@ class Step87Test extends TestCase
 
     public function test_the_usual_length_is_story_and_the_open_flow_is_off(): void
     {
-        Livewire::test(StoryMaker::class)->assertSet('length', 'story')->assertSet('openFlow', false)->assertSee('exactly 8 slides in all');
+        Livewire::test(StoryMaker::class)->assertSet('length', 'story')->assertSet('openFlow', true)->set('openFlow', false)->assertSee('exactly 8 slides in all');
     }
 
     public function test_open_flow_lets_the_ai_decide_and_is_remembered(): void
@@ -40,7 +40,7 @@ class Step87Test extends TestCase
         $run = \App\Models\StoryRun::first();
         $this->assertTrue($run->options['open']);
 
-        Livewire::test(StoryMaker::class)->call('openRun', $run->id)->assertSet('openFlow', true)->call('newRun')->assertSet('openFlow', false);
+        Livewire::test(StoryMaker::class)->call('openRun', $run->id)->assertSet('openFlow', true)->call('newRun')->assertSet('openFlow', true);
     }
 
     public function test_the_check_does_not_ask_for_a_number_in_open_flow(): void
