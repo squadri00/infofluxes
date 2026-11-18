@@ -2526,3 +2526,13 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 /* Book: the contents links are dark ink on the paper, so they are easy to read (also in the dark theme, because the paper stays light) */
 .viewer--book .slide__index a, .viewer--book .slide__index-sub a, .page-flip-page .slide__index a, .page-flip-page .slide__index-sub a { color: #1d3d63; text-decoration-color: rgba(29, 61, 99, .55); }
 .viewer--book .slide__index a:hover, .viewer--book .slide__index-sub a:hover, .page-flip-page .slide__index a:hover, .page-flip-page .slide__index-sub a:hover { color: #0b2342; }
+
+/* Book: the picture covers its whole page, corner to corner; the frame and its four stars are drawn on top of the picture */
+@media (min-width: 720px) {
+    .story--js .viewer.viewer--book .slide:not(.slide--text) .slide__media { margin: 0; border-radius: 0; }
+    .story--js .fb-page--pic .fb-page__in > .slide__media, .story--js .fb-page--pic.--right .fb-page__in > .slide__media { top: 0; bottom: 0; left: 0; right: 0; border-radius: 0; }
+}
+@media (min-width: 720px) {
+    /* the caption of a full picture stays inside the frame, beside the stars */
+    .viewer--book .slide__caption { padding: 22px 44px 22px 44px; }
+}
