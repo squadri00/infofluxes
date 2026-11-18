@@ -1,8 +1,8 @@
 /*
- * Topic tabs: a smooth change from one tab to the next, with no page reload.
+ * Topic tabs: the cards reshuffle into their new places, with no page reload.
+ * A card that is in both tabs glides from its old place to its new one. A card that is not in the new tab shrinks away.
+ * A card that is new grows into its place. The pill slides to the new tab, and the height of the list changes smoothly.
  * The tabs are real links, so without this script (or if anything goes wrong) a click simply opens the page of that tab.
- * With the script: the coloured pill slides to the new tab, the old cards fade out, the new ones fade in one after another,
- * the address and the Back button follow the tab, and nothing jumps because the panel keeps its height while it changes.
  */
 (function () {
     'use strict';
@@ -15,7 +15,8 @@
     if (!nav || !panel) { return; }
 
     var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var OUT = reduced ? 0 : 300;   // the old cards fade out for 0.3 seconds before the new ones come in
+    var MOVE = 520;      // milliseconds: a card gliding to its new place
+    var EASE = 'cubic-bezier(.2, .7, .2, 1)';
     var busy = false;
     var wanted = null;
 
@@ -38,15 +39,108 @@
         if (!animate) { void ink.offsetWidth; ink.style.transition = ''; }
     }
 
-    function stagger() {
+    /** Where every card of the list is now, by its key (the id of the story). */
+    function places() {
+        var out = {};
+        Array.prototype.forEach.call(panel.querySelectorAll('[data-key]'), function (el) {
+            var r = el.getBoundingClientRect();
+            out[el.getAttribute('data-key')] = { el: el, left: r.left, top: r.top, width: r.width, height: r.height };
+        });
+        return out;
+    }
+
+    /** Swaps the list for the new one and lets the cards find their places. */
+    function reshuffle(html) {
+        var before = places();
+        var box = panel.getBoundingClientRect();
+        var oldHeight = panel.offsetHeight;
+        var ghosts = [];
+
+        if (!reduced) {
+            Object.keys(before).forEach(function (key) {
+                var b = before[key];
+                var g = b.el.cloneNode(true);
+                g.className += ' topic-ghost';
+                g.removeAttribute('data-key');
+                g.setAttribute('aria-hidden', 'true');
+                g.style.left = (b.left - box.left) + 'px';
+                g.style.top = (b.top - box.top) + 'px';
+                g.style.width = b.width + 'px';
+                g.style.height = b.height + 'px';
+                ghosts.push({ key: key, el: g });
+            });
+        }
+
+        panel.innerHTML = html;
         if (reduced) { return; }
-        Array.prototype.forEach.call(panel.querySelectorAll('.scards > li, .topic-tabs__about, .pager'), function (el, i) {
-            el.style.setProperty('--i', Math.min(i, 12));
-            el.classList.add('topic-in');
+
+        var after = places();
+        var newHeight = panel.offsetHeight;
+
+        // The list changes its height smoothly.
+        panel.style.height = oldHeight + 'px';
+        void panel.offsetHeight;
+        panel.style.transition = 'height ' + MOVE + 'ms ' + EASE;
+        panel.style.height = newHeight + 'px';
+        window.setTimeout(function () { panel.style.transition = ''; panel.style.height = ''; }, MOVE + 60);
+
+        Object.keys(after).forEach(function (key) {
+            var a = after[key];
+            var b = before[key];
+            if (b) {
+                // It was here too: it glides from its old place.
+                a.el.style.transition = 'none';
+                a.el.style.transform = 'translate(' + (b.left - a.left) + 'px, ' + (b.top - a.top) + 'px)';
+                a.el.style.zIndex = '2';
+                void a.el.offsetWidth;
+                a.el.style.transition = 'transform ' + MOVE + 'ms ' + EASE;
+                a.el.style.transform = '';
+                window.setTimeout(function () { a.el.style.transition = ''; a.el.style.zIndex = ''; }, MOVE + 60);
+            } else {
+                // It is new: it grows into its place.
+                a.el.style.transition = 'none';
+                a.el.style.opacity = '0';
+                a.el.style.transform = 'scale(.86)';
+                void a.el.offsetWidth;
+                a.el.style.transition = 'transform ' + MOVE + 'ms ' + EASE + ', opacity ' + MOVE + 'ms ease';
+                a.el.style.opacity = '';
+                a.el.style.transform = '';
+                window.setTimeout(function () { a.el.style.transition = ''; }, MOVE + 60);
+            }
+        });
+
+        // A card that is not in the new list shrinks away where it was.
+        ghosts.forEach(function (g) {
+            if (after[g.key]) { return; }
+            panel.appendChild(g.el);
+            void g.el.offsetWidth;
+            g.el.style.transition = 'transform ' + (MOVE - 120) + 'ms ' + EASE + ', opacity ' + (MOVE - 120) + 'ms ease';
+            g.el.style.transform = 'scale(.8)';
+            g.el.style.opacity = '0';
+            window.setTimeout(function () { if (g.el.parentNode) { g.el.parentNode.removeChild(g.el); } }, MOVE);
         });
     }
 
-    function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+    // The page of a tab is fetched as soon as the pointer is over it, so the click feels instant.
+    var cache = {};
+    function load(url) {
+        var hit = cache[url];
+        if (hit && Date.now() - hit.at < 60000) { return hit.p; }
+        var p = fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }).then(function (r) {
+            if (!r.ok) { throw new Error('bad'); }
+            return r.text();
+        });
+        cache[url] = { at: Date.now(), p: p };
+        p.catch(function () { delete cache[url]; });
+        return p;
+    }
+    function warm(e) {
+        var a = e.target.closest ? e.target.closest('a') : null;
+        if (a && nav.contains(a) && a.origin === window.location.origin) { load(a.href); }
+    }
+    nav.addEventListener('pointerenter', warm, true);
+    nav.addEventListener('focusin', warm);
+    nav.addEventListener('touchstart', warm, { passive: true });
 
     function show(url, push) {
         if (busy) { wanted = { url: url, push: push }; return; }
@@ -59,7 +153,6 @@
         Array.prototype.forEach.call(nav.querySelectorAll('.topic-tabs__tab'), function (a) {
             if (new URL(a.href).searchParams.get('topic') === topic) { target = a; }
         });
-        // A page of the same tab (the pager) keeps the tab; a tab link moves the pill at once so the click feels instant.
         if (target) {
             var old = current();
             if (old) { old.classList.remove('is-current'); old.removeAttribute('aria-current'); }
@@ -69,41 +162,19 @@
             try { target.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduced ? 'auto' : 'smooth' }); } catch (e) { /* old browser */ }
         }
 
-        panel.style.minHeight = panel.offsetHeight + 'px';
-        panel.classList.add('is-leaving');
         panel.setAttribute('aria-busy', 'true');
-
-        Promise.all([
-            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }).then(function (r) {
-                if (!r.ok) { throw new Error('bad'); }
-                return r.text();
-            }),
-            wait(OUT)
-        ]).then(function (res) {
-            var doc = new DOMParser().parseFromString(res[0], 'text/html');
+        load(url).then(function (text) {
+            var doc = new DOMParser().parseFromString(text, 'text/html');
             var next = doc.querySelector('[data-topic-panel]');
-            var nextNav = doc.querySelector('[data-topic-nav]');
             if (!next) { throw new Error('no panel'); }
-            panel.innerHTML = next.innerHTML;
-            if (nextNav) {
-                // The counts and the current tab come from the server, so they are always right.
-                var theirs = nextNav.querySelectorAll('.topic-tabs__tab');
-                Array.prototype.forEach.call(nav.querySelectorAll('.topic-tabs__tab'), function (a, i) {
-                    if (theirs[i]) {
-                        var c = theirs[i].querySelector('.topic-tabs__count');
-                        var mine = a.querySelector('.topic-tabs__count');
-                        if (c && mine) { mine.textContent = c.textContent; }
-                    }
-                });
-            }
+            reshuffle(next.innerHTML);
             if (push) { history.pushState({ topic: true }, '', url); }
             document.title = doc.title || document.title;
-            panel.classList.remove('is-leaving');
-            stagger();
             panel.removeAttribute('aria-busy');
-            window.setTimeout(function () { panel.style.minHeight = ''; }, reduced ? 0 : 420);
-            busy = false;
-            if (wanted) { show(wanted.url, wanted.push); }
+            window.setTimeout(function () {
+                busy = false;
+                if (wanted) { show(wanted.url, wanted.push); }
+            }, reduced ? 0 : 200);
         }).catch(function () {
             window.location.href = url;   // anything went wrong: open the page the normal way
         });
@@ -133,5 +204,4 @@
     window.addEventListener('resize', function () { moveInk(false); });
     if (document.fonts && document.fonts.ready) { document.fonts.ready.then(function () { moveInk(false); }); }
     moveInk(false);
-    stagger();
 })();

@@ -6,7 +6,7 @@
     $storyHref = $story->urlFor($storyLang ?? null);
     $summary = trim(preg_replace('/\s+/', ' ', strip_tags((string) $story->short_detail)));
 @endphp
-<li class="scard">
+<li class="scard" data-key="{{ $story->id }}">
     <a class="scard__media" href="{{ $storyHref }}" tabindex="-1" aria-hidden="true">
         @if ($story->main_image)
             <img src="{{ asset('storage/'.$story->main_image) }}" alt="" loading="lazy">

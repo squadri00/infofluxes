@@ -2565,16 +2565,14 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .topic-tabs__count { font-size: .8rem; font-weight: 600; opacity: .75; }
 .topic-tabs__about { margin: 0 0 16px; max-width: 60rem; opacity: .85; }
 
-/* Topic tabs: the smooth change. The pill slides to the new tab; the old cards fade out; the new ones fade in one after another. */
+/* Topic tabs: the smooth change. The pill slides to the new tab; the cards glide to their new places, new ones grow in, others shrink away. */
 .topic-tabs { position: relative; }
 .topic-tabs--js .topic-tabs__tab { position: relative; z-index: 1; transition: color .25s ease, border-color .25s ease; }
 .topic-tabs--js .topic-tabs__tab.is-current { background: transparent; border-color: transparent; }
 .topic-tabs__ink { position: absolute; z-index: 0; top: 0; left: 0; height: calc(100% - 9px); border-radius: 999px; background: var(--accent); pointer-events: none; transform-origin: left center; transition: transform .38s cubic-bezier(.4, 0, .2, 1), width .38s cubic-bezier(.4, 0, .2, 1), opacity .2s; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); }
-.topic-panel { transition: opacity .3s ease, transform .3s ease; }
-.topic-panel.is-leaving { opacity: 0; transform: translateY(8px); pointer-events: none; }
-@keyframes topic-in { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
-.topic-in { animation: topic-in .42s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+.topic-panel { position: relative; }
+.topic-panel .scard { will-change: transform; }
+.topic-ghost { position: absolute; margin: 0; z-index: 1; pointer-events: none; transform-origin: center; }
 @media (prefers-reduced-motion: reduce) {
-    .topic-tabs__ink, .topic-panel, .topic-tabs--js .topic-tabs__tab { transition: none; }
-    .topic-in { animation: none; }
+    .topic-tabs__ink, .topic-tabs--js .topic-tabs__tab { transition: none; }
 }
