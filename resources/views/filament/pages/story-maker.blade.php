@@ -265,6 +265,23 @@
                     <span style="opacity:.7;margin-left:.5rem">The cover has no line: use any picture that shows the whole story.</span>
                 </div>
 
+                @if ($this->slidesInOrder()->contains(fn ($s) => filled($s->image)))
+                    <div style="padding:.7rem .9rem;border:1px solid rgba(128,128,128,.4);border-radius:.5rem">
+                        <strong>Pictures now on the slides</strong> <span style="opacity:.7">(not in the right order? Press ↑ or ↓ to move a picture to the slide before or after it. Nothing is uploaded again.)</span>
+                        <div style="margin-top:.4rem;display:grid;gap:.35rem">
+                            @foreach ($this->slidesInOrder() as $slide)
+                                <div wire:key="now-{{ $slide->id }}" style="display:flex;gap:.7rem;align-items:center;padding:.35rem .5rem;border:1px solid rgba(128,128,128,.3);border-radius:.4rem">
+                                    <strong style="min-width:5rem">Slide {{ $loop->iteration }}</strong>
+                                    @if ($slide->imageUrl())<img src="{{ $slide->imageUrl() }}?v={{ md5((string) $slide->image) }}" alt="" style="width:64px;height:40px;object-fit:cover;border-radius:.3rem">@else<span style="width:64px;opacity:.5">none</span>@endif
+                                    <span style="flex:1;min-width:8rem">{{ \Illuminate\Support\Str::limit((string) $slide->getTranslation('heading', config('infofluxes.default_locale'), true), 50) }}</span>
+                                    <button type="button" wire:click="moveSlidePicture({{ $slide->id }}, -1)" style="{{ $mini }}" title="Move this picture up" @disabled($loop->first)>↑</button>
+                                    <button type="button" wire:click="moveSlidePicture({{ $slide->id }}, 1)" style="{{ $mini }}" title="Move this picture down" @disabled($loop->last)>↓</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <div style="padding:.7rem .9rem;border:1px dashed rgba(128,128,128,.6);border-radius:.5rem;display:grid;gap:.6rem">
                     <label><strong>Choose the pictures</strong> <span style="opacity:.7">(JPG, PNG, WebP or GIF, each up to 12 MB; they are made light and cut to the shape of the story)</span><br>
                         <input type="file" wire:model="pictures" multiple accept="image/jpeg,image/png,image/webp,image/gif" style="margin-top:.3rem">

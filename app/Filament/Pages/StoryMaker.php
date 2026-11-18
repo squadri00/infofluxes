@@ -485,6 +485,30 @@ class StoryMaker extends Page
         Notification::make()->success()->title('The pictures are on the story.')->send();
     }
 
+    /** The slides of the story in reading order, for the "Pictures now on the slides" list. @return \Illuminate\Support\Collection<int, \App\Models\StorySlide> */
+    public function slidesInOrder()
+    {
+        $story = $this->pictureStory();
+
+        return $story ? $story->chapters->flatMap(fn ($c) => $c->slides)->values() : collect();
+    }
+
+    /** Moves the picture of a slide one place up (-1) or down (+1): it swaps pictures with the next slide. Nothing is uploaded again. */
+    public function moveSlidePicture(int $slideId, int $step): void
+    {
+        $slides = $this->slidesInOrder();
+        $i = $slides->search(fn ($s) => $s->id === $slideId);
+        $other = $i === false ? null : $slides->get($i + ($step < 0 ? -1 : 1));
+        if ($i === false || ! $other) {
+            return;
+        }
+        $a = $slides[$i];
+        [$a->image, $other->image] = [$other->image, $a->image];
+        $a->save();
+        $other->save();
+        $this->pictureStory()?->unsetRelation('chapters');
+    }
+
     public function pictureLines(): string
     {
         $story = $this->pictureStory();

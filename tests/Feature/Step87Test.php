@@ -58,4 +58,22 @@ class Step87Test extends TestCase
     {
         $this->assertStringEndsWith('no other block, heading or comment is used.', trim(Prompt::english(['topic' => 'The walk'])));
     }
+
+    public function test_pictures_already_on_the_slides_can_be_moved_without_uploading_again(): void
+    {
+        $cat = \App\Models\Category::create(['name' => ['en' => 'Stories'], 'slug' => 'stories']);
+        $story = \App\Models\Story::create(['title' => ['en' => 'The Walk'], 'slug' => 'the-walk', 'category_id' => $cat->id, 'status' => 'draft']);
+        $ch = $story->chapters()->create(['title' => ['en' => 'One'], 'sort_order' => 1]);
+        $s1 = $ch->slides()->create(['sort_order' => 1, 'heading' => ['en' => 'A'], 'body' => ['en' => 'a'], 'image' => 'stories/b.webp']);
+        $s2 = $ch->slides()->create(['sort_order' => 2, 'heading' => ['en' => 'B'], 'body' => ['en' => 'b'], 'image' => 'stories/a.webp']);
+        $run = \App\Models\StoryRun::create(['kind' => 'story', 'topic' => 'x', 'story_id' => $story->id, 'status' => 'saved', 'options' => []]);
+
+        $page = Livewire::test(StoryMaker::class)->call('openPictures', $run->id)->assertSee('Pictures now on the slides');
+        $page->call('moveSlidePicture', $s1->id, 1);
+        $this->assertSame('stories/a.webp', $s1->fresh()->image);
+        $this->assertSame('stories/b.webp', $s2->fresh()->image);
+
+        $page->call('moveSlidePicture', $s1->id, -1);   // the first slide has nothing before it: nothing changes
+        $this->assertSame('stories/a.webp', $s1->fresh()->image);
+    }
 }
