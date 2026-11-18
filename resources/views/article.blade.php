@@ -7,7 +7,10 @@
     $date = $article->publish_date ?: $article->created_at;
     $body = \App\Support\Html::clean((string) $article->long_detail);
     $explained = \App\Support\Explainers::render($body);   // @[word] becomes a tappable word
-    $bodyShown = ! empty($article->custom_data['accordion']) ? \App\Support\Html::accordion($explained['html']) : $explained['html'];
+    // The extra pictures go inside the text, under the main headings; the ones with no place stay in the "Pictures" strip at the bottom.
+    $placed = \App\Support\ArticlePictures::place($explained['html'], $article->images);
+    $bottomImages = $placed['rest'];
+    $bodyShown = ! empty($article->custom_data['accordion']) ? \App\Support\Html::accordion($placed['html']) : $placed['html'];
     $sources = collect((array) ($article->custom_data['sources'] ?? []))->filter(fn ($x) => filled($x['ref'] ?? null))->values();
     $videos = $article->videos->filter(fn ($v) => filled($v->youtube_id));
     $others = $article->extraCategories->filter(fn ($c) => $c->is_visible);
@@ -112,11 +115,11 @@
         </section>
     @endif
 
-    @if ($article->images->isNotEmpty())
+    @if ($bottomImages->isNotEmpty())
         <section class="article__pictures" aria-label="{{ __('site.pictures') }}">
             <h2 class="block__title">{{ __('site.pictures') }}</h2>
             <div class="article__picture-grid">
-                @foreach ($article->images as $image)
+                @foreach ($bottomImages as $image)
                     <figure>
                         <img src="{{ asset('storage/'.$image->image) }}" alt="{{ $image->alt }}" loading="lazy">
                         @if (filled($image->caption))<figcaption>{{ $image->caption }}</figcaption>@endif

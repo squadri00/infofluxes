@@ -170,6 +170,8 @@ class ArticleResource extends Resource
                             ->defaultItems(0)
                             ->schema([
                                 \App\Filament\Support\ImageUpload::make('image', 'articles')->label('Picture')->required(),
+                                TextInput::make('section')->label('Put it in section number (optional)')->numeric()->minValue(1)->maxValue(60)
+                                    ->helperText('Leave it empty: the pictures go in the order they are listed, one under each main heading. Type 1 to put it under the first main heading, 2 under the second, and so on. A picture with no place stays in the Pictures strip at the bottom.'),
                                 ...Translated::text('alt', 'Describe the picture'),
                                 ...Translated::text('caption', 'Caption (optional)'),
                             ]),
@@ -340,7 +342,7 @@ class ArticleResource extends Resource
                         // The copy also sits in the same other categories and has the same pictures and videos.
                         $replica->extraCategories()->sync($record->extraCategories->pluck('id')->all());
                         foreach ($record->images as $image) {
-                            $replica->images()->create($image->only(['image', 'sort_order']) + ['alt' => $image->getTranslations('alt'), 'caption' => $image->getTranslations('caption')]);
+                            $replica->images()->create($image->only(['image', 'sort_order', 'section']) + ['alt' => $image->getTranslations('alt'), 'caption' => $image->getTranslations('caption')]);
                         }
                         foreach ($record->videos as $video) {
                             $replica->videos()->create(['url' => $video->url, 'sort_order' => $video->sort_order, 'title' => $video->getTranslations('title')]);

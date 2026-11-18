@@ -2576,3 +2576,8 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 @media (prefers-reduced-motion: reduce) {
     .topic-tabs__ink, .topic-tabs--js .topic-tabs__tab { transition: none; }
 }
+
+/* A picture inside the text of an article, under its main heading */
+.article__inline { margin: 6px 0 18px; }
+.article__inline img { width: 100%; height: auto; display: block; border-radius: 10px; }
+.article__inline figcaption { color: var(--muted); font-size: .9rem; margin-top: 6px; }

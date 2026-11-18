@@ -154,6 +154,7 @@ return [
             '"New article" writes one by hand. For AI text use AI import instead.',
             '"Write with AI help" on a blank index entry opens the AI import for that entry.',
             '"Check source links" tests the links of one article now.',
+            '"More pictures" in the article form: the pictures are shown inside the text, under the main headings (the ## parts), in the order they are listed, one under each heading. To choose the place, type a number in "Put it in section number" (1 = under the first main heading). A picture that has no place, for example when there are more pictures than headings, stays in a small Pictures strip at the bottom.',
             'An article must be placed in a last-level category (one with no sub-categories). Use the Overview category of a heading for an overview article.',
         ],
         'tips' => ['The "Review before publishing" part appears on articles written with AI help.', '"Clone" makes a copy as a draft.'],
