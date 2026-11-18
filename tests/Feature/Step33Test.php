@@ -31,7 +31,7 @@ class Step33Test extends TestCase
 
     private function story(string $title = 'Moon story', array $extra = []): Story
     {
-        $s = Story::create(array_merge(['title' => ['en' => $title], 'slug' => Story::uniqueSlug($title), 'category_id' => $this->cat->id, 'status' => 'published', 'publish_date' => now()->subDay()], $extra));
+        $s = Story::create(array_merge(['title' => ['en' => $title], 'slug' => Story::uniqueSlug($title), 'category_id' => $this->cat->id, 'status' => 'published', 'is_featured' => true, 'publish_date' => now()->subDay()], $extra));
         $c = $s->chapters()->create(['title' => ['en' => 'One'], 'sort_order' => 1]);
         $c->slides()->create(['heading' => ['en' => 'Slide a'], 'body' => ['en' => 'Words.'], 'sort_order' => 1]);
 

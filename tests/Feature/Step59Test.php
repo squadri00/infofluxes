@@ -33,7 +33,7 @@ class Step59Test extends TestCase
 
     private function story(): Story
     {
-        return Story::create(['title' => ['en' => 'Moon story'], 'slug' => 'moon-story', 'category_id' => $this->cat->id, 'status' => 'published', 'publish_date' => now()->subDay()]);
+        return Story::create(['title' => ['en' => 'Moon story'], 'slug' => 'moon-story', 'category_id' => $this->cat->id, 'status' => 'published', 'is_featured' => true, 'publish_date' => now()->subDay()]);
     }
 
     private function react(Article|Story $item, int $value): void

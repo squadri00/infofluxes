@@ -38,7 +38,7 @@ class Step11Test extends TestCase
     {
         return Story::create(array_merge([
             'title' => ['en' => $title], 'slug' => Story::uniqueSlug($title), 'category_id' => $this->cat->id,
-            'status' => 'published', 'publish_date' => now()->subDay(),
+            'status' => 'published', 'is_featured' => true, 'publish_date' => now()->subDay(),
         ], $extra));
     }
 
