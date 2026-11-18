@@ -49,3 +49,5 @@ META DESCRIPTION: (one sentence for Google, 120 to 155 letters)
 PLEASE CHECK:
 - (each point the person must check first)
 END
+
+REMEMBER (the last rule): your whole answer is ONE single code block, from TYPE: to END, with nothing before it and nothing after it. Write it directly in the chat. Do not use Python, a tool, a file or a canvas. Do not close the code block in the middle: the Arabic verses and every line stay inside the same block, and no other block, heading or comment is used.

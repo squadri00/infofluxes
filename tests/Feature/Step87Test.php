@@ -53,4 +53,9 @@ class Step87Test extends TestCase
         $w = Reader::read($answer, null, 8, 'short', false)['warnings'];
         $this->assertNotEmpty(array_filter($w, fn ($x) => str_contains($x, 'You asked for') || str_contains($x, 'is long')));
     }
+
+    public function test_the_prompt_ends_by_asking_for_one_single_code_block(): void
+    {
+        $this->assertStringEndsWith('no other block, heading or comment is used.', trim(Prompt::english(['topic' => 'The walk'])));
+    }
 }
