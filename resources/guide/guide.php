@@ -170,6 +170,7 @@ return [
         'steps' => [
             '"Sits inside" puts a category below another one. A category that already holds articles cannot get sub-categories until its articles are moved.',
             'Hide a category with "Show on the site" off.',
+            'A section that has many items (for example Stories in pictures) can show its sub-categories as tabs: switch on "Show its sub-categories as tabs" in that category. Its page then shows All and one tab for each sub-category, with a count, and a tab lists only its own items, 12 at a time. To add a tab, add a sub-category and file items in it. A sub-category with no items has no tab.',
             'Changing the web address makes a redirect by itself.',
         ],
         'tips' => ['Moving articles out of a heading: the Overview category is made for them.'],

@@ -49,7 +49,7 @@
         <div class="topic__context">{!! nl2br(e((string) $category->header_text)) !!}</div>
     @endif
 
-    @if ($children->isNotEmpty() && $mode !== 'index')
+    @if ($children->isNotEmpty() && $mode !== 'index' && ! $topics)
         <nav class="category-menu" aria-label="{{ __('site.sub_categories') }}">
             @foreach ($children as $child)
                 <a class="btn btn--small category-menu__btn" href="{{ route('category.show', $child->slug) }}">{{ $child->name }}</a>
@@ -85,7 +85,7 @@
         @endphp
         @include('partials.category-index', ['category' => $category, 'index' => $indexShown, 'facts' => $facts, 'stories' => $stories])
     @else
-    @if ($children->isNotEmpty())
+    @if ($children->isNotEmpty() && ! $topics)
         <section class="block">
             <h2 class="block__title">{{ __('site.sub_categories') }}</h2>
             <ul class="tiles">
@@ -96,7 +96,24 @@
         </section>
     @endif
 
-    @if ($stories->isNotEmpty())
+    @if ($topics)
+    <section class="block">
+        <nav class="topic-tabs" aria-label="{{ __('site.topics_label') }}">
+            @foreach ($topics['tabs'] as $tab)
+                <a class="topic-tabs__tab{{ $tab['current'] ? ' is-current' : '' }}" href="{{ $tab['url'] }}" @if ($tab['current']) aria-current="page" @endif>{{ $tab['name'] }} <span class="topic-tabs__count">{{ $tab['count'] }}</span></a>
+            @endforeach
+        </nav>
+        @if ($topics['current'] && filled(trim(strip_tags((string) $topics['current']->description))))
+            <p class="topic-tabs__about">{{ trim(strip_tags((string) $topics['current']->description)) }}</p>
+        @endif
+        @if ($stories->isNotEmpty())
+            @include('partials.story-grid', ['stories' => $stories])
+            @include('partials.pager', ['paginator' => $topics['stories']])
+        @else
+            <p class="empty">{{ __('site.no_articles') }}</p>
+        @endif
+    </section>
+    @elseif ($stories->isNotEmpty())
     <section class="block">
         <h2 class="block__title">{{ __('site.stories_title') }}</h2>
         @include('partials.story-grid', ['stories' => $stories])

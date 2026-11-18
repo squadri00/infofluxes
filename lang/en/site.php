@@ -112,6 +112,8 @@ return [
     'footer_about' => 'About',
     'footer_subscribe' => 'Subscribe',
     'stories_title' => 'Stories in pictures',
+    'tab_all' => 'All',
+    'topics_label' => 'Topics',
     'stories_intro' => 'True stories told in pictures, chapter by chapter. Open one, and move through it slide by slide.',
     'stories_all' => 'All stories',
     'stories_none' => 'No stories are listed yet.',

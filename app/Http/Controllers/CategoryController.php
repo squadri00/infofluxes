@@ -30,6 +30,9 @@ class CategoryController extends Controller
             ->orderBy('sort_order')->orderByDesc('publish_date')->orderByDesc('id')
             ->paginate(self::PER_PAGE);
 
+        // A section with tabs (for example Stories in pictures): All and one tab for each sub-category, with its own stories.
+        $topics = \App\Support\TopicTabs::isOn($category) && $mode !== 'index' ? \App\Support\TopicTabs::build($category, $request->query('topic'), $preview) : null;
+
         return view('category', [
             'category' => $category,
             'trail' => $trail,
@@ -39,7 +42,8 @@ class CategoryController extends Controller
             'mode' => $mode,
             'index' => $index,
             // The Visual Stories of this category (the main one or an "also in"), and the "Did You Know?" facts that were put on its page.
-            'stories' => \App\Models\Story::published()->with(['category', 'contributor'])->withCount('slides')
+            'topics' => $topics,
+            'stories' => $topics ? $topics['stories']->getCollection() : \App\Models\Story::published()->with(['category', 'contributor'])->withCount('slides')
                 ->where(fn ($q) => $q->where('category_id', $category->id)->orWhereHas('extraCategories', fn ($c) => $c->where('categories.id', $category->id)))
                 ->orderBy('sort_order')->orderByDesc('publish_date')->orderByDesc('id')->get(),
             'facts' => \App\Models\DidYouKnow::query()->visible()->where('category_id', $category->id)->ordered()->get(),

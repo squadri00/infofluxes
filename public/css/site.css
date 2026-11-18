@@ -2556,3 +2556,11 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
     .fb-zoom { opacity: 0; }
     .slide__media:hover > .fb-zoom, .fb-zoom:focus-visible { opacity: 1; }
 }
+
+/* Topic tabs: a section with many items (Stories in pictures) shows All and one tab for each topic */
+.topic-tabs { display: flex; gap: 8px; margin: 0 0 18px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: thin; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--line, rgba(128, 128, 128, .3)); }
+.topic-tabs__tab { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid var(--line, rgba(128, 128, 128, .45)); border-radius: 999px; text-decoration: none; color: inherit; font-weight: 600; white-space: nowrap; }
+.topic-tabs__tab:hover { border-color: var(--accent); }
+.topic-tabs__tab.is-current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.topic-tabs__count { font-size: .8rem; font-weight: 600; opacity: .75; }
+.topic-tabs__about { margin: 0 0 16px; max-width: 60rem; opacity: .85; }

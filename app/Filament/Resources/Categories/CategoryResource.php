@@ -126,6 +126,9 @@ class CategoryResource extends Resource
                 Toggle::make('custom_data.hide_articles')->label('Do not list its articles on its page')
                     ->helperText('For a page that shows something else, for example the Did You Know? facts. The articles stay in the admin and in search; only the list on this page is left out.')
                     ->default(false),
+                Toggle::make('custom_data.topic_tabs')->label('Show its sub-categories as tabs')
+                    ->helperText('For a section that has many items, like Stories in pictures. Its page shows the tabs All and one for each sub-category, and each tab lists only its own items, a page at a time.')
+                    ->default(false),
                 Section::make('Search engines (optional)')
                     ->collapsed()
                     ->description('Leave empty and the name and description are used.')
