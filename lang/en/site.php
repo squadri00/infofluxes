@@ -162,7 +162,7 @@ return [
     'one_article' => '1 article',
     'n_articles' => ':n articles',
     'one_sub' => '1 sub-category',
-    'tab_overview' => 'Overview',
+    'tab_overview' => 'Browse',
     'tab_all_articles' => 'All articles',
     'all_search' => 'Search in this list',
     'all_sort_new' => 'Newest first',

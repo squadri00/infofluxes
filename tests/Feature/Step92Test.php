@@ -37,7 +37,7 @@ class Step92Test extends TestCase
     {
         $this->tree();
 
-        $this->get('/category/top')->assertOk()->assertSee('Overview')->assertSee('All articles');
+        $this->get('/category/top')->assertOk()->assertSee('Browse')->assertSee('All articles');
         $r = $this->get('/category/top?list=all')->assertOk()->assertSee('Zebra story')->assertSee('Apple story')->assertSee('Mango story')->assertDontSee('Hidden draft');
         $r->assertSee('Alpha')->assertSee('Beta');
     }
