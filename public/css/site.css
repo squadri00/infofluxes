@@ -2595,3 +2595,13 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .all-tabs__tab:hover { border-color: var(--accent); }
 .all-tabs__tab.is-current { background: var(--accent); border-color: var(--accent); color: #fff; }
 .all-tabs__count { font-size: .8rem; font-weight: 600; opacity: .75; }
+
+/* All articles bar: the search box, the sort choice and the button look like the rest of the site and share one height */
+.all-list__bar { align-items: stretch; margin-bottom: 20px; }
+.all-list__search, .all-list__bar select { height: 44px; box-sizing: border-box; padding: 0 16px; border: 1px solid var(--line, rgba(128, 128, 128, .45)); border-radius: 999px; background: var(--surface); color: var(--text); font: inherit; outline: none; }
+.all-list__search { flex: 1 1 260px; }
+.all-list__search:focus, .all-list__bar select:focus { border-color: var(--accent); }
+.all-list__bar select { padding-right: 12px; cursor: pointer; }
+.all-list__bar .btn { height: 44px; padding: 0 22px; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent); color: var(--accent-text, #fff); font: inherit; font-weight: 600; cursor: pointer; }
+.all-list__bar .btn:hover { filter: brightness(1.1); }
+@media (max-width: 560px) { .all-list__search { flex-basis: 100%; } }
