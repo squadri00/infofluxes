@@ -33,7 +33,14 @@ class CategoryController extends Controller
         // A section with tabs (for example Stories in pictures): All and one tab for each sub-category, with its own stories.
         $topics = \App\Support\TopicTabs::isOn($category) && $mode !== 'index' ? \App\Support\TopicTabs::build($category, $request->query('topic'), $preview) : null;
 
+        // The "All articles" tab: everything in this category and below it (only for a category that has sub-categories).
+        $hasAllTab = $mode !== 'index' && ! $topics && \App\Support\AllArticles::applies($category, $preview);
+        $all = $hasAllTab && $request->query('list') === 'all' ? \App\Support\AllArticles::build($category, $request, $preview) : null;
+
         return view('category', [
+            'hasAllTab' => $hasAllTab,
+            'allTotal' => $hasAllTab ? \App\Support\AllArticles::total($category) : 0,
+            'all' => $all,
             'category' => $category,
             'trail' => $trail,
             'children' => $category->children()->when(! $preview, fn ($q) => $q->where('is_visible', true))->get(),

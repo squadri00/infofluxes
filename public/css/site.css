@@ -2581,3 +2581,17 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .article__inline { margin: 6px 0 18px; }
 .article__inline img { width: 100%; height: auto; display: block; border-radius: 10px; }
 .article__inline figcaption { color: var(--muted); font-size: .9rem; margin-top: 6px; }
+
+/* All articles tab of a category: search, sort, chips, then the cards; and the count link on a category card */
+.all-list__bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 14px; }
+.all-list__search { flex: 1 1 220px; min-width: 0; }
+.all-list__chips { margin-top: 0; }
+.all-list__grid .scard { grid-column: span 2; }
+.tile__all { position: relative; z-index: 2; color: var(--accent); font-weight: 600; text-decoration: none; }
+.tile__all:hover { text-decoration: underline; }
+
+.all-tabs { display: flex; gap: 8px; margin: 0 0 18px; padding-bottom: 8px; overflow-x: auto; scrollbar-width: thin; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--line, rgba(128, 128, 128, .3)); }
+.all-tabs__tab { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border: 1px solid var(--line, rgba(128, 128, 128, .45)); border-radius: 999px; text-decoration: none; color: inherit; font-weight: 600; white-space: nowrap; }
+.all-tabs__tab:hover { border-color: var(--accent); }
+.all-tabs__tab.is-current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.all-tabs__count { font-size: .8rem; font-weight: 600; opacity: .75; }

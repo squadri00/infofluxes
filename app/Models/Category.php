@@ -80,6 +80,12 @@ class Category extends Model
         return $articles + $stories;
     }
 
+    /** How many published articles and stories the visitor finds in this category and everything below it (shown on the category cards). */
+    public function listedCount(): int
+    {
+        return \App\Support\AllArticles::total($this);
+    }
+
     /** A web address made from a name: letters, numbers and dashes, never a reserved word, never one already used. */
     public static function uniqueSlug(string $name, string $fallback = 'category'): string
     {

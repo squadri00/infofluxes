@@ -85,6 +85,49 @@
         @endphp
         @include('partials.category-index', ['category' => $category, 'index' => $indexShown, 'facts' => $facts, 'stories' => $stories])
     @else
+    @if ($hasAllTab)
+        <nav class="all-tabs" aria-label="{{ __('site.topics_label') }}">
+            <a class="all-tabs__tab{{ $all ? '' : ' is-current' }}" href="{{ route('category.show', $category->slug) }}" @if (! $all) aria-current="page" @endif>{{ __('site.tab_overview') }}</a>
+            <a class="all-tabs__tab{{ $all ? ' is-current' : '' }}" href="{{ route('category.show', ['slug' => $category->slug, 'list' => 'all']) }}" @if ($all) aria-current="page" @endif>{{ __('site.tab_all_articles') }} <span class="all-tabs__count">{{ $allTotal }}</span></a>
+        </nav>
+    @endif
+
+    @if ($all)
+    <section class="block all-list">
+        <form class="all-list__bar" method="get" action="{{ route('category.show', $category->slug) }}">
+            <input type="hidden" name="list" value="all">
+            @if (request('sub'))<input type="hidden" name="sub" value="{{ request('sub') }}">@endif
+            <input class="all-list__search" type="search" name="q" value="{{ $all['q'] }}" maxlength="80" placeholder="{{ __('site.all_search') }}" aria-label="{{ __('site.all_search') }}">
+            <select name="sort" aria-label="{{ __('site.all_sort_new') }}" onchange="this.form.submit()">
+                <option value="new" @selected($all['sort'] === 'new')>{{ __('site.all_sort_new') }}</option>
+                <option value="old" @selected($all['sort'] === 'old')>{{ __('site.all_sort_old') }}</option>
+                <option value="az" @selected($all['sort'] === 'az')>{{ __('site.all_sort_az') }}</option>
+            </select>
+            <button class="btn btn--small" type="submit">{{ __('site.all_go') }}</button>
+        </form>
+        @if (count($all['chips']) > 2)
+        <nav class="all-tabs all-list__chips" aria-label="{{ __('site.sub_categories') }}">
+            @foreach ($all['chips'] as $chip)
+                <a class="all-tabs__tab{{ $chip['current'] ? ' is-current' : '' }}" href="{{ $chip['url'] }}" @if ($chip['current']) aria-current="page" @endif>{{ $chip['name'] }} <span class="all-tabs__count">{{ $chip['count'] }}</span></a>
+            @endforeach
+        </nav>
+        @endif
+        @if ($all['items']->isEmpty())
+            <p class="empty">{{ __('site.all_none') }}</p>
+        @else
+            <ul class="mosaic all-list__grid">
+                @foreach ($all['items'] as $item)
+                    @if ($item->kind === 'story')
+                        @include('partials.story-card', ['story' => $item])
+                    @else
+                        @include('partials.article-card', ['article' => $item, 'shape' => 'P'])
+                    @endif
+                @endforeach
+            </ul>
+            @include('partials.pager', ['paginator' => $all['items']])
+        @endif
+    </section>
+    @else
     @if ($children->isNotEmpty() && ! $topics)
         <section class="block">
             <h2 class="block__title">{{ __('site.sub_categories') }}</h2>
@@ -140,6 +183,7 @@
             @include('partials.pager', ['paginator' => $articles])
         @endif
     </section>
+    @endif
     @endif
     @endif
 </div>
