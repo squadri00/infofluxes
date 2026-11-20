@@ -23,7 +23,7 @@ class IndexEntries
             && trim(strip_tags((string) $a->getTranslation('long_detail', config('infofluxes.default_locale'), false))) === '';
     }
 
-    /** The ID shown for an entry: its index ID (AL-2.1.001) when it has one, else its code (A-723). */
+    /** The ID shown for an entry: its code (A-723). The old index ID (AL-2.1.001) stays on the article as its working name and can still be searched. */
     public static function label(Article $a): string
     {
         return CategoryIndex::codeOf($a);

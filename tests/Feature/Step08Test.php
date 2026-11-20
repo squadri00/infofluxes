@@ -64,20 +64,22 @@ class Step08Test extends TestCase
     public function test_the_index_view_shows_the_whole_branch_as_nested_headings_with_their_subjects(): void
     {
         [$index, $part, $main, $sub] = $this->tree();
-        $this->line('Allah (SWT) existence', $sub, ['working_name' => 'AL-1.1.001']);
+        $first = $this->line('Allah (SWT) existence', $sub, ['working_name' => 'AL-1.1.001']);
         $this->published('Written about Allah (SWT)', $sub, ['working_name' => 'AL-1.1.002']);
 
         $html = $this->get('/category/'.$index->slug.'?view=index')->assertOk()->getContent();
 
         $this->assertStringContainsString('data-qi', $html);
-        $this->assertStringContainsString('<h2 class="qi__part-title"><span class="qi__code">AL-I</span> Existence and Oneness</h2>', $html);
-        $this->assertStringContainsString('<span class="qi__code">AL-1</span> Existence and Identity</summary>', $html);
-        $this->assertStringContainsString('<h3 class="qi__sub-title"><span class="qi__code">AL-1.1</span> Existence of Allah (SWT)</h3>', $html);
-        $this->assertStringContainsString('<span class="qi__code">AL-1.1.001</span>', $html, 'the old index ID is shown');
+        $this->assertStringContainsString('<h2 class="qi__part-title"><span class="qi__code">'.$part->code.'</span> Existence and Oneness</h2>', $html);
+        $this->assertStringContainsString('<span class="qi__code">'.$main->code.'</span> Existence and Identity</summary>', $html);
+        $this->assertStringContainsString('<h3 class="qi__sub-title"><span class="qi__code">'.$sub->code.'</span> Existence of Allah (SWT)</h3>', $html);
+        $this->assertStringContainsString('<span class="qi__code">'.$first->code.'</span>', $html, 'the new code is shown');
+        $this->assertStringNotContainsString('<span class="qi__code">AL-1.1.001</span>', $html, 'the old index ID is not shown');
+        $this->assertStringContainsString('al-1.1.001', $html, 'but it is still found by the quick search');
         // The order: Part, then the main row, then the sub-title, then the lines.
-        $this->assertLessThan(strpos($html, 'AL-1</span>'), strpos($html, 'AL-I</span>'));
-        $this->assertLessThan(strpos($html, 'AL-1.1</span>'), strpos($html, 'AL-1</span>'));
-        $this->assertLessThan(strpos($html, 'AL-1.1.001'), strpos($html, 'AL-1.1</span>'));
+        $this->assertLessThan(strpos($html, $main->code.'</span>'), strpos($html, $part->code.'</span>'));
+        $this->assertLessThan(strpos($html, $sub->code.'</span>'), strpos($html, $main->code.'</span>'));
+        $this->assertLessThan(strpos($html, $first->code.'</span>'), strpos($html, $sub->code.'</span>'));
         $this->assertStringContainsString('2 subjects', $html);
     }
 
@@ -117,7 +119,7 @@ class Step08Test extends TestCase
         $this->assertStringContainsString('<a href="'.route('article.show', $article->slug).'">Allah (SWT) as the Creator</a>', $q);
         $this->assertStringContainsString('<span class="qi__also">(main place: Existence of Allah (SWT))</span>', $q);
         $this->assertStringContainsString('1 subjects', $q);
-        $this->assertStringContainsString('AL-1.1.003', $q, 'the same code in both places');
+        $this->assertStringContainsString($article->code, $q, 'the same code in both places');
     }
 
     public function test_an_article_in_two_places_of_one_branch_is_shown_twice_but_counted_once(): void
@@ -179,7 +181,7 @@ class Step08Test extends TestCase
         $this->assertStringContainsString('<span class="qi__soon">details coming</span>', $html);
     }
 
-    public function test_a_code_is_the_old_index_id_when_there_is_one_and_the_new_code_otherwise(): void
+    public function test_the_new_code_is_shown_and_a_private_working_name_never_is(): void
     {
         [$index, , , $sub] = $this->tree();
         $plain = $this->published('No old id', $sub, ['working_name' => 'my own note']);
@@ -240,7 +242,7 @@ class Step08Test extends TestCase
         $html = $this->get('/category/'.$heading->slug.'?view=index')->getContent();
 
         $this->assertStringContainsString('<details class="qi__cat" data-qi-cat', $html);
-        $this->assertStringContainsString('<span class="qi__code">HX-3.1</span> Pre-Islamic History</summary>', $html);
+        $this->assertStringContainsString('<span class="qi__code">'.$row->code.'</span> Pre-Islamic History</summary>', $html);
         $this->assertStringContainsString('Ancient Arabia', $html);
         $this->assertStringNotContainsString('qi__part-title', $html, 'no section title when there are no sub-headings');
     }

@@ -86,7 +86,7 @@ return [
         'what' => 'Everything has a short permanent code. It never changes, so you can use it to search or to talk about an item.',
         'steps' => [
             'A- article, S- visual story, D- Did You Know?, E- explainer, C- category, K- contributor, P- page.',
-            'An index ID such as AL-2.1.001 is the place of an article in your subject index. It stays with the article when the AI text is saved into it.',
+            'An index ID such as AL-2.1.001 is the old place of an article in your subject index. It stays with the article (in its Working name) and can still be typed in the searches, but the Index view and the lists show the article\'s own number (A-42). Nobody needs to maintain the old IDs.',
             'Type a code in the site search box (for example A-42) to go straight to it. The address /id/A-42 also works.',
         ],
         'tips' => [],

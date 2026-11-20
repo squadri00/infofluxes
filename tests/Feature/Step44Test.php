@@ -62,7 +62,7 @@ class Step44Test extends TestCase
         $this->assertTrue(IndexEntries::isBlank($blank));
         $this->assertFalse(IndexEntries::isBlank($written));
         $this->assertFalse(IndexEntries::isBlank($plain));
-        $this->assertSame('AL-2.1.001', IndexEntries::label($blank));
+        $this->assertSame($blank->code, IndexEntries::label($blank));
     }
 
     public function test_search_finds_blank_entries_by_index_id_code_or_title_and_skips_written_ones(): void
@@ -87,19 +87,19 @@ class Step44Test extends TestCase
         $found = IndexEntries::suggest('Allah (SWT) Alone Is the Creator of All Things', $this->cat->id);
 
         $this->assertSame([$creates->id], array_column($found, 'id'));
-        $this->assertSame('AL-2.1.001', $found[0]['code']);
+        $this->assertSame($creates->code, $found[0]['code']);
         $this->assertSame([], IndexEntries::suggest('Something quite different', $this->cat->id));
     }
 
     public function test_check_warns_about_a_blank_entry_when_none_was_chosen(): void
     {
-        $this->entry('AL-2.1.001', 'Allah (SWT) alone creates');
+        $blank = $this->entry('AL-2.1.001', 'Allah (SWT) alone creates');
 
         $item = Importer::parse($this->answer())[0];
 
         $this->assertSame([], $item['errors'], 'it is a warning, not a stop');
-        $this->assertSame('AL-2.1.001', $item['data']['index_suggestions'][0]['code']);
-        $this->assertStringContainsString('blank index entry AL-2.1.001', implode(' ', $item['warnings']));
+        $this->assertSame($blank->code, $item['data']['index_suggestions'][0]['code']);
+        $this->assertStringContainsString('blank index entry '.$blank->code, implode(' ', $item['warnings']));
     }
 
     public function test_with_an_entry_chosen_the_category_comes_from_the_entry_and_the_title_check_skips_it(): void
@@ -113,7 +113,7 @@ class Step44Test extends TestCase
         $this->assertSame([], $item['errors'], implode(' | ', $item['errors']));
         $this->assertSame($this->cat->id, $item['data']['category_id']);
         $this->assertStringContainsString('category of the index entry', implode(' ', $item['warnings']));
-        $this->assertStringContainsString('AL-2.1.001', $item['data']['entry_label']);
+        $this->assertStringContainsString($entry->code, $item['data']['entry_label']);
         $this->assertSame([], $item['data']['index_suggestions']);
     }
 
@@ -168,7 +168,7 @@ class Step44Test extends TestCase
 
         $p = Livewire::test(AiImport::class)->call('selectEntry', $entry->id)->instance()->prompt();
 
-        $this->assertStringContainsString('planned index subject "AL-2.1.001 Allah (SWT) alone creates"', $p);
+        $this->assertStringContainsString('planned index subject "'.$entry->code.' Allah (SWT) alone creates"', $p);
         $this->assertStringContainsString($this->cat->code, $p);
     }
 
@@ -177,7 +177,7 @@ class Step44Test extends TestCase
         $entry = $this->entry('AL-2.1.001', 'Allah (SWT) alone creates');
         $this->admin();
 
-        Livewire::withQueryParams(['entry' => $entry->id])->test(AiImport::class)->assertSet('entryId', $entry->id)->assertSee('AL-2.1.001');
+        Livewire::withQueryParams(['entry' => $entry->id])->test(AiImport::class)->assertSet('entryId', $entry->id)->assertSee($entry->code);
     }
 
     public function test_a_suggestion_can_be_used_with_one_click(): void

@@ -82,12 +82,18 @@ class CategoryIndex
             ->orWhere(fn ($i) => $i->where('is_index_line', true)->where('status', '!=', 'archived')));
     }
 
-    /** The code shown beside a heading or a subject: the old index ID (QR-1.1.001) when it has one, else the new code (C-12, A-42). */
+    /** The code shown beside a heading or a subject: always its own code (C-12, A-42). An old index ID (QR-1.1.001) stays on the article as its working name and can still be searched. */
     public static function codeOf(object $item): string
+    {
+        return (string) $item->code;
+    }
+
+    /** The old index ID (QR-1.1.001) of an article, only when its working name is one; any other working name is private. */
+    public static function oldId(object $item): string
     {
         $name = (string) ($item->working_name ?? '');
 
-        return preg_match('/^[A-Z]{2}-[0-9IVX]+(\.[0-9]+)*$/', $name) ? $name : $item->code;
+        return preg_match('/^[A-Z]{2}-[0-9IVX]+(\.[0-9]+)*$/', $name) ? $name : '';
     }
 
     /** Is this article listed anywhere in the branch (a heading and everything below it)? */

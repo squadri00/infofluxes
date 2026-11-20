@@ -1,6 +1,6 @@
 {{-- One subject of the Index view. Needs $line (code, title, link, article, also, copy, category_id) and $trail.
      A subject that is also in this category (its main category is elsewhere) is a copy and carries a small note. --}}
-<li class="qi__item" data-qi-item id="a-{{ $line['article']->id }}{{ $line['copy'] ? '-c'.$line['category_id'] : '' }}" data-text="{{ mb_strtolower($line['code'].' '.$line['article']->code.' '.$line['title'].' '.$trail.' '.($line['also'] ?? '')) }}">
+<li class="qi__item" data-qi-item id="a-{{ $line['article']->id }}{{ $line['copy'] ? '-c'.$line['category_id'] : '' }}" data-text="{{ mb_strtolower($line['code'].' '.\App\Support\CategoryIndex::oldId($line['article']).' '.$line['title'].' '.$trail.' '.($line['also'] ?? '')) }}">
     <span class="qi__code">{{ $line['code'] }}</span>
     @if ($line['link'])
         <a href="{{ route('article.show', $line['article']->slug) }}">{{ $line['title'] }}</a>
