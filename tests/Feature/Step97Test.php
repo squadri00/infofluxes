@@ -26,14 +26,34 @@ class Step97Test extends TestCase
         }
     }
 
-    public function test_a_prompt_with_an_answer_after_it_is_also_stopped(): void
+    public function test_a_whole_chat_is_read_from_the_answer_on_and_the_prompt_part_is_left_out(): void
     {
-        $text = Prompts::research(['topic' => 'Iblees'])."\n\nTYPE: article\nTITLE: Real title\nSHORT: Short.\nLONG: Some words.";
+        $text = Prompts::research(['topic' => 'Iblees'])."\n\nSure, here it is:\nTYPE: article\nTITLE: Real title\nSHORT: Short.\nLONG: Some words.\nEND";
 
         $items = Importer::parse($text);
 
         $this->assertCount(1, $items);
-        $this->assertStringContainsString('prompt', $items[0]['errors'][0]);
+        $this->assertSame('Real title', $items[0]['title']);
+        $this->assertStringContainsString('The prompt at the top of the pasted text was left out', implode(' ', $items[0]['warnings']));
+        $this->assertStringNotContainsString('This is the prompt', implode(' ', $items[0]['errors']));
+    }
+
+    public function test_every_kind_of_prompt_followed_by_its_answer_is_read(): void
+    {
+        $fact = Prompts::make('fact', 'Is it true?')."\nTYPE: fact\nCATEGORY: X\nTITLE: A real question\nSHORT: Yes.\nLONG:\nWords.\nEND";
+        $this->assertSame('A real question', Importer::parse($fact)[0]['title']);
+
+        $cats = Prompts::make('categories', 'Shows')."\nTYPE: categories\nShows > Popular Shows\nEND";
+        $items = Importer::parse($cats);
+        $this->assertSame('categories', $items[0]['kind']);
+        $this->assertStringNotContainsString('This is the prompt', implode(' ', $items[0]['errors']));
+    }
+
+    public function test_a_prompt_whose_only_examples_follow_it_is_still_just_a_prompt(): void
+    {
+        $items = Importer::parse(Prompts::research(['topic' => 'Iblees'])."\n\n(the AI has not answered yet)");
+
+        $this->assertSame('(this is the prompt)', $items[0]['title']);
     }
 
     public function test_an_example_of_the_prompt_left_in_a_field_is_a_problem(): void

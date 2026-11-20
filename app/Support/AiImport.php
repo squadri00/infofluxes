@@ -38,9 +38,16 @@ class AiImport
         // A chat often wraps the answer in a code box. The fence lines are not part of the answer.
         $text = preg_replace('/^\s*```[a-z]*\s*$/mi', '', $text);
 
-        // The prompt itself pasted in Step 2 (a common slip): say so, and read nothing out of it.
+        // The prompt pasted in Step 2 (a common slip). If the answer of the AI follows it (the whole chat was copied), the prompt part is
+        // left out and only the answer is read. If there is no answer after it, say so and read nothing.
+        $promptLeftOut = false;
         if (static::looksLikePrompt($text)) {
-            return [['kind' => 'article', 'title' => '(this is the prompt)', 'errors' => ['This is the prompt, not the answer of the AI. Paste the prompt into the AI chat, wait for its answer, and paste that answer here. Nothing was read from this text.'], 'warnings' => [], 'data' => []]];
+            $reply = static::answerAfterPrompt($text);
+            if ($reply === null) {
+                return [['kind' => 'article', 'title' => '(this is the prompt)', 'errors' => ['This is the prompt, not the answer of the AI. Paste the prompt into the AI chat, wait for its answer, and paste that answer here. Nothing was read from this text.'], 'warnings' => [], 'data' => []]];
+            }
+            $text = $reply;
+            $promptLeftOut = true;
         }
 
         $blocks = array_values(array_filter(array_map('trim', preg_split('/^\s*={4,}\s*$/m', $text)), fn ($b) => $b !== ''));
@@ -51,6 +58,10 @@ class AiImport
                 break;
             }
             $items[] = static::parseBlock($block, $checkLinks, $entryId);
+        }
+
+        if ($promptLeftOut && isset($items[0])) {
+            array_unshift($items[0]['warnings'], 'The prompt at the top of the pasted text was left out. Only the answer after it was read.');
         }
 
         // One index entry takes one article. The other articles of the same paste are held back.
@@ -89,6 +100,41 @@ class AiImport
         }
 
         return false;
+    }
+
+    /**
+     * The answer of the AI inside a text that also holds our prompt (a whole chat copied): the text from the first "TYPE: ..." line that is
+     * a real answer and not the example shape of the prompt. Null when there is none.
+     */
+    public static function answerAfterPrompt(string $text): ?string
+    {
+        $lines = explode("\n", str_replace(["\r\n", "\r"], "\n", $text));
+        foreach ($lines as $i => $line) {
+            if (! preg_match('/^[\s*_`>#-]*TYPE:\s*\**\s*(article|fact|categories)\b/i', $line, $m)) {
+                continue;
+            }
+            $real = false;
+            if (strtolower($m[1]) === 'categories') {
+                $next = '';
+                for ($j = $i + 1; $j < min(count($lines), $i + 6) && $next === ''; $j++) {
+                    $next = trim($lines[$j]);
+                }
+                $real = $next !== '' && ! str_starts_with($next, 'Parent > Child');
+            } else {
+                for ($j = $i + 1; $j < min(count($lines), $i + 15); $j++) {
+                    if (preg_match('/^[\s*_`>#-]*TITLE:\s*\**\s*(.*)$/i', $lines[$j], $t)) {
+                        $value = trim(trim($t[1]), '* ');
+                        $real = $value !== '' && ! static::isPlaceholder($value);
+                        break;
+                    }
+                }
+            }
+            if ($real) {
+                return implode("\n", array_slice($lines, $i));
+            }
+        }
+
+        return null;
     }
 
     /** Is a value only an instruction or an example copied from the prompt, such as "(a clear title, at most 200 letters)"? */
