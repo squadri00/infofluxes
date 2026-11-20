@@ -59,7 +59,7 @@ class ArticleResource extends Resource
     {
         $user = auth()->user();
 
-        return static::screen() && ($user->canPublish() || (int) $record->author_id === $user->id);
+        return static::screen() && ($user->canPublish() || (int) $record->author_id === $user->id || (int) $record->assigned_to === $user->id);
     }
 
     public static function canViewAny(): bool { return static::screen(); }
@@ -80,7 +80,7 @@ class ArticleResource extends Resource
         $query = parent::getEloquentQuery();
         $user = auth()->user();
 
-        return $user && ! $user->canPublish() ? $query->where('author_id', $user->id) : $query;
+        return $user && ! $user->canPublish() ? $query->where(fn ($q) => $q->where('author_id', $user->id)->orWhere('assigned_to', $user->id)) : $query;
     }
 
     /** The statuses this person may choose. An author can only keep a draft or send it for review. */
@@ -267,7 +267,7 @@ class ArticleResource extends Resource
     {
         return $table
             ->defaultSort('id', 'desc')
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'extraCategories', 'author']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'extraCategories', 'author', 'assignee']))
             ->columns([
                 TextColumn::make('code')->label('ID')->state(fn (Article $record) => $record->code)->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('id', $dir))->weight('bold'),
                 TextColumn::make('reactions')->label('Likes / dislikes')->state(fn (Article $record) => $record->likesCount().' / '.$record->dislikesCount())->toggleable(),
@@ -294,6 +294,7 @@ class ArticleResource extends Resource
                     ->color(fn ($state) => ['published' => 'success', 'in_review' => 'warning', 'written' => 'info', 'draft' => 'gray', 'archived' => 'danger'][$state] ?? 'gray'),
                 \Filament\Tables\Columns\IconColumn::make('ai_assisted')->label('AI')->boolean()->trueIcon('heroicon-o-sparkles')->falseIcon('')->trueColor('warning')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('author.name')->label('Author')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('assignee.name')->label('Assigned to')->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('publish_date')->label('Publish date')->date('j M Y')->sortable()->toggleable(),
             ])
             ->filters([
@@ -316,6 +317,7 @@ class ArticleResource extends Resource
                         blank: fn (Builder $query) => $query,
                     ),
                 SelectFilter::make('author_id')->label('Author')->relationship('author', 'name'),
+                SelectFilter::make('assigned_to')->label('Assigned to')->relationship('assignee', 'name'),
                 TrashedFilter::make(),
             ])
             ->recordActions([

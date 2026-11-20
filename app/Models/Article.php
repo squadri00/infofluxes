@@ -49,7 +49,7 @@ class Article extends Model
 
     protected function casts(): array
     {
-        return ['search_words' => 'array', 'custom_data' => 'array', 'publish_date' => 'datetime', 'ai_assisted' => 'boolean', 'is_index_line' => 'boolean', 'is_featured' => 'boolean'];
+        return ['search_words' => 'array', 'custom_data' => 'array', 'publish_date' => 'datetime', 'assigned_at' => 'datetime', 'ai_assisted' => 'boolean', 'is_index_line' => 'boolean', 'is_featured' => 'boolean'];
     }
 
     /** The main category. */
@@ -67,6 +67,12 @@ class Article extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /** The person who has taken this subject to write (see App\Support\TopicAssignments). */
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     /** The contributor credited on the article (a person with a page of their own, or just a name). */

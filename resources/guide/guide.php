@@ -147,6 +147,18 @@ return [
 
     // ================= Content =================
     [
+        'key' => 'topics-to-write', 'title' => 'Topics to write', 'group' => 'Content', 'classes' => [\App\Filament\Pages\TopicsToWrite::class], 'access' => 'articles',
+        'what' => 'The empty subjects that still need an article, and who has each one, so two editors never write the same topic. The super user, moderators and authors all see it.',
+        'steps' => [
+            'The list starts with "Free topics". Use the filters: Show (Free, My topics, Taken by other people, All), Category and Person. The search box also finds the subtopic.',
+            '"Take it" makes a topic yours. It then shows your name and disappears from the free list of the other editors. "Write it" opens the article.',
+            '"Give to..." hands a topic to another person. Tick many topics and use the menu above the list to take or give them together.',
+            '"Hand back" makes a topic free again. Only the person who has it, a moderator, or the super user can hand back or give on a taken topic.',
+            'A person who gets a topic also becomes the author of that article, so it shows in their own Articles list and they can edit it.',
+        ],
+        'tips' => ['The Articles list has an "Assigned to" column (switch it on in the column menu) and an "Assigned to" filter.', 'A topic leaves this list when its status is no longer Draft.'],
+    ],
+    [
         'key' => 'articles', 'title' => 'Articles', 'group' => 'Content', 'classes' => [ArticleResource::class], 'access' => 'articles',
         'what' => 'All articles, including the blank index entries. A moderator sees all; an author sees only their own.',
         'steps' => [
