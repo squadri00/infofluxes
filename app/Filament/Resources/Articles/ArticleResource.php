@@ -131,7 +131,7 @@ class ArticleResource extends Resource
                         Select::make('category_id')
                             ->label('Main category')
                             ->options(fn () => Category::leafChoices())
-                            ->helperText('The code of each category shows in the list, for example (C-12). Only the last categories of the tree are offered. An article sits in a category that has no sub-categories; use its "Overview" category for an overview article.')
+                            ->helperText('The code of each category shows in the list, for example (C-12). Only the last categories of the tree are offered. An article sits in a category that has no sub-categories.')
                             ->searchable()
                             ->required(),
                         Select::make('extraCategories')
