@@ -77,9 +77,9 @@ class TopicsToWrite extends Page implements HasTable
             ->query(static::topics()->with(['category', 'assignee']))
             ->defaultSort('id')
             ->columns([
-                TextColumn::make('code')->label('ID')->state(fn (Article $r) => $r->code)->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('id', $dir))->weight('bold'),
+                TextColumn::make('id')->label('ID')->state(fn (Article $r) => $r->code)->sortable()->weight('bold'),
                 TextColumn::make('title')->label('Topic to write')->state(fn (Article $r) => $r->mainTitle())->wrap()
-                    ->searchable(query: fn (Builder $q, string $s) => $q->where(fn ($w) => $w->where('title', 'like', "%{$s}%")->orWhere('custom_data', 'like', "%{$s}%")->orWhere('working_name', 'like', "%{$s}%"))),
+                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn ($w) => $w->where('title', 'like', "%{$search}%")->orWhere('custom_data', 'like', "%{$search}%")->orWhere('working_name', 'like', "%{$search}%"))),
                 TextColumn::make('category')->label('Category')->state(fn (Article $r) => $r->category?->mainName())->color('gray')->wrap(),
                 TextColumn::make('subtopic')->label('Subtopic')->state(fn (Article $r) => $r->custom_data['subtopic'] ?? '')->color('gray')->size('xs')->wrap(),
                 TextColumn::make('assignee.name')->label('Who has it')->badge()->placeholder('Free')

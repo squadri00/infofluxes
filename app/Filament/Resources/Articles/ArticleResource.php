@@ -269,7 +269,7 @@ class ArticleResource extends Resource
             ->defaultSort('id', 'desc')
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'extraCategories', 'author', 'assignee']))
             ->columns([
-                TextColumn::make('code')->label('ID')->state(fn (Article $record) => $record->code)->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('id', $dir))->weight('bold'),
+                TextColumn::make('id')->label('ID')->state(fn (Article $record) => $record->code)->sortable()->weight('bold'),
                 TextColumn::make('reactions')->label('Likes / dislikes')->state(fn (Article $record) => $record->likesCount().' / '.$record->dislikesCount())->toggleable(),
                 TextColumn::make('title')->label('Title')
                     ->state(fn (Article $record) => $record->mainTitle())

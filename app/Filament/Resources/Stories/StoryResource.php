@@ -274,7 +274,7 @@ class StoryResource extends Resource
             ->defaultSort('id', 'desc')
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['category', 'extraCategories', 'author'])->withCount('slides'))
             ->columns([
-                TextColumn::make('code')->label('ID')->state(fn (Story $record) => $record->code)->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('id', $dir))->weight('bold'),
+                TextColumn::make('id')->label('ID')->state(fn (Story $record) => $record->code)->sortable()->weight('bold'),
                 TextColumn::make('reactions')->label('Likes / dislikes')->state(fn (Story $record) => $record->likesCount().' / '.$record->dislikesCount())->toggleable(),
                 ImageColumn::make('main_image')->label('Cover')->disk('public')->height(36)->width(64),
                 TextColumn::make('title')->label('Title')

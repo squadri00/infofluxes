@@ -91,7 +91,7 @@ class ExplainerResource extends Resource
         return $table
             ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('code')->label('ID')->state(fn (Explainer $r) => $r->code)->sortable(query: fn (Builder $query, string $dir) => $query->orderBy('id', $dir))->weight('bold'),
+                TextColumn::make('id')->label('ID')->state(fn (Explainer $r) => $r->code)->sortable()->weight('bold'),
                 TextColumn::make('term')->label('Word')->state(fn (Explainer $r) => $r->mainTerm())->searchable(query: fn (Builder $query, string $search) => $query->where('term', 'like', '%'.$search.'%')->orWhere('aliases', 'like', '%'.$search.'%')),
                 TextColumn::make('kind')->label('Kind')->formatStateUsing(fn ($state) => Explainer::KINDS[$state] ?? $state)->badge()->color('gray'),
                 TextColumn::make('note')->label('Note')->state(fn (Explainer $r) => strip_tags((string) $r->getTranslation('body', config('infofluxes.default_locale'), true)))->limit(80)->wrap(),

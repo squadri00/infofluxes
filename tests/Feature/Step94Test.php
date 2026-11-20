@@ -152,4 +152,27 @@ class Step94Test extends TestCase
             ->filterTable('view', 'mine')->assertCanSeeTableRecords([$mine])->assertCanNotSeeTableRecords([$free, $theirs])
             ->filterTable('view', 'taken')->assertCanSeeTableRecords([$theirs])->assertCanNotSeeTableRecords([$free, $mine]);
     }
+
+    public function test_the_search_box_finds_a_topic_by_its_title_or_its_subtopic(): void
+    {
+        $prayer = $this->topic('Pillars of prayer');
+        $other = $this->topic('Charity rules', ['custom_data' => ['subtopic' => 'Zakat > Who receives']]);
+        $this->actingAs($this->user('author'));
+
+        Livewire::test(TopicsToWrite::class)
+            ->searchTable('pillars')->assertCanSeeTableRecords([$prayer])->assertCanNotSeeTableRecords([$other])
+            ->searchTable('Zakat')->assertCanSeeTableRecords([$other])->assertCanNotSeeTableRecords([$prayer]);
+    }
+
+    public function test_the_id_column_can_be_sorted(): void
+    {
+        $a = $this->topic('First topic');
+        $b = $this->topic('Second topic');
+        $this->actingAs($this->user('author'));
+
+        $page = Livewire::test(TopicsToWrite::class)->sortTable('id', 'desc');
+        $this->assertSame([$b->id, $a->id], $page->instance()->getTableRecords()->pluck('id')->all());
+        $page->sortTable('id', 'asc');
+        $this->assertSame([$a->id, $b->id], $page->instance()->getTableRecords()->pluck('id')->all());
+    }
 }
