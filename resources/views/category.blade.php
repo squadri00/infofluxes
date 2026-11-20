@@ -49,7 +49,7 @@
         <div class="topic__context">{!! nl2br(e((string) $category->header_text)) !!}</div>
     @endif
 
-    @if ($children->isNotEmpty() && $mode !== 'index' && ! $topics)
+    @if ($children->isNotEmpty() && $mode !== 'index' && ! $topics && \App\Support\SiteControls::on('category_buttons'))
         <nav class="category-menu" aria-label="{{ __('site.sub_categories') }}">
             @foreach ($children as $child)
                 <a class="btn btn--small category-menu__btn" href="{{ route('category.show', $child->slug) }}">{{ $child->name }}</a>

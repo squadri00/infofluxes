@@ -33,6 +33,7 @@ class SiteControls
             'story_pdf' => ['The button "Download as a PDF book" on a story', 'The story as a printable book.', 'extras', 'story_pdf_on', true],
             'newsletter' => ['The Subscribe button and the newsletter page', 'Also in Site settings.', 'extras', 'newsletter_on', true],
             'comments' => ['Comments', 'Off: nobody can post a new comment. The ones already shown stay.', 'extras', 'comments_open', true],
+            'category_buttons' => ['The row of sub-category buttons at the top of a category page', 'The outlined buttons under the description. The sub-categories are still shown as cards further down the page, and in the main menu.', 'extras', 'ctl_category_buttons', true],
             'grid_list' => ['The grid / list switch on the home and category pages', 'Lets a reader choose cards or a list.', 'extras', 'ctl_grid_list', true],
             'language' => ['The language button at the top', 'The list of languages with flags (set them in Languages).', 'extras', 'ctl_language', true],
             'theme' => ['The light / dark button', 'Lets a reader choose the colours.', 'extras', 'ctl_theme', true],

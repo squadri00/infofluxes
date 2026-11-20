@@ -61,4 +61,18 @@ class Step92Test extends TestCase
 
         $this->get('/category/alpha')->assertOk()->assertDontSee('All articles');
     }
+
+    public function test_the_sub_category_buttons_at_the_top_can_be_switched_off(): void
+    {
+        $this->tree();
+
+        $on = $this->get('/category/top')->assertOk()->getContent();
+        $this->assertStringContainsString('category-menu__btn', $on, 'on by default');
+
+        \App\Support\SiteControls::set('category_buttons', false);
+        $off = $this->get('/category/top')->assertOk()->getContent();
+        $this->assertStringNotContainsString('category-menu', $off);
+        $this->assertStringContainsString('class="tile"', $off, 'the sub-categories are still shown as cards');
+        $this->assertStringContainsString('Alpha', $off);
+    }
 }
