@@ -73,6 +73,10 @@
         </p>
     @endif
 
+    @if (filled($article->custom_data['subtopic'] ?? null))
+        <p class="article__subtopic">{{ __('site.subtopic') }}: {{ $article->custom_data['subtopic'] }}</p>
+    @endif
+
     @if ($article->main_image)
         <figure class="topic__master">
             <img src="{{ asset('storage/'.$article->main_image) }}" alt="{{ $article->main_image_alt }}">

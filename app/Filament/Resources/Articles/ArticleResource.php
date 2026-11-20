@@ -127,6 +127,7 @@ class ArticleResource extends Resource
                             ->afterStateHydrated(fn (TextInput $component, ?Article $record) => $component->state($record?->code))
                             ->visible(fn (?Article $record) => $record !== null),
                         ...Translated::text('title', 'Title', required: true),
+                        TextInput::make('custom_data.subtopic')->label('Subtopic (optional)')->helperText('A finer label inside the category, for example "Prayer (Salah) > How Prayer Is Done". Shown on the article page and found by the search in the All articles list.')->maxLength(255),
                         TextInput::make('working_name')->label('Working name')->helperText('Only for you. Visitors never see it.')->maxLength(255),
                         Select::make('category_id')
                             ->label('Main category')

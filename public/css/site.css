@@ -2605,3 +2605,5 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .all-list__bar .btn { height: 44px; padding: 0 22px; border: 1px solid var(--accent); border-radius: 999px; background: var(--accent); color: var(--accent-text, #fff); font: inherit; font-weight: 600; cursor: pointer; }
 .all-list__bar .btn:hover { filter: brightness(1.1); }
 @media (max-width: 560px) { .all-list__search { flex-basis: 100%; } }
+
+.article__subtopic { margin: 0 0 10px; font-size: .9rem; opacity: .8; }
