@@ -277,9 +277,7 @@ class ArticleResource extends Resource
                     ->html()
                     ->description(fn (Article $record) => trim((($record->ai_assisted ? '✨ AI · ' : '').$record->working_name)))
                     ->searchable(query: fn (Builder $query, string $search) => $query->where(fn ($q) => $q
-                        ->where('title', 'like', "%{$search}%")
-                        ->orWhere('working_name', 'like', "%{$search}%")
-                        ->orWhere('search_words', 'like', "%{$search}%")
+                        ->orWhere(fn ($x) => \App\Support\TextSearch::match($x, ['title', 'working_name', 'search_words'], $search))
                         ->orWhere('id', ltrim(strtoupper($search), 'A-') ?: 0))),
                 TextColumn::make('categories_shown')->label('Categories')
                     ->state(fn (Article $record) => $record->allCategories()->map(fn ($c) => $c->mainName().' ('.$c->code.')')->implode('  ·  '))

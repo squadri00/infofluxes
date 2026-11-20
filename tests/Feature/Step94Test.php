@@ -175,4 +175,32 @@ class Step94Test extends TestCase
         $page->sortTable('id', 'asc');
         $this->assertSame([$a->id, $b->id], $page->instance()->getTableRecords()->pluck('id')->all());
     }
+
+    public function test_the_search_ignores_letter_case_and_understands_article_and_category_numbers(): void
+    {
+        $mongol = $this->topic('Mongol Invasions');
+        $other = $this->topic('Charity rules');
+        $this->actingAs($this->user('author'));
+
+        Livewire::test(TopicsToWrite::class)
+            ->searchTable('MONGOL')->assertCanSeeTableRecords([$mongol])->assertCanNotSeeTableRecords([$other])
+            ->searchTable('A-'.$other->id)->assertCanSeeTableRecords([$other])->assertCanNotSeeTableRecords([$mongol])
+            ->searchTable('C-'.$mongol->category_id)->assertCanSeeTableRecords([$mongol, $other]);
+    }
+
+    public function test_the_text_search_helper_puts_both_sides_in_small_letters(): void
+    {
+        $sql = \App\Support\TextSearch::match(Article::query(), ['title'], 'HiStory')->toSql();
+        $this->assertStringContainsString('LOWER(CAST(', $sql);
+        $this->assertSame(['%history%'], \App\Support\TextSearch::match(Article::query(), ['title'], 'HiStory')->getBindings());
+        $this->assertSame('select * from "articles" where "articles"."deleted_at" is null', str_replace('`', '"', \App\Support\TextSearch::match(Article::query(), ['title'], '  ')->toSql()), 'an empty search changes nothing');
+    }
+
+    public function test_the_category_column_shows_the_category_number(): void
+    {
+        $topic = $this->topic('Shows its category');
+        $this->actingAs($this->user('author'));
+
+        Livewire::test(TopicsToWrite::class)->assertSee($topic->category->code);
+    }
 }

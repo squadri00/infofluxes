@@ -47,7 +47,7 @@ class AllArticles
         $current = $request->query('sub') ? $children->firstWhere('slug', $request->query('sub')) : null;
 
         $fetch = function (array $ids) use ($q) {
-            $like = fn ($query) => $q === '' ? $query : $query->where(fn ($w) => $w->where('title', 'like', '%'.addcslashes($q, '%_\\').'%')->orWhere('short_detail', 'like', '%'.addcslashes($q, '%_\\').'%')->orWhere('custom_data', 'like', '%'.addcslashes($q, '%_\\').'%'));
+            $like = fn ($query) => $q === '' ? $query : \App\Support\TextSearch::match($query, ['title', 'short_detail', 'custom_data'], $q);
             $articles = $like(Article::published()->with(['category', 'contributor'])->withCount('slides')->where(static::inCategories($ids)))->get()->each(fn ($i) => $i->setAttribute('kind', 'article'));
             $stories = $like(Story::published()->with(['category', 'contributor'])->withCount('slides')->where(static::inCategories($ids)))->get()->each(fn ($i) => $i->setAttribute('kind', 'story'));
 

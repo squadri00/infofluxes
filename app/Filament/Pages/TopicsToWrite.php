@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Filament\Resources\Articles\ArticleResource;
 use App\Models\Article;
 use App\Models\Category;
+use App\Support\TextSearch;
 use App\Support\TopicAssignments;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -55,6 +56,22 @@ class TopicsToWrite extends Page implements HasTable
         return Article::query()->where('status', 'draft')->where('is_index_line', true);
     }
 
+    /** The search box: words (any letter case) in the title, subtopic or working name, an article number (A-42) or a category number (C-12). */
+    public static function searchTopics(Builder $query, string $search): Builder
+    {
+        $term = trim($search);
+
+        return $query->where(function ($w) use ($term) {
+            if (preg_match('/^A-?(\d+)$/i', $term, $m)) {
+                $w->orWhere('id', (int) $m[1]);
+            }
+            if (preg_match('/^C-?(\d+)$/i', $term, $m)) {
+                $w->orWhere('category_id', (int) $m[1]);
+            }
+            $w->orWhere(fn ($x) => TextSearch::match($x, ['title', 'custom_data', 'working_name'], $term));
+        });
+    }
+
     /** @return array{free: int, mine: int, taken: int} */
     public function counts(): array
     {
@@ -79,8 +96,8 @@ class TopicsToWrite extends Page implements HasTable
             ->columns([
                 TextColumn::make('id')->label('ID')->state(fn (Article $r) => $r->code)->sortable()->weight('bold'),
                 TextColumn::make('title')->label('Topic to write')->state(fn (Article $r) => $r->mainTitle())->wrap()
-                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn ($w) => $w->where('title', 'like', "%{$search}%")->orWhere('custom_data', 'like', "%{$search}%")->orWhere('working_name', 'like', "%{$search}%"))),
-                TextColumn::make('category')->label('Category')->state(fn (Article $r) => $r->category?->mainName())->color('gray')->wrap(),
+                    ->searchable(query: fn (Builder $query, string $search) => static::searchTopics($query, $search)),
+                TextColumn::make('category')->label('Category')->state(fn (Article $r) => $r->category ? $r->category->mainName().' ('.$r->category->code.')' : '')->color('gray')->wrap(),
                 TextColumn::make('subtopic')->label('Subtopic')->state(fn (Article $r) => $r->custom_data['subtopic'] ?? '')->color('gray')->size('xs')->wrap(),
                 TextColumn::make('assignee.name')->label('Who has it')->badge()->placeholder('Free')
                     ->color(fn (Article $r) => $r->assigned_to === null ? 'gray' : ((int) $r->assigned_to === auth()->id() ? 'success' : 'warning'))
