@@ -213,7 +213,7 @@ return [
             'If you already have an article text (your own writing, or from your own prompt), open "I already have an article text" in Step 1 and paste it there. The prompt then becomes a "put my text into shape" prompt: the AI only cuts your text into ## headings, keeps every fact, verse and quotation, adds no new claim or source, lists only the sources your text names, and puts every doubt into PLEASE CHECK. Copy it into the AI, paste the answer in Step 2, and press Check. Clear the text to go back to the normal prompt.',
             '"Also ask for word notes" makes the AI suggest hard words. They are saved as draft notes in Explainers.',
         ],
-        'tips' => ['If the AI changes the shape of the answer, ask it again with: "Answer in the exact shape of the prompt".', 'Copy the answer from the code box with its Copy button, so the ## marks are kept.'],
+        'tips' => ['Safety checks: if Step 2 holds the prompt instead of the answer of the AI, Check says so and nothing can be saved. A title, short detail or text that is still the example of the prompt, such as "(a clear title, at most 200 letters)", is a problem. If your own text ends with lines of AI chat talk ("Let me know...", "If you would like, I can..."), a yellow note shows those lines so you can delete them.', 'If the AI changes the shape of the answer, ask it again with: "Answer in the exact shape of the prompt".', 'Copy the answer from the code box with its Copy button, so the ## marks are kept.'],
     ],
     [
         'key' => 'ai-prompts', 'title' => 'AI prompts', 'group' => 'Content', 'classes' => [AiPromptResource::class], 'access' => 'superuser',

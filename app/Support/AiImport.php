@@ -38,6 +38,11 @@ class AiImport
         // A chat often wraps the answer in a code box. The fence lines are not part of the answer.
         $text = preg_replace('/^\s*```[a-z]*\s*$/mi', '', $text);
 
+        // The prompt itself pasted in Step 2 (a common slip): say so, and read nothing out of it.
+        if (static::looksLikePrompt($text)) {
+            return [['kind' => 'article', 'title' => '(this is the prompt)', 'errors' => ['This is the prompt, not the answer of the AI. Paste the prompt into the AI chat, wait for its answer, and paste that answer here. Nothing was read from this text.'], 'warnings' => [], 'data' => []]];
+        }
+
         $blocks = array_values(array_filter(array_map('trim', preg_split('/^\s*={4,}\s*$/m', $text)), fn ($b) => $b !== ''));
         $items = [];
         foreach ($blocks as $block) {
@@ -63,6 +68,57 @@ class AiImport
         }
 
         return $items;
+    }
+
+    /** Beginnings of the prompts this site makes. Text that holds one of them is a prompt, not an answer. */
+    private const PROMPT_MARKERS = [
+        'MASTER RULES FOR EVERY INFOFLUXES ARTICLE',
+        'You are helping to write one article for a website that compares religions',
+        'You are helping to write one short fact for a website',
+        'You are helping to plan the categories of a website',
+        'THE ARTICLE TO PUT INTO SHAPE',
+    ];
+
+    /** Is this the text of one of our prompts (pasted in Step 2 by mistake)? */
+    public static function looksLikePrompt(string $text): bool
+    {
+        foreach (self::PROMPT_MARKERS as $marker) {
+            if (mb_stripos($text, $marker) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Is a value only an instruction or an example copied from the prompt, such as "(a clear title, at most 200 letters)"? */
+    public static function isPlaceholder(string $value): bool
+    {
+        $value = trim($value);
+
+        return $value !== '' && mb_strlen($value) <= 300 && str_starts_with($value, '(') && str_ends_with($value, ')');
+    }
+
+    /**
+     * Lines of a text that read like the talk of an AI chat and not like an article: "Let me know what would help most!",
+     * "If you'd like, I can also:". Only a warning; the text is never changed.
+     *
+     * @return list<string>
+     */
+    public static function chatLeftovers(string $text, int $limit = 5): array
+    {
+        $found = [];
+        foreach (preg_split('/\R/u', $text) as $line) {
+            $line = trim($line);
+            if ($line !== '' && preg_match('/^(let me know|if you[\'\x{2019}]?d like|if you would like|would you like me to|i can also|i hope this helps|hope this helps|feel free to|here is the|here[\'\x{2019}]?s the|sure[,!]|certainly[,!]|of course[,!]|my recommendation|as an ai|i[\'\x{2019}]ve (written|rewritten|updated|made))/iu', $line)) {
+                $found[] = mb_substr($line, 0, 110);
+                if (count($found) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return $found;
     }
 
     /** @return array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>} */
@@ -132,6 +188,11 @@ class AiImport
             $source = '';
         }
 
+        foreach (['TITLE' => $title, 'SHORT' => $short, 'LONG' => $long] as $field => $value) {
+            if (static::isPlaceholder($value)) {
+                $errors[] = $field.' is still the example of the prompt ("'.mb_substr($value, 0, 60).'"). Write the real text.';
+            }
+        }
         if ($title === '') {
             $errors[] = 'TITLE is missing.';
         } elseif (mb_strlen($title) > 200) {

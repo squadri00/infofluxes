@@ -107,6 +107,14 @@
                     <summary style="cursor:pointer"><strong>I already have an article text</strong> <span style="opacity:.7">(my own writing, or from my own prompt: put it into the shape of an article)</span></summary>
                     <div style="display:grid;gap:.4rem;margin-top:.5rem">
                         <textarea wire:model.live.debounce.700ms="ownText" rows="8" placeholder="Paste your article text here. The prompt below then asks the AI to put this text into the shape of an article (headings, sources, verse blocks) without changing the facts, the verses or the wording." style="{{ $box }}"></textarea>
+                        @if ($this->ownTextLeftovers())
+                            <div style="border:1px solid #d97706;border-radius:.4rem;padding:.5rem .7rem;background:rgba(217,119,6,.1)">
+                                <strong>Check the end of your text.</strong> These lines look like the talk of an AI chat, not like your article. If they are not yours, delete them, or they will be put into the article:
+                                <ul style="margin:.3rem 0 0 1.2rem;list-style:disc">
+                                    @foreach ($this->ownTextLeftovers() as $chat)<li>{{ $chat }}</li>@endforeach
+                                </ul>
+                            </div>
+                        @endif
                         @if (trim($ownText) !== '')
                             <span style="opacity:.8">The prompt below is now the "put my text into shape" prompt ({{ number_format(mb_strlen($ownText)) }} letters). <button type="button" wire:click="$set('ownText', '')" style="cursor:pointer;border:1px solid rgba(128,128,128,.6);border-radius:.3rem;padding:.1rem .6rem">Clear my text</button></span>
                         @endif

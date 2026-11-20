@@ -148,6 +148,12 @@ class AiImport extends Page
         $this->specialist = AiPrompt::suggestFor($this->categoryId ? Category::find($this->categoryId) : null) ?? $this->specialist;
     }
 
+    /** Lines in "I already have an article text" that look like the talk of an AI chat. */
+    public function ownTextLeftovers(): array
+    {
+        return trim($this->ownText) === '' ? [] : Importer::chatLeftovers($this->ownText);
+    }
+
     public function updatedWords(): void
     {
         if (trim((string) $this->words) === '') {
