@@ -47,7 +47,8 @@ class StoryMaker extends Page
 
     public ?int $categoryId = null;
 
-    public int $slides = 8;
+    /** The number box can be emptied while somebody types a new number, so it may be empty for a moment. */
+    public int|string|null $slides = 8;
 
     /** On when a saved draft is being told again in a story voice (see startRewrite). */
     public bool $rewrite = false;
@@ -230,15 +231,24 @@ class StoryMaker extends Page
         }
 
         if (trim($this->ownText) !== '') {
-            return Prompt::convert(['own_text' => $this->ownText, 'topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
+            return Prompt::convert(['own_text' => $this->ownText, 'topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slideCount(), 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
         }
 
-        return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
+        return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slideCount(), 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
     }
 
     public function updatedSlides(): void
     {
+        if (trim((string) $this->slides) === '') {
+            return;   // being retyped: wait for the new number
+        }
         $this->slides = max(Prompt::MIN_SLIDES, min(Prompt::MAX_SLIDES, (int) $this->slides));
+    }
+
+    /** The number of slides asked for: the number typed, kept inside the limits, or 8 while the box is empty. */
+    public function slideCount(): int
+    {
+        return trim((string) $this->slides) === '' ? 8 : max(Prompt::MIN_SLIDES, min(Prompt::MAX_SLIDES, (int) $this->slides));
     }
 
     public function updatedCategoryId(): void
@@ -262,7 +272,7 @@ class StoryMaker extends Page
         $run->fill([
             'topic' => mb_substr(trim($this->topic), 0, 300),
             'category_id' => $this->categoryId,
-            'options' => ['slides' => $this->slides, 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite, 'open' => $this->openFlow, 'own_text' => mb_substr($this->ownText, 0, Prompt::MAX_OWN_TEXT)],
+            'options' => ['slides' => $this->slideCount(), 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite, 'open' => $this->openFlow, 'own_text' => mb_substr($this->ownText, 0, Prompt::MAX_OWN_TEXT)],
             'prompt' => $this->prompt(),
             'answer' => $this->paste !== '' ? $this->paste : null,
             'result' => $this->checked ? $this->result : null,
@@ -294,7 +304,7 @@ class StoryMaker extends Page
 
             return;
         }
-        $this->result = Reader::read($this->paste, $this->run()?->story_id, $this->slides, $this->length, $this->openFlow);
+        $this->result = Reader::read($this->paste, $this->run()?->story_id, $this->slideCount(), $this->length, $this->openFlow);
         $this->checked = true;
         $this->persist('checked');
     }
@@ -302,7 +312,7 @@ class StoryMaker extends Page
     public function saveStory(): void
     {
         // The pasted text is read again here, so what is saved is never what a browser claims it checked.
-        $read = Reader::read($this->paste, $this->run()?->story_id, $this->slides, $this->length, $this->openFlow);
+        $read = Reader::read($this->paste, $this->run()?->story_id, $this->slideCount(), $this->length, $this->openFlow);
         $this->result = $read;
         $this->checked = true;
 

@@ -43,7 +43,8 @@ class AiImport extends Page
 
     public string $specialist = '';
 
-    public int $words = 1500;
+    /** The number box can be emptied while somebody types a new number, so it may be empty for a moment. */
+    public int|string|null $words = 1500;
 
     public string $depth = 'normal';
 
@@ -131,7 +132,7 @@ class AiImport extends Page
         if ($this->kind === 'research') {
             return Prompts::research([
                 'topic' => $this->topic, 'category_id' => $this->categoryId, 'specialist' => $this->specialist ?: null,
-                'words' => $this->words, 'depth' => $this->depth, 'comments' => $this->comments, 'explainers' => $this->explainers,
+                'words' => $this->wordsCount(), 'depth' => $this->depth, 'comments' => $this->comments, 'explainers' => $this->explainers,
                 'own_text' => $this->ownText,
                 'entry' => ($e = $this->entry()) ? IndexEntries::label($e).' '.$e->mainTitle() : null,
             ]);
@@ -149,7 +150,16 @@ class AiImport extends Page
 
     public function updatedWords(): void
     {
+        if (trim((string) $this->words) === '') {
+            return;   // being retyped: wait for the new number
+        }
         $this->words = max(300, min(8000, (int) $this->words));
+    }
+
+    /** The length asked for: the number typed, kept between 300 and 8000, or 1500 while the box is empty. */
+    public function wordsCount(): int
+    {
+        return trim((string) $this->words) === '' ? 1500 : max(300, min(8000, (int) $this->words));
     }
 
     /** @return array<int, string> */
