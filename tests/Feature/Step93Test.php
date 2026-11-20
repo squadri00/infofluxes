@@ -78,4 +78,17 @@ class Step93Test extends TestCase
 
         $this->get('/category/index-two?list=all&q=Subject')->assertOk()->assertSee('deep-one')->assertDontSee('deep-two');
     }
+
+    public function test_the_index_view_groups_the_lines_under_their_subtopic(): void
+    {
+        $t = $this->tree();
+        CategoryFlattener::run($t['l1'], 3, true);
+
+        $html = $this->get('/category/topic-three?view=index')->assertOk()->getContent();
+        $this->assertStringContainsString('Group', $html);
+        $this->assertStringContainsString('Subject', $html);
+        $this->assertStringContainsString('deep-one', $html);
+        $this->assertLessThan(strpos($html, 'deep-one'), strpos($html, 'Subject'), 'the heading comes before its line');
+        $this->assertStringNotContainsString('C-6', $html, 'a group heading has no category code');
+    }
 }

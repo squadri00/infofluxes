@@ -22,7 +22,7 @@ class CategoryIndex
     /** The most lines (categories and subjects) drawn on one page. */
     public static int $budget = 1500;
 
-    private const COLUMNS = ['id', 'slug', 'title', 'status', 'publish_date', 'category_id', 'working_name', 'is_index_line', 'sort_order'];
+    private const COLUMNS = ['id', 'slug', 'title', 'status', 'publish_date', 'category_id', 'working_name', 'is_index_line', 'sort_order', 'custom_data'];
 
     /**
      * @return array{root: array<string, mixed>, subjects: int}
@@ -153,6 +153,9 @@ class CategoryIndex
      */
     private static function fill(array $node, array $lines, bool $preview): array
     {
+        if ($node['virtual'] ?? false) {
+            return $node;   // a Subtopic group is built ready, below its category
+        }
         $mine = $lines[$node['category']->id] ?? [];
         usort($mine, fn ($x, $y) => [$x[0]->sort_order, $x[0]->id] <=> [$y[0]->sort_order, $y[0]->id]);
 
@@ -166,6 +169,10 @@ class CategoryIndex
             ];
             $ids[$a->id] = true;
         }
+        // A last-level category: its subjects are grouped under their Subtopic (for example "Prayer (Salah) > How Prayer Is Done").
+        if (! $node['children']) {
+            [$out, $node['children']] = static::group($out, 0);
+        }
         $node['articles'] = $out;
         $node['children'] = array_map(fn ($c) => static::fill($c, $lines, $preview), $node['children']);
         foreach ($node['children'] as $child) {
@@ -178,10 +185,49 @@ class CategoryIndex
         return $node;
     }
 
+    /**
+     * Put subject lines under headings made from their Subtopic ("Group > Subject": a heading, and a heading inside it).
+     * The headings only exist in this view; lines without a Subtopic stay where they are.
+     *
+     * @param  list<array<string, mixed>>  $lines
+     * @return array{0: list<array<string, mixed>>, 1: list<array<string, mixed>>}
+     */
+    private static function group(array $lines, int $depth, string $dom = ''): array
+    {
+        $rest = [];
+        $groups = [];
+        foreach ($lines as $line) {
+            $parts = array_values(array_filter(array_map('trim', explode('>', (string) ($line['article']->custom_data['subtopic'] ?? '')))));
+            if (! isset($parts[$depth])) {
+                $rest[] = $line;
+
+                continue;
+            }
+            $groups[$parts[$depth]][] = $line;
+        }
+        $nodes = [];
+        foreach ($groups as $name => $inside) {
+            $id = $dom.'g'.substr(md5($name), 0, 6);
+            [$own, $kids] = static::group($inside, $depth + 1, $id);
+            $cat = new Category;
+            $cat->name = (string) $name;
+            $subjects = [];
+            foreach ($inside as $l) {
+                $subjects[$l['article']->id] = true;
+            }
+            $nodes[] = [
+                'category' => $cat, 'children' => $kids, 'articles' => $own, 'ids' => array_keys($subjects), 'subjects' => count($subjects),
+                'size' => 1 + count($own) + array_sum(array_column($kids, 'size')), 'truncated' => false, 'virtual' => true, 'dom' => $id,
+            ];
+        }
+
+        return [$rest, $nodes];
+    }
+
     /** Draw branches in order while the budget lasts; a branch that no longer fits becomes one link line. */
     private static function fit(array $node, int &$remaining, bool $isRoot = false): array
     {
-        if (! $isRoot && $node['size'] > $remaining) {
+        if (! $isRoot && ! ($node['virtual'] ?? false) && $node['size'] > $remaining) {
             $node['truncated'] = true;
             $node['children'] = [];
             $node['articles'] = [];

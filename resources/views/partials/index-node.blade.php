@@ -4,7 +4,8 @@
 @php
     $cat = $node['category'];
     $hasKids = count($node['children']) > 0;
-    $code = \App\Support\CategoryIndex::codeOf($cat);
+    $code = ($node['virtual'] ?? false) ? '' : \App\Support\CategoryIndex::codeOf($cat);
+    $dom = $node['dom'] ?? $cat->id;
     $name = $cat->name;
     $note = trim(strip_tags((string) $cat->description));
     $nextTrail = $name.' '.$trail;
@@ -32,7 +33,7 @@
         @endforeach
     </section>
 @elseif ($level <= 2)
-    <details class="qi__cat" data-qi-cat id="e-{{ $cat->id }}">
+    <details class="qi__cat" data-qi-cat id="e-{{ $dom }}">
         <summary><span class="qi__code">{{ $code }}</span> {{ $name }}</summary>
         @if ($note !== '')<p class="qi__note">{{ \Illuminate\Support\Str::limit($note, 200) }}</p>@endif
         @foreach ($node['children'] as $child)
@@ -47,7 +48,7 @@
         @endif
     </details>
 @else
-    <div class="qi__sub" data-qi-sub id="e-{{ $cat->id }}">
+    <div class="qi__sub" data-qi-sub id="e-{{ $dom }}">
         <h3 class="qi__sub-title"><span class="qi__code">{{ $code }}</span> {{ $name }}</h3>
         @foreach ($node['children'] as $child)
             @include('partials.index-node', ['node' => $child, 'level' => $level + 1, 'trail' => $nextTrail])
