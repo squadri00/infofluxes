@@ -320,6 +320,8 @@ class ArticleResource extends Resource
             ])
             ->recordActions([
                 EditAction::make()->label('Modify'),
+                \Filament\Actions\Action::make('preview')->label('Preview')->icon('heroicon-o-eye')->color('gray')
+                    ->url(fn (Article $record) => route('article.show', $record->slug))->openUrlInNewTab(),
                 \Filament\Actions\Action::make('check_links')->label('Check source links')->icon('heroicon-o-link')->color('gray')
                     ->visible(fn (Article $record) => ! empty($record->custom_data['sources']) && (auth()->user()?->canPublish() ?? false))
                     ->action(function (Article $record) {

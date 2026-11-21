@@ -271,6 +271,19 @@
         <x-filament::section>
             <x-slot name="heading">Saved</x-slot>
             <p>{{ count($done['articles']) }} draft article(s) were made. Find them in <a href="{{ \App\Filament\Resources\Articles\ArticleResource::getUrl('index') }}" style="text-decoration:underline">Articles</a>, read them, write your name in <strong>Reviewer</strong>, and publish.</p>
+            @php $savedArticles = \App\Models\Article::query()->whereIn('id', $done['articles'])->orderBy('id')->get(); @endphp
+            @if ($savedArticles->isNotEmpty())
+                <ul style="list-style:none;margin:.6rem 0;padding:0;display:grid;gap:.4rem">
+                    @foreach ($savedArticles as $saved)
+                        <li style="display:flex;flex-wrap:wrap;gap:.4rem .9rem;align-items:center;border:1px solid rgba(128,128,128,.35);border-radius:.4rem;padding:.4rem .7rem">
+                            <strong>{{ $saved->code }}</strong>
+                            <span style="flex:1 1 14rem">{{ $saved->mainTitle() }}</span>
+                            <a href="{{ route('article.show', $saved->slug) }}" target="_blank" rel="noopener" style="text-decoration:underline;font-weight:600">Preview on the website &#8599;</a>
+                            <a href="{{ \App\Filament\Resources\Articles\ArticleResource::getUrl('edit', ['record' => $saved->id]) }}" style="text-decoration:underline">Modify</a>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
             @if ($done['categories'])
                 <p>{{ count($done['categories']) }} new categor{{ count($done['categories']) === 1 ? 'y was' : 'ies were' }} made <strong>hidden</strong>. Look at them in <a href="{{ \App\Filament\Resources\Categories\CategoryResource::getUrl('index') }}" style="text-decoration:underline">Categories</a> and switch on "Show on the site".</p>
             @endif
