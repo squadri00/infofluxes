@@ -281,9 +281,7 @@ class StoryResource extends Resource
                     ->state(fn (Story $record) => $record->mainTitle())
                     ->description(fn (Story $record) => $record->ai_assisted ? '✨ AI' : null)
                     ->wrap()
-                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn ($q) => $q
-                        ->where('title', 'like', "%{$search}%")
-                        ->orWhere('search_words', 'like', "%{$search}%")
+                    ->searchable(query: fn (Builder $query, string $search) => $query->where(fn ($q) => \App\Support\TextSearch::match($q, ['title', 'search_words'], $search)
                         ->orWhere('id', ltrim(strtoupper($search), 'S-') ?: 0))),
                 TextColumn::make('categories_shown')->label('Categories')
                     ->state(fn (Story $record) => $record->allCategories()->map(fn ($c) => $c->mainName().' ('.$c->code.')')->implode('  ·  '))

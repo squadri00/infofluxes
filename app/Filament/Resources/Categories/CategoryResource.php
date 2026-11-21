@@ -164,8 +164,7 @@ class CategoryResource extends Resource
                     ->description(fn (Category $record) => $record->working_name)
                     ->weight(fn (Category $record) => $record->depth === 0 ? 'bold' : null)
                     ->searchable(query: fn (Builder $query, string $search) => $query
-                        ->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('working_name', 'like', "%{$search}%")
+                        ->where(fn ($q) => \App\Support\TextSearch::match($q, ['name', 'working_name'], $search)
                             ->orWhere('id', ltrim(strtoupper($search), 'C-') ?: 0))),
                 TextColumn::make('articles_total')->label('Articles')->state(fn (Category $record) => $record->articleCount() ?: '-')->alignCenter(),
                 IconColumn::make('is_visible')->label('Shown')->boolean(),
