@@ -176,7 +176,11 @@ return [
         'key' => 'stories', 'title' => 'Visual Stories', 'group' => 'Content', 'classes' => [StoryResource::class], 'access' => 'stories',
         'what' => 'Stories told in pictures: chapters made of slides, each with a picture and words.',
         'steps' => ['Press "New", add a cover picture, then chapters, then slides.', 'Slides can have audio for the Listen button (it plays only when approved).', 'A story has its own code, S-.'],
-        'tips' => ['Pictures are made small and fast by the site (WebP, under 300 KB).'],
+        'tips' => [
+            'Pictures are made small and fast by the site (WebP, under 300 KB).',
+            'A story can be placed only in a last-level category, or in one of the tabs of a section with tabs (Stories in pictures). The section itself is not offered, because a story there would sit in no tab. A section with tabs holds stories only: articles cannot be placed in it. The Story maker follows the same rule.',
+            '"Preview" (in the list and at the top of the edit page, and after the Story maker saves a draft) opens the story on the website in a new tab, as visitors will see it. It works for drafts; only the staff can see a draft that way.',
+        ],
     ],
     [
         'key' => 'categories', 'title' => 'Categories', 'group' => 'Content', 'classes' => [CategoryResource::class], 'access' => 'categories',

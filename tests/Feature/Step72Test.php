@@ -302,6 +302,7 @@ END");
         $page->call('saveStory')->assertNotified();
         $this->assertSame(1, Story::count());
         $story = Story::first();
+        $page->assertSee('Preview on the website')->assertSeeHtml('href="'.route('story.show', $story->slug).'"');
         $this->assertSame('draft', $story->status);
         $run->refresh();
         $this->assertSame('saved', $run->status);

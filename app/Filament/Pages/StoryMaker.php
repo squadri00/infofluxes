@@ -184,7 +184,7 @@ class StoryMaker extends Page
     /** @return array<int, string> */
     public function categoryChoices(): array
     {
-        return Category::choices();
+        return Category::storyChoices();
     }
 
     /** The saved draft that is being told again, when the "rewrite in story voice" mode is on. */
@@ -326,6 +326,12 @@ class StoryMaker extends Page
 
             return;
         }
+        if (! array_key_exists($this->categoryId, Category::storyChoices())) {
+            Notification::make()->danger()->title('A story cannot be saved in this category.')
+                ->body('Choose a last-level category, or one of the tabs of Stories in pictures.')->send();
+
+            return;
+        }
         if (Rules::requireRead() && ! $this->readOpened) {
             Notification::make()->warning()->title('Read the whole story first.')->body('Press "Read the whole story" and read it. Then you can save it as a draft.')->send();
 
@@ -347,6 +353,7 @@ class StoryMaker extends Page
         $this->done = [
             'code' => $story->code, 'title' => $story->mainTitle(), 'updated' => $updating,
             'url' => StoryResource::getUrl('edit', ['record' => $story]),
+            'preview' => route('story.show', $story->slug),
             'slides' => $read['story']['slide_count'],
         ];
         Notification::make()->success()->title($updating ? 'The draft story '.$story->code.' is updated.' : 'Saved as the draft story '.$story->code.'.')

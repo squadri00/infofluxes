@@ -185,7 +185,47 @@ class Category extends Model
     /** [id => "About Islam > Allah (SWT) Index > ... (C-12)"] of the last-level categories only: where an article may be placed. */
     public static function leafChoices(): array
     {
-        return array_intersect_key(static::choices(), array_flip(static::leafIds()));
+        // A section with tabs (Stories in pictures) is only for stories, so articles never go into it.
+        return array_intersect_key(static::choices(), array_flip(array_diff(static::leafIds(), static::storyOnlyIds())));
+    }
+
+    /** The ids of the categories that have "Show its sub-categories as tabs" switched on. */
+    public static function tabRootIds(): array
+    {
+        return static::query()->get(['id', 'custom_data'])->filter(fn (Category $c) => (bool) ($c->custom_data['topic_tabs'] ?? false))->pluck('id')->all();
+    }
+
+    /** Everything inside a section with tabs, the section included: these categories hold stories only. */
+    public static function storyOnlyIds(): array
+    {
+        $ids = [];
+        foreach (static::query()->whereIn('id', static::tabRootIds())->get() as $root) {
+            $ids = array_merge($ids, $root->descendantIds());
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * [id => label] of the categories where a story may be placed: the last-level ones, and the tabs of a section with tabs.
+     * The section itself (for example Stories in pictures) is not offered, because a story there would belong to no tab.
+     */
+    public static function storyChoices(): array
+    {
+        $all = static::query()->get(['id', 'parent_id'])->keyBy('id');
+        $roots = static::tabRootIds();
+        $parents = $all->pluck('parent_id')->filter()->unique()->all();
+        $ok = [];
+        foreach ($all as $c) {
+            if (in_array($c->id, $roots, true)) {
+                continue;
+            }
+            if (! in_array($c->id, $parents, true) || in_array($c->parent_id, $roots, true)) {
+                $ok[] = $c->id;
+            }
+        }
+
+        return array_intersect_key(static::choices(), array_flip($ok));
     }
 
     /** The same for the visitors' forms: only visible last-level categories, without the code. */

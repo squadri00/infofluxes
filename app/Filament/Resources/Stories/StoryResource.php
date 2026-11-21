@@ -128,8 +128,8 @@ class StoryResource extends Resource
                         ...Translated::text('title', 'Title', required: true),
                         Select::make('category_id')
                             ->label('Main category')
-                            ->helperText('The code of each category shows in the list, for example (C-12).')
-                            ->options(fn () => Category::choices())
+                            ->helperText('Only last-level categories are offered, and the tabs of Stories in pictures. The code of each category shows in the list, for example (C-12).')
+                            ->options(fn (?Story $record) => Category::storyChoices() + ($record?->category_id ? array_intersect_key(Category::choices(), [$record->category_id => 1]) : []))
                             ->searchable()
                             ->required(),
                         Select::make('extraCategories')
@@ -255,7 +255,7 @@ class StoryResource extends Resource
     {
         $words = array_filter(preg_split('/\s+/u', mb_strtolower(trim($search))));
         $found = [];
-        foreach (Category::choices() as $id => $label) {
+        foreach (Category::storyChoices() as $id => $label) {
             $text = mb_strtolower($label);
             if (collect($words)->every(fn ($w) => str_contains($text, $w))) {
                 $found[$id] = $label;
@@ -313,7 +313,7 @@ class StoryResource extends Resource
             ])
             ->recordActions([
                 EditAction::make()->label('Modify'),
-                Action::make('view')->label('View')->icon('heroicon-o-eye')->color('gray')
+                Action::make('view')->label('Preview')->icon('heroicon-o-eye')->color('gray')
                     ->url(fn (Story $record) => $record->url(), shouldOpenInNewTab: true),
                 ReplicateAction::make()
                     ->label('Clone')
@@ -344,7 +344,7 @@ class StoryResource extends Resource
                         ->visible(fn () => (bool) auth()->user()?->canPublish())
                         ->label('Assign to a category')
                         ->icon('heroicon-o-folder-plus')
-                        ->schema([Select::make('category_id')->label('Add these stories also to')->options(fn () => Category::choices())->searchable()->required()])
+                        ->schema([Select::make('category_id')->label('Add these stories also to')->options(fn () => Category::storyChoices())->searchable()->required()])
                         ->action(function ($records, array $data) {
                             foreach ($records as $story) {
                                 if ($story->category_id !== (int) $data['category_id']) {
