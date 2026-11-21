@@ -23,6 +23,7 @@ class EditStory extends EditRecord
             \Filament\Actions\Action::make('preview')->label('Preview on the website')->icon('heroicon-o-eye')->color('gray')
                 ->tooltip('Opens the saved story as visitors will see it. Save first to see your latest changes.')
                 ->url(fn () => $this->record->url())->openUrlInNewTab(),
+            \App\Support\ScriptExport::button(fn () => $this->record),
             DeleteAction::make()->label('Delete'),
             RestoreAction::make(),
         ];

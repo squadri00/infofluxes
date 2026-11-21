@@ -23,6 +23,7 @@ class EditArticle extends EditRecord
             \Filament\Actions\Action::make('preview')->label('Preview on the website')->icon('heroicon-o-eye')->color('gray')
                 ->tooltip('Opens the saved article as visitors will see it. Save first to see your latest changes.')
                 ->url(fn () => route('article.show', $this->record->slug))->openUrlInNewTab(),
+            \App\Support\ScriptExport::button(fn () => $this->record),
             DeleteAction::make()->label('Delete'),
             RestoreAction::make(),
         ];

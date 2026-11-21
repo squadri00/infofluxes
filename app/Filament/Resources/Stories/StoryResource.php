@@ -315,6 +315,7 @@ class StoryResource extends Resource
                 EditAction::make()->label('Modify'),
                 Action::make('view')->label('Preview')->icon('heroicon-o-eye')->color('gray')
                     ->url(fn (Story $record) => $record->url(), shouldOpenInNewTab: true),
+                \App\Support\ScriptExport::button(null, false),
                 ReplicateAction::make()
                     ->label('Clone')
                     ->excludeAttributes(['slug', 'is_featured', 'featured_order', 'slides_count'])

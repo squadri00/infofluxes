@@ -164,6 +164,7 @@ return [
         'steps' => [
             'Use the filters: Status (try "Written, waiting for review"), In category (it includes everything below the category), Featured, Has broken sources.',
             '"New article" writes one by hand. For AI text use AI import instead.',
+            '"Download script" (in the list and at the top of the edit page) saves the article as a Word file (.docx) or a plain text file (.txt): the title, the short detail, the full text with its headings and bullet points, and the source. Only the staff have this button.',
             '"Preview" (in the list and at the top of the edit page) opens the article on the website, in a new tab, exactly as visitors will see it. It works for drafts too, and only the staff can see a draft that way. In the edit page, press Modify first to see your latest changes.',
             '"Write with AI help" on a blank index entry opens the AI import for that entry.',
             '"Check source links" tests the links of one article now.',
@@ -179,6 +180,7 @@ return [
         'tips' => [
             'Pictures are made small and fast by the site (WebP, under 300 KB).',
             'A story can be placed only in a last-level category, or in one of the tabs of a section with tabs (Stories in pictures). The section itself is not offered, because a story there would sit in no tab. A section with tabs holds stories only: articles cannot be placed in it. The Story maker follows the same rule.',
+            '"Download script" (in the list and at the top of the edit page) saves the words of the story as a Word file (.docx) or a plain text file (.txt): the title, the short detail, each chapter, each numbered slide with its heading and text, the text under the story, and the source. No pictures. Only the staff have this button.',
             '"Preview" (in the list and at the top of the edit page, and after the Story maker saves a draft) opens the story on the website in a new tab, as visitors will see it. It works for drafts; only the staff can see a draft that way.',
         ],
     ],
