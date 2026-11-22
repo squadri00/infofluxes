@@ -61,7 +61,7 @@ class CategoryController extends Controller
             'featured' => $featured,
             'featuredIsNew' => $featuredIsNew,
             // The banner (a master category, or one that chose it): the numbers and the "Start here" button.
-            'hero' => \App\Support\CategoryHero::style($category) === 'banner' ? ['stats' => \App\Support\CategoryHero::stats($category), 'start' => \App\Support\CategoryHero::start($category)] : null,
+            'hero' => \App\Support\CategoryHero::style($category) === 'banner' ? ['picture' => \App\Support\CategoryHero::picture($category), 'stats' => \App\Support\CategoryHero::stats($category), 'start' => \App\Support\CategoryHero::start($category)] : null,
             // The Visual Stories of this category (the main one or an "also in"), and the "Did You Know?" facts that were put on its page.
             'topics' => $topics,
             'stories' => $topics ? $topics['stories']->getCollection() : \App\Models\Story::published()->with(['category', 'contributor'])->withCount('slides')

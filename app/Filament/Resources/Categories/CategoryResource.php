@@ -123,7 +123,7 @@ class CategoryResource extends Resource
                     ])->columns(1),
                 TextInput::make('sort_order')->label('Order')->numeric()->minValue(0)->default(0),
                 Toggle::make('is_visible')->label('Show on the site')->default(true),
-                Select::make('custom_data.hero_style')->label('Top of its page')->native(true)->placeholder('The usual: a banner for a main category, split for the others')
+                Select::make('custom_data.hero_style')->label('Top of its page')->native(true)->placeholder('The usual: a banner')
                     ->options(['banner' => 'Banner: its picture behind the title, with the numbers and two buttons', 'split' => 'Split: the words on the left, the picture on the right'])
                     ->helperText('A main category (one that sits in no other) has the banner unless you choose the split. Every other category has the split unless you choose the banner.'),
                 Toggle::make('custom_data.hide_articles')->label('Do not list its articles on its page')

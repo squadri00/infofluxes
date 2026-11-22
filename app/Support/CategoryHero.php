@@ -8,7 +8,7 @@ use App\Models\DidYouKnow;
 use App\Models\Story;
 
 /**
- * The hero at the top of a category page. A master (top-level) category has a banner: its picture behind the title, a strip of numbers
+ * The hero at the top of a category page. Every category has a banner by default; a category without a picture of its own uses the nearest picture above it: its picture behind the title, a strip of numbers
  * (how many sub-categories, articles, stories, pictures and facts it holds, and when it last changed) and two buttons (where to start, and the index).
  * Every other category keeps the split header (the words on the left, the picture on the right). Each category can choose (Organise > Categories).
  */
@@ -25,7 +25,25 @@ class CategoryHero
     {
         $chosen = $category->custom_data['hero_style'] ?? null;
 
-        return in_array($chosen, self::STYLES, true) ? $chosen : ($category->parent_id === null ? 'banner' : 'split');
+        return in_array($chosen, self::STYLES, true) ? $chosen : 'banner';
+    }
+
+    /**
+     * The picture of the banner: the category's own, or else the nearest one up the tree.
+     *
+     * @return array{path: string, alt: string}|null
+     */
+    public static function picture(Category $category): ?array
+    {
+        $node = $category;
+        for ($i = 0; $node && $i < 12; $i++) {
+            if (filled($node->image)) {
+                return ['path' => $node->image, 'alt' => (string) ($node->image_alt ?: $node->name)];
+            }
+            $node = $node->parent_id ? Category::find($node->parent_id) : null;
+        }
+
+        return null;
     }
 
     /**

@@ -85,6 +85,8 @@ class Step93Test extends TestCase
         CategoryFlattener::run($t['l1'], 3, true);
 
         $html = $this->get('/category/topic-three?view=index')->assertOk()->getContent();
+        // (The banner above the index may name them too; only the index itself is checked for the order.)
+        $html = substr($html, (int) strpos($html, 'category-controls'));
         $this->assertStringContainsString('Group', $html);
         $this->assertStringContainsString('Subject', $html);
         $this->assertStringContainsString('deep-one', $html);

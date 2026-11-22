@@ -39,9 +39,9 @@
 
     @if ($hero)
     {{-- The banner: the picture behind the title, the numbers of the section and two buttons (where to start, and the index). --}}
-    <header class="category-banner{{ $category->image ? '' : ' category-banner--plain' }}">
-        @if ($category->image)
-            <img class="category-banner__img" src="{{ asset('storage/'.$category->image) }}" alt="{{ $category->image_alt }}">
+    <header class="category-banner{{ $hero['picture'] ? '' : ' category-banner--plain' }}">
+        @if ($hero['picture'])
+            <img class="category-banner__img" src="{{ asset('storage/'.$hero['picture']['path']) }}" alt="{{ $hero['picture']['alt'] }}">
         @endif
         <div class="category-banner__shade" aria-hidden="true"></div>
         <div class="category-banner__inner">
