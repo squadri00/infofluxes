@@ -54,6 +54,10 @@
                     </li>
                 @endif
                 @auth
+                    @if (\App\Support\Notify::on())
+                        @php $unreadNotes = \App\Support\Notify::unread(auth()->user()); @endphp
+                        <li class="menu__item"><a class="bell" data-bell href="{{ route('account.notifications') }}" title="{{ __('account.bell') }}" aria-label="{{ __('account.bell') }}{{ $unreadNotes > 0 ? ' ('.$unreadNotes.')' : '' }}">&#128276;@if ($unreadNotes > 0)<span class="bell__count">{{ $unreadNotes > 99 ? '99+' : $unreadNotes }}</span>@endif</a></li>
+                    @endif
                     <li class="menu__item"><a href="{{ route('account') }}">{{ auth()->user()->name }}</a></li>
                     @if ($staff)
                         <li class="menu__item"><a href="{{ url('/admin') }}">{{ __('site.admin') }}</a></li>

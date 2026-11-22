@@ -41,6 +41,9 @@
     <header class="category-hero {{ $category->image ? 'category-hero--split' : '' }}">
     <div class="category-hero__text">
     <h1 class="topic__title">{{ $name }} @include('partials.id-tag', ['code' => $category->code])</h1>
+    @if (! $preview && $category->is_visible)
+        <p class="follow-row">@include('partials.follow-button', ['kind' => 'category', 'target' => $category->id])</p>
+    @endif
 
     @if ($descriptionText !== '')
         <div class="topic__hook">{!! nl2br(e((string) $category->description)) !!}</div>

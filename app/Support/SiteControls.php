@@ -29,6 +29,8 @@ class SiteControls
             // The useful extras: "Quiet look" leaves these as they are.
             'recent_menu' => ['The "Recent" tab on the right edge and "Continue where you left off" on the home page', 'A small tab stuck to the right edge of the window that opens a card with the last pages this visitor opened, and a row of them on the home page. The list is kept only in the visitor\'s own browser.', 'extras', 'ctl_recent_menu', true],
             'save' => ['Save for later (bookmarks)', 'For people who are logged in. They find their list in My account.', 'extras', 'ctl_save', true],
+            'follow' => ['Follow (categories, contributors and words)', 'A Follow button on category pages, contributor pages and search results, for people who are logged in. They find what they follow in My account, and they get news about it.', 'extras', 'ctl_follow', true],
+            'notifications' => ['Notifications for members (the bell and the weekly email)', 'A bell for people who are logged in. It tells them when a comment of theirs is approved or answered, when an article they sent in is published or sent back, and (with Follow) when there is new work to read. The weekly email carries the news. Off: no new notices are made.', 'extras', 'ctl_notifications', true],
             'listen' => ['The Listen button', 'Reads an article or a story aloud. More choices in Sliders and the Listen settings.', 'extras', 'listen_on', true],
             'story_pdf' => ['The button "Download as a PDF book" on a story', 'The story as a printable book.', 'extras', 'story_pdf_on', true],
             'newsletter' => ['The Subscribe button and the newsletter page', 'Also in Site settings.', 'extras', 'newsletter_on', true],

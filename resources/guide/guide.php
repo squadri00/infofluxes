@@ -213,7 +213,7 @@ return [
         'key' => 'comments', 'title' => 'Comments', 'group' => 'Content', 'classes' => [CommentResource::class], 'access' => 'comments',
         'what' => 'The discussion under articles, and the "Audience" under stories. A member\'s comment waits here until you approve it.',
         'steps' => ['The list opens on "Waiting for approval". Read, then approve or hide.', 'Replies by staff are shown at once.'],
-        'tips' => ['The column "Article or story" says where a comment was written. A story comment shows the word Story under the name.'],
+        'tips' => ['The column "Article or story" says where a comment was written. A story comment shows the word Story under the name.', 'The member gets a notice (the bell on the site) when you approve or hide their comment, and the writer of the comment above gets a notice when a reply is approved.'],
     ],
     [
         'key' => 'dyk', 'title' => 'Did You Know?', 'group' => 'Content', 'classes' => [DidYouKnowResource::class], 'access' => 'facts',
@@ -324,7 +324,7 @@ return [
         'key' => 'users', 'title' => 'People', 'group' => 'Settings', 'classes' => [UserResource::class], 'access' => 'superuser',
         'what' => 'The accounts of everyone who can sign in: super users, moderators, authors and members.',
         'steps' => ['Choose a role and a status. Switched off people cannot sign in.', 'For a moderator or author you can tick the admin screens they may use. Leave all unticked for the usual screens of the role.'],
-        'tips' => ['An author who needs the AI import needs "AI import" ticked.', 'A person you add here is counted as confirmed. A member who signs up on the site must confirm their own email address.'],
+        'tips' => ['An author who needs the AI import needs "AI import" ticked.', 'A person you add here is counted as confirmed. A member who signs up on the site must confirm their own email address.', 'What a member has in My account: their articles, saved items, My scores (the challenge results kept while they are logged in), What I follow (categories, contributors and words), Notifications, profile, security and privacy (download or delete their data). Deleting an account also deletes its scores, follows and notifications.', 'The weekly news email goes out on Monday at 08:00 to members who follow things and did not switch it off. It needs the mail settings (MAIL_*) in the .env file and the scheduled task that runs "php artisan schedule:run" every minute. To test it by hand: "php artisan members:digest --dry" lists who would get an email.'],
     ],
     [
         'key' => 'backups', 'title' => 'Backups', 'group' => 'Settings', 'classes' => [Backups::class], 'access' => 'superuser',
@@ -378,7 +378,7 @@ return [
         'key' => 'site-controls', 'title' => 'Site controls', 'group' => 'Settings', 'classes' => [\App\Filament\Pages\SiteControlsPage::class], 'access' => 'superuser',
         'what' => 'One page of On/Off switches for the parts of the public site that make it look busy: likes, counts, share buttons, social buttons, related articles, and the useful extras like Listen, Save for later, the Recent tab and the language button.',
         'steps' => ['Turn a switch on to show a part, off to hide it, then press Save.', '"Quiet look" switches off all the noisy parts at once. "Normal look" brings them back. The useful extras are never touched by either.', '"All settings (advanced)" opens Site settings.'],
-        'tips' => ['"The row of sub-category buttons at the top of a category page" is one of the switches: off hides those outlined buttons, while the sub-categories stay as cards further down the page and in the main menu.', 'Hiding a part never deletes anything: likes, saved items and comments are kept and come back when you switch it on.', 'Some switches are the same ones as in other screens (Listen, newsletter, comments, PDF book), so they always agree.'],
+        'tips' => ['Two switches are for members: "Follow" (the Follow buttons and the What I follow page) and "Notifications for members" (the bell and the weekly email). Off: the buttons and the bell disappear and no new notices are made; what members already followed is kept.', '"The row of sub-category buttons at the top of a category page" is one of the switches: off hides those outlined buttons, while the sub-categories stay as cards further down the page and in the main menu.', 'Hiding a part never deletes anything: likes, saved items and comments are kept and come back when you switch it on.', 'Some switches are the same ones as in other screens (Listen, newsletter, comments, PDF book), so they always agree.'],
     ],
     [
         'key' => 'analytics', 'title' => 'Analytics', 'group' => 'Reports', 'classes' => [\App\Filament\Pages\AnalyticsDashboard::class], 'access' => 'superuser',

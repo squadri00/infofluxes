@@ -62,6 +62,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/account/privacy', [ProfileController::class, 'privacy'])->name('account.privacy');
     Route::get('/account/my-data', [ProfileController::class, 'download'])->middleware('throttle:6,1')->name('account.data');
     Route::post('/account/delete', [ProfileController::class, 'destroy'])->middleware('throttle:5,1')->name('account.delete');
+    // My scores, what I follow, and my notifications.
+    Route::get('/account/scores', [\App\Http\Controllers\MemberController::class, 'scores'])->name('account.scores');
+    Route::get('/account/following', [\App\Http\Controllers\MemberController::class, 'following'])->name('account.following');
+    Route::post('/account/following/digest', [\App\Http\Controllers\MemberController::class, 'digest'])->middleware('throttle:20,1')->name('account.digest');
+    Route::get('/account/notifications', [\App\Http\Controllers\MemberController::class, 'notifications'])->name('account.notifications');
+    Route::post('/account/notifications/read-all', [\App\Http\Controllers\MemberController::class, 'readAll'])->middleware('throttle:30,1')->name('account.notifications.read');
+    Route::get('/account/notifications/{id}', [\App\Http\Controllers\MemberController::class, 'open'])->whereNumber('id')->name('account.notification');
     // Confirming the email address of a new member.
     Route::get('/email/verify', [VerifyEmailController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['signed', 'throttle:12,1'])->name('verification.verify');
@@ -76,7 +83,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/comments', [CommentController::class, 'store'])->middleware('throttle:10,1')->name('comments.store');
     Route::post('/react/{type}/{id}', [EngageController::class, 'react'])->where('type', 'article|story')->whereNumber('id')->middleware('throttle:60,1')->name('react');
     Route::post('/save/{type}/{id}', [EngageController::class, 'save'])->where('type', 'article|story')->whereNumber('id')->middleware('throttle:60,1')->name('save');
+    // Follow a category or a contributor, or a word (press again to stop).
+    Route::post('/follow/keyword', [\App\Http\Controllers\MemberController::class, 'followKeyword'])->middleware('throttle:60,1')->name('follow.keyword');
+    Route::post('/follow/{kind}/{id}', [\App\Http\Controllers\MemberController::class, 'follow'])->where('kind', 'category|person')->whereNumber('id')->middleware('throttle:60,1')->name('follow');
 });
+// The link in the weekly email that switches the email off (it is signed, so it works without logging in).
+Route::get('/account/digest/off/{user}', [\App\Http\Controllers\MemberController::class, 'digestOff'])->whereNumber('user')->middleware(['signed', 'throttle:20,1'])->name('account.digest.off');
 
 // Challenge yourself: the tests, and the answers they ask for (JSON, for the page script).
 Route::get('/challenge-yourself', [ChallengeController::class, 'index'])->name('challenge');

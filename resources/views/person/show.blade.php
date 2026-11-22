@@ -49,6 +49,7 @@
             @if ($person->link && \App\Support\Social::safeUrl($person->link))
                 <p class="person__meta"><a href="{{ \App\Support\Social::safeUrl($person->link) }}" target="_blank" rel="noopener noreferrer me">{{ __('site.people_link') }}</a></p>
             @endif
+            <p class="follow-row">@include('partials.follow-button', ['kind' => 'person', 'target' => $person->id])</p>
         </div>
     </header>
 

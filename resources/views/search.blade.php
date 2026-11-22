@@ -8,6 +8,9 @@
 @section('content')
 <div class="wrap wrap--wide search">
     <h1 class="topic__title">{{ $q !== '' ? str_replace(':q', $q, __('site.search_results_for')) : ($within ? str_replace(':name', $within->name, __('site.search_in_category')) : __('site.search_title')) }}</h1>
+    @if ($q !== '' && mb_strlen($q) <= 60)
+        <p class="follow-row">@include('partials.follow-button', ['kind' => 'keyword', 'keyword' => $q])</p>
+    @endif
     @if ($within && $q !== '')
         <p class="search__scope">{{ str_replace(':name', $within->name, __('site.search_only_in')) }} <a href="{{ route('search', ['q' => $q]) }}">{{ __('site.search_everywhere') }}</a></p>
     @endif

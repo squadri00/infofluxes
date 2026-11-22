@@ -52,6 +52,10 @@
                 <li><a href="{{ route('challenge') }}">{{ __('site.challenge') }}</a></li>
             @endif
             @auth
+                @if (\App\Support\Notify::on())
+                    @php $unreadNotesM = \App\Support\Notify::unread(auth()->user()); @endphp
+                    <li><a href="{{ route('account.notifications') }}">{{ __('account.bell') }}@if ($unreadNotesM > 0) <span class="bell__count">{{ $unreadNotesM > 99 ? '99+' : $unreadNotesM }}</span>@endif</a></li>
+                @endif
                 <li><a href="{{ route('account') }}">{{ auth()->user()->name }}</a></li>
                 @if ($mStaff)<li><a href="{{ url('/admin') }}">{{ __('site.admin') }}</a></li>@endif
                 <li><form method="post" action="{{ route('logout') }}">@csrf<button type="submit">{{ __('site.logout') }}</button></form></li>

@@ -151,6 +151,10 @@ class ProfileController extends Controller
             'saved' => SavedItem::where('user_id', $user->id)->with('saveable')->get()->map(fn ($s) => ['item' => $s->saveable?->mainTitle()])->all(),
             'articles_sent_in' => Article::where('author_id', $user->id)->get()->map(fn ($a) => ['title' => $a->mainTitle(), 'status' => $a->status, 'code' => $a->code])->all(),
             'newsletter' => NewsletterSubscriber::where('email', $user->email)->exists() ? 'subscribed' : 'not subscribed',
+            'challenge_scores' => \App\Models\QuizAttempt::where('user_id', $user->id)->orderBy('id')->get()->map(fn ($a) => ['test' => \App\Support\ChallengeScores::label($a->quiz), 'score' => $a->score, 'out_of' => $a->total, 'when' => $a->created_at?->toIso8601String()])->all(),
+            'following' => \App\Models\Follow::where('user_id', $user->id)->get()->map(fn ($f) => ['kind' => $f->kind, 'what' => $f->label()])->all(),
+            'weekly_news_email' => \App\Http\Controllers\MemberController::digestOn($user) ? 'on' : 'off',
+            'notifications' => \App\Models\MemberNotification::where('user_id', $user->id)->orderBy('id')->get()->map(fn ($n) => ['text' => $n->title, 'when' => $n->created_at?->toIso8601String(), 'read' => $n->read_at !== null])->all(),
         ];
 
         return response(json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 200, [
@@ -181,6 +185,9 @@ class ProfileController extends Controller
             Comment::where('user_id', $id)->update(['user_id' => null]);   // kept, without a name, so the replies still make sense
             Reaction::where('user_id', $id)->delete();
             SavedItem::where('user_id', $id)->delete();
+            \App\Models\QuizAttempt::where('user_id', $id)->delete();        // the scores kept with the account go with it
+            \App\Models\Follow::where('user_id', $id)->delete();
+            \App\Models\MemberNotification::where('user_id', $id)->delete();
             SocialAccount::where('user_id', $id)->delete();
             NewsletterSubscriber::where('email', $email)->delete();
             if (Schema::hasTable('sessions')) {

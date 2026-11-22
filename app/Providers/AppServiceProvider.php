@@ -25,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
         // When the English text of a story changes, the languages made from the old text are hidden and marked "out of date".
         \App\Support\StoryMaker\OutdatedTranslations::register();
 
+        // The notices of the members: a comment approved, a reply, an article they sent in, and news from what they follow.
+        \App\Support\MemberEvents::register();
+
         // The email that asks a new member to confirm their address: simple words, in the name of the site.
         \Illuminate\Auth\Notifications\VerifyEmail::toMailUsing(function ($notifiable, string $url) {
             $site = (string) \App\Models\Setting::get('site_name', config('app.name'));
