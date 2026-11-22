@@ -43,6 +43,12 @@ class Step118Test extends TestCase
 
         $page = $this->get(route('home'))->assertOk();
 
+        // The same cards in the same layout as the Featured articles: the mosaic of "pcard" cards.
+        preg_match('#<section class="block" data-home-facts>.*?</section>#s', $page->getContent(), $part);
+        $this->assertStringContainsString('class="mosaic"', $part[0] ?? '');
+        $this->assertSame(3, substr_count($part[0] ?? '', 'class="pcard '));
+        $this->assertStringNotContainsString('class="related"', $part[0] ?? '');
+
         $page->assertSee('data-home-facts', false)->assertSee('First fact')->assertSee('Second fact')->assertSee('Third fact')->assertSee('All facts')
             ->assertDontSee('Not featured fact')->assertDontSee('Draft fact')->assertDontSee('No source fact');
         $this->assertSame(['First fact', 'Second fact', 'Third fact'], DidYouKnow::featuredOnHome()->get()->map(fn ($f) => $f->getTranslation('title', 'en'))->all());

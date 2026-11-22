@@ -61,7 +61,8 @@
     @if ($facts->isNotEmpty())
         <section class="block" data-home-facts>
             <h2 class="block__title">{{ __('site.dyk_title') }} <a class="block__more" href="{{ route('did-you-know') }}">{{ __('site.dyk_all') }} &rarr;</a></h2>
-            @include('partials.related-cards', ['items' => $facts, 'kind' => 'fact'])
+            {{-- The same cards and the same layout as the Featured articles. --}}
+            @include('partials.article-mosaic', ['articles' => $facts, 'card' => 'partials.fact-card'])
         </section>
     @endif
 
