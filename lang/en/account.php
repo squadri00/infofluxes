@@ -49,6 +49,8 @@ return [
 
     // Notifications
     'bell' => 'Notifications',
+    'menu' => 'Account menu',
+    'menu_admin' => 'Admin area',
     'notes_title' => 'Notifications',
     'notes_none' => 'No notifications yet.',
     'notes_new' => 'New',

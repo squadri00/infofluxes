@@ -2739,3 +2739,21 @@ html[dir="rtl"] .gv__nav span { display: inline-block; transform: rotate(180deg)
     .gv__cap { padding-bottom: 54px; }
 }
 @media (prefers-reduced-motion: reduce) { .gv__img { transition: none; } }
+
+/* The account drop-down at the top right: the picture (or first letter) and the name; the panel has the account pages and Log out */
+.account-menu > summary { display: inline-flex; align-items: center; gap: 8px; max-width: 15rem; }
+.account-menu__pic { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex: none; background: var(--gray-soft); }
+.account-menu__pic--blank { display: inline-flex; align-items: center; justify-content: center; background: var(--accent); color: var(--accent-text, #fff); font-size: .85rem; font-weight: 700; }
+.account-menu__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-menu__dot { width: 9px; height: 9px; margin-inline-start: -4px; margin-top: -12px; border-radius: 50%; background: #d92d20; border: 2px solid var(--surface); flex: none; }
+.account-menu__panel { min-width: 16rem; right: 0; left: auto; padding: 8px; }
+.account-menu__who { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px 10px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.account-menu__who small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+.account-menu__list { list-style: none; margin: 0; padding: 0; }
+.account-menu__list a, .account-menu__logout { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 8px 12px; border: 0; border-radius: 6px; background: none; color: var(--text); font: inherit; text-align: start; text-decoration: none; cursor: pointer; }
+.account-menu__list a:hover, .account-menu__logout:hover, .account-menu__list a:focus-visible, .account-menu__logout:focus-visible { background: var(--accent-soft); outline: none; }
+.account-menu__sep { height: 1px; margin: 6px 4px; background: var(--line); }
+.account-menu__logout { font-weight: 700; }
+.m-drawer__who { padding: 10px 14px 4px; font-weight: 700; }
+.m-drawer__who small { display: block; font-weight: 400; color: var(--muted); }
+@media (max-width: 640px) { .account-menu__panel { position: absolute; right: 0; margin-left: 0; } }

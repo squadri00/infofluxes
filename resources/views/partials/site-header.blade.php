@@ -64,13 +64,7 @@
                         @php $unreadNotes = \App\Support\Notify::unread(auth()->user()); @endphp
                         <li class="menu__item"><a class="bell" data-bell href="{{ route('account.notifications') }}" title="{{ __('account.bell') }}" aria-label="{{ __('account.bell') }}{{ $unreadNotes > 0 ? ' ('.$unreadNotes.')' : '' }}">&#128276;@if ($unreadNotes > 0)<span class="bell__count">{{ $unreadNotes > 99 ? '99+' : $unreadNotes }}</span>@endif</a></li>
                     @endif
-                    <li class="menu__item"><a href="{{ route('account') }}">{{ auth()->user()->name }}</a></li>
-                    @if ($staff)
-                        <li class="menu__item"><a href="{{ url('/admin') }}">{{ __('site.admin') }}</a></li>
-                    @endif
-                    <li class="menu__item">
-                        <form method="post" action="{{ route('logout') }}">@csrf<button type="submit" class="linklike">{{ __('site.logout') }}</button></form>
-                    </li>
+                    @include('partials.account-menu', ['staff' => $staff])
                 @else
                     <li class="menu__item"><a href="{{ route('login') }}">{{ __('site.login') }}</a></li>
                     @if ((bool) \App\Models\Setting::get('signups_open', true))

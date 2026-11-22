@@ -59,7 +59,13 @@
                     @php $unreadNotesM = \App\Support\Notify::unread(auth()->user()); @endphp
                     <li><a href="{{ route('account.notifications') }}">{{ __('account.bell') }}@if ($unreadNotesM > 0) <span class="bell__count">{{ $unreadNotesM > 99 ? '99+' : $unreadNotesM }}</span>@endif</a></li>
                 @endif
-                <li><a href="{{ route('account') }}">{{ auth()->user()->name }}</a></li>
+                <li class="m-drawer__who">{{ auth()->user()->name }} <small>{{ auth()->user()->email }}</small></li>
+                <li><a href="{{ route('account') }}">{{ __('site.my_account') }}</a></li>
+                <li><a href="{{ route('account.profile') }}">{{ __('account.nav_profile') }}</a></li>
+                <li><a href="{{ route('account.security') }}">{{ __('account.nav_security') }}</a></li>
+                <li><a href="{{ route('account.scores') }}">{{ __('account.nav_scores') }}</a></li>
+                @if (\App\Support\Following::on())<li><a href="{{ route('account.following') }}">{{ __('account.nav_following') }}</a></li>@endif
+                <li><a href="{{ route('submit') }}">{{ __('site.submit_article') }}</a></li>
                 @if ($mStaff)<li><a href="{{ url('/admin') }}">{{ __('site.admin') }}</a></li>@endif
                 <li><form method="post" action="{{ route('logout') }}">@csrf<button type="submit">{{ __('site.logout') }}</button></form></li>
             @else
