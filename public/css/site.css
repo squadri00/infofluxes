@@ -2779,3 +2779,33 @@ html[dir="rtl"] .gv__nav span { display: inline-block; transform: rotate(180deg)
 .gallery .topic-tabs { margin-top: 6px; }
 .gallery .topic-panel .gallery-chips { margin: 0 0 10px; }
 .gallery .topic-panel .gallery-tools { margin: 0 0 6px; }
+
+/* The banner at the top of a main category: the picture behind the title, the numbers of the section and two buttons */
+.category-banner { position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: flex-end; min-height: 500px; margin: 6px 0 18px; border-radius: 16px; color: #fff; background: linear-gradient(135deg, #14304a, #1f5f8b 55%, #2b8aa0); box-shadow: 0 12px 32px rgba(0, 0, 0, .22); }
+.category-banner__img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
+.category-banner__shade { position: absolute; inset: 0; z-index: -1; background: linear-gradient(to top, rgba(6, 10, 16, .9) 0%, rgba(6, 10, 16, .6) 42%, rgba(6, 10, 16, .12) 100%); }
+.category-banner--plain .category-banner__shade { background: linear-gradient(to top, rgba(6, 10, 16, .35), rgba(6, 10, 16, 0)); }
+.category-banner__inner { display: grid; gap: 14px; width: 100%; max-width: 64rem; padding: 40px clamp(18px, 3.2vw, 48px) 30px; }
+.category-banner .topic__title { margin: 0; color: #fff; font-size: clamp(2rem, 4.2vw, 3.3rem); line-height: 1.08; text-shadow: 0 2px 12px rgba(0, 0, 0, .45); }
+.category-banner__text { max-width: 46rem; margin: 0; font-size: clamp(1.02rem, 1.4vw, 1.2rem); line-height: 1.5; color: rgba(255, 255, 255, .94); text-shadow: 0 1px 8px rgba(0, 0, 0, .45); }
+.category-banner__text--more { font-size: .98rem; opacity: .9; }
+.category-banner__stats { display: flex; flex-wrap: wrap; gap: 8px 10px; margin: 2px 0 0; padding: 0; list-style: none; }
+.category-banner__stat { display: inline-block; padding: 5px 13px; border-radius: 999px; background: rgba(255, 255, 255, .17); color: #fff; font-size: .86rem; font-weight: 600; text-decoration: none; backdrop-filter: blur(5px); }
+a.category-banner__stat:hover, a.category-banner__stat:focus-visible { background: rgba(255, 255, 255, .32); outline: none; }
+.category-banner__stat--quiet { background: transparent; font-weight: 500; opacity: .85; padding-inline: 4px; }
+.category-banner__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-top: 4px; }
+.category-banner__start { padding: 12px 24px; font-size: 1.02rem; font-weight: 700; }
+.category-banner__ghost { padding: 11px 20px; border: 1px solid rgba(255, 255, 255, .75); background: rgba(255, 255, 255, .08); color: #fff; font-weight: 600; text-decoration: none; }
+.category-banner__ghost:hover, .category-banner__ghost:focus-visible { background: rgba(255, 255, 255, .22); outline: none; }
+.category-banner .follow-btn { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .55); color: #fff; }
+.category-banner .follow-btn.is-on { background: var(--accent); border-color: var(--accent); }
+@media (max-width: 700px) { .category-banner { min-height: 380px; border-radius: 12px; } .category-banner__inner { padding: 28px 16px 20px; } .category-banner__start, .category-banner__ghost { flex: 1 1 100%; text-align: center; } }
+
+/* One control bar under the banner: the tabs on the left, the Grid / List / Index switch on the right */
+.category-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 6px 0 16px; }
+.category-controls .all-tabs { margin: 0; flex: 1 1 auto; min-width: 0; border-bottom: 0; padding-bottom: 0; }
+.category-controls .view-bar { margin: 0 0 0 auto; }
+
+.category-menu--banner { margin: 0; }
+.category-banner .category-menu__btn { border-color: rgba(255, 255, 255, .7); color: #fff; background: rgba(255, 255, 255, .1); }
+.category-banner .category-menu__btn:hover { background: #fff; color: #14304a; }

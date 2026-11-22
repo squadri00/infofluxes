@@ -19,6 +19,24 @@ class MasterFeatured
         return $category->parent_id === null;
     }
 
+    /**
+     * When nothing is starred for a master category, the row under its banner shows the newest published articles and stories of the section.
+     *
+     * @return \Illuminate\Support\Collection<int, Article|Story>
+     */
+    public static function newest(Category $master, int $limit = self::LIMIT)
+    {
+        if (! static::applies($master)) {
+            return collect();
+        }
+        $ids = $master->descendantIds();
+        $inside = fn ($q) => $q->whereIn('category_id', $ids)->orWhereHas('extraCategories', fn ($c) => $c->whereIn('categories.id', $ids));
+
+        return Article::published()->with('category')->where($inside)->orderByDesc('publish_date')->orderByDesc('id')->limit($limit)->get()
+            ->concat(Story::published()->with('category')->where($inside)->orderByDesc('publish_date')->orderByDesc('id')->limit($limit)->get())
+            ->sortByDesc(fn ($i) => [$i->publish_date?->timestamp ?? 0, $i->id])->take($limit)->values();
+    }
+
     /** @return \Illuminate\Support\Collection<int, Article|Story> */
     public static function for(Category $master, int $limit = self::LIMIT)
     {

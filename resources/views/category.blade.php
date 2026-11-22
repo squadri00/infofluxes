@@ -37,6 +37,52 @@
         </ol>
     </nav>
 
+    @if ($hero)
+    {{-- The banner: the picture behind the title, the numbers of the section and two buttons (where to start, and the index). --}}
+    <header class="category-banner{{ $category->image ? '' : ' category-banner--plain' }}">
+        @if ($category->image)
+            <img class="category-banner__img" src="{{ asset('storage/'.$category->image) }}" alt="{{ $category->image_alt }}">
+        @endif
+        <div class="category-banner__shade" aria-hidden="true"></div>
+        <div class="category-banner__inner">
+            <h1 class="topic__title category-banner__title">{{ $name }} @include('partials.id-tag', ['code' => $category->code])</h1>
+            @if ($descriptionText !== '')
+                <div class="category-banner__text">{!! nl2br(e((string) $category->description)) !!}</div>
+            @endif
+            {{-- (The header text is left out when it only repeats the description.) --}}
+            @if (filled($category->header_text) && trim(preg_replace('/\s+/', ' ', strip_tags((string) $category->header_text))) !== $descriptionText)
+                <div class="category-banner__text category-banner__text--more">{!! nl2br(e((string) $category->header_text)) !!}</div>
+            @endif
+            {{-- The row of sub-category buttons: only while the site control "sub-category buttons" is on (it is a switch of the whole site). --}}
+            @if ($children->isNotEmpty() && $mode !== 'index' && ! $topics && \App\Support\SiteControls::on('category_buttons'))
+                <nav class="category-menu category-menu--banner" aria-label="{{ __('site.sub_categories') }}">
+                    @foreach ($children as $child)
+                        <a class="btn btn--small category-menu__btn" href="{{ route('category.show', $child->slug) }}">{{ $child->name }}</a>
+                    @endforeach
+                </nav>
+            @endif
+            @if ($hero['stats']['items'] !== [] || $hero['stats']['updated'])
+                <ul class="category-banner__stats" data-hero-stats>
+                    @foreach ($hero['stats']['items'] as $stat)
+                        <li>@if ($stat['url'])<a class="category-banner__stat" href="{{ $stat['url'] }}">{{ trans_choice('site.hero_'.$stat['key'], $stat['n'], ['n' => $stat['n']]) }} &rarr;</a>@else<span class="category-banner__stat">{{ trans_choice('site.hero_'.$stat['key'], $stat['n'], ['n' => $stat['n']]) }}</span>@endif</li>
+                    @endforeach
+                    @if ($hero['stats']['updated'])
+                        <li><span class="category-banner__stat category-banner__stat--quiet">{{ __('site.hero_updated', ['when' => $hero['stats']['updated']->diffForHumans()]) }}</span></li>
+                    @endif
+                </ul>
+            @endif
+            <div class="category-banner__actions">
+                @if ($hero['start'])
+                    <a class="btn btn--primary category-banner__start" data-hero-start href="{{ $hero['start']['url'] }}">{{ __('site.hero_start', ['name' => $hero['start']['name']]) }} &rarr;</a>
+                @endif
+                <a class="btn category-banner__ghost" data-hero-index href="{{ route('category.show', ['slug' => $category->slug, 'view' => 'index']) }}">{{ __('site.hero_index') }}</a>
+                @if (! $preview && $category->is_visible)
+                    @include('partials.follow-button', ['kind' => 'category', 'target' => $category->id])
+                @endif
+            </div>
+        </div>
+    </header>
+    @else
     {{-- The top of the page: the words on the left, the picture on the right, two equal columns (one column when there is no picture). --}}
     <header class="category-hero {{ $category->image ? 'category-hero--split' : '' }}">
     <div class="category-hero__text">
@@ -65,6 +111,7 @@
         <figure class="category-hero__picture"><img src="{{ asset('storage/'.$category->image) }}" alt="{{ $category->image_alt }}"></figure>
     @endif
     </header>
+    @endif
 
     {{-- The list of this category: its sub-categories, its Visual Stories, its Did You Know? facts and its articles, in the same cards and the same Grid / List / Index views as every other category.
          The switch "Do not list its articles" leaves the articles out. A category with facts but no articles shows only the facts (an empty list would only say "nothing here"). --}}
@@ -76,9 +123,25 @@
         $showBar = ! $hideArticles || $otherItems;
     @endphp
 
-    @if ($showBar)
-    <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>
+
+    @if ($mode !== 'index' && $featured->isNotEmpty() && ! $all)
+        <section class="block category-featured">
+            <h2 class="block__title">{{ $featuredIsNew ? __('site.new_in_category', ['name' => $name]) : __('site.featured_in_category') }}</h2>
+            @include('partials.related-cards', ['items' => $featured, 'kind' => 'article'])
+        </section>
     @endif
+
+    <div class="category-controls">
+        @if ($mode !== 'index' && $hasAllTab)
+        <nav class="all-tabs" aria-label="{{ __('site.topics_label') }}">
+            <a class="all-tabs__tab{{ $all ? '' : ' is-current' }}" href="{{ route('category.show', $category->slug) }}" @if (! $all) aria-current="page" @endif>{{ __('site.tab_overview') }}</a>
+            <a class="all-tabs__tab{{ $all ? ' is-current' : '' }}" href="{{ route('category.show', ['slug' => $category->slug, 'list' => 'all']) }}" @if ($all) aria-current="page" @endif>{{ __('site.tab_all_articles') }} <span class="all-tabs__count">{{ $allTotal }}</span></a>
+        </nav>
+        @endif
+        @if ($showBar)
+    <div class="view-bar">@include('partials.view-toggle', ['indexUrl' => route('category.show', ['slug' => $category->slug, 'view' => 'index']), 'plainUrl' => route('category.show', $category->slug), 'mode' => $mode])</div>
+        @endif
+    </div>
 
     @if ($mode === 'index' && $showBar)
         @php
@@ -88,18 +151,6 @@
         @endphp
         @include('partials.category-index', ['category' => $category, 'index' => $indexShown, 'facts' => $facts, 'stories' => $stories])
     @else
-    @if ($featured->isNotEmpty() && ! $all)
-        <section class="block category-featured">
-            <h2 class="block__title">{{ __('site.featured_in_category') }}</h2>
-            @include('partials.related-cards', ['items' => $featured, 'kind' => 'article'])
-        </section>
-    @endif
-    @if ($hasAllTab)
-        <nav class="all-tabs" aria-label="{{ __('site.topics_label') }}">
-            <a class="all-tabs__tab{{ $all ? '' : ' is-current' }}" href="{{ route('category.show', $category->slug) }}" @if (! $all) aria-current="page" @endif>{{ __('site.tab_overview') }}</a>
-            <a class="all-tabs__tab{{ $all ? ' is-current' : '' }}" href="{{ route('category.show', ['slug' => $category->slug, 'list' => 'all']) }}" @if ($all) aria-current="page" @endif>{{ __('site.tab_all_articles') }} <span class="all-tabs__count">{{ $allTotal }}</span></a>
-        </nav>
-    @endif
 
     @if ($all)
     <section class="block all-list">

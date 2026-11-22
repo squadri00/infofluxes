@@ -37,6 +37,15 @@ class CategoryController extends Controller
         $hasAllTab = $mode !== 'index' && ! $topics && \App\Support\AllArticles::applies($category, $preview);
         $all = $hasAllTab && $request->query('list') === 'all' ? \App\Support\AllArticles::build($category, $request, $preview) : null;
 
+        // The row under the banner: what is starred for this master category, or else its newest items.
+        $featured = $mode === 'index' || $topics ? collect() : \App\Support\MasterFeatured::for($category);
+        $featuredIsNew = false;
+        // (A category that leaves its articles off its page has no "New in" row either.)
+        if ($featured->isEmpty() && $mode !== 'index' && ! $topics && ! ($category->custom_data['hide_articles'] ?? false)) {
+            $featured = \App\Support\MasterFeatured::newest($category);
+            $featuredIsNew = $featured->isNotEmpty();
+        }
+
         return view('category', [
             'hasAllTab' => $hasAllTab,
             'allTotal' => $hasAllTab ? \App\Support\AllArticles::total($category) : 0,
@@ -49,7 +58,10 @@ class CategoryController extends Controller
             'mode' => $mode,
             'index' => $index,
             // The items featured at the top of a master (top-level) category.
-            'featured' => $mode === 'index' || $topics ? collect() : \App\Support\MasterFeatured::for($category),
+            'featured' => $featured,
+            'featuredIsNew' => $featuredIsNew,
+            // The banner (a master category, or one that chose it): the numbers and the "Start here" button.
+            'hero' => \App\Support\CategoryHero::style($category) === 'banner' ? ['stats' => \App\Support\CategoryHero::stats($category), 'start' => \App\Support\CategoryHero::start($category)] : null,
             // The Visual Stories of this category (the main one or an "also in"), and the "Did You Know?" facts that were put on its page.
             'topics' => $topics,
             'stories' => $topics ? $topics['stories']->getCollection() : \App\Models\Story::published()->with(['category', 'contributor'])->withCount('slides')
