@@ -30,6 +30,12 @@ class AiImport extends Page
 
     protected static ?string $navigationLabel = 'AI import';
 
+    /** It is opened from the Create screen and the "+ Create" button, so it is not repeated in the side menu. */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     protected static ?string $title = 'AI import';
 
     protected string $view = 'filament.pages.ai-import';

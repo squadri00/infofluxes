@@ -159,6 +159,16 @@ return [
         'tips' => ['The Articles list has an "Assigned to" column (switch it on in the column menu) and an "Assigned to" filter.', 'A topic leaves this list when its status is no longer Draft.'],
     ],
     [
+        'key' => 'create', 'title' => 'Create', 'group' => 'Content', 'classes' => [\App\Filament\Pages\CreateContent::class], 'access' => null,
+        'what' => 'One door for making new content. Choose an article or a story in pictures, written by hand or made with the AI, and the right form opens.',
+        'steps' => [
+            'Open "Create" in the side menu, or press the orange "+ Create" button at the top of any screen.',
+            '"Write an article" and "Make a story in pictures" open the normal forms. "Make an article with AI" opens the AI import, and "Make a story with AI" opens the Story maker.',
+            'You see only the choices you are allowed to use.',
+        ],
+        'tips' => ['AI import and Story maker are no longer in the side menu: open them from here. Their pages and web addresses did not change.', 'Categories, Topics to write and Contributors are now together in the "Organise" group.'],
+    ],
+    [
         'key' => 'articles', 'title' => 'Articles', 'group' => 'Content', 'classes' => [ArticleResource::class], 'access' => 'articles',
         'what' => 'All articles, including the blank index entries. A moderator sees all; an author sees only their own.',
         'steps' => [

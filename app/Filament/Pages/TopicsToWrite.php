@@ -34,7 +34,7 @@ class TopicsToWrite extends Page implements HasTable
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Organise';
 
     protected static ?string $navigationLabel = 'Topics to write';
 

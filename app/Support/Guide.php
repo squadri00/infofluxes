@@ -38,7 +38,7 @@ class Guide
                 $groups[static::groupOf($entry)][] = $entry;
             }
         }
-        $order = ['General' => 0, 'Reports' => 1, 'Content' => 2, 'Community' => 3, 'Tools' => 4, 'Challenge yourself' => 5, 'Settings' => 6, 'System' => 7];
+        $order = ['General' => 0, 'Reports' => 1, 'Content' => 2, 'Organise' => 3, 'Community' => 4, 'Tools' => 5, 'Challenge yourself' => 6, 'Settings' => 7, 'System' => 8];
         uksort($groups, fn ($a, $b) => ($order[$a] ?? 9) <=> ($order[$b] ?? 9));
 
         return $groups;

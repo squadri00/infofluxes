@@ -108,6 +108,12 @@ class StoryMaker extends Page
     /** @var array<string, mixed>|null what the last upload did */
     public ?array $pictureReport = null;
 
+    /** It is opened from the Create screen and the "+ Create" button, so it is not repeated in the side menu. */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public static function canAccess(): bool
     {
         return auth()->user()?->canUseScreen('storymaker') ?? false;
