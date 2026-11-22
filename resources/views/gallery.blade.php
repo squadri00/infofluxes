@@ -59,7 +59,7 @@
             @foreach ($pictures as $p)
                 <li class="gtile">
                     <a class="gtile__link" href="{{ $p['url'] }}">
-                        <img src="{{ \App\Support\Thumbnail::url($p['src']) }}" alt="{{ $p['alt'] }}" width="480" height="320" loading="lazy" decoding="async">
+                        <img src="{{ \App\Support\Thumbnail::url($p['src']) }}" alt="{{ $p['alt'] }}" width="800" height="533" loading="lazy" decoding="async">
                         <span class="gtile__cap" aria-hidden="true">
                             <span class="gtile__kind">{{ __('site.gallery_label_'.$p['kind']) }}</span>
                             <span class="gtile__title">{{ $p['title'] }}</span>

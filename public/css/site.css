@@ -2688,3 +2688,11 @@ html[dir="rtl"] .rcard:hover .rcard__arrow { transform: rotate(180deg) translate
 @media (max-width: 620px) { .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .gallery-tools__count { margin-inline-start: 0; flex-basis: 100%; } }
 @media (prefers-reduced-motion: reduce) { .gtile__link img, .gtile__cap { transition: none; } .gtile:hover img { transform: none; } }
 @media (max-width: 620px) { .gallery-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; } .gallery-chips .gchip { flex: none; } }
+
+/* The gallery uses the whole width of the window, corner to corner: 5 big pictures in a row on a wide screen */
+.wrap.gallery { max-width: none; padding-left: clamp(8px, .9vw, 18px); padding-right: clamp(8px, .9vw, 18px); }
+.gallery-grid { gap: clamp(6px, .8vw, 12px); }
+@media (max-width: 1280px) { .gallery-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .gallery-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 860px) { .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

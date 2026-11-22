@@ -5,16 +5,16 @@ namespace App\Support;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Small copies of the pictures for the picture gallery, so a page of 100 pictures is light (about 25 KB each, not 200 KB).
+ * Small copies of the pictures for the picture gallery, so a page of 100 pictures is light (about 50 KB each, not 200 KB).
  * A copy is made the first time it is needed and kept in the "thumbs" folder of the public storage. If it cannot be made, the
  * picture itself is used.
  */
 class Thumbnail
 {
-    public const WIDTH = 480;
+    public const WIDTH = 800;
 
     /** At most this many copies are made while one page is shown (the rest use the full picture this time and get their copy on a later visit). */
-    private const BUDGET = 60;
+    private const BUDGET = 120;
 
     private static int $made = 0;
 
