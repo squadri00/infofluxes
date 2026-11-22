@@ -55,10 +55,13 @@
         <p class="empty">{{ __('site.gallery_empty') }}</p>
     @else
         @include('partials.pager', ['paginator' => $paginator])
-        <ul class="gallery-grid" data-gallery-grid>
+        @php
+            $viewerLabels = ['dialog' => __('site.gallery_viewer'), 'close' => __('site.gallery_close'), 'prev' => __('site.gallery_prev'), 'next' => __('site.gallery_next'), 'go' => __('site.gallery_go')];
+        @endphp
+        <ul class="gallery-grid" data-gallery-grid data-labels="{{ json_encode($viewerLabels, JSON_UNESCAPED_UNICODE) }}">
             @foreach ($pictures as $p)
                 <li class="gtile">
-                    <a class="gtile__link" href="{{ $p['url'] }}">
+                    <a class="gtile__link" href="{{ $p['url'] }}" data-id="I-{{ $p['id'] }}" data-full="{{ asset('storage/'.$p['src']) }}" data-title="{{ $p['title'] }}" data-parent="{{ $p['parent'] }}" data-kind="{{ __('site.gallery_label_'.$p['kind']) }}" data-alt="{{ $p['alt'] }}">
                         <span class="gtile__id" aria-hidden="true" title="{{ __('site.gallery_id_title') }}">I-{{ $p['id'] }}</span>
                         <img src="{{ \App\Support\Thumbnail::url($p['src']) }}" alt="{{ $p['alt'] }}" width="800" height="533" loading="lazy" decoding="async">
                         <span class="gtile__cap" aria-hidden="true">
@@ -71,6 +74,7 @@
             @endforeach
         </ul>
         @include('partials.pager', ['paginator' => $paginator])
+        <script src="{{ asset('js/gallery.js') }}?v={{ @filemtime(public_path('js/gallery.js')) ?: 1 }}" defer></script>
     @endif
 </div>
 @endsection

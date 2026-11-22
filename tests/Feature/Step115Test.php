@@ -175,6 +175,21 @@ class Step115Test extends TestCase
         $this->assertContains('gallery', \App\Models\Page::RESERVED);
     }
 
+    public function test_each_picture_carries_what_the_big_viewer_needs_and_stays_a_normal_link_without_it(): void
+    {
+        $story = $this->story('The Long Walk', 2);
+
+        $page = $this->get(route('gallery'))->assertOk();
+
+        $page->assertSee('data-labels=', false)->assertSee('js/gallery.js', false)
+            ->assertSee('Previous picture')->assertSee('Next picture')->assertSee('Go to this page')
+            ->assertSeeHtml('data-full="'.asset('storage/stories/the-long-walk-1.webp').'"')
+            ->assertSeeHtml('data-id="I-'.\App\Models\GalleryPicture::where('path', 'stories/the-long-walk-1.webp')->value('id').'"')
+            ->assertSeeHtml('data-title="Slide 1 of The Long Walk"')->assertSeeHtml('data-parent="The Long Walk"')
+            ->assertSeeHtml('href="'.$story->url().'#slide-1"');
+        $this->assertFileExists(public_path('js/gallery.js'));
+    }
+
     public function test_an_empty_gallery_says_so(): void
     {
         $this->get(route('gallery'))->assertOk()->assertSee('There are no pictures here yet.');
