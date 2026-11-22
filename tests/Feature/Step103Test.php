@@ -25,13 +25,15 @@ class Step103Test extends TestCase
         return $user;
     }
 
-    public function test_the_create_screen_offers_the_four_ways_to_a_superuser(): void
+    public function test_the_create_screen_offers_only_the_two_ai_ways_to_a_superuser(): void
     {
         $this->as('superuser');
 
         $this->get('/admin/create')->assertOk()
-            ->assertSee('Write an article')->assertSee('Make an article with AI')->assertSee('Make a story in pictures')->assertSee('Make a story with AI')
-            ->assertSee('/admin/articles/create', false)->assertSee('/admin/ai-import', false)->assertSee('/admin/stories/create', false)->assertSee('/admin/story-maker', false);
+            ->assertSee('Make an article')->assertSee('Make a story in pictures')
+            ->assertSee('/admin/ai-import', false)->assertSee('/admin/story-maker', false)
+            ->assertDontSee('Write an article')->assertDontSee('/admin/articles/create', false)->assertDontSee('/admin/stories/create', false);
+        $this->assertSame(['article_ai', 'story_ai'], array_column(CreateContent::options(), 'key'));
     }
 
     public function test_an_author_sees_only_the_choices_they_may_use(): void
@@ -39,15 +41,15 @@ class Step103Test extends TestCase
         $this->as('author');
         $keys = array_column(CreateContent::options(), 'key');
 
-        $this->assertContains('article', $keys);
-        $this->assertContains('story', $keys);
         $this->assertNotContains('article_ai', $keys, 'an author has no AI import unless it is ticked');
+        $this->assertNotContains('article', $keys);
+        $this->assertNotContains('story', $keys);
     }
 
     public function test_the_create_button_is_at_the_top_of_every_screen_for_staff_and_not_for_others(): void
     {
         $this->as('superuser');
-        $this->get('/admin')->assertOk()->assertSee('data-create-menu', false)->assertSee('Write an article');
+        $this->get('/admin')->assertOk()->assertSee('data-create-menu', false)->assertSee('Make an article')->assertSee('Make a story in pictures');
 
         auth()->logout();
         $this->as('member');

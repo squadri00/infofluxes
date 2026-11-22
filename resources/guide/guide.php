@@ -160,10 +160,10 @@ return [
     ],
     [
         'key' => 'create', 'title' => 'Create', 'group' => 'Content', 'classes' => [\App\Filament\Pages\CreateContent::class], 'access' => null,
-        'what' => 'One door for making new content. Choose an article or a story in pictures, written by hand or made with the AI, and the right form opens.',
+        'what' => 'One door for making new content. Choose an article or a story in pictures. Both are made the same way, with the AI, so every one has the same shape.',
         'steps' => [
             'Open "Create" in the side menu, or press the orange "+ Create" button at the top of any screen.',
-            '"Write an article" and "Make a story in pictures" open the normal forms. "Make an article with AI" opens the AI import, and "Make a story with AI" opens the Story maker.',
+            '"Make an article" opens the AI import, and "Make a story in pictures" opens the Story maker. In both you type the topic (or paste your own text), copy the prompt into an AI chat, paste the answer back, and the system checks it and saves a draft.',
             'You see only the choices you are allowed to use.',
         ],
         'tips' => ['AI import and Story maker are no longer in the side menu: open them from here. Their pages and web addresses did not change.', 'Categories, Topics to write and Contributors are now together in the "Organise" group.'],

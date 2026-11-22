@@ -2,16 +2,14 @@
 
 namespace App\Filament\Pages;
 
-use App\Filament\Resources\Articles\ArticleResource;
-use App\Filament\Resources\Stories\StoryResource;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
 
 /**
- * Create: one door for making new content. A person chooses an article or a story in pictures, by hand or with the AI,
- * and the right form opens. The same four choices are in the "+ Create" button at the top of every screen.
+ * Create: one door for making new content. A person chooses an article or a story in pictures, made with the AI,
+ * and the right tool opens. The same choices are in the "+ Create" button at the top of every screen.
  */
 class CreateContent extends Page
 {
@@ -43,9 +41,8 @@ class CreateContent extends Page
             }
         };
 
-        $add('article', 'article', ArticleResource::canCreate(), ArticleResource::getUrl('create'));
+        // Only the AI ways: they keep every article and story in the same shape. Writing a free form by hand is not offered here.
         $add('article_ai', 'article', AiImport::canAccess(), AiImport::getUrl());
-        $add('story', 'story', StoryResource::canCreate(), StoryResource::getUrl('create'));
         $add('story_ai', 'story', StoryMaker::canAccess(), StoryMaker::getUrl());
 
         return $out;

@@ -6,15 +6,11 @@ return [
 
     // The Create screen and the "+ Create" button at the top
     'create' => 'Create',
-    'create_intro' => 'What do you want to make? Choose one. You can write it yourself, or let an AI chat write a draft that you check and fix.',
+    'create_intro' => 'What do you want to make? Every article and story is made the same way, so they all have the same shape: the system makes the prompt, you copy it into an AI chat, paste the answer back, and the system checks it and saves a draft.',
     'create_group_article' => 'Articles',
     'create_group_story' => 'Stories in pictures',
-    'create_article' => 'Write an article',
-    'create_article_help' => 'Open the article form and write it yourself.',
-    'create_article_ai' => 'Make an article with AI',
-    'create_article_ai_help' => 'Paste the answer of an AI chat. It is checked and saved as a draft.',
-    'create_story' => 'Make a story in pictures',
-    'create_story_help' => 'Open the story form: chapters, slides and pictures, by hand.',
-    'create_story_ai' => 'Make a story with AI',
-    'create_story_ai_help' => 'Build the prompt, paste the answer, and save it as a draft story.',
+    'create_article_ai' => 'Make an article',
+    'create_article_ai_help' => 'Type the topic, or paste your own text. Get the prompt, paste the AI answer back, check it, and save a draft.',
+    'create_story_ai' => 'Make a story in pictures',
+    'create_story_ai_help' => 'Type the topic, or paste your own story. Get the prompt, paste the AI answer back, check it, and save a draft story.',
 ];
