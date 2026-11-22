@@ -13,13 +13,7 @@
     {{-- Row 1: the tagline on the left, small tools on the right --}}
     <div class="site-header__top">
         <div class="wrap wrap--wide site-header__top-inner">
-            <div class="site-header__left">
-                <p class="site-header__tagline">{{ \App\Models\Setting::get('tagline', __('site.tagline')) }}</p>
-                {{-- A temporary link, left of the logo. Switch it off in Site controls. --}}
-                @if (\App\Support\Gallery::on() && \App\Support\SiteControls::on('gallery_header_link'))
-                    <a class="site-header__gallery" data-gallery-link href="{{ route('gallery') }}" @if (request()->routeIs('gallery')) aria-current="page" @endif>&#128444; {{ __('site.gallery_nav') }}</a>
-                @endif
-            </div>
+            <p class="site-header__tagline">{{ \App\Models\Setting::get('tagline', __('site.tagline')) }}</p>
             {{-- The logo (or the name) sits in the middle of the top bar. --}}
             <a class="site-header__name site-header__name--top" href="{{ route('home') }}">
                 @if ($logo)
@@ -36,9 +30,6 @@
                         <svg class="theme-toggle__sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
                     </button>
                 </li>
-                @endif
-                @if (\App\Support\Challenge::anyOn())
-                    <li class="menu__item menu__item--challenge"><a href="{{ route('challenge') }}" @if (request()->routeIs('challenge*')) aria-current="page" @endif>{{ __('site.challenge') }}</a></li>
                 @endif
                 @if (count($locales) >= 1 && \App\Support\SiteControls::on('language'))
                     @php $current = collect($locales)->firstWhere('code', app()->getLocale()) ?? $locales[0]; @endphp
@@ -88,6 +79,19 @@
                     <ul class="menu__list">
                         @foreach ($menu as $item)
                             @include('partials.menu-item', ['item' => $item])
+                        @endforeach
+                        {{-- Two tools at the end of the main menu, after the categories (a thin line sets them apart). They move into "More" first on a narrow screen. --}}
+                        @php
+                            $navTools = [];
+                            if (\App\Support\Challenge::anyOn()) {
+                                $navTools[] = ['url' => route('challenge'), 'label' => __('site.challenge'), 'current' => request()->routeIs('challenge*'), 'attr' => 'data-challenge-link'];
+                            }
+                            if (\App\Support\Gallery::on() && \App\Support\SiteControls::on('gallery_header_link')) {
+                                $navTools[] = ['url' => route('gallery'), 'label' => __('site.gallery_nav'), 'current' => request()->routeIs('gallery'), 'attr' => 'data-gallery-link'];
+                            }
+                        @endphp
+                        @foreach ($navTools as $t)
+                            <li class="menu__item menu__item--tool{{ $loop->first ? ' menu__item--tool-first' : '' }}"><a href="{{ $t['url'] }}" {!! $t['attr'] !!} @if ($t['current']) aria-current="page" @endif>{{ $t['label'] }}</a></li>
                         @endforeach
                     </ul>
                 </nav>

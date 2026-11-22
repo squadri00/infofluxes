@@ -194,4 +194,19 @@ class Step115Test extends TestCase
     {
         $this->get(route('gallery'))->assertOk()->assertSee('There are no pictures here yet.');
     }
+
+    public function test_the_gallery_and_challenge_links_are_the_last_items_of_the_main_menu_and_not_in_the_top_bar(): void
+    {
+        $this->story('Walk', 1);
+        $html = $this->get(route('home'))->assertOk()->getContent();
+
+        preg_match('#<nav class="menu menu--main".*?</nav>#s', $html, $nav);
+        preg_match('#<div class="site-header__top">.*?</div>\s*</div>#s', $html, $top);
+
+        $this->assertStringContainsString('data-gallery-link', $nav[0] ?? '');
+        $this->assertStringContainsString('menu__item--tool-first', $nav[0] ?? '');
+        $this->assertStringNotContainsString('data-gallery-link', $top[0] ?? '');
+        $this->assertStringNotContainsString(route('challenge'), $top[0] ?? '');
+        $this->assertLessThan(strpos($nav[0], 'data-gallery-link'), strpos($nav[0], 'History'), 'after the categories');
+    }
 }

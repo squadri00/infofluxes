@@ -2757,3 +2757,9 @@ html[dir="rtl"] .gv__nav span { display: inline-block; transform: rotate(180deg)
 .m-drawer__who { padding: 10px 14px 4px; font-weight: 700; }
 .m-drawer__who small { display: block; font-weight: 400; color: var(--muted); }
 @media (max-width: 640px) { .account-menu__panel { position: absolute; right: 0; margin-left: 0; } }
+
+/* The main menu bar uses the whole width of the window (a small gap at each edge) and its items stay in the middle.
+   "Challenge yourself" and "Picture gallery" are the last two items, after the categories, set apart by a thin line. */
+.site-header__main .wrap--wide { max-width: none; padding-left: clamp(8px, .9vw, 18px); padding-right: clamp(8px, .9vw, 18px); }
+.menu--main .menu__item--tool-first { margin-inline-start: 8px; padding-inline-start: 8px; border-inline-start: 1px solid var(--line); border-radius: 0; }
+.menu--main .menu__item--tool > a[aria-current] { background: var(--accent-soft); color: var(--accent); }
