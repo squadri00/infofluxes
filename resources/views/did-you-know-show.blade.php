@@ -68,6 +68,23 @@
         @if ($fact->ai_assisted) &middot; {{ __('site.dyk_ai') }}@endif
     </p>
 
+    @if ($previous || $next)
+        <nav class="fact-nav" aria-label="{{ __('site.dyk_title') }}">
+            @if ($previous)
+                <a class="fact-nav__link fact-nav__link--prev" href="{{ $previous->url() }}" rel="prev">
+                    <span class="fact-nav__dir"><span class="fact-nav__arrow" aria-hidden="true">&larr;</span> {{ __('site.previous') }}</span>
+                    <span class="fact-nav__title">{{ $previous->title }}</span>
+                </a>
+            @endif
+            @if ($next)
+                <a class="fact-nav__link fact-nav__link--next" href="{{ $next->url() }}" rel="next">
+                    <span class="fact-nav__dir">{{ __('site.next') }} <span class="fact-nav__arrow" aria-hidden="true">&rarr;</span></span>
+                    <span class="fact-nav__title">{{ $next->title }}</span>
+                </a>
+            @endif
+        </nav>
+    @endif
+
     @if ($more->isNotEmpty())
         <section class="block">
             <h2 class="block__title">{{ __('site.dyk_more') }}</h2>

@@ -26,6 +26,16 @@ class DidYouKnowController extends Controller
             ->when($category, fn ($q) => $q->where('category_id', $category->id))
             ->ordered()->limit(4)->get();
 
+        // Previous and next: the facts in the order of the Did You Know? page. At the end of the list it goes round to the other end.
+        $order = DidYouKnow::query()->visible()->ordered()->pluck('id')->all();
+        $at = array_search($fact->id, $order, true);
+        $near = [null, null];
+        if ($at !== false && count($order) > 1) {
+            $wanted = [$order[($at - 1 + count($order)) % count($order)], $order[($at + 1) % count($order)]];
+            $found = DidYouKnow::query()->whereIn('id', $wanted)->get()->keyBy('id');
+            $near = [$found[$wanted[0]] ?? null, $found[$wanted[1]] ?? null];
+        }
+
         // The left side: the branch the fact belongs to, like an article.
         $sideRoot = $category ? ($category->parent ?? $category) : null;
 
@@ -36,6 +46,8 @@ class DidYouKnowController extends Controller
             'fact' => $fact,
             'trail' => $trail,
             'more' => $more,
+            'previous' => $near[0],
+            'next' => $near[1],
             'preview' => $preview && ($fact->status !== 'published' || blank($fact->source)),
         ]);
     }
