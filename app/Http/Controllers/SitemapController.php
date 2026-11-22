@@ -25,6 +25,9 @@ class SitemapController extends Controller
         if (\App\Models\Story::published()->exists()) {
             $urls[] = [route('stories'), \Illuminate\Support\Carbon::parse(\App\Models\Story::published()->max('updated_at'))];
         }
+        if (\App\Support\Gallery::on() && \App\Support\Gallery::pictures() !== []) {
+            $urls[] = [route('gallery'), now()];
+        }
         foreach (\App\Models\Story::published()->orderByDesc('id')->limit(5000)->get(['slug', 'updated_at', 'custom_data']) as $st) {
             $urls[] = [route('story.show', $st->slug), $st->updated_at];
             foreach (\App\Support\StoryMaker\Translations::shown($st) as $code) {

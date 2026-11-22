@@ -47,6 +47,10 @@
         </section>
     @endif
 
+    @if (\App\Support\Gallery::on() && \App\Support\Gallery::pictures() !== [])
+        <p class="gallery-more"><a class="btn btn--small" href="{{ route('gallery') }}">&#128444; {{ __('site.gallery_more') }} &rarr;</a></p>
+    @endif
+
     @if ($featured->isNotEmpty())
         <section class="block">
             <h2 class="block__title">{{ __('site.featured') }}</h2>

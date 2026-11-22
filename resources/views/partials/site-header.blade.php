@@ -13,7 +13,13 @@
     {{-- Row 1: the tagline on the left, small tools on the right --}}
     <div class="site-header__top">
         <div class="wrap wrap--wide site-header__top-inner">
-            <p class="site-header__tagline">{{ \App\Models\Setting::get('tagline', __('site.tagline')) }}</p>
+            <div class="site-header__left">
+                <p class="site-header__tagline">{{ \App\Models\Setting::get('tagline', __('site.tagline')) }}</p>
+                {{-- A temporary link, left of the logo. Switch it off in Site controls. --}}
+                @if (\App\Support\Gallery::on() && \App\Support\SiteControls::on('gallery_header_link'))
+                    <a class="site-header__gallery" data-gallery-link href="{{ route('gallery') }}" @if (request()->routeIs('gallery')) aria-current="page" @endif>&#128444; {{ __('site.gallery_nav') }}</a>
+                @endif
+            </div>
             {{-- The logo (or the name) sits in the middle of the top bar. --}}
             <a class="site-header__name site-header__name--top" href="{{ route('home') }}">
                 @if ($logo)

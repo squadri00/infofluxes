@@ -59,6 +59,9 @@
                     @if (\App\Models\Story::published()->exists())
                         <li><a href="{{ route('stories') }}">{{ __('site.stories_title') }}</a></li>
                     @endif
+                    @if (\App\Support\Gallery::on())
+                        <li><a href="{{ route('gallery') }}">{{ __('site.gallery_nav') }}</a></li>
+                    @endif
                     @if (\App\Models\Faq::active()->exists())
                         <li><a href="{{ route('faq') }}">{{ __('site.faq_short') }}</a></li>
                     @endif

@@ -25,7 +25,7 @@ class Category extends Model
     protected $guarded = [];
 
     /** Words that are already web addresses of the site and cannot be used for a category. */
-    public const RESERVED_SLUGS = ['admin', 'login', 'logout', 'register', 'search', 'category', 'article', 'storage', 'livewire', 'up', 'profile', 'comments', 'submit', 'account', 'id', 'language', 'sitemap', 'people', 'newsletter', 'stories', 'words', 'challenge-yourself', 'quiz'];
+    public const RESERVED_SLUGS = ['admin', 'login', 'logout', 'register', 'search', 'category', 'article', 'storage', 'livewire', 'up', 'profile', 'comments', 'submit', 'account', 'id', 'language', 'sitemap', 'people', 'newsletter', 'stories', 'words', 'challenge-yourself', 'quiz', 'gallery'];
 
     public array $translatable = ['name', 'image_alt', 'description', 'header_text', 'page_title', 'meta_description', 'feature_title', 'feature_text', 'feature_button'];
 

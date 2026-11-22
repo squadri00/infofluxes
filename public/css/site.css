@@ -2653,3 +2653,38 @@ html[dir="rtl"] .rcard:hover .rcard__arrow { transform: rotate(180deg) translate
 .scores { width: 100%; border-collapse: collapse; }
 .scores th, .scores td { text-align: start; padding: 8px 10px; border-bottom: 1px solid var(--line); }
 .scores th { font-size: .85rem; color: var(--muted); }
+
+/* The picture gallery: a fluid grid, 5 pictures in a row on a wide screen, 4, 3 and 2 on smaller ones */
+.site-header__left { display: flex; align-items: center; gap: 14px; justify-self: start; min-width: 0; }
+.site-header__gallery { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font-size: .82rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.site-header__gallery:hover, .site-header__gallery[aria-current] { background: var(--accent); color: var(--accent-text, #fff); }
+.gallery-more { margin: 14px 0; }
+.gallery-bar { display: grid; gap: 10px; margin: 6px 0 16px; }
+.gallery-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.gchip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text); font-size: .88rem; text-decoration: none; }
+.gchip:hover { border-color: var(--accent); }
+.gchip.is-current { background: var(--accent); border-color: var(--accent); color: var(--accent-text, #fff); font-weight: 700; }
+.gchip--small { padding: 3px 10px; font-size: .82rem; }
+.gchip__n { opacity: .7; font-size: .78rem; }
+.gallery-chips--sections .gchip { font-size: .82rem; }
+.gallery-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.gallery-tools__label { font-size: .85rem; color: var(--muted); }
+.gallery-tools__shuffle { margin-inline-start: 6px; }
+.gallery-tools__count { margin-inline-start: auto; font-size: .85rem; color: var(--muted); }
+.gallery-grid { list-style: none; margin: 14px 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.gtile { position: relative; margin: 0; aspect-ratio: 3 / 2; overflow: hidden; border-radius: var(--radius); background: var(--gray-soft); border: 1px solid var(--line); }
+.gtile__link { display: block; width: 100%; height: 100%; color: #fff; text-decoration: none; }
+.gtile__link img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+.gtile:hover img, .gtile:focus-within img { transform: scale(1.06); }
+.gtile__link:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.gtile__cap { position: absolute; inset: auto 0 0 0; display: flex; flex-direction: column; gap: 2px; padding: 26px 10px 9px; background: linear-gradient(to top, rgba(8, 10, 14, .88), rgba(8, 10, 14, 0)); opacity: 0; transition: opacity .2s ease; }
+.gtile:hover .gtile__cap, .gtile:focus-within .gtile__cap { opacity: 1; }
+.gtile__kind { align-self: flex-start; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: var(--accent-text, #fff); font-size: .66rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.gtile__title { font-size: .86rem; font-weight: 700; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.gtile__parent { font-size: .72rem; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (hover: none) { .gtile__cap { opacity: 1; padding-top: 18px; } .gtile__parent { display: none; } }
+@media (max-width: 1280px) { .gallery-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 960px) { .gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .gallery-tools__count { margin-inline-start: 0; flex-basis: 100%; } }
+@media (prefers-reduced-motion: reduce) { .gtile__link img, .gtile__cap { transition: none; } .gtile:hover img { transform: none; } }
+@media (max-width: 620px) { .gallery-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; } .gallery-chips .gchip { flex: none; } }

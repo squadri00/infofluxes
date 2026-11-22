@@ -48,6 +48,9 @@
         @endif
 
         <ul class="m-drawer__list m-drawer__extras">
+            @if (\App\Support\Gallery::on() && \App\Support\SiteControls::on('gallery_header_link'))
+                <li><a href="{{ route('gallery') }}">{{ __('site.gallery_nav') }}</a></li>
+            @endif
             @if (\App\Support\Challenge::anyOn())
                 <li><a href="{{ route('challenge') }}">{{ __('site.challenge') }}</a></li>
             @endif
