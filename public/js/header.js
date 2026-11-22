@@ -182,8 +182,26 @@
         allDrops().forEach(function (d) { if (d !== except) { d.removeAttribute('open'); } });
     }
 
+    // A wide panel opens under its own heading: its left edge is the left edge of the heading, moved left only as far as needed to keep the
+    // whole panel in the window. (On a phone the panel is part of the menu column and is left alone.)
+    function alignWide(drop, panel) {
+        var reset = function () { panel.style.left = panel.style.right = panel.style.marginLeft = panel.style.marginRight = ''; };
+        reset();
+        var inner = header.querySelector('.site-header__main-inner');
+        if (!inner || window.innerWidth <= 760 || window.getComputedStyle(panel).position !== 'absolute') { return; }
+        var width = panel.getBoundingClientRect().width;
+        var item = drop.closest('.menu__item') || drop;
+        var left = Math.max(8, Math.min(item.getBoundingClientRect().left, window.innerWidth - 8 - width));
+        panel.style.right = 'auto';
+        panel.style.marginLeft = '0';
+        panel.style.marginRight = '0';
+        panel.style.left = (left - inner.getBoundingClientRect().left) + 'px';
+    }
+
     // A small panel opens under its heading. Near the right edge it is moved left so that it stays in the window.
     function keepInside(drop) {
+        var wide = drop.querySelector('.mega:not(.mega--compact)');
+        if (wide) { alignWide(drop, wide); return; }
         var panel = drop.querySelector('.mega--compact');
         if (!panel) { return; }
         panel.style.left = '';
