@@ -47,6 +47,30 @@ class CategoryHero
     }
 
     /**
+     * The category before and after this one under the same parent (in the order of the menu). None for a main category, when the site
+     * control is off, or when this category turned the arrows off. A missing side (first or last) is null.
+     *
+     * @return array{prev: ?array{name: string, url: string}, next: ?array{name: string, url: string}}|null
+     */
+    public static function neighbours(Category $category, bool $preview = false): ?array
+    {
+        if ($category->parent_id === null || ! SiteControls::on('category_nav') || ($category->custom_data['hide_nav'] ?? false)) {
+            return null;
+        }
+        $siblings = Category::query()->where('parent_id', $category->parent_id)->when(! $preview, fn ($q) => $q->where('is_visible', true))
+            ->orderBy('sort_order')->orderBy('id')->get();
+        $at = $siblings->search(fn ($c) => $c->id === $category->id);
+        if ($at === false) {
+            return null;
+        }
+        $link = fn ($c) => $c ? ['name' => (string) $c->name, 'url' => route('category.show', $c->slug)] : null;
+        $prev = $link($siblings->get($at - 1));
+        $next = $link($siblings->get($at + 1));
+
+        return $prev || $next ? ['prev' => $prev, 'next' => $next] : null;
+    }
+
+    /**
      * What the strip of numbers shows. A number that is 0 is left out.
      *
      * @return array{items: list<array{key: string, n: int, url: ?string}>, updated: ?\Illuminate\Support\Carbon}

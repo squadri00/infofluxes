@@ -44,6 +44,16 @@
             <img class="category-banner__img" src="{{ asset('storage/'.$hero['picture']['path']) }}" alt="{{ $hero['picture']['alt'] }}">
         @endif
         <div class="category-banner__shade" aria-hidden="true"></div>
+        @if ($hero['nav'])
+            <nav class="category-banner__nav" aria-label="{{ __('site.hero_nav') }}">
+                @if ($hero['nav']['prev'])
+                    <a class="category-banner__arrow category-banner__arrow--prev" href="{{ $hero['nav']['prev']['url'] }}" rel="prev" title="{{ __('site.cat_nav_prev', ['name' => $hero['nav']['prev']['name']]) }}" aria-label="{{ __('site.cat_nav_prev', ['name' => $hero['nav']['prev']['name']]) }}"><span aria-hidden="true">&lsaquo;</span></a>
+                @endif
+                @if ($hero['nav']['next'])
+                    <a class="category-banner__arrow category-banner__arrow--next" href="{{ $hero['nav']['next']['url'] }}" rel="next" title="{{ __('site.cat_nav_next', ['name' => $hero['nav']['next']['name']]) }}" aria-label="{{ __('site.cat_nav_next', ['name' => $hero['nav']['next']['name']]) }}"><span aria-hidden="true">&rsaquo;</span></a>
+                @endif
+            </nav>
+        @endif
         <div class="category-banner__inner">
             <h1 class="topic__title category-banner__title">{{ $name }} @include('partials.id-tag', ['code' => $category->code])</h1>
             @if ($descriptionText !== '')

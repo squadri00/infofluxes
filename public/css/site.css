@@ -2809,3 +2809,11 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .category-menu--banner { margin: 0; }
 .category-banner .category-menu__btn { border-color: rgba(255, 255, 255, .7); color: #fff; background: rgba(255, 255, 255, .1); }
 .category-banner .category-menu__btn:hover { background: #fff; color: #14304a; }
+
+.category-banner__nav { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.category-banner__arrow { position: absolute; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: rgba(0, 0, 0, .42); border: 1px solid rgba(255, 255, 255, .6); color: #fff; font-size: 2rem; line-height: 1; text-decoration: none; pointer-events: auto; backdrop-filter: blur(4px); transition: background .15s, transform .15s; }
+.category-banner__arrow span { margin-top: -4px; }
+.category-banner__arrow--prev { left: 14px; }
+.category-banner__arrow--next { right: 14px; }
+.category-banner__arrow:hover, .category-banner__arrow:focus-visible { background: #fff; color: #14304a; outline: none; transform: translateY(-50%) scale(1.08); }
+@media (max-width: 700px) { .category-banner__arrow { top: auto; bottom: 14px; transform: none; width: 40px; height: 40px; } .category-banner__arrow:hover, .category-banner__arrow:focus-visible { transform: scale(1.08); } }

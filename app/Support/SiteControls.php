@@ -39,6 +39,7 @@ class SiteControls
             'newsletter' => ['The Subscribe button and the newsletter page', 'Also in Site settings.', 'extras', 'newsletter_on', true],
             'comments' => ['Comments', 'Off: nobody can post a new comment. The ones already shown stay.', 'extras', 'comments_open', true],
             'category_buttons' => ['The row of sub-category buttons at the top of a category page', 'The outlined buttons under the description. The sub-categories are still shown as cards further down the page, and in the main menu.', 'extras', 'ctl_category_buttons', true],
+            'category_nav' => ['The Previous / Next arrows on the banner of a category', 'Two round arrows at the sides of the banner that lead to the category before and after this one under the same parent, in the order of the menu. A main category has none. A single category can turn them off (Organise > Categories).', 'extras', 'ctl_category_nav', true],
             'grid_list' => ['The grid / list switch on the home and category pages', 'Lets a reader choose cards or a list.', 'extras', 'ctl_grid_list', true],
             'language' => ['The language button at the top', 'The list of languages with flags (set them in Languages).', 'extras', 'ctl_language', true],
             'theme' => ['The light / dark button', 'Lets a reader choose the colours.', 'extras', 'ctl_theme', true],
