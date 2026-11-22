@@ -47,11 +47,12 @@ class ArticleRules
         $data['status'] = $status;
         // Only a moderator or the super user features an article. Anyone else changes nothing there (and a new article is not featured).
         if (! $canPublish) {
-            unset($data['featured_order']);
+            unset($data['featured_order'], $data['featured_master_order']);
             if ($currentSlug) {
-                unset($data['is_featured']);
+                unset($data['is_featured'], $data['is_featured_master']);
             } else {
                 $data['is_featured'] = false;
+                $data['is_featured_master'] = false;
             }
         }
 

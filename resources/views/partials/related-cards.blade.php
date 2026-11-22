@@ -11,6 +11,12 @@
                 $label = __('site.dyk_title');
                 $summary = $item->summary(130);
                 $read = __('site.dyk_read_more');
+            } elseif ($item instanceof \App\Models\Story) {
+                $url = $item->url();
+                $picture = $item->main_image;
+                $label = $item->category?->name ?? '';
+                $summary = \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/', ' ', strip_tags((string) $item->short_detail))), 130);
+                $read = __('site.read_story');
             } else {
                 $url = route('article.show', $item->slug);
                 $picture = $item->main_image;

@@ -227,6 +227,13 @@ class StoryResource extends Resource
                             ->helperText('1 comes first, then 2, and so on. 0 means after the numbered ones.')
                             ->visible(fn (Get $get) => (bool) $get('is_featured'))
                             ->disabled($canPublish)->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                        Toggle::make('is_featured_master')->label('Featured on its master category')->live()
+                            ->helperText('A featured story shows in the Featured part at the top of its master (top-level) category page (when it is published). At most 3 show there.')
+                            ->disabled($canPublish)->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                        TextInput::make('featured_master_order')->label('Master category order')->numeric()->minValue(0)->default(0)
+                            ->helperText('1 comes first, then 2, and so on. 0 means after the numbered ones.')
+                            ->visible(fn (Get $get) => (bool) $get('is_featured_master'))
+                            ->disabled($canPublish)->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('reviewer_name')->label('Reviewer name')->helperText('The person who checked it. Needed before a story written with AI help can be published.')->maxLength(255),
                         Toggle::make('ai_assisted')->label('Written with AI help')->helperText('Leave it on until a person has read and checked the story.')->disabled($canPublish)->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('slug')->label('Web address (short name)')->helperText('Left empty, it is made from the title. The story opens at /stories/this-name.')->maxLength(255)
@@ -287,7 +294,11 @@ class StoryResource extends Resource
                     ->state(fn (Story $record) => $record->allCategories()->map(fn ($c) => $c->mainName().' ('.$c->code.')')->implode('  ·  '))
                     ->color('gray')->size('xs')->wrap(),
                 TextColumn::make('slides_count')->label('Slides')->sortable(),
-                \Filament\Tables\Columns\ToggleColumn::make('is_featured')->label('Featured')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('warning')
+                \Filament\Tables\Columns\ToggleColumn::make('is_featured')->label('Home')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('warning')
+                    ->tooltip('Featured on the home page')
+                    ->disabled(fn () => ! auth()->user()?->canPublish()),
+                \Filament\Tables\Columns\ToggleColumn::make('is_featured_master')->label('Master')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('info')
+                    ->tooltip('Featured on its master (top-level) category')
                     ->disabled(fn () => ! auth()->user()?->canPublish()),
                 TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => Story::STATUSES[$state] ?? $state)
@@ -298,6 +309,7 @@ class StoryResource extends Resource
             ->filters([
                 SelectFilter::make('status')->options(Story::STATUSES),
                 TernaryFilter::make('is_featured')->label('Featured on the home page'),
+                TernaryFilter::make('is_featured_master')->label('Featured on its master category'),
                 SelectFilter::make('category')->label('In category (and everything below it)')->options(fn () => Category::choices())->searchable()
                     // A heading shows what sits in it and in every sub-category below it, because articles sit only in the last-level categories.
                     ->query(function (Builder $query, array $data) {
@@ -318,7 +330,7 @@ class StoryResource extends Resource
                 \App\Support\ScriptExport::button(null, false),
                 ReplicateAction::make()
                     ->label('Clone')
-                    ->excludeAttributes(['slug', 'is_featured', 'featured_order', 'slides_count'])
+                    ->excludeAttributes(['slug', 'is_featured', 'featured_order', 'is_featured_master', 'featured_master_order', 'slides_count'])
                     ->beforeReplicaSaved(function (Story $replica, Story $record) {
                         $replica->setTranslations('title', array_map(fn ($t) => $t.' (copy)', $record->getTranslations('title')));
                         $replica->slug = Str::slug($record->mainTitle()).'-copy-'.Str::lower(Str::random(4));

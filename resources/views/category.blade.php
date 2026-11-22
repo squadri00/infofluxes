@@ -85,6 +85,12 @@
         @endphp
         @include('partials.category-index', ['category' => $category, 'index' => $indexShown, 'facts' => $facts, 'stories' => $stories])
     @else
+    @if ($featured->isNotEmpty() && ! $all)
+        <section class="block category-featured">
+            <h2 class="block__title">{{ __('site.featured_in_category') }}</h2>
+            @include('partials.related-cards', ['items' => $featured, 'kind' => 'article'])
+        </section>
+    @endif
     @if ($hasAllTab)
         <nav class="all-tabs" aria-label="{{ __('site.topics_label') }}">
             <a class="all-tabs__tab{{ $all ? '' : ' is-current' }}" href="{{ route('category.show', $category->slug) }}" @if (! $all) aria-current="page" @endif>{{ __('site.tab_overview') }}</a>

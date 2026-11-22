@@ -239,6 +239,13 @@ class ArticleResource extends Resource
                             ->helperText('1 comes first, then 2, and so on. 0 means after the numbered ones.')
                             ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => (bool) $get('is_featured'))
                             ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                        \Filament\Forms\Components\Toggle::make('is_featured_master')->label('Featured on its master category')->live()
+                            ->helperText('A featured article shows in the Featured part at the top of its master (top-level) category page, for example About Islam (when it is published). At most 3 show there.')
+                            ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+                        TextInput::make('featured_master_order')->label('Master category order')->numeric()->minValue(0)->default(0)
+                            ->helperText('1 comes first, then 2, and so on. 0 means after the numbered ones.')
+                            ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get) => (bool) $get('is_featured_master'))
+                            ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
                         TextInput::make('reviewer_name')->label('Reviewer name')->helperText('The person who checked it. Needed before an article written with AI help can be published.')->maxLength(255),
                         \Filament\Forms\Components\Toggle::make('custom_data.accordion')->label('Show the parts as drop-down sections')->helperText('Each main heading becomes a drop-down section (it needs at least two main headings).'),
                         \Filament\Forms\Components\Toggle::make('ai_assisted')->label('Written with AI help')->helperText('Made by the AI import. Leave it on until a person has read and checked the article.')->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
@@ -285,7 +292,11 @@ class ArticleResource extends Resource
                     ->html()
                     ->color('gray')
                     ->size('xs'),
-                \Filament\Tables\Columns\ToggleColumn::make('is_featured')->label('Featured')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('warning')
+                \Filament\Tables\Columns\ToggleColumn::make('is_featured')->label('Home')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('warning')
+                    ->tooltip('Featured on the home page')
+                    ->disabled(fn () => ! auth()->user()?->canPublish()),
+                \Filament\Tables\Columns\ToggleColumn::make('is_featured_master')->label('Master')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('info')
+                    ->tooltip('Featured on its master (top-level) category')
                     ->disabled(fn () => ! auth()->user()?->canPublish()),
                 TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => Article::STATUSES[$state] ?? $state)
@@ -298,6 +309,7 @@ class ArticleResource extends Resource
             ->filters([
                 SelectFilter::make('status')->options(Article::STATUSES),
                 \Filament\Tables\Filters\TernaryFilter::make('is_featured')->label('Featured on the home page'),
+                \Filament\Tables\Filters\TernaryFilter::make('is_featured_master')->label('Featured on its master category'),
                 SelectFilter::make('category')->label('In category (and everything below it)')->options(fn () => Category::choices())->searchable()
                     // A heading shows what sits in it and in every sub-category below it, because articles sit only in the last-level categories.
                     ->query(function (Builder $query, array $data) {
@@ -335,7 +347,7 @@ class ArticleResource extends Resource
                     ->url(fn (Article $record) => \App\Filament\Pages\AiImport::getUrl(['entry' => $record->id])),
                 ReplicateAction::make()
                     ->label('Clone')
-                    ->excludeAttributes(['slug', 'is_featured', 'featured_order'])
+                    ->excludeAttributes(['slug', 'is_featured', 'featured_order', 'is_featured_master', 'featured_master_order'])
                     ->beforeReplicaSaved(function (Article $replica, Article $record) {
                         $replica->setTranslations('title', array_map(fn ($t) => $t.' (copy)', $record->getTranslations('title')));
                         $replica->slug = Str::slug($record->mainTitle()).'-copy-'.Str::lower(Str::random(4));

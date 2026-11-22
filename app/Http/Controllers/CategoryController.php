@@ -48,6 +48,8 @@ class CategoryController extends Controller
             'preview' => $preview && ! $category->is_visible,
             'mode' => $mode,
             'index' => $index,
+            // The items featured at the top of a master (top-level) category.
+            'featured' => $mode === 'index' || $topics ? collect() : \App\Support\MasterFeatured::for($category),
             // The Visual Stories of this category (the main one or an "also in"), and the "Did You Know?" facts that were put on its page.
             'topics' => $topics,
             'stories' => $topics ? $topics['stories']->getCollection() : \App\Models\Story::published()->with(['category', 'contributor'])->withCount('slides')

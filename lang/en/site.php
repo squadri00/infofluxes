@@ -134,6 +134,8 @@ return [
     'dyk_more' => 'More facts',
     'dyk_read_more' => 'Read the fact',
     'read_article' => 'Read the article',
+    'read_story' => 'Open the story',
+    'featured_in_category' => 'Featured',
     'people_title' => 'Contributors',
     'people_intro' => 'The people who research, write and answer on this site.',
     'people_none' => 'No contributors are listed yet.',
