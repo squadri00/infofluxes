@@ -2763,3 +2763,6 @@ html[dir="rtl"] .gv__nav span { display: inline-block; transform: rotate(180deg)
 .site-header__main .wrap--wide { max-width: none; padding-left: clamp(8px, .9vw, 18px); padding-right: clamp(8px, .9vw, 18px); }
 .menu--main .menu__item--tool-first { margin-inline-start: 8px; padding-inline-start: 8px; border-inline-start: 1px solid var(--line); border-radius: 0; }
 .menu--main .menu__item--tool > a[aria-current] { background: var(--accent-soft); color: var(--accent); }
+
+/* The big drop-down panel does not stretch across the whole window: it stays a tidy width, centered under the menu bar */
+.menu--main .menu__sub.mega:not(.mega--compact) { left: 0; right: 0; width: min(1180px, calc(100% - 16px)); margin-left: auto; margin-right: auto; border-radius: 0 0 16px 16px; }
