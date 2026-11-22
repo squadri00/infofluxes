@@ -24,8 +24,32 @@
         </ol>
     </nav>
 
-    <h1 class="topic__title">{{ __('site.gallery_title') }}</h1>
-    <p class="topic__hook">{{ __('site.gallery_intro') }}</p>
+    {{-- The banner: a collage of pictures behind the title, the numbers, and a button for a new mix. --}}
+    <header class="gallery-hero">
+        @if ($pictures !== [])
+            <div class="gallery-hero__collage" aria-hidden="true">
+                @foreach (array_slice($pictures, 0, 6) as $p)
+                    <img src="{{ \App\Support\Thumbnail::url($p['src']) }}" alt="" decoding="async">
+                @endforeach
+            </div>
+        @endif
+        <div class="gallery-hero__shade" aria-hidden="true"></div>
+        <div class="gallery-hero__inner">
+            <h1 class="topic__title gallery-hero__title">{{ __('site.gallery_title') }}</h1>
+            <p class="gallery-hero__text">{{ __('site.gallery_intro') }}</p>
+            @if ($all > 0)
+                <ul class="gallery-hero__stats">
+                    <li><span class="gallery-hero__stat">{{ str_replace(':n', $all, __('site.gallery_count')) }}</span></li>
+                    @if (count($counts['sections']) > 0)
+                        <li><span class="gallery-hero__stat">{{ str_replace(':n', count($counts['sections']), __('site.gallery_hero_sections')) }}</span></li>
+                    @endif
+                </ul>
+                <div class="gallery-hero__actions">
+                    <a class="btn btn--primary gallery-hero__shuffle" href="{{ route('gallery', $keep() + ['shuffle' => 1]) }}" rel="nofollow">&#8635; {{ __('site.gallery_new_mix') }}</a>
+                </div>
+            @endif
+        </div>
+    </header>
 
     @if ($all > 0)
     {{-- The same tabs as the stories: a pill slides to the pressed tab and the pictures glide into new places. Every press gives a new random order. --}}

@@ -154,6 +154,8 @@ return [
     'gallery_per' => 'Pictures on a page',
     'gallery_shuffle' => 'Shuffle',
     'gallery_count' => ':n pictures',
+    'gallery_hero_sections' => ':n sections',
+    'gallery_new_mix' => 'Show a new mix',
     'gallery_empty' => 'There are no pictures here yet.',
     'gallery_more' => 'See the whole picture gallery',
     'gallery_id_title' => 'The ID of this picture',
