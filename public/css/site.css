@@ -2870,3 +2870,11 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 }
 
 @media (max-width: 700px) { .category-banner__arrow { top: 12px; bottom: auto; width: 38px; height: 38px; font-size: 1.7rem; } .category-banner__arrow--prev { left: 12px; } .category-banner__arrow--next { right: 12px; } .category-banner__inner { padding-top: 62px; } }
+
+/* Phone: the purple box is short; its long text scrolls inside the box. */
+@media (max-width: 700px) {
+    .hero:not(.hero--full):not(.hero--media-only) .hero__text { padding: 18px 16px; }
+    .hero:not(.hero--full):not(.hero--media-only) .hero__title { margin-bottom: 10px; font-size: 1.7rem; }
+    .hero:not(.hero--full):not(.hero--media-only) .hero__subtitle { margin-bottom: 10px; font-size: 1rem; }
+    .hero:not(.hero--full):not(.hero--media-only) .hero__description { max-height: 7.2em; overflow-y: auto; padding-right: 8px; font-size: .95rem; line-height: 1.6; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .6) transparent; }
+}
