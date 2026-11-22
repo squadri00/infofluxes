@@ -2767,8 +2767,6 @@ html[dir="rtl"] .gv__nav span { display: inline-block; transform: rotate(180deg)
 /* The big drop-down panel does not stretch across the whole window: it stays a tidy width, centered under the menu bar */
 .menu--main .menu__sub.mega:not(.mega--compact) { left: 0; right: 0; width: min(1180px, calc(100% - 16px)); margin-left: auto; margin-right: auto; border-radius: 0 0 16px 16px; }
 
-/* The title of an article is always whole on a card: the card grows with its content (rows are at least 140px high), and a squeezed card no longer shrinks the title to one line */
-.mosaic { grid-auto-rows: minmax(140px, auto); }
+/* Small cards (the Featured and Latest rows): back to the original fixed rows, with the title cut after 3 lines. The author line and the category are left out of a small card, so the title has room, and a squeezed card never shrinks the title to one line. */
 .pcard__title { flex-shrink: 0; }
-.pcard__title, .pcard--c .pcard__title, .pcard--P .pcard__title, .pcard--F .pcard__title { display: block; -webkit-line-clamp: unset; overflow: visible; }
-.pcard--c .pcard__media { align-self: stretch; }
+html:not([data-view="list"]) .pcard--c .pcard__meta, html:not([data-view="list"]) .pcard--c .byline--card { display: none; }
