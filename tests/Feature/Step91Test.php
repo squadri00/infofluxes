@@ -82,8 +82,9 @@ class Step91Test extends TestCase
         $this->assertSame(1, substr_count($html, 'class="article__picture-grid"'));
     }
 
-    public function test_the_admin_form_has_the_section_box(): void
+    public function test_the_admin_form_has_the_tab_list(): void
     {
-        $this->assertStringContainsString("TextInput::make('section')", file_get_contents(app_path('Filament/Resources/Articles/ArticleResource.php')));
+        // The box where a number was typed became a list of the real tabs (see Step 110).
+        $this->assertStringContainsString("Select::make('section')", file_get_contents(app_path('Filament/Resources/Articles/ArticleResource.php')));
     }
 }

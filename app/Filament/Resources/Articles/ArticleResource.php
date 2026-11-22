@@ -167,12 +167,14 @@ class ArticleResource extends Resource
                             ->orderColumn('sort_order')
                             ->addActionLabel('Add a picture')
                             ->collapsible()->collapsed()
-                            ->itemLabel(fn (array $state) => $state['alt']['en'] ?? 'Picture')
+                            ->itemLabel(fn (array $state, \Filament\Schemas\Components\Utilities\Get $get) => \App\Support\ArticlePictures::itemLabel($state, $get('long_detail.'.config('infofluxes.default_locale'))))
                             ->defaultItems(0)
                             ->schema([
                                 \App\Filament\Support\ImageUpload::make('image', 'articles')->label('Picture')->required(),
-                                TextInput::make('section')->label('Put it in section number (optional)')->numeric()->minValue(1)->maxValue(60)
-                                    ->helperText('Leave it empty: the pictures go in the order they are listed, one under each main heading. Type 1 to put it under the first main heading, 2 under the second, and so on. A picture with no place stays in the Pictures strip at the bottom.'),
+                                Select::make('section')->label('Tab (the numbered card this picture goes under)')->live()->native(true)
+                                    ->placeholder('No tab chosen: the next tab that has no picture yet')
+                                    ->options(fn (\Filament\Schemas\Components\Utilities\Get $get, $state) => \App\Support\ArticlePictures::tabOptions($get('../../long_detail.'.config('infofluxes.default_locale')), $state ? (int) $state : null))
+                                    ->helperText('The tabs are the main headings of the article text, in order. Pick the tab to put this picture under it. Several pictures can go under one tab. A picture with no tab goes under the next tab that has none, and a picture that finds no tab stays in the Pictures strip at the bottom.'),
                                 ...Translated::text('alt', 'Describe the picture'),
                                 ...Translated::text('caption', 'Caption (optional)'),
                             ]),
