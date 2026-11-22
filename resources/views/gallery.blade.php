@@ -24,15 +24,12 @@
         </ol>
     </nav>
 
-    {{-- The banner: a collage of pictures behind the title, the numbers, and a button for a new mix. --}}
-    <header class="gallery-hero">
-        @if ($pictures !== [])
-            <div class="gallery-hero__collage" aria-hidden="true">
-                @foreach (array_slice($pictures, 0, 6) as $p)
-                    <img src="{{ \App\Support\Thumbnail::url($p['src']) }}" alt="" decoding="async">
-                @endforeach
-            </div>
-        @endif
+    @if ($all > 0)
+    {{-- The same tabs as the stories: a pill slides to the pressed tab and the pictures glide into new places. Every press gives a new random order. --}}
+    <section class="block" data-topic-tabs data-param="kind" data-strip="shuffle" data-nocache>
+    @endif
+    {{-- The banner: one picture behind the title, the numbers, a button for a new mix and the tabs (All, Stories, Articles ...). --}}
+    <header class="gallery-hero" @if ($heroImage) style="--gallery-hero: url('{{ $heroImage }}')" @endif>
         <div class="gallery-hero__shade" aria-hidden="true"></div>
         <div class="gallery-hero__inner">
             <h1 class="topic__title gallery-hero__title">{{ __('site.gallery_title') }}</h1>
@@ -47,20 +44,17 @@
                 <div class="gallery-hero__actions">
                     <a class="btn btn--primary gallery-hero__shuffle" href="{{ route('gallery', $keep() + ['shuffle' => 1]) }}" rel="nofollow">&#8635; {{ __('site.gallery_new_mix') }}</a>
                 </div>
+            <nav class="topic-tabs" aria-label="{{ __('site.gallery_kinds') }}" data-topic-nav>
+                <a class="topic-tabs__tab{{ $kind === null ? ' is-current' : '' }}" href="{{ $tab(null) }}" rel="nofollow" @if ($kind === null) aria-current="page" @endif>{{ __('site.gallery_all') }} <span class="topic-tabs__count">{{ $all }}</span></a>
+                @foreach ($counts['kinds'] as $key => $n)
+                    <a class="topic-tabs__tab{{ $kind === $key ? ' is-current' : '' }}" href="{{ $tab($key) }}" rel="nofollow" @if ($kind === $key) aria-current="page" @endif>{{ __('site.gallery_kind_'.$key) }} <span class="topic-tabs__count">{{ $n }}</span></a>
+                @endforeach
+            </nav>
             @endif
         </div>
     </header>
 
     @if ($all > 0)
-    {{-- The same tabs as the stories: a pill slides to the pressed tab and the pictures glide into new places. Every press gives a new random order. --}}
-    <section class="block" data-topic-tabs data-param="kind" data-strip="shuffle" data-nocache>
-        <nav class="topic-tabs" aria-label="{{ __('site.gallery_kinds') }}" data-topic-nav>
-            <a class="topic-tabs__tab{{ $kind === null ? ' is-current' : '' }}" href="{{ $tab(null) }}" rel="nofollow" @if ($kind === null) aria-current="page" @endif>{{ __('site.gallery_all') }} <span class="topic-tabs__count">{{ $all }}</span></a>
-            @foreach ($counts['kinds'] as $key => $n)
-                <a class="topic-tabs__tab{{ $kind === $key ? ' is-current' : '' }}" href="{{ $tab($key) }}" rel="nofollow" @if ($kind === $key) aria-current="page" @endif>{{ __('site.gallery_kind_'.$key) }} <span class="topic-tabs__count">{{ $n }}</span></a>
-            @endforeach
-        </nav>
-
         <div class="topic-panel" data-topic-panel>
             <div class="gallery-bar" data-gallery-bar>
                 @if (count($counts['sections']) > 1)

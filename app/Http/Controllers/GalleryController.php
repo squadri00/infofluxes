@@ -53,6 +53,8 @@ class GalleryController extends Controller
             'sectionSlug' => $section ? $sectionSlug : null,
             'per' => $per,
             'total' => $total,
+            // The one picture behind the banner (set it with the setting gallery_hero_image; the usual one is in public/images).
+            'heroImage' => asset(ltrim((string) (\App\Models\Setting::get('gallery_hero_image') ?: 'images/gallery-hero.webp'), '/')),
             'all' => count($all),
         ]);
     }

@@ -2845,3 +2845,16 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .gallery .gtile__cap { padding: 40px 14px 12px; background: linear-gradient(to top, rgba(8, 10, 14, .92), rgba(8, 10, 14, .4) 60%, rgba(8, 10, 14, 0)); }
 .gallery .gtile__title { font-size: .95rem; }
 @media (max-width: 700px) { .gallery-hero { min-height: 240px; border-radius: 12px; } .gallery-hero__collage { grid-template-columns: repeat(3, 1fr); } .gallery-hero__collage img:nth-child(n+4) { display: none; } .gallery-hero__inner { padding: 28px 16px 22px; } .gallery .gallery-bar { padding: 12px; } }
+
+/* The gallery banner: one picture behind everything, 540px tall, with the tabs (All, Stories ...) inside it; the filter bar sticks under the header */
+.gallery-hero { min-height: 540px; background: #14304a var(--gallery-hero, none) center / cover no-repeat; }
+.gallery-hero__shade { background: linear-gradient(90deg, rgba(8, 10, 18, .86) 0%, rgba(8, 10, 18, .55) 45%, rgba(8, 10, 18, .15) 100%), linear-gradient(to top, rgba(8, 10, 18, .8), rgba(8, 10, 18, 0) 55%); }
+.gallery-hero__inner { max-width: 60rem; padding-bottom: 28px; }
+.gallery-hero .topic-tabs { margin: 14px 0 0; padding: 0; border-bottom: 0; gap: 8px; }
+.gallery-hero .topic-tabs__tab { padding: 8px 18px; border-color: rgba(255, 255, 255, .55); background: rgba(255, 255, 255, .12); color: #fff; backdrop-filter: blur(5px); }
+.gallery-hero .topic-tabs__tab:hover { background: rgba(255, 255, 255, .26); border-color: #fff; }
+.gallery-hero .topic-tabs__tab.is-current { background: var(--accent); border-color: var(--accent); color: var(--accent-text, #fff); }
+.gallery-hero .topic-tabs--js .topic-tabs__tab.is-current { background: transparent; border-color: transparent; }
+.gallery-hero .topic-tabs__ink { height: 100%; }
+.gallery .gallery-bar { position: sticky; top: var(--gallery-bar-top, 64px); z-index: 30; box-shadow: 0 6px 18px rgba(0, 0, 0, .12); }
+@media (max-width: 700px) { .gallery-hero { min-height: 440px; } .gallery-hero .topic-tabs { flex-wrap: nowrap; overflow-x: auto; } }

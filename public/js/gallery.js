@@ -186,3 +186,16 @@
         if (location.hash) { fromHash(); } else { close(); }
     });
 })();
+
+/* The filter bar sticks under the header: keep its top edge just below the header, whatever size the header has (full at the top, slim when scrolled). */
+(function () {
+    'use strict';
+    var header = document.querySelector('[data-site-header]');
+    if (!header) { return; }
+    function place() {
+        document.documentElement.style.setProperty('--gallery-bar-top', Math.round(header.getBoundingClientRect().height + 8) + 'px');
+    }
+    place();
+    window.addEventListener('scroll', place, { passive: true });
+    window.addEventListener('resize', place);
+})();
