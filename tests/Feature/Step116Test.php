@@ -13,6 +13,7 @@ use App\Models\StorySlide;
 use App\Models\User;
 use App\Support\Gallery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -24,6 +25,7 @@ class Step116Test extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        \Illuminate\Support\Facades\Storage::fake('public');   // the tests write picture files: never into the real folder
         Setting::forget();
         Gallery::forget();
     }
@@ -41,6 +43,7 @@ class Step116Test extends TestCase
         $story = Story::create(['title' => ['en' => 'The Walk'], 'slug' => 'the-walk', 'category_id' => $cat->id, 'status' => 'published', 'publish_date' => now()->subDay()]);
         $chapter = StoryChapter::create(['story_id' => $story->id, 'title' => ['en' => 'One'], 'sort_order' => 1]);
         foreach (range(1, $n) as $i) {
+            Storage::disk('public')->put("stories/slide-$i.webp", 'x');
             StorySlide::create(['story_chapter_id' => $chapter->id, 'heading' => ['en' => "Slide $i"], 'image' => "stories/slide-$i.webp", 'sort_order' => $i]);
         }
 

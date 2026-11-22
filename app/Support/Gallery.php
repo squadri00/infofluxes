@@ -37,6 +37,21 @@ class Gallery
     }
 
     /**
+     * The gallery keeps its list for a few minutes. When a page it draws from is saved, unpublished, removed or restored, the list is made again
+     * at once, so a picture of content that is no longer active never stays in the gallery.
+     */
+    public static function watch(): void
+    {
+        foreach ([Article::class, ArticleImage::class, Story::class, \App\Models\StoryChapter::class, \App\Models\StorySlide::class, DidYouKnow::class, Category::class] as $class) {
+            $class::saved(fn () => static::forget());
+            $class::deleted(fn () => static::forget());
+            if (method_exists($class, 'restored')) {
+                $class::restored(fn () => static::forget());
+            }
+        }
+    }
+
+    /**
      * The pictures the gallery shows: every picture of a published page, each with its ID, except the ones the admin switched off.
      *
      * @return list<array{id: int, src: string, alt: string, title: string, parent: string, kind: string, url: string, root: ?int, shown: bool}>
@@ -92,7 +107,26 @@ class Gallery
     private static function build(): array
     {
         $locale = config('infofluxes.default_locale');
-        $parents = Category::query()->pluck('parent_id', 'id')->all();
+        $cats = Category::query()->get(['id', 'parent_id', 'is_visible'])->keyBy('id');      // (a category in the Trash is not in this list)
+        $parents = $cats->pluck('parent_id', 'id')->all();
+        // Active content: the category it sits in, and every category above it, is shown on the site (a hidden or removed one is not).
+        // A fact may have no category at all.
+        $active = function (?int $id, bool $needsCategory) use ($cats): bool {
+            if ($id === null) {
+                return ! $needsCategory;
+            }
+            $guard = 0;
+            while ($id && $guard++ < 12) {
+                $c = $cats[$id] ?? null;
+                if (! $c || ! $c->is_visible) {
+                    return false;
+                }
+                $id = $c->parent_id;
+            }
+
+            return true;
+        };
+        $disk = \Illuminate\Support\Facades\Storage::disk(ImageStore::DISK);
         $root = function (?int $id) use ($parents): ?int {
             $guard = 0;
             while ($id && ($parents[$id] ?? null) && $guard++ < 12) {
@@ -102,8 +136,9 @@ class Gallery
             return $id ?: null;
         };
         $out = [];
-        $add = function (?string $src, string $alt, string $title, string $parent, string $kind, string $url, ?int $categoryId) use (&$out, $root) {
-            if (blank($src) || isset($out[$src])) {
+        $add = function (?string $src, string $alt, string $title, string $parent, string $kind, string $url, ?int $categoryId, bool $needsCategory = true) use (&$out, $root, $active, $disk) {
+            // Left out: no file, one already listed, a page in a hidden category, or a picture whose file is gone from the server.
+            if (blank($src) || isset($out[$src]) || ! $active($categoryId, $needsCategory) || ! $disk->exists($src)) {
                 return;
             }
             $out[$src] = ['src' => $src, 'alt' => trim($alt) !== '' ? trim($alt) : $title, 'title' => $title, 'parent' => $parent, 'kind' => $kind, 'url' => $url, 'root' => $root($categoryId)];
@@ -133,7 +168,7 @@ class Gallery
             $add($image->image, (string) $image->getTranslation('alt', $locale, false), $article->mainTitle(), $article->mainTitle(), 'article', route('article.show', $article->slug), $article->category_id);
         }
         foreach (DidYouKnow::query()->visible()->whereNotNull('image')->get() as $fact) {
-            $add($fact->image, (string) $fact->image_alt, (string) $fact->title, (string) $fact->title, 'fact', $fact->url(), $fact->category_id);
+            $add($fact->image, (string) $fact->image_alt, (string) $fact->title, (string) $fact->title, 'fact', $fact->url(), $fact->category_id, false);
         }
         foreach (Category::query()->where('is_visible', true)->whereNotNull('image')->get() as $category) {
             $add($category->image, (string) $category->getTranslation('image_alt', $locale, false), $category->mainName(), $category->mainName(), 'category', route('category.show', $category->slug), $category->id);

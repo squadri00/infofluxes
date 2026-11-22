@@ -31,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
         // A picture saved with an empty ALT text gets one made from its page (the title, the tab, the slide heading, the name).
         \App\Support\PictureAlt::register();
 
+        // The gallery lists only the pictures of active content: its list is made again as soon as a page is changed, unpublished or removed.
+        \App\Support\Gallery::watch();
+
         // The email that asks a new member to confirm their address: simple words, in the name of the site.
         \Illuminate\Auth\Notifications\VerifyEmail::toMailUsing(function ($notifiable, string $url) {
             $site = (string) \App\Models\Setting::get('site_name', config('app.name'));

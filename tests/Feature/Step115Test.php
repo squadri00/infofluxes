@@ -55,6 +55,7 @@ class Step115Test extends TestCase
         $story = Story::create(['title' => ['en' => $title], 'slug' => str($title)->slug()->toString(), 'category_id' => $this->leaf->id, 'status' => $status, 'publish_date' => now()->subDay()]);
         $chapter = StoryChapter::create(['story_id' => $story->id, 'title' => ['en' => 'One'], 'sort_order' => 1]);
         foreach (range(1, $n) as $i) {
+            Storage::disk('public')->put('stories/'.str($title)->slug().'-'.$i.'.webp', 'x');
             StorySlide::create(['story_chapter_id' => $chapter->id, 'heading' => ['en' => "Slide $i of $title"], 'image' => 'stories/'.str($title)->slug().'-'.$i.'.webp', 'image_alt' => ['en' => "Picture $i"], 'sort_order' => $i]);
         }
 
@@ -65,6 +66,8 @@ class Step115Test extends TestCase
     {
         $story = $this->story('The Long Walk', 3);
         $this->story('A Draft Story', 2, 'draft');
+        Storage::disk('public')->put('articles/an-article.webp', 'x');
+        Storage::disk('public')->put('facts/a-fact.webp', 'x');
         Article::create(['title' => ['en' => 'An article'], 'slug' => 'an-article', 'category_id' => $this->leaf->id, 'status' => 'published', 'publish_date' => now()->subDay(), 'main_image' => 'articles/an-article.webp']);
         DidYouKnow::create(['title' => ['en' => 'A fact'], 'slug' => 'a-fact', 'body' => ['en' => 'x'], 'source' => 'Book', 'status' => 'published', 'image' => 'facts/a-fact.webp']);
 
@@ -120,6 +123,7 @@ class Step115Test extends TestCase
     {
         $this->story('Walk', 2);
         $other = Category::create(['name' => ['en' => 'Science'], 'slug' => 'science']);
+        Storage::disk('public')->put('articles/moon.webp', 'x');
         Article::create(['title' => ['en' => 'Moon'], 'slug' => 'moon', 'category_id' => $other->id, 'status' => 'published', 'publish_date' => now()->subDay(), 'main_image' => 'articles/moon.webp']);
 
         $this->get(route('gallery', ['kind' => 'article']))->assertOk()->assertSee('1 pictures')->assertSee(route('article.show', 'moon'), false);
@@ -188,6 +192,70 @@ class Step115Test extends TestCase
             ->assertSeeHtml('data-title="Slide 1 of The Long Walk"')->assertSeeHtml('data-parent="The Long Walk"')
             ->assertSeeHtml('href="'.$story->url().'#slide-1"');
         $this->assertFileExists(public_path('js/gallery.js'));
+    }
+
+    // ---------------- only active content ----------------
+
+    public function test_a_picture_of_content_that_is_not_active_never_shows(): void
+    {
+        $this->story('Live Story', 1);
+        $draft = $this->story('Draft Story', 1, 'draft');
+        $future = $this->story('Future Story', 1);
+        $future->update(['publish_date' => now()->addDay()]);
+        $trashed = $this->story('Trashed Story', 1);
+        $trashed->delete();
+
+        $sources = array_column(Gallery::pictures(), 'src');
+
+        $this->assertSame(['stories/live-story-1.webp'], $sources);
+    }
+
+    public function test_unpublishing_or_removing_a_page_takes_its_pictures_out_at_once(): void
+    {
+        $story = $this->story('Soon Gone', 2);
+        $this->get(route('gallery'))->assertOk()->assertSee('Slide 1 of Soon Gone');   // the list is now kept for 10 minutes
+
+        $story->update(['status' => 'draft']);
+        $this->get(route('gallery'))->assertOk()->assertDontSee('Slide 1 of Soon Gone');
+
+        $story->update(['status' => 'published']);
+        $this->get(route('gallery'))->assertSee('Slide 1 of Soon Gone');
+
+        $story->delete();
+        $this->get(route('gallery'))->assertDontSee('Slide 1 of Soon Gone');
+        $story->restore();
+        $this->get(route('gallery'))->assertSee('Slide 1 of Soon Gone');
+    }
+
+    public function test_content_in_a_hidden_or_removed_category_never_shows_and_a_fact_without_a_category_does(): void
+    {
+        $this->story('In The Open', 1);
+        $hidden = Category::create(['name' => ['en' => 'Hidden'], 'slug' => 'hidden', 'is_visible' => false]);
+        $under = Category::create(['name' => ['en' => 'Under hidden'], 'slug' => 'under-hidden', 'parent_id' => $hidden->id]);
+        $gone = Category::create(['name' => ['en' => 'Gone'], 'slug' => 'gone']);
+        foreach ([$hidden, $under, $gone] as $cat) {
+            $story = $this->story('In '.$cat->slug, 1);
+            $story->update(['category_id' => $cat->id]);
+        }
+        $gone->delete();
+        Storage::disk('public')->put('facts/loose.webp', 'x');
+        DidYouKnow::create(['title' => ['en' => 'A loose fact'], 'slug' => 'a-loose-fact', 'body' => ['en' => 'x'], 'source' => 'Book', 'status' => 'published', 'image' => 'facts/loose.webp']);
+
+        $sources = array_column(Gallery::pictures(), 'src');
+        sort($sources);
+
+        $this->assertSame(['facts/loose.webp', 'stories/in-the-open-1.webp'], $sources);
+    }
+
+    public function test_a_picture_whose_file_is_gone_from_the_server_is_left_out(): void
+    {
+        $this->story('Has Files', 1);
+        $story = $this->story('Lost File', 1);
+        Storage::disk('public')->delete('stories/lost-file-1.webp');
+        Gallery::forget();
+
+        $this->assertSame(['stories/has-files-1.webp'], array_column(Gallery::pictures(), 'src'));
+        $this->assertNotNull($story->fresh());
     }
 
     public function test_an_empty_gallery_says_so(): void
