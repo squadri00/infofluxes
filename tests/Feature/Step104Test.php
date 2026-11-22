@@ -22,7 +22,7 @@ class Step104Test extends TestCase
             ->set('paste', "TYPE: article\nTITLE: A Real Title\nSHORT: A short line.\nLONG:\n## First part\nSome words here.\nEND")
             ->call('check');
 
-        $page->assertSee('See how the article will look on the website')
+        $page->assertSee('Preview: see how this article will look on the website')
             ->assertSeeHtml('css/site.css')->assertSeeHtml('article__body')->assertSeeHtml('A Real Title')
             ->assertSeeHtml('First part')->assertSeeHtml('Some words here.');
         $this->assertSame(0, Article::count());
@@ -34,6 +34,6 @@ class Step104Test extends TestCase
 
         Livewire::test(AiImport::class)
             ->set('paste', "TYPE: article\nSHORT: no title here\nLONG:\nWords.\nEND")
-            ->call('check')->assertDontSee('See how the article will look on the website');
+            ->call('check')->assertDontSee('Preview: see how this article will look on the website');
     }
 }

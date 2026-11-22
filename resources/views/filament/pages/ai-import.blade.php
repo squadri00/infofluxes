@@ -188,6 +188,20 @@
                         @foreach ($item['warnings'] as $warning)
                             <div style="color:#b07800">Note: {{ $warning }}</div>
                         @endforeach
+                        @if ($item['kind'] === 'article' && $item['title'] !== '(no title)' && filled($item['data']['long'] ?? null))
+                            @php
+                                $pvDoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base target="_blank">'
+                                    .'<link rel="stylesheet" href="'.e(asset('css/site.css')).'"></head><body style="margin:0;padding:1rem 1.2rem">'
+                                    .'<article class="topic-inner" style="max-width:46rem;margin:0 auto"><h1 class="topic__title">'.e($item['data']['title'] ?? $item['title']).'</h1>'
+                                    .(filled($item['data']['short'] ?? null) ? '<div class="topic__hook"><p>'.e($item['data']['short']).'</p></div>' : '')
+                                    .'<div class="article__body">'.\App\Support\Html::fromMarked($item['data']['long']).'</div></article></body></html>';
+                            @endphp
+                            <details data-article-preview style="margin:.6rem 0">
+                                <summary style="cursor:pointer;display:inline-block;padding:.4rem .9rem;border:1px solid #2d9d5a;border-radius:.4rem;font-weight:700">&#128065; Preview: see how this article will look on the website</summary>
+                                <p style="margin:.4rem 0;opacity:.75;font-size:.9rem">The title, the short text and the article text in the website's own style. Nothing is saved yet. The picture, the sources box and the explainer cards are added when it is saved.</p>
+                                <iframe wire:ignore sandbox="allow-popups" srcdoc="{{ $pvDoc }}" title="Article preview" style="width:100%;height:34rem;border:1px solid rgba(128,128,128,.4);border-radius:.5rem;background:#fff"></iframe>
+                            </details>
+                        @endif
                         @if (in_array($item['kind'], ['article', 'fact'], true) && $item['title'] !== '(no title)')
                             @php
                                 $pvTitle = $item['data']['meta_title'] ?? ($item['data']['title'] ?? $item['title']);
@@ -200,19 +214,6 @@
                                     <div style="color:#1a0dab;font-size:1.1rem;line-height:1.3">{{ \Illuminate\Support\Str::limit($pvTitle, 60, '…') }}</div>
                                     <div style="font-size:.9rem;opacity:.85">{{ \Illuminate\Support\Str::limit($pvText, 160, '…') }}</div>
                                 </div>
-                            </details>
-                        @endif
-                        @if ($item['kind'] === 'article' && $item['title'] !== '(no title)' && filled($item['data']['long'] ?? null))
-                            @php
-                                $pvDoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base target="_blank">'
-                                    .'<link rel="stylesheet" href="'.e(asset('css/site.css')).'"></head><body style="margin:0;padding:1rem 1.2rem">'
-                                    .'<article class="topic-inner" style="max-width:46rem;margin:0 auto"><h1 class="topic__title">'.e($item['data']['title'] ?? $item['title']).'</h1>'
-                                    .(filled($item['data']['short'] ?? null) ? '<div class="topic__hook"><p>'.e($item['data']['short']).'</p></div>' : '')
-                                    .'<div class="article__body">'.\App\Support\Html::fromMarked($item['data']['long']).'</div></article></body></html>';
-                            @endphp
-                            <details style="margin-top:.5rem"><summary style="cursor:pointer;font-weight:600">See how the article will look on the website</summary>
-                                <p style="margin:.3rem 0;opacity:.75;font-size:.9rem">This shows the title, the short text and the article text in the website's own style. Nothing is saved yet. The picture, the sources box and the explainer cards are added when it is saved.</p>
-                                <iframe wire:ignore sandbox="allow-popups" srcdoc="{{ $pvDoc }}" title="Article preview" style="width:100%;height:34rem;border:1px solid rgba(128,128,128,.4);border-radius:.5rem;background:#fff"></iframe>
                             </details>
                         @endif
                         @if (! empty($item['data']['outline']))
