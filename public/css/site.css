@@ -2878,3 +2878,12 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
     .hero:not(.hero--full):not(.hero--media-only) .hero__subtitle { margin-bottom: 10px; font-size: 1rem; }
     .hero:not(.hero--full):not(.hero--media-only) .hero__description { max-height: 7.2em; overflow-y: auto; padding-right: 8px; font-size: .95rem; line-height: 1.6; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .6) transparent; }
 }
+
+/* The Home icon of the main menu: only in the slim (sticky) header */
+.menu__item--home { display: none; }
+.site-header.is-compact .menu__item--home { display: block; }
+.menu__item--home > a { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 1px solid var(--accent); border-radius: 50%; color: var(--accent); text-decoration: none; }
+.menu__item--home > a:hover, .menu__item--home > a:focus-visible { background: var(--accent); color: var(--accent-text, #fff); outline: none; }
+
+.menu .menu__item--home > a { padding: 0; width: 36px; height: 36px; min-width: 36px; }
+.menu .menu__item--home > a svg { flex: none; width: 18px; height: 18px; }

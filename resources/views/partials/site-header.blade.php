@@ -77,6 +77,8 @@
                 <button type="button" class="site-nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="site-nav" hidden>{{ __('site.menu') }}</button>
                 <nav class="menu menu--main" id="site-nav" aria-label="{{ __('site.main_menu') }}" data-site-nav data-more-label="{{ __('site.more') }}">
                     <ul class="menu__list">
+                        {{-- A Home icon before the first item. It shows only while the header is slim (scrolled), when the logo at the top has folded away. --}}
+                        <li class="menu__item menu__item--home"><a href="{{ route('home') }}" aria-label="{{ __('site.home') }}" title="{{ __('site.home') }}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M3 11.5 12 4l9 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.5h4.5v-5.5h4v5.5h4.5V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
                         @foreach ($menu as $item)
                             @include('partials.menu-item', ['item' => $item])
                         @endforeach
