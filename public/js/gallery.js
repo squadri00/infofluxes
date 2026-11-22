@@ -2,25 +2,31 @@
  * The picture gallery: a click on a picture opens it big, with Previous and Next (buttons, the arrow keys, or a swipe).
  * Without this script a picture is an ordinary link to its page, so nothing is lost. The big picture is the whole picture (never cut).
  * The address gets #I-12 while a picture is open, so it can be shared; opening that address opens the picture.
+ * The list of pictures is replaced when a tab is pressed (see topic-tabs.js), so the clicks are caught on the page, not on each picture.
  */
 (function () {
     'use strict';
 
-    var grid = document.querySelector('[data-gallery-grid]');
-    if (!grid) { return; }
-
-    var links = Array.prototype.slice.call(grid.querySelectorAll('.gtile__link'));
-    if (!links.length) { return; }
-
-    var labels = {};
-    try { labels = JSON.parse(grid.getAttribute('data-labels') || '{}'); } catch (e) { labels = {}; }
-    var rtl = (document.documentElement.getAttribute('dir') || 'ltr') === 'rtl';
-
     var box = null;
     var els = {};
+    var list = [];
     var index = -1;
     var opener = null;
     var touchX = null;
+    var labels = {};
+    var rtl = (document.documentElement.getAttribute('dir') || 'ltr') === 'rtl';
+
+    function grid() { return document.querySelector('[data-gallery-grid]'); }
+
+    function pictures() {
+        var g = grid();
+        return g ? Array.prototype.slice.call(g.querySelectorAll('.gtile__link')) : [];
+    }
+
+    function readLabels() {
+        var g = grid();
+        try { labels = JSON.parse((g && g.getAttribute('data-labels')) || '{}'); } catch (e) { labels = {}; }
+    }
 
     function text(s) { return s == null ? '' : String(s); }
 
@@ -81,13 +87,13 @@
     }
 
     function preload(i) {
-        var link = links[(i + links.length) % links.length];
+        var link = list[(i + list.length) % list.length];
         if (link) { var img = new Image(); img.src = link.getAttribute('data-full'); }
     }
 
     function show(i) {
-        index = (i + links.length) % links.length;
-        var link = links[index];
+        index = (i + list.length) % list.length;
+        var link = list[index];
         var thumb = link.querySelector('img');
         var full = link.getAttribute('data-full');
 
@@ -107,10 +113,10 @@
         var parent = text(link.getAttribute('data-parent'));
         els.parent.textContent = parent;
         els.parent.hidden = parent === '' || parent === text(link.getAttribute('data-title'));
-        els.count.textContent = (index + 1) + ' / ' + links.length;
+        els.count.textContent = (index + 1) + ' / ' + list.length;
         els.go.href = link.getAttribute('href');
         els.go.textContent = (labels.go || 'Go to this page') + ' →';
-        els.prev.hidden = els.next.hidden = links.length < 2;
+        els.prev.hidden = els.next.hidden = list.length < 2;
 
         preload(index + 1);
         preload(index - 1);
@@ -118,6 +124,9 @@
     }
 
     function open(i) {
+        list = pictures();
+        if (!list.length || i < 0) { return; }
+        readLabels();
         if (!box) { build(); }
         opener = document.activeElement;
         box.hidden = false;
@@ -137,13 +146,13 @@
 
     function go(step) { if (box && !box.hidden) { show(index + step); } }
 
-    links.forEach(function (link, i) {
-        link.addEventListener('click', function (e) {
-            // A click with Ctrl, Shift or the middle button still opens the page in a new tab, as usual.
-            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) { return; }
-            e.preventDefault();
-            open(i);
-        });
+    document.addEventListener('click', function (e) {
+        var link = e.target.closest ? e.target.closest('.gtile__link') : null;
+        if (!link || !link.closest('[data-gallery-grid]')) { return; }
+        // A click with Ctrl, Shift or the middle button still opens the page in a new tab, as usual.
+        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) { return; }
+        e.preventDefault();
+        open(pictures().indexOf(link));
     });
 
     document.addEventListener('keydown', function (e) {
@@ -152,7 +161,7 @@
         else if (e.key === 'ArrowRight') { e.preventDefault(); go(rtl ? -1 : 1); }
         else if (e.key === 'ArrowLeft') { e.preventDefault(); go(rtl ? 1 : -1); }
         else if (e.key === 'Home') { e.preventDefault(); show(0); }
-        else if (e.key === 'End') { e.preventDefault(); show(links.length - 1); }
+        else if (e.key === 'End') { e.preventDefault(); show(list.length - 1); }
         else if (e.key === 'Tab') {
             // The focus stays inside the viewer.
             var items = [els.close, els.prev, els.next, els.go].filter(function (n) { return !n.hidden; });
@@ -166,8 +175,9 @@
     function fromHash() {
         var id = decodeURIComponent((location.hash || '').replace(/^#/, ''));
         if (!id) { return; }
-        for (var i = 0; i < links.length; i++) {
-            if (links[i].getAttribute('data-id') === id) { open(i); return; }
+        var all = pictures();
+        for (var i = 0; i < all.length; i++) {
+            if (all[i].getAttribute('data-id') === id) { open(i); return; }
         }
     }
     fromHash();

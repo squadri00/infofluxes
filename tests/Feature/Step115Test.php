@@ -258,6 +258,61 @@ class Step115Test extends TestCase
         $this->assertNotNull($story->fresh());
     }
 
+    public function test_the_gallery_tabs_are_the_same_smooth_tabs_as_the_stories_and_each_press_asks_for_a_new_order(): void
+    {
+        $this->story('Walk', 2);
+        Storage::disk('public')->put('articles/moon.webp', 'x');
+        Article::create(['title' => ['en' => 'Moon'], 'slug' => 'moon', 'category_id' => $this->leaf->id, 'status' => 'published', 'publish_date' => now()->subDay(), 'main_image' => 'articles/moon.webp']);
+
+        $html = $this->get(route('gallery', ['section' => 'history', 'per' => 25]))->assertOk()->getContent();
+
+        // the same markup as the stories tabs, so the same script gives the same pill and the same gliding pictures
+        $this->assertStringContainsString('data-topic-tabs data-param="kind" data-strip="shuffle" data-nocache', $html);
+        $this->assertStringContainsString('class="topic-tabs"', $html);
+        $this->assertStringContainsString('data-topic-nav', $html);
+        $this->assertStringContainsString('data-topic-panel', $html);
+        $this->assertStringContainsString('js/topic-tabs.js', $html);
+        $this->assertSame(3, substr_count($html, 'data-key="I-'), 'every picture has a key, so it can glide to its new place');
+        // a tab keeps the section and the number of pictures, and asks for a new order
+        $this->assertStringContainsString('shuffle=1', $html);
+        preg_match('#<a class="topic-tabs__tab"[^>]*href="([^"]+kind=story[^"]*)"#', $html, $tab);
+        $this->assertStringContainsString('section=history', html_entity_decode($tab[1] ?? ''));
+        $this->assertStringContainsString('per=25', html_entity_decode($tab[1] ?? ''));
+        // the other filters inside the list change it the same smooth way
+        $this->assertStringContainsString('data-topic-link', $html);
+    }
+
+    public function test_pressing_a_tab_gives_a_new_order_and_a_clean_address(): void
+    {
+        $this->story('Many', 30);
+
+        $order = function (string $html): string {
+            preg_match_all('#data-key="(I-\d+)"#', $html, $m);
+
+            return implode(',', $m[1]);
+        };
+        $orders = [];
+        foreach (range(1, 8) as $i) {
+            $url = route('gallery', ['kind' => 'story', 'shuffle' => 1]);
+            $this->get($url)->assertRedirect(route('gallery', ['kind' => 'story']));
+            $orders[] = $order($this->get(route('gallery', ['kind' => 'story']))->getContent());
+        }
+
+        $this->assertGreaterThan(1, count(array_unique($orders)), 'each press gives a new random order');
+        $this->assertSame($orders[count($orders) - 1], $order($this->get(route('gallery', ['kind' => 'story']))->getContent()), 'then the order stays while the visitor pages through');
+    }
+
+    public function test_the_tab_script_knows_the_gallery_word_and_the_shuffle_word(): void
+    {
+        $js = (string) file_get_contents(public_path('js/topic-tabs.js'));
+
+        $this->assertStringContainsString("data-param", $js);
+        $this->assertStringContainsString("data-strip", $js);
+        $this->assertStringContainsString("data-nocache", $js);
+        $this->assertStringContainsString("data-topic-link", $js);
+        $this->assertStringContainsString("data-topic-tabs", file_get_contents(resource_path('views/category.blade.php')), 'the stories tabs still use the script as before');
+    }
+
     public function test_an_empty_gallery_says_so(): void
     {
         $this->get(route('gallery'))->assertOk()->assertSee('There are no pictures here yet.');

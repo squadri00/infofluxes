@@ -14,6 +14,13 @@
     var panel = root.querySelector('[data-topic-panel]');
     if (!nav || !panel) { return; }
 
+    // The tab of an address is found by one word of the address ("topic" for the stories; the gallery says data-param="kind").
+    // data-strip: a word that asks for a new random order (the gallery's "shuffle"); it is taken out of the address that is shown.
+    // data-nocache: every click fetches the page again, so every click gives a new order.
+    var PARAM = root.getAttribute('data-param') || 'topic';
+    var STRIP = root.getAttribute('data-strip') || '';
+    var NOCACHE = root.hasAttribute('data-nocache');
+
     var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var MOVE = 520;      // milliseconds: a card gliding to its new place
     var EASE = 'cubic-bezier(.2, .7, .2, 1)';
@@ -125,7 +132,7 @@
     var cache = {};
     function load(url) {
         var hit = cache[url];
-        if (hit && Date.now() - hit.at < 60000) { return hit.p; }
+        if (!NOCACHE && hit && Date.now() - hit.at < 60000) { return hit.p; }
         var p = fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' }).then(function (r) {
             if (!r.ok) { throw new Error('bad'); }
             return r.text();
@@ -135,6 +142,7 @@
         return p;
     }
     function warm(e) {
+        if (NOCACHE) { return; }
         var a = e.target.closest ? e.target.closest('a') : null;
         if (a && nav.contains(a) && a.origin === window.location.origin) { load(a.href); }
     }
@@ -148,10 +156,10 @@
         wanted = null;
 
         // The tab of this address: the one with the same ?topic= (no ?topic= is the tab All).
-        var topic = new URL(url, window.location.href).searchParams.get('topic');
+        var topic = new URL(url, window.location.href).searchParams.get(PARAM);
         var target = null;
         Array.prototype.forEach.call(nav.querySelectorAll('.topic-tabs__tab'), function (a) {
-            if (new URL(a.href).searchParams.get('topic') === topic) { target = a; }
+            if (new URL(a.href).searchParams.get(PARAM) === topic) { target = a; }
         });
         if (target) {
             var old = current();
@@ -168,7 +176,11 @@
             var next = doc.querySelector('[data-topic-panel]');
             if (!next) { throw new Error('no panel'); }
             reshuffle(next.innerHTML);
-            if (push) { history.pushState({ topic: true }, '', url); }
+            if (push) {
+                var shown = new URL(url, window.location.href);
+                if (STRIP) { shown.searchParams.delete(STRIP); }
+                history.pushState({ topic: true }, '', shown.pathname + shown.search + shown.hash);
+            }
             document.title = doc.title || document.title;
             panel.removeAttribute('aria-busy');
             window.setTimeout(function () {
@@ -185,9 +197,11 @@
         if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) { return; }
         var inTabs = nav.contains(a);
         var inPager = panel.contains(a) && a.closest('.pager');
-        if (!inTabs && !inPager) { return; }
+        // A link inside the list that says data-topic-link (the gallery's other filters and its Shuffle button) changes the list the same smooth way.
+        var inLink = panel.contains(a) && a.hasAttribute('data-topic-link');
+        if (!inTabs && !inPager && !inLink) { return; }
         if (a.origin !== window.location.origin) { return; }
-        if (inTabs && a.classList.contains('is-current') && a.href === window.location.href) { e.preventDefault(); return; }
+        if (inTabs && !STRIP && a.classList.contains('is-current') && a.href === window.location.href) { e.preventDefault(); return; }
         e.preventDefault();
         show(a.href, true);
         if (inPager) {
