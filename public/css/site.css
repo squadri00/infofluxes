@@ -2767,6 +2767,9 @@ html[dir="rtl"] .gv__nav span { display: inline-block; transform: rotate(180deg)
 /* The big drop-down panel does not stretch across the whole window: it stays a tidy width, centered under the menu bar */
 .menu--main .menu__sub.mega:not(.mega--compact) { left: 0; right: 0; width: min(1180px, calc(100% - 16px)); margin-left: auto; margin-right: auto; border-radius: 0 0 16px 16px; }
 
-/* Small cards (the Featured and Latest rows): back to the original fixed rows, with the title cut after 3 lines. The author line and the category are left out of a small card, so the title has room, and a squeezed card never shrinks the title to one line. */
+/* Small cards (the Featured and Latest rows): the original fixed rows with the author line, the counts and the category on them again. They are packed a little closer so the title can show 3 lines (cut with ... after the third); the title never shrinks to one line. */
 .pcard__title { flex-shrink: 0; }
-html:not([data-view="list"]) .pcard--c .pcard__meta, html:not([data-view="list"]) .pcard--c .byline--card { display: none; }
+.pcard--c .pcard__body { padding: 9px 12px; gap: 3px; }
+.pcard--c .pcard__title { font-size: .95rem; line-height: 1.22; -webkit-line-clamp: 3; }
+.pcard--c .pcard__meta { margin-top: auto !important; font-size: .76rem; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pcard--c .byline--card { gap: 2px 6px; font-size: .78rem; line-height: 1.2; }
