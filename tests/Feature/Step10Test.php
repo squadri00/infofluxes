@@ -75,6 +75,7 @@ class Step10Test extends TestCase
 
     public function test_featured_shows_only_featured_published_articles_in_the_chosen_order(): void
     {
+        Setting::put('ctl_home_shuffle', '0');   // this test is about the order numbers, so the home page is not shuffled
         $this->article('Third in order', ['is_featured' => true, 'featured_order' => 3]);
         $this->article('First in order', ['is_featured' => true, 'featured_order' => 1]);
         $this->article('Second in order', ['is_featured' => true, 'featured_order' => 2]);
@@ -88,6 +89,7 @@ class Step10Test extends TestCase
 
     public function test_featured_articles_with_no_order_come_after_the_numbered_ones_newest_first(): void
     {
+        Setting::put('ctl_home_shuffle', '0');   // this test is about the order numbers, so the home page is not shuffled
         $this->article('Unnumbered old', ['is_featured' => true, 'featured_order' => 0, 'publish_date' => now()->subDays(5)]);
         $this->article('Unnumbered new', ['is_featured' => true, 'featured_order' => 0, 'publish_date' => now()->subDay()]);
         $this->article('Numbered', ['is_featured' => true, 'featured_order' => 1]);

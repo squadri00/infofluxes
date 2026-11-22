@@ -196,7 +196,8 @@ class Step11Test extends TestCase
         }
         $home = $this->get('/')->getContent();
         $this->assertMatchesRegularExpression('/\b1 slide\b/', $home);
-        $this->assertSame(3, preg_match_all('/\d+ slides?\b/', $home), 'every story card carries a note');
+        // One note on each card that has slides: the story of 3 slides and the one of 1 slide (the small card names the slides once, in its last line).
+        $this->assertSame(2, preg_match_all('/\d+ slides?\b/', $home), 'every story card carries a note');
     }
 
     public function test_the_story_viewer_script_and_its_style_exist(): void

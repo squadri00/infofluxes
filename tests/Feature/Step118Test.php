@@ -34,6 +34,7 @@ class Step118Test extends TestCase
 
     public function test_the_home_page_shows_the_featured_facts_in_their_order_and_nothing_else(): void
     {
+        Setting::put('ctl_home_shuffle', '0');   // this test is about the order numbers, so the home page is not shuffled
         $this->fact('Third fact', ['is_featured' => true, 'featured_order' => 0]);
         $this->fact('Second fact', ['is_featured' => true, 'featured_order' => 2]);
         $this->fact('First fact', ['is_featured' => true, 'featured_order' => 1]);
@@ -59,6 +60,7 @@ class Step118Test extends TestCase
 
     public function test_without_a_featured_fact_there_is_no_part_and_the_number_can_be_set_or_zero(): void
     {
+        Setting::put('ctl_home_shuffle', '0');   // this test is about the order numbers, so the home page is not shuffled
         $this->fact('Plain fact');
         $this->get(route('home'))->assertOk()->assertDontSee('data-home-facts', false);
 
