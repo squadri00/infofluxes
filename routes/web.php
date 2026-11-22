@@ -34,6 +34,8 @@ Route::get('/search', SearchController::class)->name('search');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', \App\Http\Controllers\RobotsController::class)->name('robots');
 Route::get('/language/{code}', LanguageController::class)->name('language.switch');
+// A picture that got a new file name: the old address goes to the new one (only reached when the old file is not there).
+Route::get('/storage/{path}', \App\Http\Controllers\PictureRedirectController::class)->where('path', '.+')->name('picture.old');
 Route::get('/category/{slug}', CategoryController::class)->name('category.show');
 // People: log in, sign up, log out, my account, submit an article, post a comment.
 Route::middleware('guest')->group(function () {

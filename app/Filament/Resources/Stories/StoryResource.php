@@ -153,7 +153,7 @@ class StoryResource extends Resource
                             ->acceptedFileTypes(\App\Support\StoryImage::TYPES)->disk(\App\Support\StoryImage::DISK)->directory(\App\Support\StoryImage::DIRECTORY)
                             ->imageEditor()->imageCropAspectRatio(fn () => \App\Support\StoryImage::ratioText())->imageEditorAspectRatioOptions(fn () => [\App\Support\StoryImage::ratioText()])
                             ->maxSize(fn () => \App\Support\ImageStore::maxKb())
-                            ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => \App\Support\StoryImage::store($file))
+                            ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file, $livewire, \Filament\Schemas\Components\Utilities\Get $get): string => \App\Support\StoryImage::store($file, \App\Support\PictureNames::fromForm($livewire, $get)))
                             ->helperText('It is cut to the shape set for the site (16:9) and saved as a small WebP. It is the cover of the slides and the picture on the card.'),
                         ...Translated::text('main_image_alt', 'Describe the cover picture (for people who cannot see it)'),
                         TextInput::make('main_image_credit')->label('Picture credit')->helperText('Left empty, the story viewer shows "AI Generated".')->maxLength(255),
@@ -187,7 +187,7 @@ class StoryResource extends Resource
                                             ->acceptedFileTypes(\App\Support\StoryImage::TYPES)->disk(\App\Support\StoryImage::DISK)->directory(\App\Support\StoryImage::DIRECTORY)
                                             ->imageEditor()->imageCropAspectRatio(fn () => \App\Support\StoryImage::ratioText())->imageEditorAspectRatioOptions(fn () => [\App\Support\StoryImage::ratioText()])
                                             ->maxSize(fn () => \App\Support\ImageStore::maxKb())
-                                            ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => \App\Support\StoryImage::store($file)),
+                                            ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file, $livewire, \Filament\Schemas\Components\Utilities\Get $get): string => \App\Support\StoryImage::store($file, trim((string) $get('heading.'.config('infofluxes.default_locale')).' '.(string) \App\Support\PictureNames::fromForm($livewire, null)))),
                                         ...Translated::text('image_alt', 'Describe the picture (for people who cannot see it)'),
                                         TextInput::make('image_credit')->label('Picture credit')->helperText('Left empty, the viewer shows "AI Generated".')->maxLength(255),
                                         TextInput::make('image_licence')->label('Picture licence (optional)')->maxLength(255),

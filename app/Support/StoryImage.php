@@ -39,13 +39,14 @@ class StoryImage
         return (int) round($width * $h / $w);
     }
 
-    /** The file is stored as a WebP and its path (inside the public disk) is returned. */
-    public static function store(UploadedFile|string $file): string
+    /** The file is stored as a WebP and its path (inside the public disk) is returned. Its name is made from $subject (the story and the slide), see App\Support\PictureNames. */
+    public static function store(UploadedFile|string $file, ?string $subject = null): string
     {
         $path = $file instanceof UploadedFile ? $file->getRealPath() : $file;
         $result = static::convert((string) file_get_contents($path));
 
-        $name = static::DIRECTORY.'/'.Str::lower(Str::random(24)).'.webp';
+        $subject = $subject !== null && trim($subject) !== '' ? $subject : PictureNames::fromUpload($file);
+        $name = PictureNames::path(static::DIRECTORY, $subject, 'webp', 'story-picture');
         Storage::disk(static::DISK)->put($name, $result['data'], 'public');
 
         return $name;

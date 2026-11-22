@@ -114,7 +114,10 @@ class Pictures
             }
             $file = $files[$row['file']];
             try {
-                $path = StoryImage::store($file);
+                // The file is named after the story and, for a slide, its heading: "persia-before-the-conquest-the-muslim-conquest-of-persia-a3f9k2.webp".
+                $named = $row['type'] === 'cover' ? null : ($slideModels[$row['slide_id']] ?? null);
+                $subject = ($named ? (trim((string) $named->getTranslation('heading', $locale, false)) ?: 'slide '.$named->sort_order).' ' : '').$story->mainTitle();
+                $path = StoryImage::store($file, $subject);
             } catch (ValidationException $e) {
                 $report['problems'][] = $file->getClientOriginalName().': '.collect($e->errors())->flatten()->first();
 

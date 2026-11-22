@@ -28,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
         // The notices of the members: a comment approved, a reply, an article they sent in, and news from what they follow.
         \App\Support\MemberEvents::register();
 
+        // A picture saved with an empty ALT text gets one made from its page (the title, the tab, the slide heading, the name).
+        \App\Support\PictureAlt::register();
+
         // The email that asks a new member to confirm their address: simple words, in the name of the site.
         \Illuminate\Auth\Notifications\VerifyEmail::toMailUsing(function ($notifiable, string $url) {
             $site = (string) \App\Models\Setting::get('site_name', config('app.name'));

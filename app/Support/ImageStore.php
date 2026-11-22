@@ -57,16 +57,21 @@ class ImageStore
     }
 
     /** Save the file in a folder of the public disk and return its path. */
-    public static function store(UploadedFile|string $file, string $directory): string
+    /**
+     * Save the file in a folder of the public disk and return its path. The file name is made from $subject (the title or name of the
+     * page the picture belongs to), see App\Support\PictureNames; without a subject it is made from the name of the uploaded file.
+     */
+    public static function store(UploadedFile|string $file, string $directory, ?string $subject = null): string
     {
         $path = $file instanceof UploadedFile ? $file->getRealPath() : $file;
         $binary = (string) file_get_contents($path);
         $directory = trim($directory, '/');
         $disk = Storage::disk(static::DISK);
+        $subject = $subject !== null && trim($subject) !== '' ? $subject : PictureNames::fromUpload($file);
 
         $webp = static::lighten($binary);
         if ($webp !== null) {
-            $name = $directory.'/'.Str::lower(Str::random(24)).'.webp';
+            $name = PictureNames::path($directory, $subject, 'webp');
             $disk->put($name, $webp, 'public');
 
             return $name;
@@ -77,7 +82,7 @@ class ImageStore
         $ext = match ($info[2] ?? 0) {
             IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_WEBP => 'webp', IMAGETYPE_GIF => 'gif', default => 'bin',
         };
-        $name = $directory.'/'.Str::lower(Str::random(24)).'.'.$ext;
+        $name = PictureNames::path($directory, $subject, $ext);
         $disk->put($name, $binary, 'public');
 
         return $name;

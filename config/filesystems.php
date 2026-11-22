@@ -33,7 +33,9 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            // Off: the private folder is never served on the web, and the address /storage/... belongs to the public pictures
+            // (a renamed picture's old address is sent to its new one, see PictureRedirectController).
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

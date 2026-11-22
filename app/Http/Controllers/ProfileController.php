@@ -49,7 +49,7 @@ class ProfileController extends Controller
             $user->photo = null;
         }
         if ($request->hasFile('photo')) {
-            $new = ImageStore::store($request->file('photo'), 'profiles');
+            $new = ImageStore::store($request->file('photo'), 'profiles', 'member');   // never the name of the uploaded file: it may hold private words
             if ($user->photo) {
                 Storage::disk(ImageStore::DISK)->delete($user->photo);
             }

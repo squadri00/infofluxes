@@ -156,7 +156,7 @@ class ArticleResource extends Resource
                             ->acceptedFileTypes(\App\Support\StoryImage::TYPES)->disk(\App\Support\StoryImage::DISK)->directory(\App\Support\StoryImage::DIRECTORY)
                             ->imageEditor()->imageCropAspectRatio(fn () => \App\Support\StoryImage::ratioText())->imageEditorAspectRatioOptions(fn () => [\App\Support\StoryImage::ratioText()])
                             ->maxSize(fn () => \App\Support\ImageStore::maxKb())
-                            ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => \App\Support\StoryImage::store($file))
+                            ->saveUploadedFileUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file, $livewire, \Filament\Schemas\Components\Utilities\Get $get): string => \App\Support\StoryImage::store($file, \App\Support\PictureNames::fromForm($livewire, $get)))
                             ->helperText('It is cut to the shape set for the site (16:9) and saved as a small WebP.'),
                         ...Translated::text('main_image_alt', 'Describe the main picture (for people who cannot see it)'),
                         TextInput::make('main_image_credit')->label('Picture credit')->maxLength(255),
