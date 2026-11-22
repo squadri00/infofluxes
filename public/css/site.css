@@ -2817,3 +2817,10 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .category-banner__arrow--next { right: 14px; }
 .category-banner__arrow:hover, .category-banner__arrow:focus-visible { background: #fff; color: #14304a; outline: none; transform: translateY(-50%) scale(1.08); }
 @media (max-width: 700px) { .category-banner__arrow { top: auto; bottom: 14px; transform: none; width: 40px; height: 40px; } .category-banner__arrow:hover, .category-banner__arrow:focus-visible { transform: scale(1.08); } }
+
+/* The home page words sit in a box with a shaded purple background (next to the picture slider). */
+.hero:not(.hero--full):not(.hero--media-only) .hero__text { padding: clamp(24px, 3.2vw, 44px); border-radius: 20px; background: linear-gradient(145deg, #3b2370 0%, #5b3aa6 55%, #7a56c9 100%); box-shadow: 0 14px 36px rgba(59, 35, 112, .35); }
+.hero:not(.hero--full):not(.hero--media-only) .hero__title { color: #fff; }
+.hero:not(.hero--full):not(.hero--media-only) .hero__subtitle { color: #f1e9ff; border-left-color: #d3bfff; }
+.hero:not(.hero--full):not(.hero--media-only) .hero__description { color: rgba(255, 255, 255, .88); }
+@media (max-width: 900px) { .hero:not(.hero--full):not(.hero--media-only) .hero__text { padding: 22px 20px; } }
