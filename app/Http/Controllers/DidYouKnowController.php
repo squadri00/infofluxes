@@ -24,7 +24,7 @@ class DidYouKnowController extends Controller
 
         $more = DidYouKnow::query()->visible()->where('id', '!=', $fact->id)
             ->when($category, fn ($q) => $q->where('category_id', $category->id))
-            ->ordered()->limit(4)->get();
+            ->ordered()->limit(3)->get();
 
         // Previous and next: the facts of the same category (all facts when it has none), in the order of the Did You Know? page.
         // At the end of the list it goes round to the other end.
