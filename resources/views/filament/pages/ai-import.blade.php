@@ -54,6 +54,35 @@
                         @endif
                     @endif
                 </div>
+                {{-- An existing article to replace (optional): the new text goes into it; its address, category and status stay. --}}
+                <div data-replace-chooser>
+                    <strong>Article to replace</strong> <span style="opacity:.7">(optional: the new text goes into an article that already exists, even a published one. It keeps its ID and web address. The old text stays in the History.)</span><br>
+                    @if ($this->replaceTarget())
+                        @php $target = $this->replaceTarget(); @endphp
+                        <div style="margin:.3rem 0;padding:.5rem .6rem;border:1px solid {{ $target->status === 'published' ? '#d92d20' : 'rgba(128,128,128,.5)' }};border-radius:.4rem">
+                            <div style="display:flex;gap:.5rem;align-items:center">
+                                <span style="flex:1"><strong>{{ $target->code }}</strong> &middot; {{ $target->mainTitle() }} <span style="opacity:.7">({{ $target->category?->mainName() }} &middot; {{ \App\Models\Article::STATUSES[$target->status] ?? $target->status }})</span></span>
+                                <button type="button" wire:click="clearReplace" style="cursor:pointer;border:1px solid rgba(128,128,128,.6);border-radius:.3rem;padding:.1rem .5rem">Do not replace</button>
+                            </div>
+                            @if ($target->status === 'published')
+                                <div style="margin-top:.4rem;color:#d92d20">This article is <strong>published</strong>. It stays published, so visitors see the new text as soon as you press Save.</div>
+                            @endif
+                        </div>
+                    @else
+                        <input type="text" wire:model.live.debounce.400ms="replaceQuery" autocomplete="off" placeholder="Type a code (A-723) or words of the title" style="{{ $box }}">
+                        @if (trim($replaceQuery) !== '')
+                            <div class="ai-cat-list" style="max-height:14rem;overflow-y:auto;margin-top:.2rem;border:1px solid rgba(128,128,128,.6);border-radius:.4rem">
+                                @forelse ($this->replaceResults() as $found)
+                                    <button type="button" wire:click="selectReplace({{ $found->id }})" wire:key="replace-{{ $found->id }}" style="display:block;width:100%;text-align:left;padding:.45rem .7rem;cursor:pointer;border:0;border-bottom:1px solid rgba(128,128,128,.25);background:transparent;color:inherit;font-size:.9rem">
+                                        <strong>{{ $found->code }}</strong> &middot; {{ $found->mainTitle() }} <span style="opacity:.7">({{ $found->category?->mainName() }} &middot; {{ \App\Models\Article::STATUSES[$found->status] ?? $found->status }})</span>
+                                    </button>
+                                @empty
+                                    <div style="padding:.6rem .7rem;opacity:.7">No article that you may replace matches.</div>
+                                @endforelse
+                            </div>
+                        @endif
+                    @endif
+                </div>
                 {{-- A search box with a short scrolling list: the list of categories is very long, so a plain drop-down would not fit the screen. --}}
                 <div x-data="{
                         options: @js(collect($this->categoryChoices())->map(fn ($label, $id) => ['id' => $id, 'label' => $label])->values()),
@@ -166,6 +195,14 @@
                         @if (! empty($item['data']['entry_label']))
                             <div style="margin:.2rem 0;padding:.35rem .6rem;border-radius:.4rem;background:rgba(45,157,90,.15)">Will fill the index entry: <strong>{{ $item['data']['entry_label'] }}</strong></div>
                         @endif
+                        @if (! empty($item['data']['replace_label']))
+                            <div data-replace-banner style="margin:.2rem 0;padding:.45rem .6rem;border-radius:.4rem;background:rgba(220,155,0,.18)">
+                                Will <strong>replace</strong> the article <strong>{{ $item['data']['replace_label'] }}</strong>
+                                ({{ \App\Models\Article::STATUSES[$item['data']['replace_status']] ?? $item['data']['replace_status'] }}):
+                                the old text has {{ $item['data']['replace_old_words'] }} words, the new text has {{ str_word_count(strip_tags((string) ($item['data']['long'] ?? ''))) }} words.
+                                Its web address, category and status stay. The reviewer's name is cleared, because the text is new.
+                            </div>
+                        @endif
                         @foreach (($item['data']['index_suggestions'] ?? []) as $sg)
                             <div style="margin:.3rem 0;padding:.45rem .6rem;border:1px dashed #dc9b00;border-radius:.4rem">
                                 A blank index entry looks like this subject: <strong>{{ $sg['code'] }}</strong> &middot; {{ $sg['title'] }}
@@ -269,7 +306,13 @@
 
                 <div>
                     @if ($this->okCount() > 0)
-                        <x-filament::button wire:click="save" wire:confirm="Save {{ $this->okCount() }} item(s) as drafts? Items with a problem are skipped.">Save as drafts ({{ $this->okCount() }})</x-filament::button>
+                        @php $liveTarget = $this->replaceTarget(); $liveTarget = $liveTarget && $liveTarget->status === 'published' ? $liveTarget : null; @endphp
+                        @if ($liveTarget)
+                            <label style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem;color:#d92d20;font-weight:600">
+                                <input type="checkbox" wire:model.live="confirmReplace"> I understand: {{ $liveTarget->code }} is published, and visitors will see the new text at once.
+                            </label>
+                        @endif
+                        <x-filament::button wire:click="save" wire:confirm="{{ $this->replaceTarget() ? 'Replace the text of '.$this->replaceTarget()->code.' with the new text? The old text stays in the History.' : 'Save '.$this->okCount().' item(s) as drafts? Items with a problem are skipped.' }}">{{ $this->replaceTarget() ? 'Replace the article' : 'Save as drafts' }} ({{ $this->okCount() }})</x-filament::button>
                         @if ($this->okCount() < count($items))
                             <span style="margin-left:.6rem;color:#d92d20">{{ count($items) - $this->okCount() }} item(s) with a problem will be skipped.</span>
                         @endif
@@ -284,7 +327,7 @@
     @if ($done)
         <x-filament::section>
             <x-slot name="heading">Saved</x-slot>
-            <p>{{ count($done['articles']) }} draft article(s) were made. Find them in <a href="{{ \App\Filament\Resources\Articles\ArticleResource::getUrl('index') }}" style="text-decoration:underline">Articles</a>, read them, write your name in <strong>Reviewer</strong>, and publish.</p>
+            <p>{{ count($done['articles']) - count($done['replaced'] ?? []) }} draft article(s) were made{{ ! empty($done['replaced']) ? ', and '.count($done['replaced']).' existing article(s) got the new text (the old text is kept in the History, so it can be put back)' : '' }}. Find them in <a href="{{ \App\Filament\Resources\Articles\ArticleResource::getUrl('index') }}" style="text-decoration:underline">Articles</a>, read them, write your name in <strong>Reviewer</strong>, and publish.</p>
             @php $savedArticles = \App\Models\Article::query()->whereIn('id', $done['articles'])->orderBy('id')->get(); @endphp
             @if ($savedArticles->isNotEmpty())
                 <ul style="list-style:none;margin:.6rem 0;padding:0;display:grid;gap:.4rem">

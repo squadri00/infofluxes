@@ -32,7 +32,7 @@ class AiImport
     /**
      * @return array<int, array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>}>
      */
-    public static function parse(string $text, bool $checkLinks = false, ?int $entryId = null): array
+    public static function parse(string $text, bool $checkLinks = false, ?int $entryId = null, ?int $replaceId = null): array
     {
         $text = str_replace(["\r\n", "\r"], "\n", mb_substr($text, 0, self::MAX_CHARS));
         // A chat often wraps the answer in a code box. The fence lines are not part of the answer.
@@ -57,7 +57,7 @@ class AiImport
                 $items[] = ['kind' => 'article', 'title' => '(too many)', 'errors' => ['Only '.self::MAX_ITEMS.' items can be checked at one time. Paste the rest again after saving these.'], 'warnings' => [], 'data' => []];
                 break;
             }
-            $items[] = static::parseBlock($block, $checkLinks, $entryId);
+            $items[] = static::parseBlock($block, $checkLinks, $entryId, $replaceId);
         }
 
         if ($promptLeftOut && isset($items[0])) {
@@ -168,7 +168,7 @@ class AiImport
     }
 
     /** @return array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>} */
-    private static function parseBlock(string $block, bool $checkLinks = false, ?int $entryId = null): array
+    private static function parseBlock(string $block, bool $checkLinks = false, ?int $entryId = null, ?int $replaceId = null): array
     {
         $fields = [];
         $current = null;
@@ -218,11 +218,11 @@ class AiImport
             $fields['__title_from_type'] = '1';
         }
 
-        return static::checkArticle($kind, $fields, $checkLinks, $entryId);
+        return static::checkArticle($kind, $fields, $checkLinks, $entryId, $replaceId);
     }
 
     /** @param array<string, string> $f */
-    private static function checkArticle(string $kind, array $f, bool $checkLinks = false, ?int $entryId = null): array
+    private static function checkArticle(string $kind, array $f, bool $checkLinks = false, ?int $entryId = null, ?int $replaceId = null): array
     {
         $errors = [];
         $warnings = [];
@@ -476,9 +476,25 @@ class AiImport
             }
         }
 
+        // An existing article that this answer replaces (chosen on the form): its category, address and status stay. Only articles can be replaced.
+        $replace = null;
+        if ($replaceId && ! $entry && $kind === 'article') {
+            $replace = Article::query()->with('category')->find($replaceId);
+            if (! $replace) {
+                $errors[] = 'The article you chose to replace does not exist any more. Choose another one, or choose none.';
+            } else {
+                if ($category && $category->id !== $replace->category_id) {
+                    $warnings[] = 'The CATEGORY in the answer is not the category of the article that is replaced. The article stays in its own category ('.$replace->category?->mainName().').';
+                }
+                $category = $replace->category;
+                $errors = array_values(array_filter($errors, fn ($e) => ! str_starts_with($e, 'CATEGORY')));
+                $warnings[] = 'This replaces the text of '.$replace->code.' "'.$replace->mainTitle().'" ('.(Article::STATUSES[$replace->status] ?? $replace->status).'). The old text stays in the History and can be put back.';
+            }
+        }
+
         // A blank index entry about the same subject: offer to fill it instead of making a second article.
         $suggestions = [];
-        if (! $entry && $kind === 'article' && $category && $title !== '') {
+        if (! $entry && ! $replace && $kind === 'article' && $category && $title !== '') {
             $suggestions = IndexEntries::suggest($title, $category->id);
             foreach ($suggestions as $sg) {
                 $warnings[] = 'This looks like the blank index entry '.$sg['code'].' "'.$sg['title'].'". Use that entry instead of making a second article about the same subject.';
@@ -487,7 +503,7 @@ class AiImport
 
         // The same title in the same category is not made twice.
         if ($category && $title !== '') {
-            $same = Article::withTrashed()->where('category_id', $category->id)->get()->first(fn ($a) => mb_strtolower($a->mainTitle()) === mb_strtolower($title) && (! $entry || $a->id !== $entry->id));
+            $same = Article::withTrashed()->where('category_id', $category->id)->get()->first(fn ($a) => mb_strtolower($a->mainTitle()) === mb_strtolower($title) && (! $entry || $a->id !== $entry->id) && (! $replace || $a->id !== $replace->id));
             if ($same) {
                 $errors[] = 'An article with this title is already in that category ('.$same->code.').';
             }
@@ -535,6 +551,8 @@ class AiImport
                 'extra_ids' => array_keys($extra), 'words' => $words->all(), 'videos' => $videos,
                 'meta_title' => $metaTitle !== '' ? $metaTitle : null, 'meta_description' => $metaDescription !== '' ? $metaDescription : null,
                 'entry_id' => $entry?->id, 'entry_label' => $entry ? IndexEntries::label($entry).' · '.$entry->mainTitle() : null, 'index_suggestions' => $suggestions,
+                'replace_id' => $replace?->id, 'replace_label' => $replace ? $replace->code.' · '.$replace->mainTitle() : null, 'replace_status' => $replace?->status,
+                'replace_old_words' => $replace ? str_word_count(strip_tags((string) $replace->long_detail)) : null,
                 'explainers' => $notes,
                 'quotes' => $blocks, 'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
@@ -741,7 +759,7 @@ class AiImport
      */
     public static function commit(array $items, string $rawText, ?User $user): array
     {
-        $made = ['articles' => [], 'categories' => [], 'skipped' => 0];
+        $made = ['articles' => [], 'categories' => [], 'skipped' => 0, 'replaced' => []];
         $locale = config('infofluxes.default_locale');
 
         foreach ($items as $item) {
@@ -776,6 +794,20 @@ class AiImport
             }
 
             $d = $item['data'];
+            if (! empty($d['replace_id'])) {
+                $target = Article::find($d['replace_id']);
+                if (! $target || ! ArticleReplace::canReplace($target, $user)) {
+                    $made['skipped']++;
+
+                    continue;
+                }
+                ArticleReplace::apply($target, $d, $user);
+                Explainers::createDrafts($d['explainers'] ?? [], $user);
+                $made['articles'][] = $target->id;
+                $made['replaced'][] = $target->id;
+
+                continue;
+            }
             if (! empty($d['entry_id']) && ($entry = Article::find($d['entry_id'])) && IndexEntries::isBlank($entry)) {
                 IndexEntries::fill($entry, $d, $user);
                 Explainers::createDrafts($d['explainers'] ?? [], $user);

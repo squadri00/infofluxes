@@ -8,6 +8,7 @@ use App\Support\IndexEntries;
 use App\Models\Category;
 use App\Models\ImportLog;
 use App\Support\AiImport as Importer;
+use App\Support\ArticleReplace;
 use App\Support\Prompts;
 use BackedEnum;
 use Filament\Notifications\Notification;
@@ -67,12 +68,63 @@ class AiImport extends Page
 
     public string $entryQuery = '';
 
+    /** The existing article that the answer replaces (optional). A published article stays published. */
+    public ?int $replaceId = null;
+
+    public string $replaceQuery = '';
+
+    /** Ticked by the person to confirm that a published article gets the new text at once. */
+    public bool $confirmReplace = false;
+
     public function mount(): void
     {
         $id = (int) request()->query('entry');
         if ($id > 0 && ($entry = Article::find($id)) && IndexEntries::isBlank($entry)) {
             $this->chooseEntry($entry);
         }
+        $replace = (int) request()->query('replace');
+        if ($replace > 0 && ($target = Article::find($replace)) && ArticleReplace::canReplace($target, auth()->user())) {
+            $this->chooseReplace($target);
+        }
+    }
+
+    /** The article to replace, as an Article (or null when it is gone or this person may not replace it). */
+    public function replaceTarget(): ?Article
+    {
+        $target = $this->replaceId ? Article::query()->with('category')->find($this->replaceId) : null;
+
+        return $target && ArticleReplace::canReplace($target, auth()->user()) ? $target : null;
+    }
+
+    /** @return \Illuminate\Support\Collection<int, Article> */
+    public function replaceResults()
+    {
+        return ArticleReplace::search($this->replaceQuery, auth()->user());
+    }
+
+    public function selectReplace(int $id): void
+    {
+        $target = Article::find($id);
+        if ($target && ArticleReplace::canReplace($target, auth()->user())) {
+            $this->chooseReplace($target);
+        }
+        $this->replaceQuery = '';
+    }
+
+    public function clearReplace(): void
+    {
+        $this->replaceId = null;
+        $this->confirmReplace = false;
+    }
+
+    private function chooseReplace(Article $target): void
+    {
+        $this->replaceId = $target->id;
+        $this->entryId = null;
+        $this->confirmReplace = false;
+        $this->categoryId = $target->category_id;
+        $this->topic = $target->mainTitle();
+        $this->specialist = AiPrompt::suggestFor($target->category) ?? $this->specialist;
     }
 
     /** The entry chosen, as an Article (or null). */
@@ -113,6 +165,8 @@ class AiImport extends Page
     private function chooseEntry(Article $entry): void
     {
         $this->entryId = $entry->id;
+        $this->replaceId = null;
+        $this->confirmReplace = false;
         $this->categoryId = $entry->category_id;
         if (trim($this->topic) === '') {
             $this->topic = $entry->mainTitle();
@@ -207,15 +261,25 @@ class AiImport extends Page
 
             return;
         }
-        $this->items = Importer::parse($this->paste, true, $this->entryId);
+        $this->items = Importer::parse($this->paste, true, $this->entryId, $this->replaceTarget()?->id);
         $this->checked = true;
     }
 
     public function save(): void
     {
         // The pasted text is read again here, so what is saved is never what a browser claims it checked.
-        $items = Importer::parse($this->paste, true, $this->entryId);
+        $target = $this->replaceTarget();
+        $items = Importer::parse($this->paste, true, $this->entryId, $target?->id);
         $user = auth()->user();
+
+        // A published article gets the new text at once, so the person must tick the box first.
+        if ($target && ArticleReplace::isLive($target) && ! $this->confirmReplace
+            && collect($items)->contains(fn ($i) => ! empty($i['data']['replace_id']) && $i['errors'] === [])) {
+            Notification::make()->danger()->title('Tick the box first.')
+                ->body($target->code.' is published. Tick "I understand: visitors will see the new text at once" before you replace it.')->send();
+
+            return;
+        }
 
         if (collect($items)->contains(fn ($i) => $i['kind'] === 'categories' && $i['errors'] === []) && ! $user->canUseScreen('categories')) {
             Notification::make()->danger()->title('You may not add categories.')->body('Ask the super user to tick the Categories screen for you.')->send();
@@ -232,12 +296,14 @@ class AiImport extends Page
         $made = Importer::commit($items, $this->paste, $user);
         $this->done = $made;
         $this->entryId = null;       // the entry is filled now; the next article starts fresh
+        $this->replaceId = null;
+        $this->confirmReplace = false;
         $this->paste = '';
         $this->items = [];
         $this->checked = false;
 
         Notification::make()->success()->title('Saved.')
-            ->body(count($made['articles']).' draft article(s), '.count($made['categories']).' new hidden categor'.(count($made['categories']) === 1 ? 'y' : 'ies').', '.$made['skipped'].' item(s) skipped because of a problem.')
+            ->body((count($made['articles']) - count($made['replaced'] ?? [])).' draft article(s), '.count($made['replaced'] ?? []).' replaced, '.count($made['categories']).' new hidden categor'.(count($made['categories']) === 1 ? 'y' : 'ies').', '.$made['skipped'].' item(s) skipped because of a problem.')
             ->send();
     }
 
