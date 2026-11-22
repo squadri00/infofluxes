@@ -8,7 +8,7 @@
             <div class="menu__sub mega{{ $compact ? ' mega--compact' : '' }}">
                 <div class="mega__links">
                     <p class="mega__heading">@if (! empty($item['icon']))<span class="mega__heading-icon" aria-hidden="true">{!! \App\Support\MenuIcons::svg($item['icon'], 18) !!}</span>@endif{{ $item['label'] }}</p>
-                    <ul class="mega__list{{ count($item['children']) >= 4 ? ' mega__list--two' : '' }}">
+                    <ul class="mega__list{{ count($item['children']) > 4 ? ' mega__list--two' : '' }}">
                         @foreach ($item['children'] as $child)
                             <li>
                                 <a href="{{ $child['url'] }}">
