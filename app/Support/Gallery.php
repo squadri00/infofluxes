@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\ArticleImage;
 use App\Models\Category;
 use App\Models\DidYouKnow;
+use App\Models\GalleryPicture;
 use App\Models\Story;
 use Illuminate\Support\Facades\Cache;
 
@@ -36,11 +37,55 @@ class Gallery
     }
 
     /**
-     * @return list<array{src: string, alt: string, title: string, parent: string, kind: string, url: string, root: ?int}>
+     * The pictures the gallery shows: every picture of a published page, each with its ID, except the ones the admin switched off.
+     *
+     * @return list<array{id: int, src: string, alt: string, title: string, parent: string, kind: string, url: string, root: ?int, shown: bool}>
      */
     public static function pictures(): array
     {
-        return Cache::remember('gallery.pictures', now()->addMinutes(self::CACHE_MINUTES), fn () => static::build());
+        return Cache::remember('gallery.pictures', now()->addMinutes(self::CACHE_MINUTES), fn () => array_values(array_filter(static::register(static::build()), fn ($p) => $p['shown'])));
+    }
+
+    /** Make the list again now, and give the pictures that are new their ID (the admin screen does this when it opens). */
+    public static function refresh(): void
+    {
+        static::forget();
+        static::pictures();
+    }
+
+    /**
+     * Put the pictures in the register (a new picture gets the next ID, a known one keeps its ID and its on/off switch) and add the ID
+     * and the switch to each one. A picture that is not on a published page any more stays in the register, marked as not present.
+     *
+     * @param  list<array<string, mixed>>  $list
+     * @return list<array<string, mixed>>
+     */
+    public static function register(array $list): array
+    {
+        $now = now();
+        $rows = array_map(fn ($p) => [
+            'path' => $p['src'], 'kind' => $p['kind'], 'title' => mb_substr((string) $p['title'], 0, 300), 'parent' => mb_substr((string) $p['parent'], 0, 300),
+            'url' => mb_substr((string) $p['url'], 0, 600), 'alt' => mb_substr((string) $p['alt'], 0, 300), 'root_id' => $p['root'], 'present' => true,
+            'created_at' => $now, 'updated_at' => $now,
+        ], $list);
+        foreach (array_chunk($rows, 200) as $chunk) {
+            GalleryPicture::upsert($chunk, ['path'], ['kind', 'title', 'parent', 'url', 'alt', 'root_id', 'present', 'updated_at']);
+        }
+
+        $known = [];
+        foreach (array_chunk(array_column($list, 'src'), 400) as $paths) {
+            foreach (GalleryPicture::query()->whereIn('path', $paths)->get(['id', 'path', 'is_shown']) as $row) {
+                $known[$row->path] = $row;
+            }
+        }
+        // What was there before and is not on a published page now.
+        $current = array_flip(array_column($list, 'src'));
+        $gone = GalleryPicture::query()->where('present', true)->get(['id', 'path'])->filter(fn ($r) => ! isset($current[$r->path]))->pluck('id')->all();
+        foreach (array_chunk($gone, 400) as $ids) {
+            GalleryPicture::query()->whereIn('id', $ids)->update(['present' => false]);
+        }
+
+        return array_map(fn ($p) => $p + ['id' => (int) $known[$p['src']]->id, 'shown' => (bool) $known[$p['src']]->is_shown], $list);
     }
 
     /** @return list<array{src: string, alt: string, title: string, parent: string, kind: string, url: string, root: ?int}> */

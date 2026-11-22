@@ -59,6 +59,7 @@
             @foreach ($pictures as $p)
                 <li class="gtile">
                     <a class="gtile__link" href="{{ $p['url'] }}">
+                        <span class="gtile__id" aria-hidden="true" title="{{ __('site.gallery_id_title') }}">I-{{ $p['id'] }}</span>
                         <img src="{{ \App\Support\Thumbnail::url($p['src']) }}" alt="{{ $p['alt'] }}" width="800" height="533" loading="lazy" decoding="async">
                         <span class="gtile__cap" aria-hidden="true">
                             <span class="gtile__kind">{{ __('site.gallery_label_'.$p['kind']) }}</span>

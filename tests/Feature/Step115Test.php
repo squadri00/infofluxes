@@ -143,6 +143,13 @@ class Step115Test extends TestCase
         $this->assertStringEndsWith('storage/stories/missing.webp', Thumbnail::url('stories/missing.webp'));
     }
 
+    public function test_the_small_copy_keeps_the_file_name_of_the_picture_so_save_image_as_offers_the_real_name(): void
+    {
+        $this->assertSame('thumbs/800/stories/persia-before-the-conquest-zkfy5h.webp', Thumbnail::path('stories/persia-before-the-conquest-zkfy5h.webp'));
+        $this->assertSame('thumbs/800/articles/iblees-ul355a.webp', Thumbnail::path('/articles/iblees-ul355a.png'), 'the copy is always a WebP');
+        $this->assertSame('persia-before-the-conquest-zkfy5h.webp', basename(Thumbnail::path('stories/persia-before-the-conquest-zkfy5h.webp')));
+    }
+
     public function test_the_links_and_the_two_switches(): void
     {
         $this->story('Walk', 1);

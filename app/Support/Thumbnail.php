@@ -18,9 +18,17 @@ class Thumbnail
 
     private static int $made = 0;
 
+    /**
+     * Where the small copy of a picture is kept: the same folder and the same file name as the picture, inside "thumbs/800/".
+     * So "Save image as" in a browser offers the real name ("persia-before-the-conquest-the-muslim-conquest-of-persia-zkfy5h.webp"),
+     * not a made-up one. A picture that is not a WebP gets a copy with the same name and the ending .webp.
+     */
     public static function path(string $source, int $width = self::WIDTH): string
     {
-        return 'thumbs/'.sha1($source).'-'.$width.'.webp';
+        $source = ltrim($source, '/');
+        $dir = dirname($source);
+
+        return 'thumbs/'.$width.'/'.($dir === '.' ? '' : $dir.'/').pathinfo($source, PATHINFO_FILENAME).'.webp';
     }
 
     /** The web address of the small copy of a stored picture (made now when it is not there yet). */

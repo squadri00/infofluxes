@@ -8,7 +8,7 @@ use App\Models\Story;
 
 class ReferenceController extends Controller
 {
-    /** /id/A-42, /id/C-12 and /id/S-7 go to the page of that article, category or story. */
+    /** /id/A-42, /id/C-12 and /id/S-7 go to the page of that article, category or story; /id/I-12 to the page of that gallery picture. */
     public function __invoke(string $code)
     {
         $kind = strtoupper($code[0]);
@@ -18,6 +18,11 @@ class ReferenceController extends Controller
             \App\Models\Explainer::published()->findOrFail($id);
 
             return redirect(route('words').'#word-'.$id, 301);
+        }
+        if ($kind === 'I') {
+            $picture = \App\Models\GalleryPicture::query()->where('present', true)->where('is_shown', true)->findOrFail($id);
+
+            return redirect($picture->url, 301);
         }
         if ($kind === 'S') {
             $story = Story::published()->findOrFail($id);

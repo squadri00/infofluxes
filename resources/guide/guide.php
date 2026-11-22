@@ -341,6 +341,17 @@ return [
         'tips' => ['Status, category and user role cannot be put back this way.'],
     ],
     [
+        'key' => 'gallery-pictures', 'title' => 'Gallery pictures', 'group' => 'Content', 'classes' => [\App\Filament\Resources\GalleryPictures\GalleryPictureResource::class], 'access' => 'publish',
+        'what' => 'The list of every picture in the picture gallery (the page at /gallery), each with an ID such as I-12 that never changes. Here you switch a picture on or off in the gallery.',
+        'steps' => [
+            'Each picture shows its ID in a small pill on its corner in the gallery, and here in the ID column. The ID stays the same when the picture file is renamed.',
+            'Press the switch in "Shown in the gallery" to leave a picture out, or to bring it back. It shows at once. The picture stays on its own page: only the gallery leaves it out.',
+            'To switch many at once, tick the pictures and choose "Leave out of the gallery" or "Show in the gallery".',
+            'Search by ID (I-12), by title, or by the story or article name. Filter by kind, by shown or switched off.',
+        ],
+        'tips' => ['The list opens with the pictures that are on a published page. "Look for new pictures" adds the newest ones; it also happens by itself when this screen opens and every 10 minutes on the gallery page.', 'A picture whose page is not published any more stays in the list (filter "On a published page: No"), keeps its ID and its switch, and shows in the gallery again when its page is published.', 'The address /id/I-12 opens the page of that picture. Only a moderator or the super user can use this screen.'],
+    ],
+    [
         'key' => 'redirects', 'title' => 'Redirects', 'group' => 'Settings', 'classes' => [RedirectResource::class], 'access' => 'superuser',
         'what' => 'An old web address that leads to a new one. They are made by themselves when an address changes.',
         'steps' => ['"New redirect" adds one by hand (to a page of the site, or to another website).', 'Switch one off or delete it when it is not needed.'],

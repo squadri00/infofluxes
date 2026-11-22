@@ -133,8 +133,8 @@ Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'un
 Route::get('/people', [PersonController::class, 'index'])->name('people.index');
 Route::get('/people/{slug}', [PersonController::class, 'show'])->where('slug', '[a-z0-9][a-z0-9-]*')->name('people.show');
 
-// A reference code (A-42 or C-12) opens the article or category it belongs to.
-Route::get('/id/{code}', ReferenceController::class)->where('code', '[AaCcSsEe]-[0-9]+')->name('reference');
+// A reference code (A-42, C-12, S-7, E-3 or I-12) opens the article, category, story, word or gallery picture it belongs to.
+Route::get('/id/{code}', ReferenceController::class)->where('code', '[AaCcSsEeIi]-[0-9]+')->name('reference');
 Route::get('/words', WordsController::class)->name('words');
 
 // Visual Stories: the gallery, one story, and its PDF book. (The old address of an article that became a story, /name/book, sends visitors on.)

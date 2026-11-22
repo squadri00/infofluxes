@@ -155,6 +155,7 @@ return [
     'gallery_count' => ':n pictures',
     'gallery_empty' => 'There are no pictures here yet.',
     'gallery_more' => 'See the whole picture gallery',
+    'gallery_id_title' => 'The ID of this picture',
     'featured_in_category' => 'Featured',
     'people_title' => 'Contributors',
     'people_intro' => 'The people who research, write and answer on this site.',
