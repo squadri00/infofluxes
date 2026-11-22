@@ -16,6 +16,9 @@
         }
         $shapes = array_merge($shapes, array_fill(0, $total - count($shapes), 'c'));
     }
+    if (! empty($force)) {
+        $shapes = array_fill(0, $total, $force);   // every card has the shape asked for ('c' = the small card)
+    }
     $cardView = $card ?? 'partials.article-card';
 @endphp
 <ul class="mosaic">
