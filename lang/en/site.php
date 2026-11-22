@@ -133,6 +133,7 @@ return [
     'dyk_read_article' => 'Read the full article',
     'dyk_more' => 'More facts',
     'dyk_read_more' => 'Read the fact',
+    'dyk_all' => 'All facts',
     'read_article' => 'Read the article',
     'read_story' => 'Open the story',
     'gallery_title' => 'Picture gallery',

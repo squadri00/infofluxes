@@ -99,6 +99,13 @@ class DidYouKnowResource extends Resource
                 ->helperText('The person who checked it. Written with AI help? Leave "Written with AI help" on until a person has read and checked it.')
                 ->required(fn (Get $get) => $get('status') === 'published' && (bool) $get('ai_assisted')),
             Toggle::make('ai_assisted')->label('Written with AI help')->live()->default(false),
+            Toggle::make('is_featured')->label('Featured on the home page')->live()
+                ->helperText('A featured fact shows in the "Did You Know?" part of the home page (when it is published and has a source). Only a moderator or the super user can feature a fact.')
+                ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
+            TextInput::make('featured_order')->label('Featured order')->numeric()->minValue(0)->default(0)
+                ->helperText('1 comes first, then 2, and so on. 0 means after the numbered ones.')
+                ->visible(fn (Get $get) => (bool) $get('is_featured'))
+                ->disabled(fn () => ! auth()->user()?->canPublish())->dehydrated(fn () => (bool) auth()->user()?->canPublish()),
         ])->columns(1);
     }
 
@@ -113,16 +120,20 @@ class DidYouKnowResource extends Resource
                 TextColumn::make('category.name')->label('Category')->state(fn (DidYouKnow $r) => $r->category?->mainName())->placeholder('—')->toggleable(),
                 TextColumn::make('status')->badge()->formatStateUsing(fn ($state) => DidYouKnow::STATUSES[$state] ?? $state)->color(fn ($state) => $state === 'published' ? 'success' : 'gray'),
                 IconColumn::make('source')->label('Source')->boolean()->state(fn (DidYouKnow $r) => filled($r->source)),
+                \Filament\Tables\Columns\ToggleColumn::make('is_featured')->label('Home')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('warning')
+                    ->tooltip('Featured on the home page')
+                    ->disabled(fn () => ! auth()->user()?->canPublish()),
                 TextColumn::make('reviewer_name')->label('Reviewed by')->placeholder('—')->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('status')->options(DidYouKnow::STATUSES),
                 SelectFilter::make('category_id')->label('Category')->options(fn () => Category::choices()),
+                \Filament\Tables\Filters\TernaryFilter::make('is_featured')->label('Featured on the home page'),
             ])
             ->recordActions([
                 EditAction::make()->label('Modify')->modalHeading('Modify the fact')->modalWidth(Width::FourExtraLarge)
                     ->mutateDataUsing(fn (array $data) => static::clean($data)),
-                ReplicateAction::make()->label('Clone')->excludeAttributes(['sort_order', 'slug'])
+                ReplicateAction::make()->label('Clone')->excludeAttributes(['sort_order', 'slug', 'is_featured', 'featured_order'])
                     ->beforeReplicaSaved(function (DidYouKnow $replica) {
                         $replica->status = 'draft';
                         $replica->sort_order = (int) DidYouKnow::max('sort_order') + 1;
@@ -137,6 +148,10 @@ class DidYouKnowResource extends Resource
     {
         foreach ((array) ($data['body'] ?? []) as $locale => $html) {
             $data['body'][$locale] = static::tidy(Html::clean((string) $html));
+        }
+        // Only a moderator or the super user features a fact.
+        if (! (auth()->user()?->canPublish() ?? false)) {
+            unset($data['is_featured'], $data['featured_order']);
         }
 
         return $data;

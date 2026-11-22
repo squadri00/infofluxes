@@ -27,7 +27,7 @@ class DidYouKnow extends Model
 
     protected function casts(): array
     {
-        return ['ai_assisted' => 'boolean', 'custom_data' => 'array'];
+        return ['ai_assisted' => 'boolean', 'is_featured' => 'boolean', 'custom_data' => 'array'];
     }
 
     protected static function booted(): void
@@ -96,6 +96,12 @@ class DidYouKnow extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'published');
+    }
+
+    /** The facts ticked "Featured on the home page" that visitors may see: the order number first (1 first, 0 last), then the order of the facts page. */
+    public function scopeFeaturedOnHome(Builder $query): Builder
+    {
+        return $query->visible()->where('is_featured', true)->orderByRaw('CASE WHEN featured_order = 0 THEN 1 ELSE 0 END')->orderBy('featured_order')->orderBy('sort_order')->orderBy('id');
     }
 
     public function scopeOrdered(Builder $query): Builder

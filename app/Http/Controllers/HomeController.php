@@ -31,8 +31,13 @@ class HomeController extends Controller
             ? \App\Models\Story::featuredOnHome()->with(['category', 'contributor'])->withCount('slides')->withEngagement()->limit($storyCount)->get()
             : collect();
 
+        // The "Did You Know?" part: only the facts that are ticked as featured, up to the number set (0 = no part).
+        $factCount = max(0, min(12, (int) Setting::get('home_dyk_count', 4)));
+        $facts = $factCount > 0 ? \App\Models\DidYouKnow::featuredOnHome()->with('category')->limit($factCount)->get() : collect();
+
         return view('home', [
             'stories' => $stories,
+            'facts' => $facts,
             'hero' => \App\Support\Hero::forHome(),
             'categories' => Category::query()->whereNull('parent_id')->where('is_visible', true)->orderBy('sort_order')->orderBy('id')->get(),
             'featured' => $featured,

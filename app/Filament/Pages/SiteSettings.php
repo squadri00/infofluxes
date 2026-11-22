@@ -67,7 +67,7 @@ class SiteSettings extends Page
     /** @return list<string> */
     private static function keys(): array
     {
-        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'logo_with_name', 'newsletter_on', 'newsletter_popup_delay', 'newsletter_popup_days', 'card_stats_on', 'card_image_fit', 'card_image_focus', 'card_image_saturation', 'card_image_contrast', 'card_image_brightness', 'newsletter_code_minutes', 'newsletter_per_run', 'font_heading', 'font_body', 'font_arabic', 'font_size', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
+        return ['home_featured_count', 'home_latest_count', 'home_stories_count', 'home_dyk_count', 'signups_open', 'comments_open', 'site_name', 'tagline', 'footer_about', 'copyright', 'logo', 'logo_with_name', 'newsletter_on', 'newsletter_popup_delay', 'newsletter_popup_days', 'card_stats_on', 'card_image_fit', 'card_image_focus', 'card_image_saturation', 'card_image_contrast', 'card_image_brightness', 'newsletter_code_minutes', 'newsletter_per_run', 'font_heading', 'font_body', 'font_arabic', 'font_size', 'upload_max_mb', 'image_max_kb', 'image_max_width', 'image_quality'];
     }
 
     public function form(Schema $schema): Schema
@@ -92,6 +92,7 @@ class SiteSettings extends Page
                         TextInput::make('home_latest_count')->label('Latest: how many')->numeric()->minValue(0)->maxValue(24)->placeholder('8'),
                         Toggle::make('card_stats_on')->label('Show likes, dislikes and views on the home page cards')->helperText('A small row under each story and article card. Off: the row is hidden.')->columnSpanFull(),
                         TextInput::make('home_stories_count')->label('Stories in pictures: how many')->helperText('Featured stories first, then the newest. 0 hides the part.')->numeric()->minValue(0)->maxValue(12)->placeholder('4'),
+                        TextInput::make('home_dyk_count')->label('Did You Know?: how many')->helperText('The facts ticked "Featured on the home page". 0 hides the part.')->numeric()->minValue(0)->maxValue(12)->placeholder('4'),
                     ])->columns(2),
                 Section::make('People and discussion')
                     ->schema([
@@ -157,7 +158,7 @@ class SiteSettings extends Page
                 $value = array_filter($value, fn ($v) => filled($v));
             }
             // The two counts are whole numbers (an empty box means the usual number).
-            if (in_array($key, ['home_featured_count', 'home_latest_count', 'home_stories_count'], true)) {
+            if (in_array($key, ['home_featured_count', 'home_latest_count', 'home_stories_count', 'home_dyk_count'], true)) {
                 $value = is_numeric($value) ? max(0, min(24, (int) $value)) : null;
             }
             // How long a newsletter code works, in minutes (an empty box means the usual 15).

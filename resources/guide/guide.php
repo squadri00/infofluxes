@@ -221,7 +221,7 @@ return [
         'key' => 'dyk', 'title' => 'Did You Know?', 'group' => 'Content', 'classes' => [DidYouKnowResource::class], 'access' => 'facts',
         'what' => 'Short facts, like an FAQ. Each one needs a source to be shown.',
         'steps' => ['Write a short title and the fact in plain words.', 'Add the source. Without a source the fact is not shown.', 'Publish it. Visitors see all published facts on one page.'],
-        'tips' => [],
+        'tips' => ['To show a fact on the home page, press its star in the "Home" column of the list, or tick "Featured on the home page" when you modify it and give it an order number (1 first, 0 last). The home page then has a "Did You Know?" part with those facts, each as a card that opens the fact. Only a published fact with a source is shown, and only a moderator or the super user can feature one.', 'How many featured facts the home page shows is set in Site settings > Home page > "Did You Know?: how many" (4 when empty; 0 hides the part).'],
     ],
     [
         'key' => 'ai-import', 'title' => 'AI import', 'group' => 'Content', 'classes' => [AiImport::class], 'access' => 'import',
