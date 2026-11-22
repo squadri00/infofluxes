@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\DidYouKnow;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -41,5 +42,19 @@ class Step106Test extends TestCase
         $only = $this->fact('Only fact', 1);
 
         $this->get($only->url())->assertOk()->assertDontSee('fact-nav__link', false);
+    }
+
+    public function test_previous_and_next_stay_inside_the_category_of_the_fact(): void
+    {
+        $cat = Category::create(['name' => ['en' => 'Science'], 'slug' => 'science']);
+        $other = Category::create(['name' => ['en' => 'History'], 'slug' => 'history']);
+        $a = $this->fact('Science one', 1);
+        $b = $this->fact('History one', 2);
+        $c = $this->fact('Science two', 3);
+        $a->update(['category_id' => $cat->id]);
+        $b->update(['category_id' => $other->id]);
+        $c->update(['category_id' => $cat->id]);
+
+        $this->get($a->url())->assertOk()->assertSeeHtml('href="'.$c->url().'"')->assertDontSeeHtml('href="'.$b->url().'" rel');
     }
 }

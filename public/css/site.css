@@ -2615,4 +2615,4 @@ html[data-view="list"] .cstats { margin-top: 2px !important; }
 .fact-nav__link--next { text-align: end; }
 .fact-nav__dir { font-size: .85rem; font-weight: 700; color: var(--accent); }
 .fact-nav__title { font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-html[dir="rtl"] .fact-nav__arrow { display: inline-block; transform: scaleX(-1); }
+html[dir="rtl"] .fact-nav__arrow { display: inline-block; transform: rotate(180deg); }
