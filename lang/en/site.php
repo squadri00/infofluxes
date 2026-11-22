@@ -132,6 +132,8 @@ return [
     'dyk_ai' => 'Written with AI help',
     'dyk_read_article' => 'Read the full article',
     'dyk_more' => 'More facts',
+    'dyk_read_more' => 'Read the fact',
+    'read_article' => 'Read the article',
     'people_title' => 'Contributors',
     'people_intro' => 'The people who research, write and answer on this site.',
     'people_none' => 'No contributors are listed yet.',

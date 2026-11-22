@@ -187,7 +187,7 @@
     @if ($related->isNotEmpty() && \App\Support\SiteControls::on('related'))
         <section class="block">
             <h2 class="block__title">{{ __('site.related') }}</h2>
-            @include('partials.article-mosaic', ['articles' => $related])
+            @include('partials.related-cards', ['items' => $related, 'kind' => 'article'])
         </section>
     @endif
 @if (\App\Support\Listen::visible($listenTracks))

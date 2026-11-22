@@ -88,7 +88,7 @@
     @if ($more->isNotEmpty())
         <section class="block">
             <h2 class="block__title">{{ __('site.dyk_more') }}</h2>
-            @include('partials.article-mosaic', ['articles' => $more, 'card' => 'partials.fact-card'])
+            @include('partials.related-cards', ['items' => $more, 'kind' => 'fact'])
         </section>
     @endif
 </article>
