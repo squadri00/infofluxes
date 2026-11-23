@@ -22,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // "Continue with Microsoft": the Microsoft driver for Socialite.
+        \Illuminate\Support\Facades\Event::listen(\SocialiteProviders\Manager\SocialiteWasCalled::class, \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class.'@handle');
+
         // When the English text of a story changes, the languages made from the old text are hidden and marked "out of date".
         \App\Support\StoryMaker\OutdatedTranslations::register();
 

@@ -12,6 +12,7 @@
         "laravel/framework": "^13.17",
         "laravel/socialite": "^5.32",
         "laravel/tinker": "^3.0",
+        "socialiteproviders/microsoft": "^4.10",
         "spatie/laravel-translatable": "^6.15"
     },
     "require-dev": {

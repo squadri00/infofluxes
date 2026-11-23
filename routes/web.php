@@ -46,8 +46,8 @@ Route::get('/categories', \App\Http\Controllers\CategoriesController::class)->na
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
-    Route::get('/login/{provider}', [SocialAuthController::class, 'redirect'])->where('provider', 'google|facebook')->middleware('throttle:20,1')->name('social.redirect');
-    Route::get('/login/{provider}/callback', [SocialAuthController::class, 'callback'])->where('provider', 'google|facebook')->middleware('throttle:20,1')->name('social.callback');
+    Route::get('/login/{provider}', [SocialAuthController::class, 'redirect'])->where('provider', 'google|facebook|microsoft')->middleware('throttle:20,1')->name('social.redirect');
+    Route::get('/login/{provider}/callback', [SocialAuthController::class, 'callback'])->where('provider', 'google|facebook|microsoft')->middleware('throttle:20,1')->name('social.callback');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
     // Forgotten password.
@@ -65,7 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/account/security', [ProfileController::class, 'security'])->name('account.security');
     Route::post('/account/password', [ProfileController::class, 'changePassword'])->middleware('throttle:10,1')->name('account.password');
     Route::post('/account/email', [ProfileController::class, 'changeEmail'])->middleware('throttle:6,1')->name('account.email');
-    Route::post('/account/sign-ins/{provider}/unlink', [ProfileController::class, 'unlink'])->where('provider', 'google|facebook')->name('account.unlink');
+    Route::post('/account/sign-ins/{provider}/unlink', [ProfileController::class, 'unlink'])->where('provider', 'google|facebook|microsoft')->name('account.unlink');
     Route::get('/account/privacy', [ProfileController::class, 'privacy'])->name('account.privacy');
     Route::get('/account/my-data', [ProfileController::class, 'download'])->middleware('throttle:6,1')->name('account.data');
     Route::post('/account/delete', [ProfileController::class, 'destroy'])->middleware('throttle:5,1')->name('account.delete');

@@ -27,6 +27,15 @@ return [
         'redirect' => '/login/facebook/callback',
     ],
 
+    // Microsoft accounts (Hotmail, Outlook, Live). Only PERSONAL accounts ('consumers'): Microsoft confirms those email addresses.
+    // Work and school accounts ('common' or a company id) can carry an unconfirmed email, so they are not offered.
+    'microsoft' => [
+        'client_id' => env('MICROSOFT_CLIENT_ID'),
+        'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
+        'redirect' => '/login/microsoft/callback',
+        'tenant' => 'consumers',
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

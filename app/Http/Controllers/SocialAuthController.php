@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
- * Sign in or sign up with Google or Facebook.
+ * Sign in or sign up with Google, Facebook or Microsoft (personal Hotmail, Outlook and Live accounts).
  * - A person who signed in this way before is signed in again.
  * - A new person becomes a member (only if sign-ups are open). Their email counts as confirmed, because Google or Facebook confirmed it.
  * - An existing member with the same confirmed email is joined to the account.
@@ -32,7 +32,7 @@ class SocialAuthController extends Controller
     {
         abort_unless(SocialLogin::enabled($provider), 404);
         if ($request->filled('error')) {
-            return $this->fail('social_cancelled');   // the person pressed "cancel" at Google or Facebook
+            return $this->fail('social_cancelled');   // the person pressed "cancel" at Google, Facebook or Microsoft
         }
 
         try {

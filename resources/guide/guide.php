@@ -98,7 +98,7 @@ return [
             'Super user: everything, including People, Site settings, Backups, History and Redirects.',
             'Moderator: Articles, Visual Stories, Categories, Comments and Explainers (and more if ticked). A moderator can publish, archive and feature items.',
             'Author: Articles and Visual Stories, only their own. An author can save drafts and send them for review, but cannot publish.',
-            'Member: no admin. A member signs in on the site (or with Google or Facebook). After signing up a member must confirm their email address with a link we send. Then they can comment, like, save and send in an article. Until then they can only read.',
+            'Member: no admin. A member signs in on the site (or with Google, Facebook or Microsoft). After signing up a member must confirm their email address with a link we send. Then they can comment, like, save and send in an article. Until then they can only read.',
         ],
         'tips' => ['Only the super user can open AI prompts, because they are the rules every AI article follows.'],
     ],
@@ -315,14 +315,14 @@ return [
     [
         'key' => 'site-settings', 'title' => 'Site settings', 'group' => 'Settings', 'classes' => [SiteSettings::class], 'access' => 'superuser',
         'what' => 'The name, taglines, home page parts, Listen, comments and sign-up switches of the site.',
-        'steps' => ['Change what you need and save. Most settings take effect at once.', 'Sign-ups open: switch off to stop new members (Google and Facebook sign-up follows this too).'],
+        'steps' => ['Change what you need and save. Most settings take effect at once.', 'Sign-ups open: switch off to stop new members (Google, Facebook and Microsoft sign-up follows this too).'],
         'tips' => [],
     ],
     [
         'key' => 'social', 'title' => 'Social media', 'group' => 'Settings', 'classes' => [SocialLinkResource::class], 'access' => 'superuser',
         'what' => 'The site\'s own accounts, shown as round buttons in the footer.',
         'steps' => ['Add the web address of each account. Drag to change the order. Switch one off to hide it.'],
-        'tips' => ['This is not the same as signing in with Google or Facebook. That needs keys in the .env file.'],
+        'tips' => ['This is not the same as signing in with Google, Facebook or Microsoft. That needs keys in the .env file.'],
     ],
     [
         'key' => 'users', 'title' => 'People', 'group' => 'Settings', 'classes' => [UserResource::class], 'access' => 'superuser',
