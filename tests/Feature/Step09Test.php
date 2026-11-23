@@ -123,7 +123,7 @@ class Step09Test extends TestCase
 
         $sections = $this->sections(Livewire::test(EditArticle::class, ['record' => $article->getRouteKey()]));
 
-        $this->assertSame(['The article', 'Pictures', 'Audio for the Listen button', 'YouTube videos', 'Publishing', 'Search engines (optional)'], array_keys($sections));
+        $this->assertSame(['The article', 'Long detail', 'Pictures', 'Audio for the Listen button', 'YouTube videos', 'Publishing', 'Search engines (optional)'], array_keys($sections));
         foreach ($sections as $heading => $closed) {
             $this->assertTrue($closed, "$heading starts closed");
         }

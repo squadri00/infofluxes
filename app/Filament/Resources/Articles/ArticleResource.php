@@ -144,9 +144,16 @@ class ArticleResource extends Resource
                             ->getOptionLabelsUsing(fn (array $values): array => array_intersect_key(Category::choices(), array_flip($values)))
                             ->helperText('Type part of a name, or a code such as C-12, to find a category.'),
                         ...Translated::textarea('short_detail', 'Short detail', rows: 3, help: 'One or two sentences. Shown in lists and when the article is shared.'),
-                        ...Translated::rich('long_detail', 'Long detail'),
                         TagsInput::make('search_words')->label('Search words')->helperText('Type a word or phrase and press Enter. Add as many as you like.')->columnSpanFull(),
                         TextInput::make('source_line')->label('Source (optional)')->helperText('One line. It shows on the page only when it is filled in.')->maxLength(500),
+                    ])->columns(1),
+
+                // The long text has its own box that can be folded away, so a long article does not make the whole form long.
+                Section::make('Long detail')
+                    ->collapsible()
+                    ->collapsed(fn (string $operation) => $operation === 'edit')
+                    ->schema([
+                        ...Translated::rich('long_detail', 'Long detail'),
                     ])->columns(1),
 
                 Section::make('Pictures')
