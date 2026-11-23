@@ -2916,3 +2916,6 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .topics-card__links { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 4px 0 0; }
 .topics-card__index { font-size: .86rem; }
 .site-footer__all { font-weight: 700; }
+
+.all-tabs__tab--all { border-color: var(--accent); color: var(--accent); }
+.all-tabs__tab--all:hover { background: var(--accent); color: var(--accent-text, #fff); }

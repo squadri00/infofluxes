@@ -76,6 +76,18 @@ class Step124Test extends TestCase
         $this->get('/sitemap.xml')->assertOk()->assertDontSee(route('categories'), false);
     }
 
+    public function test_a_category_page_has_an_all_categories_button_before_browse(): void
+    {
+        $this->tree();
+
+        $html = $this->get('/category/alpha-master')->assertOk()->assertSee('All categories')->getContent();
+        $this->assertLessThan(strpos($html, '>Browse'), strpos($html, 'All categories'), 'the button comes before Browse');
+
+        Setting::put('ctl_categories_page', '0');
+        Setting::forget();
+        $this->get('/category/alpha-master')->assertOk()->assertDontSee('all-tabs__tab--all', false);
+    }
+
     public function test_the_address_cannot_be_used_by_a_category_or_a_page(): void
     {
         $this->assertContains('categories', Category::RESERVED_SLUGS);

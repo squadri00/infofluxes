@@ -142,10 +142,17 @@
     @endif
 
     <div class="category-controls">
-        @if ($mode !== 'index' && $hasAllTab)
+        @php $allCategoriesTab = \App\Support\SiteControls::on('categories_page'); @endphp
+        @if ($mode !== 'index' && ($hasAllTab || $allCategoriesTab))
         <nav class="all-tabs" aria-label="{{ __('site.topics_label') }}">
+            {{-- The first button leads to the page with every category (Browse all topics). --}}
+            @if ($allCategoriesTab)
+                <a class="all-tabs__tab all-tabs__tab--all" href="{{ route('categories') }}">&#9776; {{ __('site.categories_tab') }}</a>
+            @endif
+            @if ($hasAllTab)
             <a class="all-tabs__tab{{ $all ? '' : ' is-current' }}" href="{{ route('category.show', $category->slug) }}" @if (! $all) aria-current="page" @endif>{{ __('site.tab_overview') }}</a>
             <a class="all-tabs__tab{{ $all ? ' is-current' : '' }}" href="{{ route('category.show', ['slug' => $category->slug, 'list' => 'all']) }}" @if ($all) aria-current="page" @endif>{{ __('site.tab_all_articles') }} <span class="all-tabs__count">{{ $allTotal }}</span></a>
+            @endif
         </nav>
         @endif
         @if ($showBar)
