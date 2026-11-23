@@ -29,7 +29,7 @@ class Page extends Model
     /** Addresses the site itself uses. A page may not take one of them. */
     public const RESERVED = [
         'admin', 'login', 'register', 'logout', 'account', 'submit', 'search', 'category', 'id', 'language', 'sitemap', 'sitemap-xml',
-        'challenge-yourself', 'quiz', 'did-you-know', 'stories', 'gallery', 'words', 'faq', 'people', 'newsletter', 'comments', 'storage', 'css', 'js', 'images', 'livewire', 'up', 'robots-txt', 'build', 'vendor',
+        'challenge-yourself', 'quiz', 'did-you-know', 'stories', 'gallery', 'categories', 'words', 'faq', 'people', 'newsletter', 'comments', 'storage', 'css', 'js', 'images', 'livewire', 'up', 'robots-txt', 'build', 'vendor',
     ];
 
     protected function casts(): array

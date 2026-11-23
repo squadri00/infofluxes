@@ -39,6 +39,9 @@ Route::get('/storage/{path}', \App\Http\Controllers\PictureRedirectController::c
 Route::get('/category/{slug}', CategoryController::class)->name('category.show');
 // The picture gallery: pictures from the whole site, each leading to its page.
 Route::get('/gallery', \App\Http\Controllers\GalleryController::class)->name('gallery');
+
+// All the main categories with their sub-categories on one page.
+Route::get('/categories', \App\Http\Controllers\CategoriesController::class)->name('categories');
 // People: log in, sign up, log out, my account, submit an article, post a comment.
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

@@ -2890,3 +2890,29 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 
 /* The ID on the banners (category and gallery) is white, so it reads on any picture. */
 .category-banner .id-tag, .gallery-hero .id-tag { color: #fff; background: rgba(255, 255, 255, .2); border-color: rgba(255, 255, 255, .55); text-shadow: none; }
+
+/* ===== Browse all topics ===== */
+.topics-hero { min-height: 340px; }
+.topics-tools { display: flex; gap: 8px; margin: 0 0 14px; }
+.topics-tools .gchip { cursor: pointer; font-family: inherit; }
+.topics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 18px; align-items: start; }
+.topics-card { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 2px 10px rgba(0, 0, 0, .06); }
+.topics-card__media { display: block; aspect-ratio: 16 / 7; background: linear-gradient(135deg, #14304a, #3b2370); }
+.topics-card__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.topics-card__body { display: grid; gap: 10px; padding: 16px 18px 18px; }
+.topics-card__title { margin: 0; font-size: 1.25rem; line-height: 1.2; }
+.topics-card__title a { color: var(--text); text-decoration: none; }
+.topics-card__title a:hover { color: var(--accent); }
+.topics-card__text { margin: 0; color: var(--muted); font-size: .94rem; line-height: 1.5; }
+.topics-card__meta { margin: 0; font-size: .82rem; color: var(--muted); }
+.topics-card__subs { border-top: 1px solid var(--line); padding-top: 8px; }
+.topics-card__subs summary { cursor: pointer; font-weight: 700; font-size: .88rem; color: var(--accent); padding: 4px 0; }
+.topics-card__subs ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; }
+.topics-card__subs li { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 6px 8px; border-radius: 8px; }
+.topics-card__subs li:hover { background: var(--accent-soft); }
+.topics-card__subs li a { color: var(--text); text-decoration: none; font-size: .94rem; }
+.topics-card__subs li a:hover { color: var(--accent); }
+.topics-card__n { flex: none; font-size: .76rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
+.topics-card__links { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 4px 0 0; }
+.topics-card__index { font-size: .86rem; }
+.site-footer__all { font-weight: 700; }
