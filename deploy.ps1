@@ -5,8 +5,10 @@
 #
 # Keys: the GitHub key and the Hostinger key are the files named below in your .ssh folder. No password is used or stored here.
 
-$ErrorActionPreference = "Stop"
+# (git writes its progress on the error channel, so errors are judged by the exit code below, not by PowerShell.)
+$ErrorActionPreference = "Continue"
 Set-Location $PSScriptRoot
+$home_ = $HOME.Replace("\", "/")
 
 $dirty = git status --porcelain --untracked-files=no
 if ($dirty) {
@@ -17,12 +19,12 @@ if ($dirty) {
 
 $branch = (git branch --show-current).Trim()
 Write-Host "Pushing '$branch' to GitHub..." -ForegroundColor Cyan
-$env:GIT_SSH_COMMAND = "ssh -i $HOME/.ssh/github_squadri00 -o IdentitiesOnly=yes"
+$env:GIT_SSH_COMMAND = "ssh -i $home_/.ssh/github_squadri00 -o IdentitiesOnly=yes"
 git push origin "${branch}:main"
 if ($LASTEXITCODE -ne 0) { Write-Host "GitHub push failed." -ForegroundColor Red; exit 1 }
 
 Write-Host "Pushing '$branch' to the live server..." -ForegroundColor Cyan
-$env:GIT_SSH_COMMAND = "ssh -i $HOME/.ssh/hostinger_ef -o IdentitiesOnly=yes"
+$env:GIT_SSH_COMMAND = "ssh -i $home_/.ssh/hostinger_ef -o IdentitiesOnly=yes"
 git push live "${branch}:main"
 if ($LASTEXITCODE -ne 0) { Write-Host "Live push failed." -ForegroundColor Red; exit 1 }
 
