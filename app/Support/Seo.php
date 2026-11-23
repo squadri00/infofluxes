@@ -233,7 +233,9 @@ class Seo
     public static function robotsTxt(): string
     {
         if (static::siteHidden()) {
-            return "User-agent: *\nDisallow: /\n";
+            // Every crawler is kept out, except the link checkers of Facebook and Meta: they must read the privacy and terms pages
+            // for the "Continue with Facebook" app. Search engines stay out, and every page still says noindex.
+            return "User-agent: facebookexternalhit\nUser-agent: Facebot\nUser-agent: meta-externalagent\nDisallow: /admin\nDisallow: /account\nDisallow: /login\nDisallow: /register\n\nUser-agent: *\nDisallow: /\n";
         }
         $lines = ['User-agent: *', 'Disallow: /admin', 'Disallow: /account', 'Disallow: /login', 'Disallow: /register', 'Disallow: /forgot-password', 'Disallow: /reset-password', 'Disallow: /email/', 'Disallow: /search', 'Disallow: /language/', 'Disallow: /quiz/'];
         if ($extra = trim((string) Setting::get('seo_robots_extra'))) {

@@ -45,6 +45,20 @@ class Step61Test extends TestCase
         $this->get('/login')->assertSee('<meta name="description" content="The default words for Google.">', false);
     }
 
+    public function test_a_hidden_site_lets_only_the_facebook_link_checkers_read_the_public_pages(): void
+    {
+        Setting::put('seo_noindex_site', '1');
+        Setting::forget();
+
+        $txt = $this->get('/robots.txt')->assertOk()->getContent();
+        $this->assertStringContainsString("User-agent: facebookexternalhit\n", $txt);
+        $this->assertStringContainsString("User-agent: *\nDisallow: /\n", $txt);
+        // The Facebook group does not close the whole site; only the general group does.
+        $this->assertLessThan(strpos($txt, 'User-agent: *'), strpos($txt, 'facebookexternalhit'));
+        $this->assertStringNotContainsString("meta-externalagent\nDisallow: /\n", $txt);
+        $this->get('/')->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+    }
+
     public function test_hiding_the_site_adds_noindex_and_closes_robots(): void
     {
         $this->get('/')->assertDontSee('noindex', false);
