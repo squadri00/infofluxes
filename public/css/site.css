@@ -2887,3 +2887,6 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 
 .menu .menu__item--home > a { padding: 0; width: 36px; height: 36px; min-width: 36px; }
 .menu .menu__item--home > a svg { flex: none; width: 18px; height: 18px; }
+
+/* The ID on the banners (category and gallery) is white, so it reads on any picture. */
+.category-banner .id-tag, .gallery-hero .id-tag { color: #fff; background: rgba(255, 255, 255, .2); border-color: rgba(255, 255, 255, .55); text-shadow: none; }
