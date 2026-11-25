@@ -130,6 +130,23 @@ class Step129Test extends TestCase
         $this->get('/sitemap.xml')->assertOk()->assertSee(route('articles'), false);
     }
 
+    public function test_the_purple_box_has_both_buttons_and_each_follows_its_own_switch(): void
+    {
+        $this->article('Mango orchard', $this->childA);
+        \App\Models\HeroMessage::create(['title' => ['en' => 'Understand first'], 'is_active' => true, 'sort_order' => 1]);
+
+        $this->get('/')->assertOk()->assertSee('hero__readall', false)->assertSee('hero__topics', false)->assertSee(route('categories'), false);
+
+        Setting::put('ctl_categories_page', '0');
+        Setting::forget();
+        $this->get('/')->assertOk()->assertSee('hero__readall', false)->assertDontSee('hero__topics', false);
+
+        Setting::put('ctl_categories_page', '1');
+        Setting::put('ctl_articles_page', '0');
+        Setting::forget();
+        $this->get('/')->assertOk()->assertDontSee('hero__readall', false)->assertSee('hero__topics', false);
+    }
+
     public function test_the_switch_turns_the_page_and_its_links_off(): void
     {
         $this->article('Mango orchard', $this->childA);

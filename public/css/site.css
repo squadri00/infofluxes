@@ -2936,3 +2936,10 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .articles-bar > * { min-width: 0; }
 .articles-bar select { text-overflow: ellipsis; }
 @media (max-width: 700px) { .articles-bar select, .articles-bar .all-list__search { width: 100%; max-width: 100%; flex: 1 1 100%; } }
+
+/* The two buttons of the purple box: Read all articles (white) and Browse all topics (outline) */
+.hero__actions { display: flex; flex-wrap: wrap; gap: 10px 12px; }
+.hero:not(.hero--full):not(.hero--media-only) .hero__topics { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border: 2px solid rgba(255, 255, 255, .85); border-radius: 999px; background: transparent; color: #fff; font-weight: 700; text-decoration: none; transition: background .15s, transform .15s; }
+.hero:not(.hero--full):not(.hero--media-only) .hero__topics:hover, .hero:not(.hero--full):not(.hero--media-only) .hero__topics:focus-visible { background: rgba(255, 255, 255, .18); transform: translateX(2px); outline: none; }
+.hero--full .hero__topics { display: inline-flex; padding: 10px 22px; border: 2px solid #fff; border-radius: 999px; color: #fff; font-weight: 700; text-decoration: none; pointer-events: auto; }
+@media (max-width: 700px) { .hero:not(.hero--full):not(.hero--media-only) .hero__readall, .hero:not(.hero--full):not(.hero--media-only) .hero__topics { padding: 9px 18px; } }
