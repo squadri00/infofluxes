@@ -2943,3 +2943,10 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .hero:not(.hero--full):not(.hero--media-only) .hero__topics:hover, .hero:not(.hero--full):not(.hero--media-only) .hero__topics:focus-visible { background: rgba(255, 255, 255, .18); transform: translateX(2px); outline: none; }
 .hero--full .hero__topics { display: inline-flex; padding: 10px 22px; border: 2px solid #fff; border-radius: 999px; color: #fff; font-weight: 700; text-decoration: none; pointer-events: auto; }
 @media (max-width: 700px) { .hero:not(.hero--full):not(.hero--media-only) .hero__readall, .hero:not(.hero--full):not(.hero--media-only) .hero__topics { padding: 9px 18px; } }
+
+/* Read all articles and the All articles tab: a card takes the height its words need, so the text under the title is never cut in the middle of a line */
+.all-list__grid { grid-auto-rows: auto; align-items: stretch; }
+.all-list__grid .pcard--P, .all-list__grid .pcard--F { grid-row: auto; }
+.all-list__grid .pcard--P .pcard__media { height: auto; aspect-ratio: 16 / 9; }
+.all-list__grid .pcard__title, .all-list__grid .pcard__hook { flex: none; }
+.all-list__grid .pcard__meta { margin-top: auto !important; padding-top: 4px; }
