@@ -144,6 +144,21 @@ class Gallery
             $out[$src] = ['src' => $src, 'alt' => trim($alt) !== '' ? trim($alt) : $title, 'title' => $title, 'parent' => $parent, 'kind' => $kind, 'url' => $url, 'root' => $root($categoryId)];
         };
 
+        // A story made from an article uses story-shaped copies of the article's pictures. While the article's own picture is listed (the article is
+        // shown on the site), the copy is left out, so the gallery shows the picture once. The copy is listed when the article is not shown.
+        $articleSrc = [];
+        foreach (Article::published()->get(['id', 'category_id', 'main_image']) as $a) {
+            if (filled($a->main_image) && $active($a->category_id, true) && $disk->exists($a->main_image)) {
+                $articleSrc[$a->main_image] = true;
+            }
+        }
+        foreach (ArticleImage::query()->with('article:id,category_id,status')->whereHas('article', fn ($q) => $q->published())->get() as $image) {
+            if (filled($image->image) && $active($image->article?->category_id, true) && $disk->exists($image->image)) {
+                $articleSrc[$image->image] = true;
+            }
+        }
+        $copyOfShownArticlePicture = fn (?string $source) => filled($source) && isset($articleSrc[$source]);
+
         // Stories: the slides first (the link goes to that slide), then the covers.
         $stories = Story::published()->with('chapters.slides')->orderByDesc('id')->get();
         foreach ($stories as $story) {
@@ -151,12 +166,18 @@ class Gallery
             foreach ($story->chapters as $chapter) {
                 foreach ($chapter->slides as $slide) {
                     $n++;
+                    if ($copyOfShownArticlePicture(((array) $slide->custom_data)['source_image'] ?? null)) {
+                        continue;
+                    }
                     $heading = trim((string) $slide->getTranslation('heading', $locale, false));
                     $add($slide->image, (string) $slide->getTranslation('image_alt', $locale, false), $heading !== '' ? $heading : $story->mainTitle(), $story->mainTitle(), 'story', $story->url().'#slide-'.$n, $story->category_id);
                 }
             }
         }
         foreach ($stories as $story) {
+            if ($copyOfShownArticlePicture(((array) $story->custom_data)['source_main_image'] ?? null)) {
+                continue;
+            }
             $add($story->main_image, (string) $story->getTranslation('main_image_alt', $locale, false), $story->mainTitle(), $story->mainTitle(), 'story', $story->url(), $story->category_id);
         }
 

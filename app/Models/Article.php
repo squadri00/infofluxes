@@ -81,6 +81,12 @@ class Article extends Model
         return $this->belongsTo(Person::class, 'contributor_id');
     }
 
+    /** The stories made from this article. */
+    public function stories(): HasMany
+    {
+        return $this->hasMany(Story::class)->orderByDesc('id');
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(ArticleImage::class)->orderBy('sort_order')->orderBy('id');

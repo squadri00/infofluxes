@@ -6,6 +6,7 @@ use App\Filament\Resources\Stories\StoryResource;
 use App\Models\Category;
 use App\Models\Story;
 use App\Models\StoryRun;
+use App\Support\StoryMaker\FromArticle;
 use App\Support\StoryMaker\Pictures;
 use App\Support\StoryMaker\Prompt;
 use App\Support\StoryMaker\Reader;
@@ -66,6 +67,11 @@ class StoryMaker extends Page
 
     public string $style = '';
 
+    /** The article this story is made from ("Make a story from this article"), and whether its pictures are taken for the slides. */
+    public ?int $articleId = null;
+
+    public bool $autoPictures = true;
+
     public string $paste = '';
 
     /** @var array<string, mixed> what the last check found (errors, warnings, check, story) */
@@ -125,6 +131,31 @@ class StoryMaker extends Page
         $this->ruleText = Rules::master();
         $this->ruleStyle = Rules::style();
         $this->loadLengths();
+        $this->startFromArticle((int) request()->query('article'));
+    }
+
+    /** Opens the Story maker with an article in it: its title, its text, its category, the short length, and the AI deciding the number of slides. */
+    private function startFromArticle(int $id): void
+    {
+        if ($id <= 0 || ! ($article = \App\Models\Article::query()->with('category')->find($id))) {
+            return;
+        }
+        if (! FromArticle::canMake($article, auth()->user())) {
+            Notification::make()->warning()->title('A story cannot be made from this article.')->body('It needs text, and only a moderator or the super user can do this.')->send();
+
+            return;
+        }
+        if ($existing = FromArticle::storyOf($article)) {
+            Notification::make()->warning()->title($article->code.' already has the story '.$existing->code.'.')
+                ->body('Open it in Visual Stories. Making another one is still possible from here.')->send();
+        }
+        $this->articleId = $article->id;
+        $this->topic = $article->mainTitle();
+        $this->ownText = mb_substr(FromArticle::text($article), 0, Prompt::MAX_OWN_TEXT);
+        $this->categoryId = FromArticle::categoryId($article);
+        $this->length = isset(Rules::lengths()['short']) ? 'short' : $this->length;
+        $this->openFlow = true;
+        $this->autoPictures = true;
     }
 
     private function loadLengths(): void
@@ -237,7 +268,7 @@ class StoryMaker extends Page
         }
 
         if (trim($this->ownText) !== '') {
-            return Prompt::convert(['own_text' => $this->ownText, 'topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slideCount(), 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
+            return Prompt::convert(['template' => $this->articleId ? 'from-article' : 'convert', 'own_text' => $this->ownText, 'topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slideCount(), 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
         }
 
         return Prompt::english(['topic' => $this->topic, 'category_id' => $this->categoryId, 'slides' => $this->slideCount(), 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'open' => $this->openFlow]);
@@ -278,7 +309,7 @@ class StoryMaker extends Page
         $run->fill([
             'topic' => mb_substr(trim($this->topic), 0, 300),
             'category_id' => $this->categoryId,
-            'options' => ['slides' => $this->slideCount(), 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite, 'open' => $this->openFlow, 'own_text' => mb_substr($this->ownText, 0, Prompt::MAX_OWN_TEXT)],
+            'options' => ['slides' => $this->slideCount(), 'notes' => $this->notes, 'style' => $this->style, 'length' => $this->length, 'rewrite' => $this->rewrite, 'open' => $this->openFlow, 'own_text' => mb_substr($this->ownText, 0, Prompt::MAX_OWN_TEXT), 'article_id' => $this->articleId, 'auto_pictures' => $this->autoPictures],
             'prompt' => $this->prompt(),
             'answer' => $this->paste !== '' ? $this->paste : null,
             'result' => $this->checked ? $this->result : null,
@@ -361,6 +392,8 @@ class StoryMaker extends Page
             'url' => StoryResource::getUrl('edit', ['record' => $story]),
             'preview' => route('story.show', $story->slug),
             'slides' => $read['story']['slide_count'],
+            'from_article' => $story->article_id ? ($story->article?->code) : null,
+            'picked' => $story->article_id ? $story->slides()->get()->filter(fn ($s) => filled(((array) $s->custom_data)['source_image'] ?? null))->count() : 0,
         ];
         Notification::make()->success()->title($updating ? 'The draft story '.$story->code.' is updated.' : 'Saved as the draft story '.$story->code.'.')
             ->body($note ?? ($updating && ($n = count(\App\Support\StoryMaker\Translations::all($story))) > 0 ? 'The English text was updated, so its '.$n.' saved language(s) are hidden and marked out of date.' : null))->send();
@@ -386,6 +419,8 @@ class StoryMaker extends Page
         $this->length = isset(Rules::lengths()[(string) ($o['length'] ?? '')]) ? (string) $o['length'] : 'story';
         $this->openFlow = (bool) ($o['open'] ?? false);
         $this->ownText = (string) ($o['own_text'] ?? '');
+        $this->articleId = ! empty($o['article_id']) ? (int) $o['article_id'] : null;
+        $this->autoPictures = (bool) ($o['auto_pictures'] ?? true);
         $this->notes = (string) ($o['notes'] ?? '');
         $this->rewrite = (bool) ($o['rewrite'] ?? false);
         $this->style = (string) ($o['style'] ?? '') ?: Rules::style();
@@ -408,7 +443,8 @@ class StoryMaker extends Page
 
     public function newRun(): void
     {
-        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened', 'rewrite', 'openFlow', 'ownText']);
+        $this->reset(['runId', 'topic', 'categoryId', 'notes', 'paste', 'result', 'checked', 'done', 'readOpen', 'readOpened', 'rewrite', 'openFlow', 'ownText', 'articleId']);
+        $this->autoPictures = true;
         $this->slides = 8;
         $this->length = 'story';
         $this->style = Rules::style();

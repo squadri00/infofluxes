@@ -73,6 +73,10 @@
         </p>
     @endif
 
+    @php $articleStory = \App\Models\Story::published()->where('article_id', $article->id)->orderByDesc('id')->first(); @endphp
+    @if ($articleStory)
+        <p class="article__story"><a class="btn btn--small" href="{{ $articleStory->url() }}">&#128444; {{ __('site.article_see_story') }} &rarr;</a></p>
+    @endif
     @if (filled($article->custom_data['subtopic'] ?? null))
         <p class="article__subtopic">{{ __('site.subtopic') }}: {{ $article->custom_data['subtopic'] }}</p>
     @endif

@@ -46,11 +46,13 @@ class Prompt
     public const MAX_OWN_TEXT = 60000;
 
     /**
-     * @param  array{own_text?: string, topic?: string, category_id?: int|null, slides?: int|null, notes?: string|null, style?: string|null, length?: string|null, open?: bool}  $in
+     * @param  array{own_text?: string, topic?: string, category_id?: int|null, slides?: int|null, notes?: string|null, style?: string|null, length?: string|null, open?: bool, template?: string}  $in
+     *             ('template' => 'from-article' asks for a SHORT story made from an article.)
      */
     public static function convert(array $in): string
     {
-        $text = (string) file_get_contents(resource_path('prompts/story/convert.txt'));
+        $template = ($in['template'] ?? '') === 'from-article' ? 'from-article' : 'convert';
+        $text = (string) file_get_contents(resource_path('prompts/story/'.$template.'.txt'));
         $open = ! empty($in['open']);
         $topic = trim((string) ($in['topic'] ?? '')) !== '' ? trim(preg_replace('/\s+/', ' ', $in['topic'])) : '(the subject is in the text)';
         $category = ! empty($in['category_id']) ? (Category::choices()[(int) $in['category_id']] ?? null) : null;

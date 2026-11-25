@@ -77,6 +77,12 @@ class Story extends Model
         return $this->belongsTo(Person::class, 'contributor_id');
     }
 
+    /** The article this story is the short telling of (optional). */
+    public function article(): BelongsTo
+    {
+        return $this->belongsTo(Article::class);
+    }
+
     public function chapters(): HasMany
     {
         return $this->hasMany(StoryChapter::class)->orderBy('sort_order')->orderBy('id');

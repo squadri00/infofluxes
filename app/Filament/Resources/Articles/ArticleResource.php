@@ -347,6 +347,7 @@ class ArticleResource extends Resource
                 \Filament\Actions\Action::make('replace_ai')->label('Replace with AI import')->icon('heroicon-o-arrow-path')->color('gray')
                     ->visible(fn (Article $record) => \App\Filament\Pages\AiImport::canAccess() && \App\Support\ArticleReplace::canReplace($record, auth()->user()))
                     ->url(fn (Article $record) => \App\Filament\Pages\AiImport::getUrl(['replace' => $record->id])),
+                ...\App\Support\StoryMaker\FromArticleActions::make(),
                 \Filament\Actions\Action::make('check_links')->label('Check source links')->icon('heroicon-o-link')->color('gray')
                     ->visible(fn (Article $record) => ! empty($record->custom_data['sources']) && (auth()->user()?->canPublish() ?? false))
                     ->action(function (Article $record) {

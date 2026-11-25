@@ -1,0 +1,60 @@
+{{RULES}}
+
+==================================================
+THE SHORT STORY TO MAKE FROM AN ARTICLE
+
+Subject: {{TOPIC}}
+Category: {{CATEGORY}}
+Size: {{SLIDES}}
+Length of each slide: {{LENGTH}}
+{{NOTES}}
+What to do:
+1. Below is an ARTICLE that is already written and checked. Make a SHORT story in pictures from it. The story is the quicker, picture-led telling of the article. The article stays the full version, and the story page links to it, so the story does not have to say everything.
+2. Aim for about 5 to 8 slides. Use more slides only when the article truly needs them to tell the story well. Never pad the story, and never use fewer slides than the story needs.
+3. Tell it as ONE connected story in a narrator's voice, as in rule 1b. Begin with a hook taken from the article (a scene, a moment or a question), give one idea to each slide, and end clearly. Each BODY is one flowing paragraph.
+4. KEEP EVERY FACT that you use, as the article states it. ADD NOTHING NEW: no new fact, no new person, no new event, no invented feeling, thought or dialogue, and no new source. If the article is not sure about something, the story is not sure either.
+5. Quotations: a Quran verse, a hadith or any other quotation that you use must be exactly as it is in the article (the Arabic, the English and the reference). If a quotation does not fit the story, leave it out. Never shorten it and never reword it. Keep the names as in rule 5 of the rules above.
+6. Lists of sources, notes about sources, outlines of the sections and editorial notes are NOT put in the slides. The sources stay in the article.
+7. The LAST chapter is named exactly "Closing and final remarks". It has one slide headed "What to remember", with two to four plain points, taken only from the article.
+8. Give each slide a PICTURE line (what the picture shows, in plain words, with no faces of prophets, companions or angels) and an ALT line. The pictures themselves are taken from the article, so describe a scene that fits the slide.
+
+THE ARTICLE
+{{CURRENT}}
+
+==================================================
+Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no other markdown.
+Put the whole answer inside ONE code block (three backticks before it and three after it), so that the line breaks are kept when it is copied.
+
+TYPE: story
+CATEGORY: {{CATEGORY}}
+TITLE: (a short title for the story, at most 80 letters)
+SHORT: (one or two very simple sentences, at most 300 letters: what the story is about)
+STYLE: {{STYLE}}
+CHAPTER: (the title of the first chapter, the opening)
+SLIDE
+HEADING: (a few plain words)
+BODY: (one flowing paragraph of {{BODY_SENTENCES}} short sentences, about {{BODY_WORDS}} words, joined so that the story flows. A Quran verse goes on lines of its own: the Arabic, then the English, then the reference in brackets)
+PICTURE: (what the picture shows, in plain words, with no faces of prophets, companions or angels)
+ALT: (one plain sentence that describes the picture)
+SLIDE
+HEADING: ...
+BODY: ...
+PICTURE: ...
+ALT: ...
+CHAPTER: (the next chapter title, only if the story needs one)
+SLIDE
+...
+CHAPTER: Closing and final remarks
+SLIDE
+HEADING: What to remember
+BODY: ...
+PICTURE: ...
+ALT: ...
+KEYWORDS: (words people would search for, separated by commas)
+META TITLE: (the title for Google, at most 60 letters, without the site name)
+META DESCRIPTION: (one sentence for Google, 120 to 155 letters)
+PLEASE CHECK:
+- (each point the person must check first)
+END
+
+REMEMBER (the last rule): your whole answer is ONE single code block, from TYPE: to END, with nothing before it and nothing after it. Write it directly in the chat. Do not use Python, a tool, a file or a canvas. Do not close the code block in the middle: the Arabic verses and every line stay inside the same block, and no other block, heading or comment is used.

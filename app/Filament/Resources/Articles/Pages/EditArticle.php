@@ -24,6 +24,7 @@ class EditArticle extends EditRecord
                 ->tooltip('Opens the saved article as visitors will see it. Save first to see your latest changes.')
                 ->url(fn () => route('article.show', $this->record->slug))->openUrlInNewTab(),
             \App\Support\ScriptExport::button(fn () => $this->record),
+            ...\App\Support\StoryMaker\FromArticleActions::make(fn () => $this->record),
             DeleteAction::make()->label('Delete'),
             RestoreAction::make(),
         ];

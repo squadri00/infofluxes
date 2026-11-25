@@ -62,6 +62,15 @@
                 </div>
             </div>
 
+            @if ($articleId && ($fromArticle = \App\Models\Article::find($articleId)))
+                <div style="padding:.7rem .9rem;border:1px solid #2d6fd0;border-radius:.5rem;display:grid;gap:.4rem">
+                    <strong>A short story from the article {{ $fromArticle->code }}: {{ $fromArticle->mainTitle() }}</strong>
+                    <span style="opacity:.85">The text of the article is in the box "Your own story text" below. The prompt asks the AI for a SHORT story made only from it: no new facts, quotations exactly as they are, about 5 to 8 slides (more only when the article needs them). When you save, the story is linked to the article, and the pictures of its slides are taken from the article.</span>
+                    <label style="display:flex;gap:.5rem;align-items:center"><input type="checkbox" wire:model.live="autoPictures"> Take the pictures of the slides from the article (you can still change any of them later)</label>
+                    <span><a href="{{ route('article.show', $fromArticle->slug) }}" target="_blank" rel="noopener" style="text-decoration:underline">Open the article &#8599;</a></span>
+                </div>
+            @endif
+
             <label style="display:flex;gap:.6rem;align-items:flex-start;padding:.55rem .7rem;border:1px solid rgba(128,128,128,.5);border-radius:.4rem;cursor:pointer">
                 <input type="checkbox" wire:model.live="openFlow" style="margin-top:.3rem">
                 <span><strong>Let the AI decide the length and the number of slides</strong> <span style="opacity:.75">(open flow). The story is told as long as it needs, so it can flow freely. The check only notes a very thin or a very long slide.</span></span>
@@ -219,6 +228,10 @@
                     <div style="padding:.7rem .9rem;border:1px solid #2d9d5a;border-radius:.5rem">
                         <strong>{{ $done['updated'] ? 'Updated' : 'Saved' }}: the draft story {{ $done['code'] }}, {{ $done['title'] }}</strong>
                         ({{ $done['slides'] }} slides). It is a <strong>draft</strong>: add its pictures, read it, and publish it yourself.
+                        @if (! empty($done['from_article']))
+                            <br>Made from the article <strong>{{ $done['from_article'] }}</strong>.
+                            @if ($done['picked'] > 0) {{ $done['picked'] }} slide picture(s) were taken from the article, so you may not need to add any. @else No picture was taken from the article (it has none, or you switched it off). @endif
+                        @endif
                         @if (! empty($done['preview']))
                             <a href="{{ $done['preview'] }}" target="_blank" rel="noopener" style="text-decoration:underline;font-weight:600">Preview on the website &#8599;</a> &middot;
                         @endif

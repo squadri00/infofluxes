@@ -330,7 +330,7 @@ END");
         $page = Livewire::test(StoryMaker::class)->set('topic', 'A later story')->set('categoryId', $this->cat->id)->set('slides', 6)->set('notes', 'Gentle')->call('saveRun');
         $run = StoryRun::first();
         $this->assertSame('prompt', $run->status);
-        $this->assertSame(['slides' => 6, 'notes' => 'Gentle', 'style' => Rules::style(), 'length' => 'story', 'rewrite' => false, 'open' => true, 'own_text' => ''], $run->options);
+        $this->assertSame(['slides' => 6, 'notes' => 'Gentle', 'style' => Rules::style(), 'length' => 'story', 'rewrite' => false, 'open' => true, 'own_text' => '', 'article_id' => null, 'auto_pictures' => true], $run->options);
 
         $fresh = Livewire::test(StoryMaker::class)->call('openRun', $run->id);
         $fresh->assertSet('topic', 'A later story')->assertSet('categoryId', $this->cat->id)->assertSet('slides', 6)->assertSet('notes', 'Gentle')->assertSet('runId', $run->id);

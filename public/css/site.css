@@ -2917,3 +2917,7 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .topics-card__index { font-size: .86rem; }
 .site-footer__all { font-weight: 700; }
 
+
+/* Article and story point to each other */
+.article__story { margin: 6px 0 14px; }
+.story-fullarticle { margin: 12px 0 0; text-align: center; }

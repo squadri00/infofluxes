@@ -109,6 +109,10 @@
                     @endif
                 </div>
             @endif
+            @php $fullArticle = $story->article_id ? \App\Models\Article::published()->find($story->article_id) : null; @endphp
+            @if ($fullArticle)
+                <p class="story-fullarticle"><a class="btn btn--small" href="{{ route('article.show', $fullArticle->slug) }}">{{ __('site.story_full_article') }} &rarr;</a></p>
+            @endif
         </section>
         <script>window.STORY_LABELS = {!! json_encode(['goto' => __('site.story_goto'), 'prev' => __('site.story_prev'), 'next' => __('site.story_next'), 'fullscreen' => __('site.story_fullscreen'), 'fullscreen_exit' => __('site.story_fullscreen_exit'), 'zoom' => __('site.story_zoom'), 'zoom_close' => __('site.story_zoom_close')], JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) !!};</script>
         @if (\App\Support\ViewerStyle::isBook())

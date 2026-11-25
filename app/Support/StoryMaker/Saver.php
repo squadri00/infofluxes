@@ -53,9 +53,34 @@ class Saver
             }
 
             static::chapters($story, $data['chapters'], $locale);
+            static::linkArticle($story, $run);
 
             return $story->fresh();
         });
+    }
+
+    /**
+     * A story made from an article keeps the id of the article, its source line and its contributor, and takes the article's pictures
+     * (only into places that have no picture yet), see FromArticle.
+     */
+    private static function linkArticle(Story $story, StoryRun $run): void
+    {
+        $articleId = (int) (((array) $run->options)['article_id'] ?? 0);
+        $article = $articleId > 0 ? \App\Models\Article::find($articleId) : null;
+        if (! $article) {
+            return;
+        }
+        $story->article_id = $article->id;
+        if (blank($story->source_line) && filled($article->source_line)) {
+            $story->source_line = $article->source_line;
+        }
+        if (blank($story->contributor_id) && filled($article->contributor_id)) {
+            $story->contributor_id = $article->contributor_id;
+        }
+        $story->save();
+        if (((array) $run->options)['auto_pictures'] ?? true) {
+            FromArticle::applyPictures($story->fresh(), $article);
+        }
     }
 
     /** The chapters and slides, matched by their place. */

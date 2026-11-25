@@ -155,6 +155,8 @@ return [
     'gallery_shuffle' => 'Shuffle',
     'gallery_count' => ':n pictures',
     'categories_all' => 'Browse all topics',
+    'story_full_article' => 'Read the full article',
+    'article_see_story' => 'See this as a story',
     'categories_title' => 'Browse all topics',
     'categories_intro' => 'Every main category and the sub-categories inside it, in one place. Pick a topic to open it.',
     'categories_masters' => ':n main categories',
