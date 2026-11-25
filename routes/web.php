@@ -40,6 +40,9 @@ Route::get('/category/{slug}', CategoryController::class)->name('category.show')
 // The picture gallery: pictures from the whole site, each leading to its page.
 Route::get('/gallery', \App\Http\Controllers\GalleryController::class)->name('gallery');
 
+// Every published article, with a search box and filters.
+Route::get('/articles', \App\Http\Controllers\ArticlesController::class)->name('articles');
+
 // All the main categories with their sub-categories on one page.
 Route::get('/categories', \App\Http\Controllers\CategoriesController::class)->name('categories');
 // People: log in, sign up, log out, my account, submit an article, post a comment.

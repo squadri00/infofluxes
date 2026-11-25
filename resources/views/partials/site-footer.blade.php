@@ -35,6 +35,9 @@
                         @foreach ($browse as $category)
                             <li><a href="{{ route('category.show', $category->slug) }}">{{ $category->name }}</a></li>
                         @endforeach
+                        @if (\App\Support\SiteControls::on('articles_page'))
+                            <li><a class="site-footer__all" href="{{ route('articles') }}">{{ __('site.articles_read_all') }} &rarr;</a></li>
+                        @endif
                         @if (\App\Support\SiteControls::on('categories_page'))
                             <li><a class="site-footer__all" href="{{ route('categories') }}">{{ __('site.categories_all') }} &rarr;</a></li>
                         @endif

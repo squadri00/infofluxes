@@ -14,6 +14,9 @@
             @if (filled($message->description))
                 <p class="hero__description">{{ $message->description }}</p>
             @endif
+            @if (\App\Support\SiteControls::on('articles_page'))
+                <p class="hero__actions"><a class="btn hero__readall" href="{{ route('articles') }}">{{ __('site.articles_read_all') }} &rarr;</a></p>
+            @endif
         </div>
     @else
         <h1 class="visually-hidden">{{ \App\Models\Setting::get('site_name', config('app.name')) }}</h1>
