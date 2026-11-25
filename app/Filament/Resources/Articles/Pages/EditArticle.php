@@ -17,6 +17,16 @@ class EditArticle extends EditRecord
         return ArticleRules::apply($data, $this->record->status, $this->record->slug, (bool) $this->record->ai_assisted, $this->record);
     }
 
+    /** A note under the title when the story of this article was made from an older text. */
+    public function getSubheading(): ?string
+    {
+        $story = $this->record ? \App\Support\StoryMaker\FromArticle::storyOf($this->record) : null;
+
+        return $story && \App\Support\StoryMaker\FromArticle::outdated($story)
+            ? 'Its story '.$story->code.' was made before the last change of this text, so it may be out of date. Open the story to read it again.'
+            : null;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

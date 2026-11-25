@@ -71,6 +71,8 @@ class Saver
             return;
         }
         $story->article_id = $article->id;
+        // What the story was made from: if the article text changes later, the admin shows a note (FromArticle::outdated).
+        $story->custom_data = array_merge((array) $story->custom_data, ['article_fingerprint' => FromArticle::fingerprint($article)]);
         if (blank($story->source_line) && filled($article->source_line)) {
             $story->source_line = $article->source_line;
         }

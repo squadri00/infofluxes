@@ -65,6 +65,24 @@ class FromArticle
         return trim(implode("\n", $lines));
     }
 
+    /** A fingerprint of what a story is made from: the title, the short detail and the text of the article. Likes, views and comments do not change it. */
+    public static function fingerprint(Article $article): string
+    {
+        $locale = config('infofluxes.default_locale');
+        $clean = fn ($v) => trim(preg_replace('/\s+/u', ' ', strip_tags((string) $v)));
+
+        return md5($clean($article->getTranslation('title', $locale, false)).'|'.$clean($article->getTranslation('short_detail', $locale, false)).'|'.$clean($article->getTranslation('long_detail', $locale, false)));
+    }
+
+    /** True when the story was made from an article whose text has changed since (the story is then probably out of date). */
+    public static function outdated(Story $story): bool
+    {
+        $saved = ((array) $story->custom_data)['article_fingerprint'] ?? null;
+        $article = $story->article_id ? $story->article : null;
+
+        return $saved && $article && $saved !== static::fingerprint($article);
+    }
+
     /** The category of the story: the article's own category when a story may be saved there, else none (the person chooses). */
     public static function categoryId(Article $article): ?int
     {

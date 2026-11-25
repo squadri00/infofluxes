@@ -307,6 +307,23 @@ class ArticleResource extends Resource
                 \Filament\Tables\Columns\ToggleColumn::make('is_featured_master')->label('Master')->onIcon('heroicon-s-star')->offIcon('heroicon-o-star')->onColor('info')
                     ->tooltip('Featured on its master (top-level) category')
                     ->disabled(fn () => ! auth()->user()?->canPublish()),
+                TextColumn::make('story_state')->label('Story')->badge()->placeholder('—')
+                    ->state(function (Article $record) {
+                        $s = \App\Support\StoryMaker\FromArticle::storyOf($record);
+
+                        return $s ? $s->code.' · '.$s->status.(\App\Support\StoryMaker\FromArticle::outdated($s) ? ' · article changed' : '') : null;
+                    })
+                    ->color(function (Article $record) {
+                        $s = \App\Support\StoryMaker\FromArticle::storyOf($record);
+
+                        return ! $s ? 'gray' : (\App\Support\StoryMaker\FromArticle::outdated($s) ? 'warning' : ($s->status === 'published' ? 'success' : 'gray'));
+                    })
+                    ->url(function (Article $record) {
+                        $s = \App\Support\StoryMaker\FromArticle::storyOf($record);
+
+                        return $s && (auth()->user()?->canUseScreen('storymaker') ?? false) ? \App\Filament\Resources\Stories\StoryResource::getUrl('edit', ['record' => $s]) : null;
+                    })
+                    ->toggleable(),
                 TextColumn::make('status')->badge()
                     ->formatStateUsing(fn ($state) => Article::STATUSES[$state] ?? $state)
                     ->color(fn ($state) => ['published' => 'success', 'in_review' => 'warning', 'written' => 'info', 'draft' => 'gray', 'archived' => 'danger'][$state] ?? 'gray'),
@@ -317,6 +334,15 @@ class ArticleResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')->options(Article::STATUSES),
+                SelectFilter::make('story')->label('Story')->options(['none' => 'No story yet', 'draft' => 'Story is a draft', 'published' => 'Story is published'])
+                    ->query(function (Builder $query, array $data) {
+                        return match ($data['value'] ?? null) {
+                            'none' => $query->whereDoesntHave('stories'),
+                            'draft' => $query->whereHas('stories', fn ($q) => $q->where('status', '!=', 'published')),
+                            'published' => $query->whereHas('stories', fn ($q) => $q->where('status', 'published')),
+                            default => $query,
+                        };
+                    }),
                 \Filament\Tables\Filters\TernaryFilter::make('is_featured')->label('Featured on the home page'),
                 \Filament\Tables\Filters\TernaryFilter::make('is_featured_master')->label('Featured on its master category'),
                 SelectFilter::make('category')->label('In category (and everything below it)')->options(fn () => Category::choices())->searchable()
