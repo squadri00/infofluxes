@@ -1,6 +1,6 @@
 #!/bin/bash
 # Runs on the LIVE server, called by pull-live.ps1 on your computer. It only reads: it never changes the live data.
-#   dump        make a compressed dump of the live database (without sessions and cache) in ~/pull-tmp/live.sql.gz; prints the server time it started
+#   dump        make a compressed dump of the live database in ~/pull-tmp/live.sql.gz (the sessions and cache tables come as empty tables); prints the server time it started
 #   files EPOCH make a tar of the uploaded files changed since EPOCH (0 = all) in ~/pull-tmp/live-files.tgz; prints how many files
 #   counts      print "table<TAB>rows" for every table of the live database
 #   clean       remove ~/pull-tmp
@@ -18,12 +18,19 @@ DBUSER="$(env_get DB_USERNAME)"
 DBHOST="$(env_get DB_HOST)"
 DBPORT="$(env_get DB_PORT)"
 export MYSQL_PWD="$(env_get DB_PASSWORD)"
+H="${DBHOST:-127.0.0.1}"
+P="${DBPORT:-3306}"
 
 case "$1" in
     dump)
         date +%s > "$OUT/started.txt"
-        mysqldump -h"${DBHOST:-127.0.0.1}" -P"${DBPORT:-3306}" -u"$DBUSER" --single-transaction --no-tablespaces --skip-lock-tables \
-            --default-character-set=utf8mb4 --ignore-table="$DB.sessions" --ignore-table="$DB.cache" --ignore-table="$DB.cache_locks" "$DB" | gzip > "$OUT/live.sql.gz"
+        {
+            mysqldump -h"$H" -P"$P" -u"$DBUSER" --single-transaction --no-tablespaces --skip-lock-tables \
+                --default-character-set=utf8mb4 --ignore-table="$DB.sessions" --ignore-table="$DB.cache" --ignore-table="$DB.cache_locks" "$DB"
+            # The temporary tables are copied as empty tables, so the local database has them too.
+            mysqldump -h"$H" -P"$P" -u"$DBUSER" --no-data --no-tablespaces --skip-lock-tables \
+                --default-character-set=utf8mb4 "$DB" sessions cache cache_locks
+        } | gzip > "$OUT/live.sql.gz"
         cat "$OUT/started.txt"
         ;;
     files)
@@ -42,10 +49,12 @@ case "$1" in
         wc -l < "$OUT/files.list" | tr -d ' '
         ;;
     counts)
-        for t in $(mysql -h"${DBHOST:-127.0.0.1}" -P"${DBPORT:-3306}" -u"$DBUSER" -N -e "show tables" "$DB"); do
-            n=$(mysql -h"${DBHOST:-127.0.0.1}" -P"${DBPORT:-3306}" -u"$DBUSER" -N -e "select count(*) from \`$t\`" "$DB")
-            printf '%s\t%s\n' "$t" "$n"
+        # One connection only for the counts (the shared server refuses many quick ones).
+        Q=""
+        for t in $(mysql -h"$H" -P"$P" -u"$DBUSER" -N -e "show tables" "$DB"); do
+            Q="$Q${Q:+ UNION ALL }SELECT '$t' AS t, COUNT(*) AS n FROM \`$t\`"
         done
+        mysql -h"$H" -P"$P" -u"$DBUSER" -N -B -e "$Q" "$DB"
         ;;
     clean)
         rm -rf "$OUT"

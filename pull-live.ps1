@@ -118,6 +118,8 @@ if ([regex]::IsMatch($sql, 's:\d+:"[^"]*infofluxes\.com')) { Write-Host 'Note: s
 
 # ---- 4. the web addresses ----
 Step '4. Live web addresses -> local address'
+# The live server writes a first line "/*M!999999\- enable the sandbox mode */" that the older database on this computer cannot read: it is removed.
+$sql = [regex]::Replace($sql, '(?m)^/\*M!999999\\-[^\r\n]*\*/\r?\n?', '')
 $count = ([regex]::Matches($sql, [regex]::Escape($liveUrl))).Count
 $sql = $sql.Replace($liveUrl, $appUrl).Replace($liveUrl.Replace('/', '\/'), $appUrl.Replace('/', '\/'))
 [IO.File]::WriteAllText($sqlPath, $sql, (New-Object Text.UTF8Encoding($false)))
@@ -156,6 +158,7 @@ if ($test) {
     $rows = foreach ($t in $localTables) {
         $l = [int](Sql "SELECT COUNT(*) FROM ``$t``" $dbName)
         $v = if ($liveCounts.ContainsKey($t)) { $liveCounts[$t] } else { -1 }
+        if ($v -eq -1 -and $l -eq 0) { continue }   # a temporary table (cache, sessions) that is empty: nothing to compare
         if ($l -ne $v) { [pscustomobject]@{ Table = $t; Local = $l; Live = $v; Note = $(if ($l -gt $v) { 'LOCAL HAS MORE (would be lost)' } else { 'live has more' }) } }
     }
     if ($rows) { $rows | Format-Table -AutoSize } else { Write-Host 'Every table has the same number of rows.' }
