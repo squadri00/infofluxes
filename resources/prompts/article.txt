@@ -13,6 +13,7 @@ Rules:
 Choose the best CATEGORY from this list. Write it exactly as shown, or write only its code (like C-12):
 {{CATEGORIES}}
 
+{{PICTURE_RULES}}
 Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no markdown.
 
 TYPE: article
@@ -22,7 +23,7 @@ TITLE: (the title)
 SHORT: (one or two sentences, at most 600 letters)
 LONG:
 (the article: several short paragraphs, with an empty line between paragraphs)
-KEYWORDS: (words people would search for, separated by commas)
+{{PICTURES_FIELD}}KEYWORDS: (words people would search for, separated by commas)
 META TITLE: (the title for Google, at most 60 letters, plain words, without the site name)
 META DESCRIPTION: (one sentence for Google that makes a reader want to open the page, 120 to 155 letters, no quotes, no promises the page cannot keep)
 VIDEOS: (YouTube addresses you are sure exist, separated by commas, or leave empty)

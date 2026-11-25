@@ -21,6 +21,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -169,7 +170,7 @@ class ArticleResource extends Resource
                         TextInput::make('main_image_credit')->label('Picture credit')->maxLength(255),
                         TextInput::make('main_image_licence')->label('Picture licence (optional)')->helperText('For example: Public domain, CC BY-SA 4.0.')->maxLength(255),
                         Repeater::make('images')
-                            ->label('More pictures')
+                            ->label('Pictures for the tabs')
                             ->relationship('images')
                             ->orderColumn('sort_order')
                             ->addActionLabel('Add a picture')
@@ -177,11 +178,15 @@ class ArticleResource extends Resource
                             ->itemLabel(fn (array $state, \Filament\Schemas\Components\Utilities\Get $get) => \App\Support\ArticlePictures::itemLabel($state, $get('long_detail.'.config('infofluxes.default_locale'))))
                             ->defaultItems(0)
                             ->schema([
-                                \App\Filament\Support\ImageUpload::make('image', 'articles')->label('Picture')->required(),
+                                \App\Filament\Support\ImageUpload::make('image', 'articles')->label('Picture')
+                                    ->helperText('A row made by the AI import waits here until you upload its picture (use the prompt below in an image maker). A row with no picture shows nothing on the website.'),
                                 Select::make('section')->label('Tab (the numbered card this picture goes under)')->live()->native(true)
                                     ->placeholder('No tab chosen: the next tab that has no picture yet')
                                     ->options(fn (\Filament\Schemas\Components\Utilities\Get $get, $state) => \App\Support\ArticlePictures::tabOptions($get('../../long_detail.'.config('infofluxes.default_locale')), $state ? (int) $state : null))
                                     ->helperText('The tabs are the main headings of the article text, in order. Pick the tab to put this picture under it. Several pictures can go under one tab. A picture with no tab goes under the next tab that has none, and a picture that finds no tab stays in the Pictures strip at the bottom.'),
+                                Textarea::make('prompt')->label('Picture prompt (the scene)')->rows(3)->live(onBlur: true)
+                                    ->helperText('What the picture of this tab shows. The AI import writes it. Edit it if you like.'),
+                                \Filament\Schemas\Components\View::make('filament.forms.picture-prompt')->view('filament.forms.picture-prompt', fn (\Filament\Schemas\Components\Utilities\Get $get) => ['scene' => (string) $get('prompt')]),
                                 ...Translated::text('alt', 'Describe the picture'),
                                 ...Translated::text('caption', 'Caption (optional)'),
                             ]),

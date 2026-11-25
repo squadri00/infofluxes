@@ -34,6 +34,13 @@ class EditArticle extends EditRecord
                 ->tooltip('Opens the saved article as visitors will see it. Save first to see your latest changes.')
                 ->url(fn () => route('article.show', $this->record->slug))->openUrlInNewTab(),
             \App\Support\ScriptExport::button(fn () => $this->record),
+            \Filament\Actions\Action::make('picture_rows')->label('Create the picture rows from the tabs')->icon('heroicon-o-photo')->color('gray')
+                ->tooltip('Makes one picture row for each tab of the saved text that has none, with a prompt for the image maker. Rows that exist are not changed.')
+                ->action(function () {
+                    $made = \App\Support\PicturePrompt::sync($this->record->fresh());
+                    $this->fillForm();
+                    \Filament\Notifications\Notification::make()->success()->title($made > 0 ? $made.' picture row(s) were made.' : 'Every tab already has a picture row.')->send();
+                }),
             ...\App\Support\StoryMaker\FromArticleActions::make(fn () => $this->record),
             DeleteAction::make()->label('Delete'),
             RestoreAction::make(),

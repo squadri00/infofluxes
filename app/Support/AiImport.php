@@ -27,7 +27,7 @@ class AiImport
 
     public const MAX_CATEGORY_LINES = 300;
 
-    private const KEYS = ['TYPE', 'CATEGORY', 'ALSO IN', 'TITLE', 'SHORT', 'LONG', 'KEYWORDS', 'META TITLE', 'META DESCRIPTION', 'VIDEOS', 'SOURCES', 'SOURCE', 'EXPLAINERS', 'PLEASE CHECK', 'REVIEWER'];
+    private const KEYS = ['TYPE', 'CATEGORY', 'ALSO IN', 'TITLE', 'SHORT', 'LONG', 'KEYWORDS', 'META TITLE', 'META DESCRIPTION', 'VIDEOS', 'SOURCES', 'SOURCE', 'PICTURES', 'EXPLAINERS', 'PLEASE CHECK', 'REVIEWER'];
 
     /**
      * @return array<int, array{kind: string, title: string, errors: list<string>, warnings: list<string>, data: array<string, mixed>}>
@@ -287,6 +287,23 @@ class AiImport
                 $auto[] = 'Headings were guessed from short lines. Check that every heading is a real heading and that no heading is missing.';
             } elseif (mb_strlen($long) > 2500) {
                 $warnings[] = 'The text has no headings ("## "). It will be one long block, without drop-down parts.';
+            }
+        }
+
+        // The picture of every tab: one row for each "## " heading, waiting for its picture, with the prompt for the image maker.
+        $pictures = $kind === 'article' ? PicturePrompt::read((string) ($f['PICTURES'] ?? '')) : [];
+        if ($kind === 'article') {
+            $tabCount = count(array_filter($headings, fn ($h) => $h['level'] === 2));
+            if ($tabCount > 0) {
+                $auto[] = $tabCount.' picture place(s) will be made, one for each tab, waiting for your pictures. Each has a prompt for the image maker.';
+                if ($pictures === []) {
+                    $auto[] = 'The answer has no PICTURES block, so each picture place gets a simple prompt made from the heading of its tab.';
+                } elseif (count(array_intersect_key($pictures, array_flip(range(1, $tabCount)))) < $tabCount) {
+                    $warnings[] = 'The PICTURES block has prompts for '.count(array_intersect_key($pictures, array_flip(range(1, $tabCount)))).' of the '.$tabCount.' tabs. The other tabs get a simple prompt made from their heading.';
+                }
+                if (array_diff_key($pictures, array_flip(range(1, $tabCount))) !== []) {
+                    $warnings[] = 'The PICTURES block has more prompts than the text has tabs. The extra ones are not used.';
+                }
             }
         }
 
@@ -553,7 +570,7 @@ class AiImport
                 'entry_id' => $entry?->id, 'entry_label' => $entry ? IndexEntries::label($entry).' · '.$entry->mainTitle() : null, 'index_suggestions' => $suggestions,
                 'replace_id' => $replace?->id, 'replace_label' => $replace ? $replace->code.' · '.$replace->mainTitle() : null, 'replace_status' => $replace?->status,
                 'replace_old_words' => $replace ? str_word_count(strip_tags((string) $replace->long_detail)) : null,
-                'explainers' => $notes,
+                'explainers' => $notes, 'pictures' => $pictures,
                 'quotes' => $blocks, 'reading' => $reading, 'outline' => $headings, 'sources' => $sources, 'please_check' => $pleaseCheck, 'quran' => $quran,
             ],
         ];
@@ -802,6 +819,7 @@ class AiImport
                     continue;
                 }
                 ArticleReplace::apply($target, $d, $user);
+                PicturePrompt::sync($target->fresh(), $d['pictures'] ?? []);
                 Explainers::createDrafts($d['explainers'] ?? [], $user);
                 $made['articles'][] = $target->id;
                 $made['replaced'][] = $target->id;
@@ -810,6 +828,7 @@ class AiImport
             }
             if (! empty($d['entry_id']) && ($entry = Article::find($d['entry_id'])) && IndexEntries::isBlank($entry)) {
                 IndexEntries::fill($entry, $d, $user);
+                PicturePrompt::sync($entry->fresh(), $d['pictures'] ?? []);
                 Explainers::createDrafts($d['explainers'] ?? [], $user);
                 $made['articles'][] = $entry->id;
 
@@ -840,6 +859,7 @@ class AiImport
             foreach ($d['videos'] as $i => $url) {
                 $article->videos()->create(['url' => $url, 'sort_order' => $i + 1]);
             }
+            PicturePrompt::sync($article->fresh(), $d['pictures'] ?? []);
             Explainers::createDrafts($d['explainers'] ?? [], $user);
             $made['articles'][] = $article->id;
         }

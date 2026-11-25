@@ -153,7 +153,7 @@ class ArticlePictures
         $n = (int) ($state['section'] ?? 0);
         $tab = $n >= 1 ? 'Tab '.rtrim(static::tabName($n, static::headings($html)[$n] ?? '(no such heading)'), '.') : 'No tab chosen';
 
-        return $tab.' · '.($alt !== '' ? $alt : 'Picture');
+        return $tab.' · '.($alt !== '' ? $alt : 'Picture').(array_key_exists('image', $state) && blank($state['image']) ? ' (waiting for the picture)' : '');
     }
 
     private static function figure(ArticleImage $image): string

@@ -19,6 +19,7 @@ THE TEXT TO PUT INTO SHAPE
 {{CURRENT}}
 
 ==================================================
+{{PICTURE_RULES}}
 Answer with plain text only, in exactly the shape below. No words before it or after it. No bold, no tables, no other markdown. Only "## " and "### " for headings and "- " for list lines.
 Put the whole answer inside ONE code block (three backticks before it and three after it), so that the "## " marks and the line breaks are kept when it is copied.
 
@@ -42,6 +43,6 @@ SOURCE: (one line: the one to three main sources)
 SOURCES:
 - PRIMARY | author or scripture, title, chapter or verse or page | web address | opened: yes or no
 - SECONDARY | author, title, publisher, year | web address | opened: yes or no
-{{EXPLAINERS_FIELD}}PLEASE CHECK:
+{{PICTURES_FIELD}}{{EXPLAINERS_FIELD}}PLEASE CHECK:
 - (each point the reviewer must check first: a verse number, a hadith grade, a date, a link that did not open, a claim with only one source)
 END

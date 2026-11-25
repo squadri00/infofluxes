@@ -8,7 +8,7 @@
     $body = \App\Support\Html::clean((string) $article->long_detail);
     $explained = \App\Support\Explainers::render($body);   // @[word] becomes a tappable word
     // The extra pictures go inside the text, under the main headings; the ones with no place stay in the "Pictures" strip at the bottom.
-    $placed = \App\Support\ArticlePictures::place($explained['html'], $article->images);
+    $placed = \App\Support\ArticlePictures::place($explained['html'], $article->images->filter(fn ($i) => filled($i->image)));
     $bottomImages = $placed['rest'];
     $bodyShown = ! empty($article->custom_data['accordion']) ? \App\Support\Html::accordion($placed['html']) : $placed['html'];
     $sources = collect((array) ($article->custom_data['sources'] ?? []))->filter(fn ($x) => filled($x['ref'] ?? null))->values();

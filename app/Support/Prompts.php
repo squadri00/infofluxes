@@ -24,7 +24,7 @@ class Prompts
         $text = (string) file_get_contents($file);
         $topic = trim($topic) !== '' ? trim(preg_replace('/\s+/', ' ', $topic)) : '(write your subject here)';
 
-        return str_replace(['{{TOPIC}}', '{{CATEGORIES}}'], [$topic, static::categoryList()], $text);
+        return PicturePrompt::fill(str_replace(['{{TOPIC}}', '{{CATEGORIES}}'], [$topic, static::categoryList()], $text));
     }
 
     public const DEPTHS = [
@@ -71,12 +71,12 @@ class Prompts
             $notesRule = str_replace('3. Word notes:', '7. Word notes:', $notesRule);
         }
 
-        return str_replace(
+        return PicturePrompt::fill(str_replace(
             ['{{RULES}}', '{{TOPIC}}', '{{CATEGORY}}', '{{WORDS}}', '{{DEPTH}}', '{{COMMENTS}}', '{{PARTS}}', '{{EXPLAINERS_RULE}}', '{{EXPLAINERS_FIELD}}', '{{CURRENT}}'],
             [AiPrompt::combined($in['specialist'] ?? null), $topic, $category ?? '(choose a category)', $words, $depth,
                 $comments !== '' ? "Notes from the contributor (follow them when they fit the rules): ".$comments."\n" : '', $parts, $notes ? $notesRule : '', $notesField, $own],
             $text,
-        );
+        ));
     }
 
     /** One line for each category: "Shows > Popular Shows (C-2)". Long lists are cut, with a note. */
