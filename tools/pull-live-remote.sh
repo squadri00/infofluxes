@@ -29,7 +29,7 @@ case "$1" in
                 --default-character-set=utf8mb4 --ignore-table="$DB.sessions" --ignore-table="$DB.cache" --ignore-table="$DB.cache_locks" "$DB"
             # The temporary tables are copied as empty tables, so the local database has them too.
             mysqldump -h"$H" -P"$P" -u"$DBUSER" --no-data --no-tablespaces --skip-lock-tables \
-                --default-character-set=utf8mb4 "$DB" sessions cache cache_locks
+                --default-character-set=utf8mb4 "$DB" sessions cache cache_locks 2>/dev/null || true
         } | gzip > "$OUT/live.sql.gz"
         cat "$OUT/started.txt"
         ;;
