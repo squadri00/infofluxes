@@ -75,6 +75,7 @@
         back.preload = 'auto';
         back.muted = muted;
         back.loop = false;
+        back.poster = clips[i].poster || '';
         back.src = clips[i].src;
         back.load();
     }

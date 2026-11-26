@@ -29,7 +29,7 @@ class Clip extends Model
         // The file goes with the clip (else the folder scan would bring it back).
         static::deleted(function (Clip $clip) {
             if ($clip->file !== '' && str_starts_with($clip->file, self::FOLDER.'/') && ! static::where('file', $clip->file)->exists()) {
-                Storage::disk('public')->delete($clip->file);
+                Storage::disk('public')->delete([$clip->file, $clip->posterPath()]);
             }
         });
     }
@@ -42,6 +42,17 @@ class Clip extends Model
     public function exists(): bool
     {
         return $this->file !== '' && Storage::disk('public')->exists($this->file);
+    }
+
+    /** Where the still picture of this clip is (made from the video in the browser: the server has no video tool). */
+    public function posterPath(): string
+    {
+        return self::FOLDER.'/posters/'.pathinfo($this->file, PATHINFO_FILENAME).'.jpg';
+    }
+
+    public function posterUrl(): ?string
+    {
+        return Storage::disk('public')->exists($this->posterPath()) ? Storage::disk('public')->url($this->posterPath()) : null;
     }
 
     public function src(): string
@@ -71,7 +82,7 @@ class Clip extends Model
     {
         $t = $this->target();
 
-        return ['id' => $this->id, 'title' => $this->title, 'blurb' => (string) $this->blurb, 'src' => $this->src(), 'url' => $t[0] ?? '', 'label' => $t[1] ?? ''];
+        return ['id' => $this->id, 'title' => $this->title, 'blurb' => (string) $this->blurb, 'src' => $this->src(), 'poster' => $this->posterUrl(), 'url' => $t[0] ?? '', 'label' => $t[1] ?? ''];
     }
 
     /** Registers the video files that were put in the clips folder by hand. Returns how many are new. */

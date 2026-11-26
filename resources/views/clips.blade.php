@@ -51,7 +51,7 @@
                 @foreach ($clips as $i => $c)
                     <li class="clips__thumb-item" data-clips-item="{{ $i }}" @if ($i >= 6) hidden @endif>
                         <button type="button" class="clips__thumb" data-clips-thumb="{{ $i }}" aria-label="{{ $c['title'] }}">
-                            <video muted playsinline preload="none" data-src="{{ $c['src'] }}" tabindex="-1"></video>
+                            @if ($c['poster'])<img src="{{ $c['poster'] }}" alt="" loading="lazy" decoding="async">@else<video muted playsinline preload="none" data-src="{{ $c['src'] }}" tabindex="-1"></video>@endif
                             <span class="clips__thumb-title">{{ $c['title'] }}</span>
                         </button>
                     </li>

@@ -23,7 +23,7 @@ class MenuClips
         static::$taken = 0;
     }
 
-    /** @return list<array{id: int, title: string, blurb: string, src: string, url: string, label: string}> */
+    /** @return list<array{id: int, title: string, blurb: string, src: string, poster: ?string, url: string, label: string}> */
     public static function next(int $count = self::PER_MENU): array
     {
         if (! SiteControls::on('clips_page')) {

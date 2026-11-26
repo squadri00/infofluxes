@@ -31,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(\Filament\View\PanelsRenderHook::HEAD_END, fn () => new \Illuminate\Support\HtmlString('<style>.if-scroll{overflow-x:auto;white-space:nowrap;scrollbar-width:thin;padding-bottom:3px}.if-scroll--name{max-width:20rem}.if-scroll--path{max-width:15rem}.if-scroll--title{max-width:15rem}.if-scroll--cats{max-width:14rem}.fi-ta-text-input{max-width:5rem}.fi-ta-actions{flex-wrap:nowrap;white-space:nowrap}.fi-ta-content{overflow-x:auto}.fi-ta-table{min-width:0}</style>'))
             // A second horizontal scrollbar above every table that is wider than the screen (kept in step with the one below it).
             ->renderHook(\Filament\View\PanelsRenderHook::BODY_END, fn () => new \Illuminate\Support\HtmlString('<script src="'.e(asset('js/admin-top-scroll.js')).'?v='.(@filemtime(public_path('js/admin-top-scroll.js')) ?: 1).'" defer></script>'))
+            // The Clips screen makes the still pictures of new clips from their videos (in the browser of the person who has the screen open).
+            ->renderHook(\Filament\View\PanelsRenderHook::BODY_END, fn () => auth()->user()?->canPublish() ? new \Illuminate\Support\HtmlString('<script src="'.e(asset('js/admin-clip-posters.js')).'?v='.(@filemtime(public_path('js/admin-clip-posters.js')) ?: 1).'" defer></script>') : '')
             // A "+ Create" button at the top of every screen: an article or a story in pictures, by hand or with the AI.
             ->renderHook(\Filament\View\PanelsRenderHook::USER_MENU_BEFORE, fn () => auth()->user()?->isStaff() ? view('filament.partials.create-menu') : '')
             // A "Go to website" link at the top of every screen, for staff: it opens the public site in a new tab.

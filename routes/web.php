@@ -40,6 +40,12 @@ Route::get('/category/{slug}', CategoryController::class)->name('category.show')
 // The picture gallery: pictures from the whole site, each leading to its page.
 Route::get('/gallery', \App\Http\Controllers\GalleryController::class)->name('gallery');
 
+// The still pictures of the clips are made from the videos in the browser of a moderator, who sends them here.
+Route::middleware('auth')->group(function () {
+    Route::get('/clip-posters', [\App\Http\Controllers\ClipPosterController::class, 'index'])->name('clip-posters');
+    Route::post('/clip-posters/{clip}', [\App\Http\Controllers\ClipPosterController::class, 'store'])->name('clip-posters.store');
+});
+
 // Clips: a big player that plays the video clips one after the other.
 Route::get('/clips', \App\Http\Controllers\ClipsController::class)->name('clips');
 

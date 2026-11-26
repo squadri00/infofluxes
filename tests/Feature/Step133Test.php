@@ -121,6 +121,36 @@ class Step133Test extends TestCase
         $this->assertSame(1, substr_count($html, 'class="mega__clip"'));
     }
 
+    public function test_clip_pictures_are_listed_and_stored_for_a_moderator_only_and_show_in_the_menu_and_on_the_page(): void
+    {
+        $c = $this->clip('pic.mp4');
+        $this->get('/clip-posters')->assertRedirect();                    // not logged in
+
+        $this->actingAs(User::factory()->create(['role' => 'reader', 'status' => 'active']));
+        $this->getJson('/clip-posters')->assertForbidden();
+
+        $this->actingAs(User::factory()->create(['role' => 'superuser', 'status' => 'active']));
+        $this->getJson('/clip-posters')->assertOk()->assertJsonCount(1)->assertJsonPath('0.id', $c->id);
+
+        $jpeg = tempnam(sys_get_temp_dir(), 'p').'.jpg';
+        $im = imagecreatetruecolor(640, 360);
+        imagejpeg($im, $jpeg);
+        $file = new \Illuminate\Http\UploadedFile($jpeg, 'poster.jpg', 'image/jpeg', null, true);
+        $this->post('/clip-posters/'.$c->id, ['picture' => $file], ['Accept' => 'application/json'])->assertOk();
+        Storage::disk('public')->assertExists('clips/posters/pic.jpg');
+        $this->getJson('/clip-posters')->assertOk()->assertJsonCount(0);
+
+        $html = $this->get(route('clips'))->assertOk()->getContent();
+        $this->assertStringContainsString('"poster":"', $html);
+        $this->assertStringContainsString('<img src=', $html);
+
+        $bad = new \Illuminate\Http\UploadedFile(__FILE__, 'poster.jpg', 'image/jpeg', null, true);
+        $this->post('/clip-posters/'.$c->id, ['picture' => $bad], ['Accept' => 'application/json'])->assertStatus(422);
+
+        $c->delete();
+        Storage::disk('public')->assertMissing('clips/posters/pic.jpg');
+    }
+
     public function test_the_page_lists_active_clips_in_order_with_six_thumbnails_per_page_and_a_button_to_the_article(): void
     {
         $article = $this->article('published');
