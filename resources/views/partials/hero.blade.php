@@ -14,12 +14,11 @@
             @if (filled($message->description))
                 <p class="hero__description">{{ $message->description }}</p>
             @endif
-            @php $heroArticles = \App\Support\SiteControls::on('articles_page'); $heroTopics = \App\Support\SiteControls::on('categories_page'); $heroClips = \App\Support\SiteControls::on('clips_page'); @endphp
-            @if ($heroArticles || $heroTopics || $heroClips)
+            @php $heroArticles = \App\Support\SiteControls::on('articles_page'); $heroTopics = \App\Support\SiteControls::on('categories_page'); @endphp
+            @if ($heroArticles || $heroTopics)
                 <p class="hero__actions">
                     @if ($heroArticles)<a class="btn hero__readall" href="{{ route('articles') }}">{{ __('site.articles_read_all') }} &rarr;</a>@endif
                     @if ($heroTopics)<a class="btn hero__topics" href="{{ route('categories') }}">{{ __('site.categories_all') }} &rarr;</a>@endif
-                    @if ($heroClips)<a class="btn hero__clips" href="{{ route('clips') }}">{{ __('site.clips_watch') }} &rarr;</a>@endif
                 </p>
             @endif
         </div>
@@ -50,12 +49,20 @@
                         @else
                             <img src="{{ $still }}" alt="{{ $slide->image_alt }}" @if ($i > 0) loading="lazy" @endif>
                         @endif
-                        @if (filled($slide->heading) || filled($slide->text) || ($link && filled($slide->button_label)))
+                        @php $clipsOn = \App\Support\SiteControls::on('clips_page'); @endphp
+                        @if (filled($slide->heading) || filled($slide->text) || ($link && filled($slide->button_label)) || $clipsOn)
                             <figcaption class="hero__caption">
                                 @if (filled($slide->heading))<h2 class="hero__heading">{{ $slide->heading }}</h2>@endif
                                 @if (filled($slide->text))<p class="hero__text-over">{{ $slide->text }}</p>@endif
-                                @if ($link && filled($slide->button_label))
-                                    <a class="hero__button" href="{{ $link }}" @if ($slide->new_tab) target="_blank" rel="noopener noreferrer" @endif @if ($i > 0) tabindex="-1" @endif>{{ $slide->button_label }}</a>
+                                @if (($link && filled($slide->button_label)) || $clipsOn)
+                                    <div class="hero__buttons">
+                                        @if ($link && filled($slide->button_label))
+                                            <a class="hero__button" href="{{ $link }}" @if ($slide->new_tab) target="_blank" rel="noopener noreferrer" @endif @if ($i > 0) tabindex="-1" @endif>{{ $slide->button_label }}</a>
+                                        @endif
+                                        @if ($clipsOn)
+                                            <a class="hero__button hero__button--clips" href="{{ route('clips') }}" @if ($i > 0) tabindex="-1" @endif>{{ __('site.clips_watch') }}</a>
+                                        @endif
+                                    </div>
                                 @endif
                             </figcaption>
                         @endif

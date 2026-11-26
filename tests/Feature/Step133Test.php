@@ -58,6 +58,20 @@ class Step133Test extends TestCase
         $this->assertStringNotContainsString(route('clips'), $this->get('/')->getContent());
     }
 
+    public function test_the_watch_clips_button_is_on_the_banner_slides_beside_the_slide_button_and_not_in_the_purple_box(): void
+    {
+        $this->article('published');
+        \App\Models\HeroMessage::create(['title' => ['en' => 'Understand first'], 'is_active' => true, 'sort_order' => 1]);
+        $slide = \App\Models\HeroSlide::create(['heading' => ['en' => 'A slide'], 'button_label' => ['en' => 'Read the story'], 'button_url' => '/stories', 'is_active' => true, 'sort_order' => 1, 'media_type' => 'image', 'image' => 'hero/a.webp']);
+        $html = $this->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('hero__button hero__button--clips', $html);
+        $this->assertGreaterThan(strpos($html, 'Read the story'), strpos($html, 'hero__button--clips'));
+        $this->assertStringNotContainsString('hero__clips', $html);
+        Setting::put('ctl_clips', '0');
+        Setting::forget();
+        $this->assertStringNotContainsString('hero__button--clips', $this->get('/')->getContent());
+    }
+
     public function test_the_page_lists_active_clips_in_order_with_six_thumbnails_per_page_and_a_button_to_the_article(): void
     {
         $article = $this->article('published');
