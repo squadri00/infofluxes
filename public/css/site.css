@@ -2950,3 +2950,12 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .all-list__grid .pcard--P .pcard__media { height: auto; aspect-ratio: 16 / 9; }
 .all-list__grid .pcard__title, .all-list__grid .pcard__hook { flex: none; }
 .all-list__grid .pcard__meta { margin-top: auto !important; padding-top: 4px; }
+
+/* Every card grid (home page Featured and Latest, category pages, lists): a card takes the height its words need, so the text under the title is not cut off.
+   A row is at least 176px (a small card), and grows when a tall or wide card needs more. (On a phone the rows already follow the cards.) */
+@media (min-width: 521px) {
+    .mosaic { grid-auto-rows: minmax(176px, auto); }
+}
+.mosaic .pcard--P .pcard__media { height: auto; aspect-ratio: 2 / 1; }
+.mosaic .pcard__title, .mosaic .pcard__hook { flex: none; }
+.mosaic .pcard__meta { margin-top: auto !important; padding-top: 4px; }
