@@ -1,5 +1,5 @@
 /* Clips page: one big player that plays the clips one after the other, and six thumbnails (a page of six at a time).
-   Two players sit on top of each other: while one plays, the other already loads the next clip, and the two cross-fade. So there is no wait between clips. */
+   Two players sit on top of each other: while one plays, the other already loads the next clip, and the two are swapped with a plain cut (no fade, which is easier on the eyes). So there is no wait between clips. */
 (function () {
     var root = document.querySelector('[data-clips]');
     var dataEl = document.getElementById('clips-data');
@@ -9,7 +9,7 @@
     if (!clips.length) { return; }
 
     var PER = 6;
-    var FADE_AT = 0.45;   // seconds before the end when the next clip fades in
+    var FADE_AT = 0.2;    // seconds before the end when the next clip (already loaded) takes over: a plain cut, no fade
     var first = root.querySelector('.clips__video');
     var second = first.cloneNode(false);
     second.removeAttribute('autoplay');
@@ -85,7 +85,7 @@
         sound.setAttribute('aria-pressed', muted ? 'false' : 'true');
     }
 
-    // Puts the back player in front (cross-fade) and starts it.
+    // Puts the back player in front (a plain cut) and starts it.
     function swap() {
         var i = backIndex;
         if (i < 0) { return; }
@@ -109,7 +109,7 @@
         old.setAttribute('aria-hidden', 'true');
         old.tabIndex = -1;
         words(i);
-        setTimeout(function () { if (old !== front) { old.pause(); } }, 700);   // after the fade
+        setTimeout(function () { if (old !== front) { old.pause(); } }, 700);   // when the cut is done
         if (clips.length > 1) { load(wrap(i + 1)); }
         soundLabel();
     }
