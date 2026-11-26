@@ -26,7 +26,7 @@
     @else
         <div class="clips" data-clips data-more="{{ __('site.clips_more') }}">
             <div class="clips__stage">
-                <video class="clips__video" muted playsinline autoplay controls preload="metadata" aria-label="{{ $clips[0]['title'] }}"></video>
+                <video class="clips__video" muted playsinline autoplay preload="metadata" aria-label="{{ $clips[0]['title'] }}"></video>
                 <div class="clips__overlay" data-clips-overlay>
                     <p class="clips__title" data-clips-title></p>
                     <p class="clips__blurb" data-clips-blurb></p>

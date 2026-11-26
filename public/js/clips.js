@@ -13,7 +13,6 @@
     var first = root.querySelector('.clips__video');
     var second = first.cloneNode(false);
     second.removeAttribute('autoplay');
-    second.removeAttribute('controls');
     second.setAttribute('aria-hidden', 'true');
     second.tabIndex = -1;
     first.parentNode.insertBefore(second, first.nextSibling);
@@ -93,19 +92,17 @@
         back.muted = muted;
         back.loop = clips.length === 1;
         var p = back.play();
-        if (p && p.catch) { p.catch(function () { /* the browser wants a press on Play first: the player controls are there */ }); }
+        if (p && p.catch) { p.catch(function () { /* the browser wants a press on the video first */ }); }
         var old = front;
         front = back;
         back = old;
         frontIndex = i;
         backIndex = -1;
         front.classList.add('is-front');
-        front.setAttribute('controls', '');
         front.removeAttribute('aria-hidden');
         front.tabIndex = 0;
         front.setAttribute('aria-label', clips[i].title);
         old.classList.remove('is-front');
-        old.removeAttribute('controls');
         old.setAttribute('aria-hidden', 'true');
         old.tabIndex = -1;
         words(i);
@@ -163,6 +160,10 @@
         v.addEventListener('volumechange', onVolume);
     });
 
+    // No control bar on the video: a press on the video pauses it or plays it again.
+    root.querySelector('.clips__stage').addEventListener('click', function (e) {
+        if (e.target.tagName === 'VIDEO' && e.target === front) { if (front.paused) { front.play(); } else { front.pause(); } }
+    });
     root.querySelector('[data-clips-prev]').addEventListener('click', function () { play(frontIndex - 1); });
     root.querySelector('[data-clips-next]').addEventListener('click', function () { play(frontIndex + 1); });
     root.addEventListener('click', function (e) {

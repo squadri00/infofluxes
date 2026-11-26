@@ -2964,8 +2964,8 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .clips-page { padding-bottom: 2rem; }
 .clips__stage { position: relative; background: #000; border-radius: var(--radius); overflow: hidden; aspect-ratio: 16 / 9; }
 .clips__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; opacity: 0; z-index: 0; pointer-events: none; }
-.clips__video.is-front { opacity: 1; z-index: 1; pointer-events: auto; }
-.clips__overlay { z-index: 2; position: absolute; left: 0; right: 0; bottom: 3.4rem; padding: 2.5rem 1.2rem .6rem; color: #fff; pointer-events: none; }
+.clips__video.is-front { opacity: 1; z-index: 1; pointer-events: auto; cursor: pointer; }
+.clips__overlay { z-index: 2; position: absolute; left: 0; right: 0; bottom: .8rem; padding: 2.5rem 1.2rem .6rem; color: #fff; pointer-events: none; }
 .clips__overlay[hidden] { display: none; }
 .clips__title { margin: 0; font-size: 1.35rem; font-weight: 700; line-height: 1.25; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
 .clips__blurb { margin: .3rem 0 0; max-width: 46rem; font-size: 1rem; line-height: 1.4; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
@@ -2992,7 +2992,7 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
     .clips__thumbs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
     .clips__title { font-size: 1.05rem; }
     .clips__blurb { font-size: .9rem; }
-    .clips__overlay { bottom: 3rem; padding: 1.8rem .8rem .4rem; }
+    .clips__overlay { bottom: .5rem; padding: 1.8rem .8rem .4rem; }
     .clips__arrow { width: 2.3rem; height: 2.3rem; font-size: 1.6rem; }
     .clips__arrow--prev { left: .4rem; }
     .clips__arrow--next { right: .4rem; }
