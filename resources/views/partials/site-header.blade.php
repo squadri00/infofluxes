@@ -91,6 +91,9 @@
                             if (\App\Support\Gallery::on() && \App\Support\SiteControls::on('gallery_header_link')) {
                                 $navTools[] = ['url' => route('gallery'), 'label' => __('site.gallery_nav'), 'current' => request()->routeIs('gallery'), 'attr' => 'data-gallery-link'];
                             }
+                            if (\App\Support\SiteControls::on('clips_page')) {
+                                $navTools[] = ['url' => route('clips'), 'label' => __('site.clips_nav'), 'current' => request()->routeIs('clips'), 'attr' => 'data-clips-link'];
+                            }
                         @endphp
                         @foreach ($navTools as $t)
                             <li class="menu__item menu__item--tool{{ $loop->first ? ' menu__item--tool-first' : '' }}"><a href="{{ $t['url'] }}" {!! $t['attr'] !!} @if ($t['current']) aria-current="page" @endif>{{ $t['label'] }}</a></li>

@@ -345,6 +345,17 @@ return [
         'tips' => ['Download a copy now and then and keep it somewhere else.'],
     ],
     [
+        'key' => 'clips', 'title' => 'Clips', 'group' => 'Content', 'classes' => [\App\Filament\Resources\Clips\ClipResource::class], 'access' => 'publish',
+        'what' => 'The videos of the Clips page (address /clips, the last button of the main menu). The page has one big player that plays the clips one after the other, and six small pictures to choose from.',
+        'steps' => [
+            'Press "New clip". Give it a name, choose the video file (MP4 or WebM), and press Create.',
+            'Optional: "Words shown on the video" is a short line over the bottom of the video. "The button on the video opens" lets you pick one article or one story: visitors who press the button go there.',
+            'Drag the rows to change the order the clips play in. The switch "Shown" leaves a clip off the page without deleting it.',
+            'You can also put video files in the folder storage/app/public/clips of the site. Press "Find new videos" (it also happens when this screen opens) and each new file is listed, ready for you to give it a name, words and a button.',
+        ],
+        'tips' => ['The video starts without sound (browsers do not allow more); the visitor presses "Sound on". When a clip ends the next one starts, and after the last one the first starts again.', 'Deleting a clip deletes its video file too.', 'Short clips (under 30 seconds) at 1280 x 720 or smaller load fast on a phone. A very big file can be refused by the server: the limit is shown under the file box.', 'The page and its menu button can be switched off in Site controls ("The Clips page").'],
+    ],
+    [
         'key' => 'history', 'title' => 'History', 'group' => 'Settings', 'classes' => [ActivityResource::class], 'access' => 'superuser',
         'what' => 'Who changed what and when. A change to a text can be put back.',
         'steps' => ['Filter by kind, person, date or search a name.', '"Details" shows before and after. "Put the old words back" restores the chosen fields.', '"How long to keep the history" sets how many months are kept.'],

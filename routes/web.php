@@ -40,6 +40,9 @@ Route::get('/category/{slug}', CategoryController::class)->name('category.show')
 // The picture gallery: pictures from the whole site, each leading to its page.
 Route::get('/gallery', \App\Http\Controllers\GalleryController::class)->name('gallery');
 
+// Clips: a big player that plays the video clips one after the other.
+Route::get('/clips', \App\Http\Controllers\ClipsController::class)->name('clips');
+
 // Every published article, with a search box and filters.
 Route::get('/articles', \App\Http\Controllers\ArticlesController::class)->name('articles');
 

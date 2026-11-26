@@ -28,6 +28,9 @@ class SitemapController extends Controller
         if (\App\Support\SiteControls::on('categories_page')) {
             $urls[] = [route('categories'), \Illuminate\Support\Carbon::parse(\App\Models\Category::where('is_visible', true)->max('updated_at') ?: now())];
         }
+        if (\App\Support\SiteControls::on('clips_page') && \App\Models\Clip::playable()->exists()) {
+            $urls[] = [route('clips'), \Illuminate\Support\Carbon::parse(\App\Models\Clip::max('updated_at') ?: now())];
+        }
         if (\App\Models\Story::published()->exists()) {
             $urls[] = [route('stories'), \Illuminate\Support\Carbon::parse(\App\Models\Story::published()->max('updated_at'))];
         }

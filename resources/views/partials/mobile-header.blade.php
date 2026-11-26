@@ -54,6 +54,9 @@
             @if (\App\Support\Challenge::anyOn())
                 <li><a href="{{ route('challenge') }}">{{ __('site.challenge') }}</a></li>
             @endif
+            @if (\App\Support\SiteControls::on('clips_page'))
+                <li><a href="{{ route('clips') }}">{{ __('site.clips_nav') }}</a></li>
+            @endif
             @auth
                 @if (\App\Support\Notify::on())
                     @php $unreadNotesM = \App\Support\Notify::unread(auth()->user()); @endphp
