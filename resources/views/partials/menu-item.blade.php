@@ -23,7 +23,7 @@
                 @if (! empty($item['feature']) || ! empty($item['challenge']))
                 <div class="mega__cards">
                 @if (! empty($item['feature']))
-                    @php $f = $item['feature']; $menuClips = \App\Support\MenuClips::next(); @endphp
+                    @php $f = $item['feature']; $menuClips = \App\Support\MenuClips::next($compact ? 1 : 3); @endphp
                     <aside class="mega__card{{ $compact ? ' mega__card--bold' : '' }}{{ $menuClips ? ' mega__card--clips' : '' }}">
                         @if ($f['image'] && ! $menuClips)<a class="mega__card-img" href="{{ $f['url'] }}" tabindex="-1" aria-hidden="true" data-mega-extra><img src="{{ $f['image'] }}" alt="{{ $f['alt'] }}" loading="lazy"></a>@endif
                         <div class="mega__card-body">
@@ -32,7 +32,7 @@
                             <a class="mega__card-button" href="{{ $f['url'] }}" data-mega-extra>{{ $f['button'] }} <span aria-hidden="true">&rarr;</span></a>
                         </div>
                         @if ($menuClips)
-                            <div class="mega__clips" data-mega-clips>
+                            <div class="mega__clips{{ $compact ? ' mega__clips--big' : '' }}" data-mega-clips>
                                 <p class="mega__clips-title">{{ __('site.clips_title') }}</p>
                                 @foreach ($menuClips as $mc)
                                     <a class="mega__clip" href="{{ $mc['url'] }}" data-mega-extra>

@@ -5,7 +5,7 @@ namespace App\Support;
 use App\Models\Clip;
 
 /**
- * The small clips in the open drop-down menus: up to three random clips for each menu, a new pick on every page load.
+ * The clips in the open drop-down menus: up to three random clips for each menu (one big clip in the compact menus), a new pick on every page load.
  * Every menu on the page gets other clips than the one before it, as far as there are enough clips.
  */
 class MenuClips
@@ -24,7 +24,7 @@ class MenuClips
     }
 
     /** @return list<array{id: int, title: string, blurb: string, src: string, url: string, label: string}> */
-    public static function next(): array
+    public static function next(int $count = self::PER_MENU): array
     {
         if (! SiteControls::on('clips_page')) {
             return [];
@@ -35,7 +35,7 @@ class MenuClips
             return [];
         }
         $out = [];
-        $want = min(self::PER_MENU, $n);
+        $want = min($count, $n);
         for ($i = 0; $i < $n && count($out) < $want; $i++) {
             $clip = static::$pool[(static::$taken + $i) % $n];
             if ($clip->exists()) {
@@ -44,7 +44,7 @@ class MenuClips
                 $out[] = $p;
             }
         }
-        static::$taken += self::PER_MENU;
+        static::$taken += $count;
 
         return $out;
     }

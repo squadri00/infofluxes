@@ -108,6 +108,19 @@ class Step133Test extends TestCase
         $this->assertStringNotContainsString('data-mega-clips', $this->get('/')->getContent());
     }
 
+    public function test_a_compact_menu_shows_one_big_clip(): void
+    {
+        $root = Category::create(['name' => ['en' => 'Comparative'], 'slug' => 'comparative', 'custom_data' => ['menu_style' => 'compact']]);
+        Category::create(['name' => ['en' => 'Bible Index'], 'slug' => 'bible-index', 'parent_id' => $root->id]);
+        for ($i = 1; $i <= 4; $i++) {
+            $this->clip("k{$i}.mp4");
+        }
+        \App\Support\MenuClips::forget();
+        $html = $this->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('mega__clips mega__clips--big', $html);
+        $this->assertSame(1, substr_count($html, 'class="mega__clip"'));
+    }
+
     public function test_the_page_lists_active_clips_in_order_with_six_thumbnails_per_page_and_a_button_to_the_article(): void
     {
         $article = $this->article('published');
