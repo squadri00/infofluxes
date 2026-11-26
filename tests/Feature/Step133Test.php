@@ -72,6 +72,19 @@ class Step133Test extends TestCase
         $this->assertStringNotContainsString('hero__button--clips', $this->get('/')->getContent());
     }
 
+    public function test_the_home_page_has_the_letter_rain_and_the_switch_removes_it(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('data-letter-rain', $html);
+        $this->assertStringContainsString('js/letter-rain.js', $html);
+        $this->assertFileExists(public_path('js/letter-rain.js'));
+        $this->assertStringContainsString('prefers-reduced-motion', file_get_contents(public_path('js/letter-rain.js')));
+        $this->get(route('clips'))->assertDontSee('data-letter-rain', false);
+        Setting::put('ctl_home_rain', '0');
+        Setting::forget();
+        $this->get('/')->assertDontSee('data-letter-rain', false);
+    }
+
     public function test_the_page_lists_active_clips_in_order_with_six_thumbnails_per_page_and_a_button_to_the_article(): void
     {
         $article = $this->article('published');

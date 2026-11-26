@@ -7,6 +7,12 @@
 @section('canonical', route('home'))
 
 @section('content')
+@if (\App\Support\SiteControls::on('home_rain'))
+    <canvas class="letter-rain" data-letter-rain aria-hidden="true"></canvas>
+    @push('scripts')
+        <script src="{{ asset('js/letter-rain.js') }}?v={{ @filemtime(public_path('js/letter-rain.js')) ?: 1 }}" defer></script>
+    @endpush
+@endif
 <div class="wrap wrap--wide home">
     @if ($hero)
         @include('partials.hero', ['hero' => $hero])
