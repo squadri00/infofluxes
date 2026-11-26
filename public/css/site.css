@@ -3051,3 +3051,7 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .mega__card--bold { padding: 32px; }
 .menu--main .mega__clips--big a.mega__clip { padding: 0; }
 .mega__card--bold .mega__card-body { width: 100%; }
+
+/* Browse all topics: masonry (public/js/categories.js puts the cards in columns; without JavaScript the plain grid stays). */
+.topics-grid.is-masonry { display: flex; align-items: flex-start; gap: 18px; }
+.topics-grid.is-masonry .topics-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
