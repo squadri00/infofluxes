@@ -85,6 +85,29 @@ class Step133Test extends TestCase
         $this->get('/')->assertDontSee('data-letter-rain', false);
     }
 
+    public function test_the_open_menus_show_up_to_three_random_clips_with_their_links_and_none_without_clips(): void
+    {
+        $root = Category::create(['name' => ['en' => 'About Islam'], 'slug' => 'about-islam', 'description' => ['en' => '<p>What Islam teaches.</p>']]);
+        Category::create(['name' => ['en' => 'The Quran'], 'slug' => 'the-quran', 'parent_id' => $root->id]);
+
+        $this->assertStringNotContainsString('data-mega-clips', $this->get('/')->getContent());
+
+        $article = $this->article('published');
+        for ($i = 1; $i <= 5; $i++) {
+            $this->clip("m{$i}.mp4", $i === 1 ? ['link_type' => 'article', 'article_id' => $article->id] : []);
+        }
+        \App\Support\MenuClips::forget();
+        $html = $this->get('/')->assertOk()->getContent();
+        $this->assertStringContainsString('data-mega-clips', $html);
+        $this->assertSame(3, substr_count($html, 'class="mega__clip"'));
+        $this->assertStringContainsString('menu-clips.js', $html);
+
+        Setting::put('ctl_clips', '0');
+        Setting::forget();
+        \App\Support\MenuClips::forget();
+        $this->assertStringNotContainsString('data-mega-clips', $this->get('/')->getContent());
+    }
+
     public function test_the_page_lists_active_clips_in_order_with_six_thumbnails_per_page_and_a_button_to_the_article(): void
     {
         $article = $this->article('published');

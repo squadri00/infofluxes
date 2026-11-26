@@ -87,6 +87,9 @@
     @endif
     <script src="{{ $ver('js/header.js') }}"></script>
     <script src="{{ $ver('js/mobile-header.js') }}"></script>
+    @if (\App\Support\SiteControls::on('clips_page'))
+        <script src="{{ $ver('js/menu-clips.js') }}" defer></script>
+    @endif
     <script src="{{ $ver('js/search-form.js') }}"></script>
     <script src="{{ $ver('js/to-top.js') }}"></script>
     <script src="{{ $ver('js/view-toggle.js') }}"></script>

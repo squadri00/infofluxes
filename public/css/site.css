@@ -3024,3 +3024,15 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
     .hero:not(.hero--full):not(.hero--media-only) .hero__text::before { transform: translate(30%, 0); }
     .hero:not(.hero--full):not(.hero--media-only) .hero__text::after { transform: translate(-30%, 0); }
 }
+
+/* The small clips in the open drop-down menus (public/js/menu-clips.js). */
+.mega__card--clips { gap: 12px; }
+.mega__clips { display: grid; gap: 10px; }
+.mega__clips-title { margin: 2px 0 0; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.menu--main a.mega__clip { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 12px; align-items: center; padding: 6px; border-radius: 10px; text-decoration: none; color: var(--text); }
+.menu--main a.mega__clip:hover, .menu--main a.mega__clip:focus-visible { background: rgba(128, 128, 128, .16); }
+.mega__clip-media { display: block; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: #000; }
+.mega__clip-media video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.mega__clip-text { min-width: 0; }
+.mega__clip-text strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: .9rem; line-height: 1.25; font-weight: 700; }
+.mega__clip-text small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; font-size: .78rem; line-height: 1.3; color: var(--muted); }
