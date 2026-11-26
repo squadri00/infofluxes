@@ -49,6 +49,15 @@ class Step133Test extends TestCase
         $this->get(route('clips'))->assertOk()->assertSee('No clips yet');
     }
 
+    public function test_the_footer_of_the_home_page_links_to_clips_and_the_switch_removes_it(): void
+    {
+        $this->assertSame(1, substr_count($this->get('/')->getContent(), 'class="site-footer__list"') ? 1 : 0);
+        $this->assertStringContainsString('<li><a href="'.route('clips').'">Clips</a></li>', $this->get('/')->getContent());
+        Setting::put('ctl_clips', '0');
+        Setting::forget();
+        $this->assertStringNotContainsString(route('clips'), $this->get('/')->getContent());
+    }
+
     public function test_the_page_lists_active_clips_in_order_with_six_thumbnails_per_page_and_a_button_to_the_article(): void
     {
         $article = $this->article('published');

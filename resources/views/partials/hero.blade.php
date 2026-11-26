@@ -14,11 +14,12 @@
             @if (filled($message->description))
                 <p class="hero__description">{{ $message->description }}</p>
             @endif
-            @php $heroArticles = \App\Support\SiteControls::on('articles_page'); $heroTopics = \App\Support\SiteControls::on('categories_page'); @endphp
-            @if ($heroArticles || $heroTopics)
+            @php $heroArticles = \App\Support\SiteControls::on('articles_page'); $heroTopics = \App\Support\SiteControls::on('categories_page'); $heroClips = \App\Support\SiteControls::on('clips_page'); @endphp
+            @if ($heroArticles || $heroTopics || $heroClips)
                 <p class="hero__actions">
                     @if ($heroArticles)<a class="btn hero__readall" href="{{ route('articles') }}">{{ __('site.articles_read_all') }} &rarr;</a>@endif
                     @if ($heroTopics)<a class="btn hero__topics" href="{{ route('categories') }}">{{ __('site.categories_all') }} &rarr;</a>@endif
+                    @if ($heroClips)<a class="btn hero__clips" href="{{ route('clips') }}">{{ __('site.clips_watch') }} &rarr;</a>@endif
                 </p>
             @endif
         </div>

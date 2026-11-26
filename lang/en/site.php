@@ -139,6 +139,7 @@ return [
     'gallery_title' => 'Picture gallery',
     'gallery_nav' => 'Picture gallery',
     'clips_nav' => 'Clips',
+    'clips_watch' => 'Watch clips',
     'clips_title' => 'Clips',
     'clips_intro' => 'Short videos, one after the other. Press a small picture to play that clip.',
     'clips_empty' => 'No clips yet. Please come back soon.',

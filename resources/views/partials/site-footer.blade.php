@@ -68,6 +68,9 @@
                     @if (\App\Support\Gallery::on())
                         <li><a href="{{ route('gallery') }}">{{ __('site.gallery_nav') }}</a></li>
                     @endif
+                    @if (\App\Support\SiteControls::on('clips_page'))
+                        <li><a href="{{ route('clips') }}">{{ __('site.clips_nav') }}</a></li>
+                    @endif
                     @if (\App\Models\Faq::active()->exists())
                         <li><a href="{{ route('faq') }}">{{ __('site.faq_short') }}</a></li>
                     @endif
