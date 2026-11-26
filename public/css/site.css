@@ -3059,3 +3059,17 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .topics-grid.is-masonry { display: flex; align-items: flex-start; gap: 18px; }
 .topics-grid.is-masonry .topics-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
 .clips__thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+
+/* Category pictures: a slow zoom while the pointer is on the card (only for devices that can hover; still for people who asked for less motion). */
+.tile__media img, .topics-card__media img, .mega__card-img img { transition: transform 1.4s cubic-bezier(.2, .6, .2, 1); will-change: transform; }
+.topics-card__media, .mega__card-img { overflow: hidden; }
+.mega__card-img { display: block; border-radius: 12px; }
+@media (hover: hover) {
+    .tile:hover .tile__media img, .tile__media:focus-visible img,
+    .topics-card:hover .topics-card__media img, .topics-card__media:focus-visible img,
+    .mega__card:hover .mega__card-img img { transform: scale(1.1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tile__media img, .topics-card__media img, .mega__card-img img { transition: none; }
+    .tile:hover .tile__media img, .topics-card:hover .topics-card__media img, .mega__card:hover .mega__card-img img { transform: none; }
+}
