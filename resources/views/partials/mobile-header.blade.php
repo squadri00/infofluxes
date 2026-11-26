@@ -48,14 +48,27 @@
         @endif
 
         <ul class="m-drawer__list m-drawer__extras">
-            @if (\App\Support\Gallery::on() && \App\Support\SiteControls::on('gallery_header_link'))
+            @php
+                $mGallery = \App\Support\Gallery::on() && \App\Support\SiteControls::on('gallery_header_link');
+                $mClips = \App\Support\SiteControls::on('clips_page');
+            @endphp
+            @if ($mGallery && $mClips)
+                <li>
+                    <details class="m-drawer__group">
+                        <summary>{{ __('site.galleries_nav') }}</summary>
+                        <ul>
+                            <li><a href="{{ route('gallery') }}">{{ __('site.gallery_nav') }}</a></li>
+                            <li><a href="{{ route('clips') }}">{{ __('site.clips_nav') }}</a></li>
+                        </ul>
+                    </details>
+                </li>
+            @elseif ($mGallery)
                 <li><a href="{{ route('gallery') }}">{{ __('site.gallery_nav') }}</a></li>
+            @elseif ($mClips)
+                <li><a href="{{ route('clips') }}">{{ __('site.clips_nav') }}</a></li>
             @endif
             @if (\App\Support\Challenge::anyOn())
                 <li><a href="{{ route('challenge') }}">{{ __('site.challenge') }}</a></li>
-            @endif
-            @if (\App\Support\SiteControls::on('clips_page'))
-                <li><a href="{{ route('clips') }}">{{ __('site.clips_nav') }}</a></li>
             @endif
             @auth
                 @if (\App\Support\Notify::on())

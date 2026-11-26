@@ -3073,3 +3073,7 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
     .tile__media img, .topics-card__media img, .mega__card-img img { transition: none; }
     .tile:hover .tile__media img, .topics-card:hover .topics-card__media img, .mega__card:hover .mega__card-img img { transform: none; }
 }
+/* The Galleries menu (picture gallery and clips) at the end of the main menu: its list opens to the left, and the menu shows it is the current one. */
+.menu--main .menu__item--tool > .menu__drop > summary[aria-current] { background: var(--accent-soft); color: var(--accent); }
+.menu--main .menu__item--tool .menu__sub { left: auto; right: 0; min-width: 190px; }
+.menu--main .menu__item--tool .menu__sub a[aria-current] { background: var(--accent-soft); color: var(--accent); }

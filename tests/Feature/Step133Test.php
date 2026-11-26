@@ -156,6 +156,33 @@ class Step133Test extends TestCase
         Storage::disk('public')->assertMissing('clips/posters/pic.jpg');
     }
 
+    public function test_the_picture_gallery_and_clips_share_one_galleries_menu(): void
+    {
+        $this->article('published');   // the main menu is shown when there is a category
+        $nav = fn () => (preg_match('/<nav class="menu menu--main".*?<\/nav>/s', $this->get('/')->getContent(), $m) ? $m[0] : '');
+
+        $html = $nav();
+        $this->assertMatchesRegularExpression('#<summary[^>]*>Galleries</summary>#', $html);
+        $this->assertStringContainsString('data-gallery-link', $html);
+        $this->assertStringContainsString('data-clips-link', $html);
+        $this->assertSame(1, substr_count($html, 'data-plain'));
+        $this->assertGreaterThan(strpos($html, 'Galleries'), strpos($html, 'data-clips-link'));
+
+        Setting::put('ctl_clips', '0');
+        Setting::forget();
+        $html = $nav();
+        $this->assertStringNotContainsString('Galleries', $html);   // one left: a plain link
+        $this->assertStringContainsString('data-gallery-link', $html);
+
+        Setting::put('ctl_clips', '1');
+        Setting::put('ctl_gallery_header', '0');
+        Setting::forget();
+        $html = $nav();
+        $this->assertStringNotContainsString('Galleries', $html);
+        $this->assertStringContainsString('data-clips-link', $html);
+        $this->assertStringNotContainsString('data-gallery-link', $html);
+    }
+
     public function test_the_page_lists_active_clips_in_order_with_six_thumbnails_per_page_and_a_button_to_the_article(): void
     {
         $article = $this->article('published');

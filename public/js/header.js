@@ -62,6 +62,18 @@
             });
             return out;
         }
+        // A flat drop-down (Galleries): its links by their own names.
+        if (drop && drop.hasAttribute('data-plain')) {
+            Array.prototype.forEach.call(drop.querySelectorAll('.menu__sub a'), function (a) {
+                var li = document.createElement('li');
+                var c = document.createElement('a');
+                c.href = a.getAttribute('href');
+                c.textContent = a.textContent;
+                li.appendChild(c);
+                out.appendChild(li);
+            });
+            return out;
+        }
         var links = drop ? Array.prototype.slice.call(drop.querySelectorAll('.menu__sub a')) : Array.prototype.slice.call(item.querySelectorAll(':scope > a'));
         links.forEach(function (a, i) {
             var li = document.createElement('li');

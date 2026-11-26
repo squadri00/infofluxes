@@ -88,15 +88,35 @@
                             if (\App\Support\Challenge::anyOn()) {
                                 $navTools[] = ['url' => route('challenge'), 'label' => __('site.challenge'), 'current' => request()->routeIs('challenge*'), 'attr' => 'data-challenge-link'];
                             }
+                            // The picture gallery and the clips share one menu, "Galleries". With only one of them on, it is a plain link.
+                            $galleries = [];
                             if (\App\Support\Gallery::on() && \App\Support\SiteControls::on('gallery_header_link')) {
-                                $navTools[] = ['url' => route('gallery'), 'label' => __('site.gallery_nav'), 'current' => request()->routeIs('gallery'), 'attr' => 'data-gallery-link'];
+                                $galleries[] = ['url' => route('gallery'), 'label' => __('site.gallery_nav'), 'current' => request()->routeIs('gallery'), 'attr' => 'data-gallery-link'];
                             }
                             if (\App\Support\SiteControls::on('clips_page')) {
-                                $navTools[] = ['url' => route('clips'), 'label' => __('site.clips_nav'), 'current' => request()->routeIs('clips'), 'attr' => 'data-clips-link'];
+                                $galleries[] = ['url' => route('clips'), 'label' => __('site.clips_nav'), 'current' => request()->routeIs('clips'), 'attr' => 'data-clips-link'];
+                            }
+                            if (count($galleries) === 1) {
+                                $navTools[] = $galleries[0];
+                            } elseif (count($galleries) > 1) {
+                                $navTools[] = ['drop' => $galleries, 'label' => __('site.galleries_nav'), 'current' => collect($galleries)->contains('current', true)];
                             }
                         @endphp
                         @foreach ($navTools as $t)
-                            <li class="menu__item menu__item--tool{{ $loop->first ? ' menu__item--tool-first' : '' }}"><a href="{{ $t['url'] }}" {!! $t['attr'] !!} @if ($t['current']) aria-current="page" @endif>{{ $t['label'] }}</a></li>
+                            <li class="menu__item menu__item--tool{{ $loop->first ? ' menu__item--tool-first' : '' }}">
+                                @if (! empty($t['drop']))
+                                    <details class="menu__drop" data-plain>
+                                        <summary @if ($t['current']) aria-current="page" @endif>{{ $t['label'] }}</summary>
+                                        <ul class="menu__sub">
+                                            @foreach ($t['drop'] as $g)
+                                                <li><a href="{{ $g['url'] }}" {!! $g['attr'] !!} @if ($g['current']) aria-current="page" @endif>{{ $g['label'] }}</a></li>
+                                            @endforeach
+                                        </ul>
+                                    </details>
+                                @else
+                                    <a href="{{ $t['url'] }}" {!! $t['attr'] !!} @if ($t['current']) aria-current="page" @endif>{{ $t['label'] }}</a>
+                                @endif
+                            </li>
                         @endforeach
                     </ul>
                 </nav>
