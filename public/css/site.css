@@ -3003,3 +3003,24 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .hero__button--clips:hover, .hero__button--clips:focus-visible { background: #fff; color: #111827; }
 /* Home page: faint Arabic letters drifting down behind the page (public/js/letter-rain.js). */
 .letter-rain { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+
+/* Dark mode: two spotlights drift over the purple box of the home page and light up its words (public/js/hero-spot.js leans them towards the pointer). */
+:root[data-theme="dark"] { --spot-on: 1; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --spot-on: 1; } }
+.hero:not(.hero--full):not(.hero--media-only) .hero__text { position: relative; overflow: hidden; isolation: isolate; --px: 0; --py: 0; }
+.hero:not(.hero--full):not(.hero--media-only) .hero__text::before,
+.hero:not(.hero--full):not(.hero--media-only) .hero__text::after {
+    content: ""; position: absolute; z-index: 5; pointer-events: none; opacity: var(--spot-on, 0);
+    width: 62%; aspect-ratio: 1 / 1; top: -18%; left: 0; border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255, 248, 225, .95) 0%, rgba(255, 240, 205, .6) 30%, rgba(255, 238, 200, 0) 70%);
+    mix-blend-mode: overlay; transition: opacity .6s ease, translate .9s ease-out;
+}
+.hero:not(.hero--full):not(.hero--media-only) .hero__text::before { animation: spot-a 11s ease-in-out infinite alternate; translate: calc(var(--px) * 46px) calc(var(--py) * 30px); }
+.hero:not(.hero--full):not(.hero--media-only) .hero__text::after { top: auto; bottom: -22%; left: auto; right: 0; width: 54%; animation: spot-b 15s ease-in-out infinite alternate; translate: calc(var(--px) * -34px) calc(var(--py) * -24px); }
+@keyframes spot-a { 0% { transform: translate(-20%, -4%) scale(.95); } 50% { transform: translate(45%, 22%) scale(1.12); } 100% { transform: translate(92%, 4%) scale(1); } }
+@keyframes spot-b { 0% { transform: translate(18%, 4%) scale(1.05); } 50% { transform: translate(-40%, -26%) scale(.92); } 100% { transform: translate(-95%, 2%) scale(1.1); } }
+@media (prefers-reduced-motion: reduce) {
+    .hero:not(.hero--full):not(.hero--media-only) .hero__text::before, .hero:not(.hero--full):not(.hero--media-only) .hero__text::after { animation: none; transition: none; }
+    .hero:not(.hero--full):not(.hero--media-only) .hero__text::before { transform: translate(30%, 0); }
+    .hero:not(.hero--full):not(.hero--media-only) .hero__text::after { transform: translate(-30%, 0); }
+}

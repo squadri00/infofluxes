@@ -16,6 +16,11 @@
 <div class="wrap wrap--wide home">
     @if ($hero)
         @include('partials.hero', ['hero' => $hero])
+        @if ($hero['message'])
+            @push('scripts')
+                <script src="{{ asset('js/hero-spot.js') }}?v={{ @filemtime(public_path('js/hero-spot.js')) ?: 1 }}" defer></script>
+            @endpush
+        @endif
         @if ($hero['slides']->count() > 1 || $hero['slides']->contains(fn ($s) => $s->isVideo()))
             @push('scripts')
                 <script src="{{ asset('js/hero.js') }}?v={{ @filemtime(public_path('js/hero.js')) ?: 1 }}" defer></script>
