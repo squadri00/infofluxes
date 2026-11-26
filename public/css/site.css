@@ -3048,6 +3048,6 @@ a.category-banner__stat:hover, a.category-banner__stat:focus-visible { backgroun
 .mega__clips--big .mega__clip-text strong { font-size: 1rem; -webkit-line-clamp: 3; }
 .mega__clips--big .mega__clip-text small { font-size: .85rem; -webkit-line-clamp: 3; }
 /* The purple card of the compact menus: the same space on every side, and the words, the button and the video on the same inner edges. */
-.mega__card--bold { padding: 26px; }
+.mega__card--bold { padding: 32px; }
 .menu--main .mega__clips--big a.mega__clip { padding: 0; }
 .mega__card--bold .mega__card-body { width: 100%; }
