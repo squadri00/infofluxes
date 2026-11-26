@@ -43,7 +43,7 @@ class QuranRefs
     }
 
     /** @return array{ref: string, surah: int, from: int, to: int, valid: bool, problem: ?string} */
-    private static function judge(int $surah, int $from, int $to): array
+    public static function judge(int $surah, int $from, int $to): array
     {
         $counts = static::counts();
         $ref = $surah.':'.$from.($to !== $from ? '-'.$to : '');

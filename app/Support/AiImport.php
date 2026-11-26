@@ -387,6 +387,14 @@ class AiImport
             }
         }
 
+        // The verse blocks are filled in and checked against the verified Quran text of the site (the Arabic from Tanzil, the English of the default translation).
+        if ($kind === 'article') {
+            $quranCheck = QuranBlocks::check($long);
+            $long = $quranCheck['long'];
+            array_push($warnings, ...$quranCheck['warnings']);
+            array_push($auto, ...$quranCheck['auto']);
+        }
+
         // Verse and hadith blocks: each must be complete.
         $blocks = Html::quoteBlocks($long);
         foreach ($blocks as $bl) {

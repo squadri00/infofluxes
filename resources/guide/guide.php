@@ -13,6 +13,7 @@ use App\Filament\Pages\AiImport;
 use App\Filament\Pages\Backups;
 use App\Filament\Pages\ChallengeSettings;
 use App\Filament\Pages\LinkCheckerPage;
+use App\Filament\Pages\VerseHelper;
 use App\Filament\Pages\MoveFromOldSite;
 use App\Filament\Pages\SiteSettings;
 use App\Filament\Pages\SlideViewerSettings;
@@ -244,6 +245,12 @@ return [
         'what' => 'The rules the AI must follow: the Master rules for every article and one specialist prompt for each kind of subject.',
         'steps' => ['Modify the words of a prompt. "Reset to the original" brings back the first version.', 'Each specialist has "Match words": when a category path holds one of them, that prompt is suggested.'],
         'tips' => ['Only the super user can change them. Change them carefully: every new AI article follows them.'],
+    ],
+    [
+        'key' => 'verse-helper', 'title' => 'Verse helper', 'group' => 'Content', 'classes' => [VerseHelper::class], 'access' => 'import',
+        'what' => 'Gives the verified Arabic and the English of any verse, and a ready verse block to copy into an article. The AI import also uses it to fill in and check the verses of an article.',
+        'steps' => ['Open Tools > Verse helper. Type one or more references, one on each line: 30:30, Surah Ar-Rum 30:30 or 52:35-36.', 'You see the Arabic and the English of each verse, and below them the block to copy. Press Copy the block and paste it into the text of an article, on its own lines, after the sentence that explains the verse.', 'In the AI import, every verse block that has no Arabic gets the verified Arabic. A missing English line is filled from the default translation. If the Arabic or the English in the answer is not the same as the official text, it is NOT changed: the check shows a warning with the reference. A verse that the text only names, with no block, is listed in the please-check points.'],
+        'tips' => ['The Arabic is the Tanzil text (Tanzil.net), kept exactly as it is. Its license asks for the source and a link to tanzil.net, so a verse block made here says Arabic text: Tanzil.net, and the link shows on the article.', 'The English is the translation that was imported (Saheeh International). Only the translations you import are offered. Import a text file in the Tanzil format with php artisan quran:import --translation=file --code=short-name --name="Name of the translation".', 'The Quran text is imported once with php artisan quran:import --arabic=file. The file is checked first: 114 surahs and 6,236 verses, or nothing is imported.'],
     ],
     [
         'key' => 'link-checker', 'title' => 'Link checker', 'group' => 'Content', 'classes' => [LinkCheckerPage::class], 'access' => 'publish',

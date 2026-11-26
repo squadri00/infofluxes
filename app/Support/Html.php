@@ -238,7 +238,7 @@ class Html
         return '<blockquote class="quote quote--'.$kind.'">'
             .($f['ARABIC'] !== '' ? '<p class="quote__ar" dir="rtl" lang="ar">'.e($f['ARABIC']).'</p>' : '')
             .($f['TEXT'] !== '' ? '<p class="quote__text">'.e($f['TEXT']).'</p>' : '')
-            .($f['REF'] !== '' ? '<cite class="quote__ref">'.e($f['REF']).'</cite>' : '')
+            .($f['REF'] !== '' ? '<cite class="quote__ref">'.str_replace('Tanzil.net', '<a href="https://tanzil.net" target="_blank" rel="noopener">Tanzil.net</a>', e($f['REF'])).'</cite>' : '')
             .'</blockquote>';
     }
 
