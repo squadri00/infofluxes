@@ -36,7 +36,7 @@
                                 <p class="mega__clips-title">{{ __('site.clips_title') }}</p>
                                 @foreach ($menuClips as $mc)
                                     <a class="mega__clip" href="{{ $mc['url'] }}" data-mega-extra>
-                                        <span class="mega__clip-media">@if ($mc['poster'])<img src="{{ $mc['poster'] }}" alt="" loading="lazy" decoding="async">@endif<video muted playsinline loop preload="none" tabindex="-1" aria-hidden="true" data-src="{{ $mc['src'] }}" @if (! $mc['poster']) data-first-frame @endif></video></span>
+                                        <span class="mega__clip-media">@if ($mc['poster'])<img data-src="{{ $mc['poster'] }}" alt="" decoding="async">@endif<video muted playsinline loop preload="none" tabindex="-1" aria-hidden="true" data-src="{{ $mc['src'] }}" @if (! $mc['poster']) data-first-frame @endif></video></span>
                                         <span class="mega__clip-text"><strong>{{ $mc['title'] }}</strong>@if ($mc['blurb'] !== '')<small>{{ $mc['blurb'] }}</small>@endif</span>
                                     </a>
                                 @endforeach

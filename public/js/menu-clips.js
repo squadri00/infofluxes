@@ -3,6 +3,10 @@
    A clip that has no still picture yet shows the first moment of its video instead (fetched when its menu opens). */
 (function () {
     function prepare(menu) {
+        // The still pictures are fetched when the menu opens (not before).
+        [].forEach.call(menu.querySelectorAll('.mega__clip img[data-src]'), function (img) {
+            if (!img.getAttribute('src')) { img.src = img.getAttribute('data-src'); }
+        });
         [].forEach.call(menu.querySelectorAll('.mega__clip video[data-first-frame]'), function (v) {
             if (v.getAttribute('src')) { return; }
             v.preload = 'metadata';

@@ -142,7 +142,12 @@ class Step133Test extends TestCase
 
         $html = $this->get(route('clips'))->assertOk()->getContent();
         $this->assertStringContainsString('"poster":"', $html);
-        $this->assertStringContainsString('<img src=', $html);
+        $this->assertStringContainsString('<img src=', $html);   // the Clips page
+        Setting::put('ctl_home_rain', '1');
+        $root = Category::create(['name' => ['en' => 'About Islam'], 'slug' => 'about-islam-p', 'description' => ['en' => '<p>x</p>']]);
+        Category::create(['name' => ['en' => 'The Quran'], 'slug' => 'the-quran-p', 'parent_id' => $root->id]);
+        \App\Support\MenuClips::forget();
+        $this->assertStringContainsString('<img data-src="'.Storage::disk('public')->url('clips/posters/pic.jpg').'"', $this->get('/')->getContent());   // the menu: fetched when it opens
 
         $bad = new \Illuminate\Http\UploadedFile(__FILE__, 'poster.jpg', 'image/jpeg', null, true);
         $this->post('/clip-posters/'.$c->id, ['picture' => $bad], ['Accept' => 'application/json'])->assertStatus(422);
